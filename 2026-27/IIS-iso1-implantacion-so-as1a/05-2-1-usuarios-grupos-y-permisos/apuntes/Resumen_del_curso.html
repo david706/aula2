@@ -1,0 +1,298 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Resumen del curso</title>
+<style>
+  :root{
+    --bg:#f5f2ea; --paper:#ffffff; --ink:#201d17; --ink-soft:#5c574c; --rule:#dcd5c4;
+    --c1:#1f5fa8; --c1-soft:#eaf1fb;
+    --c2:#8a4b9e; --c2-soft:#f3eaf7;
+    --c3:#b5541c; --c3-soft:#fbede1;
+    --c4:#3a7a4e; --c4-soft:#e9f3ec;
+    --c5:#1b7a6b; --c5-soft:#e3f3ef;
+    --c0a:#6b5b1f; --c0a-soft:#f3edd9;
+    --c0b:#7a3f5e; --c0b-soft:#f7e9f0;
+    --c0c:#2e6a7a; --c0c-soft:#e6f1f3;
+    --accent:#201d17; --code-bg:#211e18; --code-fg:#f1ede1; --ok:#3f7a44; --bad:#b5541c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+      --c1:#7badec; --c1-soft:#1c2b3e;
+      --c2:#c69fd6; --c2-soft:#2c2033;
+      --c3:#e8a06f; --c3-soft:#3a2416;
+      --c4:#7fcf98; --c4-soft:#1b3022;
+      --c5:#5fcbb5; --c5-soft:#143027;
+      --c0a:#d9c268; --c0a-soft:#332c13;
+      --c0b:#e3a7c6; --c0b-soft:#331f29;
+      --c0c:#7fc9de; --c0c-soft:#132a30;
+      --accent:#efe9da; --code-bg:#0f0e0a; --code-fg:#eae4d4; --ok:#7fc488; --bad:#e8a06f;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+    --c1:#7badec; --c1-soft:#1c2b3e;
+    --c2:#c69fd6; --c2-soft:#2c2033;
+    --c3:#e8a06f; --c3-soft:#3a2416;
+    --c4:#7fcf98; --c4-soft:#1b3022;
+    --c5:#5fcbb5; --c5-soft:#143027;
+    --c0a:#d9c268; --c0a-soft:#332c13;
+    --c0b:#e3a7c6; --c0b-soft:#331f29;
+    --c0c:#7fc9de; --c0c-soft:#132a30;
+    --accent:#efe9da; --code-bg:#0f0e0a; --code-fg:#eae4d4; --ok:#7fc488; --bad:#e8a06f;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:48px 80px;
+  }
+  h1,h2,h3,.eyebrow,code,.mono{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:780px;margin:0 auto}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 10px}
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(28px,5vw,40px); line-height:1.12; margin:0 0 10px; text-wrap:balance}
+  .sub{color:var(--ink-soft); font-size:16px; line-height:1.5; max-width:64ch; margin:0 0 40px}
+
+  section{margin-bottom:48px}
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:16px}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:24px; margin:0}
+  .section-num{color:var(--ink-soft); font-size:13px}
+
+  /* timeline of topics */
+  .topic{
+    display:grid; grid-template-columns:86px 1fr; gap:16px;
+    padding:18px 0; border-bottom:1px solid var(--rule);
+  }
+  .topic:last-child{border-bottom:none}
+  .topic .tag{
+    font-family:"Fira Code",monospace; font-size:12px; font-weight:600;
+    padding:3px 8px; border-radius:20px; text-align:center; height:fit-content;
+  }
+  .topic .body h3{
+    font-family:"Source Serif 4",Georgia,serif; font-size:17px; margin:0 0 6px;
+  }
+  .topic .body p{font-size:14.5px; line-height:1.6; margin:0 0 8px; color:var(--ink)}
+  .topic .body .ref{font-size:12px; color:var(--ink-soft); font-style:italic}
+  .topic .body .ref b{font-style:normal; color:var(--ink-soft)}
+
+  .t0a .tag{background:var(--c0a-soft); color:var(--c0a)} .t0a{border-left:3px solid var(--c0a); padding-left:14px}
+  .t0b .tag{background:var(--c0b-soft); color:var(--c0b)} .t0b{border-left:3px solid var(--c0b); padding-left:14px}
+  .t0c .tag{background:var(--c0c-soft); color:var(--c0c)} .t0c{border-left:3px solid var(--c0c); padding-left:14px}
+  .t1 .tag{background:var(--c1-soft); color:var(--c1)} .t1{border-left:3px solid var(--c1); padding-left:14px}
+  .t2 .tag{background:var(--c2-soft); color:var(--c2)} .t2{border-left:3px solid var(--c2); padding-left:14px}
+  .t3 .tag{background:var(--c3-soft); color:var(--c3)} .t3{border-left:3px solid var(--c3); padding-left:14px}
+  .t4 .tag{background:var(--c4-soft); color:var(--c4)} .t4{border-left:3px solid var(--c4); padding-left:14px}
+  .t5 .tag{background:var(--c5-soft); color:var(--c5)} .t5{border-left:3px solid var(--c5); padding-left:14px}
+
+  code{background:var(--c1-soft); padding:1px 5px; border-radius:3px; font-size:0.85em}
+
+  /* accordion quiz */
+  .quiz-intro{color:var(--ink-soft); font-size:14.5px; line-height:1.6; max-width:64ch; margin:0 0 20px}
+  .acc{background:var(--paper); border:1px solid var(--rule); border-radius:4px; overflow:hidden}
+  details.q{border-bottom:1px solid var(--rule)}
+  details.q:last-child{border-bottom:none}
+  details.q summary{
+    cursor:pointer; list-style:none; padding:16px 18px; display:flex; gap:12px; align-items:center;
+    font-size:14.5px; font-weight:600; color:var(--ink); user-select:none;
+  }
+  details.q summary::-webkit-details-marker{display:none}
+  details.q summary .num{
+    font-family:"Fira Code",monospace; font-weight:400; font-size:12px; color:var(--ink-soft); flex:none; width:20px;
+  }
+  details.q summary .chevron{margin-left:auto; flex:none; transition:transform .15s ease; color:var(--ink-soft); font-size:12px}
+  details.q[open] summary .chevron{transform:rotate(180deg)}
+  details.q .a{
+    padding:0 18px 18px 50px; font-size:14px; line-height:1.6; color:var(--ink-soft);
+  }
+  details.q .a b{color:var(--ok)}
+  details.q .topic-badge{
+    font-family:"Fira Code",monospace; font-size:10px; text-transform:uppercase; letter-spacing:.04em;
+    padding:2px 6px; border-radius:20px; flex:none;
+  }
+
+  footer{margin-top:50px; padding-top:18px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">ISO · 1º ASIR · Bloque 1 (UD1) + Bloque 2 (UD2, RA2)</p>
+  <h1>Resumen: de la instalación a la red</h1>
+  <p class="sub">Todo lo que lleva el curso hasta ahora, del tema 1 al 2.5, en orden, con la página del libro de la que sale cada cosa. Al final, unas preguntas rápidas para comprobar si ha quedado claro.</p>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>Bloque 1 — Instalación de sistemas operativos</h2></div>
+
+    <div class="topic t0a">
+      <span class="tag">1.1</span>
+      <div class="body">
+        <h3>Qué es un SO y cómo se clasifica</h3>
+        <p>El <b>sistema operativo (SO)</b> es el conjunto de programas y aplicaciones que permiten que el sistema informático funcione, resolviendo una tarea concreta. Según esa tarea, puede ser <b>generalista</b> (la mayoría de los que usas), <b>de servidor</b>, <b>de edición multimedia</b> o <b>de tiempo real</b> (robótica, respuesta ultrarrápida).</p>
+
+        <p style="margin-bottom:6px"><b>Por su estructura</b> (cómo se organiza por dentro):</p>
+        <ul style="margin-bottom:10px">
+          <li><b>Interna</b> — monolítica (todo en un único programa, como los SO originales), jerárquica (capas de acceso y seguridad) o virtualizada (crea hardware "falso" a partir del real).</li>
+          <li><b>Por servicios</b> — mono/multiusuario (uno o varios usuarios a la vez), mono/multitarea (una o varias tareas a la vez), mono/multiproceso (uno o varios procesadores). Los SO actuales son prácticamente todos multiusuario, multitarea y multiproceso.</li>
+          <li><b>Externa</b> — de escritorio (uso normal, con GUI), de servidor (optimizado, a menudo sin GUI = <i>headless</i>) o distribuido (varias máquinas en red funcionando como un único sistema).</li>
+        </ul>
+
+        <p style="margin-bottom:6px"><b>Por su disponibilidad</b> (cómo se accede a él):</p>
+        <ul style="margin-bottom:10px">
+          <li><b>Por precio</b> — gratuito o de pago (y mixto: gratis con soporte técnico de pago, como RedHat).</li>
+          <li><b>Por derechos de propiedad intelectual</b> — libre o privativo, según la legislación aplicable.</li>
+          <li><b>Por acceso al código fuente</b> — abierto (lo desarrolla una comunidad) o cerrado (lo desarrolla una empresa).</li>
+        </ul>
+
+        <p style="margin-bottom:6px"><b>Por su licencia</b> (concretamente en Windows): OEM (viene con el equipo), retail (se compra suelta), por volumen (para empresas/centros educativos) o MSDN (suscripción con acceso a muchos productos Microsoft).</p>
+
+        <p style="margin-bottom:6px"><b>Arquitectura</b> — de dentro a fuera: <i>kernel</i> (gestiona CPU, RAM, E/S) → controladores (comunican con los dispositivos) → servicios del sistema (<i>daemons</i> en Linux) → interfaz de usuario → aplicaciones.</p>
+
+        <p style="margin-bottom:6px"><b>Interfaces</b> — formas de comunicarse con el SO: gráfica (GUI), de línea de comandos (CLI), de texto, y también táctil, de voz, gestual, háptica o neural, según el dispositivo.</p>
+
+        <p style="margin:0">Y la unidad de medida base de toda esta información es el <b>bit</b> (0 o 1); agrupado de 8 en 8 forma un <b>byte</b> — con prefijos binarios (1 KiB = 1.024 B) distintos de los comerciales (1 KB = 1.000 B).</p>
+
+        <p class="ref" style="margin-top:10px"><b>Libro:</b> cap. 1, apdos. 1.2–1.5 (pp. 15–39).</p>
+      </div>
+    </div>
+
+    <div class="topic t0b">
+      <span class="tag">1.2</span>
+      <div class="body">
+        <h3>El proceso de instalación</h3>
+        <p>BIOS vs. UEFI y el gestor/cargador de arranque. Preparar la instalación: descargar la ISO oficial, grabarla en un medio arrancable (Rufus, Clonezilla) y configurar la secuencia de arranque. En Linux hay que decidir familia (Debian, RedHat, SUSE), distro, entorno de escritorio y sabor; en Windows, la versión según el hardware. La instalación desatendida usa un archivo de respuesta (XML en Windows) para no intervenir durante el proceso.</p>
+        <p class="ref"><b>Libro:</b> cap. 2, apdos. 2.2–2.3.4 (pp. 46–65).</p>
+      </div>
+    </div>
+
+    <div class="topic t0c">
+      <span class="tag">1.3</span>
+      <div class="body">
+        <h3>Software, licencias y gestión de paquetes</h3>
+        <p>Tipos de licencia (FOSS vs. propietarias) y tipos de aplicación (usuario final, desarrollador, administrador). Instalar/desinstalar software por GUI (gestor de paquetes o tienda de apps) o por CLI (<code>apt-get install</code>/<code>apt-get remove</code> en Linux; instaladores o <code>winget</code> en Windows). El terminal de comandos es una aplicación más, con ayuda vía <code>man</code>/<code>--help</code> en Linux y <code>/?</code> en Windows.</p>
+        <p class="ref"><b>Libro:</b> cap. 3, apdos. 3.2–3.4 (pp. 81–117). La parte específica de PowerShell como shell de administración de Windows no aparece como apartado propio en este capítulo — es ampliación estándar, no literal del libro.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Bloque 2 — UD2: usuarios, permisos y red</h2></div>
+
+    <div class="topic t1">
+      <span class="tag">2.1</span>
+      <div class="body">
+        <h3>Usuarios, grupos y permisos (Linux)</h3>
+        <p>Crear y administrar cuentas y grupos con <code>adduser</code>/<code>deluser</code>, <code>addgroup</code>/<code>delgroup</code>. Permisos de ficheros con <code>chmod</code> (notación octal: usuario/grupo/otros, lectura=4, escritura=2, ejecución=1) y cambio de propietario con <code>chown</code>/<code>chgrp</code>.</p>
+        <p class="ref"><b>Libro:</b> cap. 5, apdos. 5.2.1–5.2.2 (pp. 155–159) y 5.6.5 (pp. 200–204).</p>
+      </div>
+    </div>
+
+    <div class="topic t2">
+      <span class="tag">2.2</span>
+      <div class="body">
+        <h3>Permisos NTFS (avance)</h3>
+        <p>El equivalente de los permisos de Linux en Windows: lectura, escritura, modificar, control total. Se gestionan desde Propiedades → Seguridad, o por CLI con <code>icacls</code>. Se amplía más adelante en UD5 (herencia, permisos efectivos, combinación con recurso compartido).</p>
+        <p class="ref"><b>Libro:</b> cap. 5, apdo. 5.6.5 (pp. 200–202) — la parte avanzada (permisos efectivos) está en cap. 7, apdo. 7.3.5.</p>
+      </div>
+    </div>
+
+    <div class="topic t3">
+      <span class="tag">2.3</span>
+      <div class="body">
+        <h3>Política de contraseñas</h3>
+        <p>Asegurar el acceso al sistema con reglas automáticas: longitud mínima, caducidad, historial y bloqueo tras intentos fallidos. En Windows con <code>secpol.msc</code> / <code>net accounts</code>; en Linux con <code>passwd</code>, <code>chage</code> y el módulo PAM <code>pam_pwquality</code>.</p>
+        <p class="ref"><b>Libro:</b> cap. 5, apdo. 5.2.3 (pp. 160–166).</p>
+      </div>
+    </div>
+
+    <div class="topic t4">
+      <span class="tag">2.4</span>
+      <div class="body">
+        <h3>Procesos y servicios</h3>
+        <p>Un proceso es un programa en ejecución en un momento dado; un servicio corre siempre en segundo plano. Gestión de procesos con <code>tasklist</code>/<code>taskkill</code> (Windows) y <code>ps</code>/<code>top</code>/<code>kill</code> (Linux). Servicios con <code>services.msc</code>/<code>sc</code> y <code>systemctl</code>/<code>journalctl</code>.</p>
+        <p class="ref"><b>Libro:</b> procesos en cap. 5, apdos. 5.4.4–5.4.5 (pp. 175–180); servicios no aparecen en ese capítulo, son referencia estándar añadida.</p>
+      </div>
+    </div>
+
+    <div class="topic t5">
+      <span class="tag">2.5</span>
+      <div class="body">
+        <h3>Red TCP-IP</h3>
+        <p>Modelo de 4 capas (Aplicación, Transporte, Internet, Interfaz de red). Configuración de IP por DHCP o estática, en Windows por GUI/<code>ipconfig</code> y en Linux editando <code>/etc/network/interfaces</code>. Resolución de nombres con el fichero <code>hosts</code> y DNS.</p>
+        <p class="ref"><b>Libro:</b> cap. 4, apdo. 4.2.3 (pp. 136–142).</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-bottom:0">
+    <div class="section-head"><span class="section-num">03</span><h2>¿Sigues despierto?</h2></div>
+    <p class="quiz-intro">15 preguntas rápidas, de todo lo visto desde el tema 1. Intenta responder antes de abrir cada una.</p>
+
+    <div class="acc">
+      <details class="q">
+        <summary><span class="num">01</span><span class="topic-badge" style="background:var(--c0a-soft);color:var(--c0a)">1.1</span>Windows 11 de escritorio es multiusuario, multitarea y multiproceso. ¿Qué significa cada cosa?</summary>
+        <div class="a"><b>Multiusuario:</b> puede atender a más de un usuario (aunque en Windows de escritorio normalmente uno a la vez con sesiones distintas). <b>Multitarea:</b> ejecuta varios programas a la vez. <b>Multiproceso:</b> puede repartir el trabajo entre varios procesadores/núcleos.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">02</span><span class="topic-badge" style="background:var(--c0a-soft);color:var(--c0a)">1.1</span>¿Cuántos bytes tiene un kilobyte en el sistema binario que usa el SO (no el comercial)?</summary>
+        <div class="a">1 KiB = <b>1.024 bytes</b> (2¹⁰). El valor comercial de 1.000 bytes es el que usan los fabricantes de almacenamiento, de ahí que un disco "de 1 TB" muestre menos capacidad real en el SO.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">03</span><span class="topic-badge" style="background:var(--c0b-soft);color:var(--c0b)">1.2</span>¿Qué diferencia hay entre una imagen clonada y una instalación desatendida con archivo de respuesta?</summary>
+        <div class="a">La imagen clonada escribe directamente los bloques de disco (copia exacta, sin pasar por el proceso de instalación). La instalación desatendida sí ejecuta el proceso de instalación normal, pero usando un archivo de respuesta para contestar automáticamente a las preguntas del asistente.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">04</span><span class="topic-badge" style="background:var(--c0b-soft);color:var(--c0b)">1.2</span>En el ecosistema Linux, ¿qué es un "sabor" (flavour) de una distro?</summary>
+        <div class="a">La combinación de una distro con un entorno de escritorio concreto. Por ejemplo, Ubuntu Studio es un sabor de la distro Ubuntu (familia Debian) orientado a producción multimedia.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">05</span><span class="topic-badge" style="background:var(--c0c-soft);color:var(--c0c)">1.3</span>¿Qué comando instalarías en Debian/Ubuntu para tener a la vez VLC, Firefox y LibreOffice desde CLI?</summary>
+        <div class="a"><b><code>sudo apt-get update && sudo apt-get install -y vlc firefox-esr libreoffice</code></b></div>
+      </details>
+      <details class="q">
+        <summary><span class="num">06</span><span class="topic-badge t1" style="background:var(--c1-soft);color:var(--c1)">2.1</span>¿Qué significa el permiso <code>chmod 640</code> sobre un fichero?</summary>
+        <div class="a">Propietario: lectura+escritura (6) · Grupo: lectura (4) · Otros: nada (0). En letras sería <code>rw-r-----</code>.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">07</span><span class="topic-badge t1" style="background:var(--c1-soft);color:var(--c1)">2.1</span>¿Qué comando usarías en Linux para que el fichero <code>informe.txt</code> pase a pertenecer al grupo <code>profesores</code>?</summary>
+        <div class="a"><b><code>chgrp profesores informe.txt</code></b> (si además quisieras cambiar también el propietario, sería <code>chown usuario:grupo informe.txt</code>).</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">08</span><span class="topic-badge t2" style="background:var(--c2-soft);color:var(--c2)">2.2</span>En Windows, si por recurso compartido tienes "control total" pero por NTFS solo "lectura", ¿qué acceso tienes de verdad al entrar por red?</summary>
+        <div class="a"><b>Solo lectura.</b> Se aplica siempre el permiso más restrictivo entre NTFS y recurso compartido.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">09</span><span class="topic-badge t3" style="background:var(--c3-soft);color:var(--c3)">2.3</span>¿Cuál es la diferencia entre <code>passwd --lock</code> y <code>passwd --expire</code>?</summary>
+        <div class="a"><code>--lock</code> bloquea la cuenta (no se puede cambiar la contraseña ni, en la práctica, iniciar sesión). <code>--expire</code> hace que la contraseña actual caduque, obligando a cambiarla en el próximo inicio de sesión, pero no bloquea la cuenta.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">10</span><span class="topic-badge t3" style="background:var(--c3-soft);color:var(--c3)">2.3</span>¿Qué fichero hay que editar en Ubuntu 24.04 para exigir longitud mínima de contraseña, y qué otro fichero hay que comprobar para que surta efecto?</summary>
+        <div class="a"><code>/etc/security/pwquality.conf</code> (con <code>minlen</code>), y comprobar que <code>/etc/pam.d/common-password</code> incluye la línea con <code>pam_pwquality.so</code>.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">11</span><span class="topic-badge t4" style="background:var(--c4-soft);color:var(--c4)">2.4</span>¿Un proceso y un servicio son lo mismo?</summary>
+        <div class="a"><b>No.</b> Todo servicio, mientras corre, es un proceso — pero no todo proceso es un servicio. Un proceso es cualquier programa en ejecución en ese momento (p. ej. el Bloc de notas que abriste); un servicio está pensado para correr siempre en segundo plano, normalmente arrancando con el sistema.</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">12</span><span class="topic-badge t4" style="background:var(--c4-soft);color:var(--c4)">2.4</span>¿Qué comando usarías en Linux para ver si un servicio arrancará solo al reiniciar el sistema?</summary>
+        <div class="a"><b><code>systemctl is-enabled nombre_servicio</code></b></div>
+      </details>
+      <details class="q">
+        <summary><span class="num">13</span><span class="topic-badge t5" style="background:var(--c5-soft);color:var(--c5)">2.5</span>¿Qué capa del modelo TCP/IP se encarga de la transmisión lógica de datos a través de direcciones IP?</summary>
+        <div class="a">La capa de <b>Internet</b> (equivalente a la capa de Red del modelo OSI).</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">14</span><span class="topic-badge t5" style="background:var(--c5-soft);color:var(--c5)">2.5</span>En Linux, ¿qué fichero decide el orden en el que se consulta primero el archivo <code>hosts</code> y luego el DNS?</summary>
+        <div class="a"><b><code>/etc/nsswitch.conf</code></b> (línea <code>hosts: files dns</code>).</div>
+      </details>
+      <details class="q">
+        <summary><span class="num">15</span><span class="topic-badge t5" style="background:var(--c5-soft);color:var(--c5)">2.5</span>¿Qué comando en Linux sustituye al antiguo <code>ifconfig</code> para ver las IPs asignadas a cada interfaz?</summary>
+        <div class="a"><b><code>ip addr</code></b></div>
+      </details>
+    </div>
+  </section>
+
+  <footer>Resumen del bloque 2 (UD2, RA2) — ISO, 1º ASIR · Referencias de página según Fernández Fidalgo, <i>Implantación de sistemas operativos</i>, Ed. Síntesis.</footer>
+</div>
+
+</body></html>

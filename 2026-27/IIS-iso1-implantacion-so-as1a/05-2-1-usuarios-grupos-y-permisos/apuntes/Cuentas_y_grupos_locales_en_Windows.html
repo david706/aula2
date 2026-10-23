@@ -1,0 +1,155 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Cuentas y grupos locales en Windows</title>
+<style>
+  :root{
+    --bg:#f6f3ec; --paper:#ffffff; --ink:#201d17; --ink-soft:#5c574c; --rule:#dcd5c4;
+    --win:#1f5fa8; --win-soft:#eaf1fb; --accent:#1f5fa8;
+    --code-bg:#211e18; --code-fg:#f1ede1; --warn:#a8721f; --warn-soft:#f6ecd9;
+    --good:#1f7a4d; --good-soft:#e8f5ee;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+      --win:#7badec; --win-soft:#1c2b3e; --accent:#7badec;
+      --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; --warn-soft:#2e2715;
+      --good:#6fd6a4; --good-soft:#132a1f; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+    --win:#7badec; --win-soft:#1c2b3e; --accent:#7badec;
+    --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; --warn-soft:#2e2715;
+    --good:#6fd6a4; --good-soft:#132a1f; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink); margin:0;
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:44px 90px;
+  }
+  h1,h2,h3,.eyebrow,code,pre,.toggle-theme{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:740px;margin:0 auto}
+  .topbar{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0}
+  .toggle-theme{border:1px solid var(--rule); background:var(--paper); color:var(--ink-soft); cursor:pointer; font-size:11px; padding:5px 10px; border-radius:20px; flex:none}
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(27px,5.2vw,38px); line-height:1.14; margin:8px 0 10px; text-wrap:balance}
+  .epigraph{font-family:"Source Serif 4",Georgia,serif; font-style:italic; color:var(--accent); font-size:16.5px; line-height:1.5; max-width:58ch; margin:0 0 20px; border-left:3px solid var(--accent); padding-left:14px}
+  .source{background:var(--warn-soft); border:1px solid var(--rule); border-left:3px solid var(--warn); border-radius:3px; padding:12px 16px; font-size:13px; line-height:1.6; margin-bottom:32px; color:var(--ink-soft)}
+  .source b{color:var(--ink)}
+  section{margin-bottom:38px}
+  .sec-head{display:flex; align-items:baseline; gap:10px; margin-bottom:12px; border-bottom:1px solid var(--rule); padding-bottom:8px}
+  .sec-num{font-family:"Fira Code",monospace; font-size:12px; color:var(--accent); font-weight:700; flex:none}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:21px; margin:0}
+  h3{font-family:"Source Serif 4",Georgia,serif; font-size:16.5px; margin:18px 0 8px}
+  p{font-size:15px; line-height:1.66; margin:0 0 12px}
+  ul,ol{margin:0 0 14px; padding-left:21px}
+  li{font-size:15px; line-height:1.6; margin-bottom:6px}
+  li b{color:var(--ink)}
+  code{background:var(--win-soft); padding:1px 6px; border-radius:3px; font-size:0.87em}
+  pre{background:var(--code-bg); color:var(--code-fg); padding:12px 14px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.55; margin:8px 0}
+  pre code{background:none; padding:0}
+  .panel{background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:16px 18px; margin-bottom:14px}
+  table{width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:13.5px}
+  th,td{border:1px solid var(--rule); padding:8px 10px; text-align:left; vertical-align:top}
+  th{background:var(--win-soft); font-family:"Fira Code",monospace; font-size:11px; text-transform:uppercase; color:var(--ink-soft)}
+  .steps{list-style:none; margin:0 0 16px; padding:0; counter-reset:stp}
+  .steps li{counter-increment:stp; position:relative; padding-left:34px; margin-bottom:10px}
+  .steps li::before{content:counter(stp); position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--paper); font-family:"Fira Code",monospace; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center}
+  details.sol{border:1px solid var(--rule); border-radius:6px; margin:10px 0 4px; background:var(--paper); overflow:hidden}
+  details.sol > summary{cursor:pointer; list-style:none; padding:9px 14px; font-size:13px; font-weight:600; color:var(--good); background:var(--good-soft); display:flex; align-items:center; gap:8px}
+  details.sol > summary::-webkit-details-marker{display:none}
+  details.sol > summary::before{content:"▸"; transition:transform .15s}
+  details.sol[open] > summary::before{transform:rotate(90deg)}
+  details.sol .inner{padding:11px 16px}
+  footer{margin-top:44px; padding-top:16px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <p class="eyebrow">ISO · 1º ASIR</p>
+    <button class="toggle-theme" id="themeBtn" type="button">🌓 tema</button>
+  </div>
+  <h1>Cuentas de usuario y grupos locales en Windows</h1>
+  <p class="epigraph">Planificar quién va a usar el equipo, crear su cuenta, meterla en el grupo correcto y entender qué le pasa a su perfil cuando entra por primera vez.</p>
+
+  <div class="source">📎 Esta ficha es contenido de referencia general (no está citada palabra por palabra del libro de clase) — pensada para dar hoy la teoría mínima antes de la práctica «Usuarios Windows». La ampliaremos con citas del libro cuando haya tiempo.</div>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Planificación: antes de crear nada</h2></div>
+    <p>Antes de abrir ninguna herramienta, hay que decidir:</p>
+    <ul>
+      <li><b>Quién va a usar el equipo</b> — una persona, varias, un aula entera.</li>
+      <li><b>Qué privilegios necesita cada una</b> — ¿puede instalar software y cambiar la configuración (administrador) o solo usar lo que ya está instalado (estándar)?</li>
+      <li><b>Si conviene agruparlas</b> — cuando varias cuentas comparten los mismos permisos, es mejor meterlas en un <b>grupo</b> y dar permisos al grupo, no cuenta por cuenta.</li>
+    </ul>
+    <p>Regla de oro: el principio de <b>mínimo privilegio</b> — cada cuenta debe tener solo los permisos que necesita, ni uno más. La cuenta de administrador se usa lo justo, no para el día a día.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Tipos de cuenta</h2></div>
+    <table>
+      <tr><th>Tipo</th><th>Qué puede hacer</th></tr>
+      <tr><td><b>Administrador</b></td><td>Instalar/desinstalar software, cambiar configuración del sistema, gestionar otras cuentas</td></tr>
+      <tr><td><b>Estándar</b></td><td>Usar programas ya instalados, cambiar su propia configuración personal — no puede tocar el sistema ni otras cuentas</td></tr>
+    </table>
+    <p>Además, una cuenta local puede ser <b>local</b> (solo existe en ese equipo, se gestiona con <code>lusrmgr.msc</code> o <code>net user</code>) o <b>de Microsoft</b> (vinculada a una cuenta en la nube, sincroniza configuración entre equipos). En un entorno de aula o empresa pequeña, lo habitual es trabajar con cuentas <b>locales</b>.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Crear usuarios y grupos locales</h2></div>
+    <h3>Por interfaz gráfica</h3>
+    <p>Herramienta: <b>Administración de equipos</b> → <b>Usuarios y grupos locales</b> (se abre también escribiendo <code>lusrmgr.msc</code> en Ejecutar). Desde ahí: clic derecho en «Usuarios» → Usuario nuevo (nombre, contraseña, opciones de caducidad), y clic derecho en «Grupos» → Grupo nuevo, al que luego se añaden los usuarios como miembros.</p>
+    <h3>Por línea de comandos</h3>
+    <pre><code>net user NOMBRE CONTRASEÑA /add
+net localgroup NOMBREGRUPO /add
+net localgroup NOMBREGRUPO NOMBRE /add</code></pre>
+    <p>El primer comando crea el usuario, el segundo crea el grupo, el tercero añade ese usuario como miembro del grupo.</p>
+    <h3>Grupos locales predefinidos que te vas a encontrar</h3>
+    <ul>
+      <li><b>Administradores</b> — control total del equipo.</li>
+      <li><b>Usuarios</b> — grupo por defecto para las cuentas estándar.</li>
+      <li><b>Usuarios avanzados</b> — heredado de versiones antiguas, hoy casi sin uso real.</li>
+      <li><b>Invitados</b> — acceso muy limitado, normalmente desactivado.</li>
+    </ul>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Perfiles de usuario</h2></div>
+    <p>La primera vez que una cuenta inicia sesión, Windows le crea automáticamente una carpeta de <b>perfil</b> en <code>C:\Users\NOMBRE</code>, con su escritorio, documentos, descargas y configuración personal (apariencia, favoritos del navegador, etc.).</p>
+    <table>
+      <tr><th>Tipo de perfil</th><th>Qué es</th></tr>
+      <tr><td>Perfil local</td><td>Vive solo en ese equipo; si el usuario inicia sesión en otro PC, empieza de cero</td></tr>
+      <tr><td>Perfil móvil / itinerante</td><td>Se guarda en un servidor de la red; el usuario lo recupera igual se siente en el equipo que inicie sesión (típico en entornos de dominio)</td></tr>
+      <tr><td>Perfil obligatorio</td><td>Variante del móvil que no guarda los cambios — el usuario siempre arranca con la misma configuración</td></tr>
+    </table>
+    <p>En un aula sin dominio, lo habitual es que cada cuenta tenga un perfil <b>local</b>: cada equipo, cada perfil independiente.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Ejercicio</h2></div>
+    <p>En vuestra VM Windows: planificad y cread una pequeña estructura — 2 cuentas estándar y 1 administrador, agrupad las estándar en un grupo local nuevo, iniciad sesión con cada una para generar su perfil, y comprobad en <code>C:\Users</code> qué carpetas se han creado.</p>
+    <details class="sol"><summary>Pista si os atascáis</summary><div class="inner"><p>Si al crear el usuario por <code>net user</code> no os deja, comprobad que estáis ejecutando la consola como Administrador (clic derecho → Ejecutar como administrador).</p></div></details>
+  </section>
+
+  <footer>Cuentas de usuario y grupos locales en Windows — ISO, 1º ASIR.</footer>
+</div>
+
+<script>
+(function(){
+  var btn = document.getElementById('themeBtn');
+  var root = document.documentElement;
+  try{ var saved = localStorage.getItem('cw-theme'); if(saved) root.setAttribute('data-theme', saved); }catch(e){}
+  btn.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme');
+    var mql = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next = !current ? (mql ? 'light' : 'dark') : (current === 'dark' ? 'light' : 'dark');
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem('cw-theme', next); }catch(e){}
+  });
+})();
+</script>
+
+</body></html>

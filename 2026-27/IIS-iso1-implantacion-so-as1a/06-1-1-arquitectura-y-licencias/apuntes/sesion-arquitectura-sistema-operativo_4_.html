@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sesión · El sistema informático y la arquitectura del SO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5;
+    --cream-panel:#FFFFFF;
+    --navy:#182A45;
+    --navy-2:#24385A;
+    --orange:#E0813C;
+    --orange-dark:#B85F22;
+    --ink:#22282F;
+    --ink-soft:#5B6470;
+    --line:#DDD5C2;
+    --deep:#182A45;
+    --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+      --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+    --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px 80px;}
+  code,.mono,.term,table th{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+  /* HERO */
+  header.hero{background:var(--deep);color:var(--on-deep);padding:56px 24px 40px;position:relative;overflow:hidden;}
+  header.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 70%);opacity:.35;}
+  .hero-inner{max-width:920px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;}
+  .pill{border:1px solid rgba(243,239,229,.35);color:var(--on-deep);padding:5px 12px;border-radius:999px;font-size:.78rem;}
+  .pill.solid{background:var(--orange);border-color:var(--orange);color:#241305;font-weight:600;}
+  h1{font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.14;margin:0 0 14px;font-weight:700;letter-spacing:-.01em;}
+  .hero-sub{max-width:60ch;color:#D9D2BE;font-size:1.03rem;margin:0;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:26px;margin-top:32px;padding-top:24px;border-top:1px solid rgba(243,239,229,.2);}
+  .hero-meta .label{font-size:.7rem;color:#B8AF97;margin-bottom:4px;}
+  .hero-meta .val{font-size:.95rem;font-weight:600;color:var(--on-deep);}
+
+  /* SECTIONS */
+  section{padding:44px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-weight:600;font-size:.9rem;}
+  .sec-time{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--ink-soft);
+    border:1px solid var(--line);padding:3px 10px;border-radius:999px;white-space:nowrap;}
+  h2{font-size:1.4rem;margin:0;color:var(--navy);font-weight:700;}
+  h3{font-size:1.05rem;color:var(--navy);margin:22px 0 10px;font-weight:600;}
+  p{color:var(--ink);margin:0 0 12px;}
+  .lede{color:var(--ink-soft);font-size:.98rem;max-width:68ch;margin-bottom:18px;}
+
+  /* PROBLEMA */
+  .problem{
+    background:var(--deep); color:var(--on-deep); border-radius:var(--radius);
+    padding:24px 26px; margin:18px 0;
+  }
+  .problem h3{color:var(--on-deep);margin-top:0;}
+  .problem ol{margin:0;padding-left:20px;}
+  .problem ol li{margin-bottom:6px;color:#E7E1D0;}
+  .qlist{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px;}
+  .qlist li{
+    display:flex;gap:10px;align-items:flex-start;
+    background:rgba(243,239,229,.08);border:1px solid rgba(243,239,229,.18);
+    border-radius:8px;padding:9px 12px;font-size:.92rem;color:#F0EBDD;
+  }
+  .qlist li::before{content:"?";flex:0 0 auto;width:20px;height:20px;border-radius:50%;
+    background:var(--orange);color:#241305;font-family:"IBM Plex Mono";font-weight:700;font-size:.72rem;
+    display:flex;align-items:center;justify-content:center;}
+
+  /* CARDS genericas */
+  .card{background:var(--cream-panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0;}
+  @media(max-width:720px){.grid3{grid-template-columns:1fr;}}
+  .grid3 .card h4{margin:0 0 6px;color:var(--navy);font-size:1rem;}
+  .grid3 .card p{font-size:.88rem;color:var(--ink-soft);margin:0;}
+  .grid3 .card .ex{font-size:.82rem;color:var(--ink);margin-top:8px;font-family:"IBM Plex Mono",monospace;}
+
+  /* CHAIN vertical */
+  .chain{display:flex;flex-direction:column;align-items:center;gap:0;margin:20px 0;}
+  .chain .node{
+    background:var(--cream-panel);border:1px solid var(--line);border-radius:10px;
+    padding:10px 20px;font-weight:600;color:var(--navy);min-width:220px;text-align:center;
+  }
+  .chain .arrow{color:var(--orange-dark);font-size:1.1rem;line-height:1;padding:4px 0;}
+
+  /* LAYERS stack (arquitectura) */
+  .layers{display:flex;flex-direction:column;gap:3px;margin:20px 0;border-radius:10px;overflow:hidden;
+    border:1px solid var(--line);}
+  .layer{padding:13px 18px;font-weight:600;font-size:.94rem;display:flex;justify-content:space-between;align-items:center;}
+  .layer small{font-weight:400;font-family:"IBM Plex Mono",monospace;font-size:.72rem;opacity:.85;}
+  .layer.l1{background:#8A97A8;color:#fff;}
+  .layer.l2{background:#5F7089;color:#fff;}
+  .layer.l3{background:#3D5170;color:#fff;}
+  .layer.l4{background:var(--deep);color:var(--on-deep);}
+  .layer.l5{background:var(--orange-dark);color:#241305;}
+  .layer.l6{background:#3A3126;color:#EFE7D2;}
+
+  /* fill-blank case diagram */
+  .fillchain{display:flex;flex-direction:column;align-items:center;gap:2px;margin:14px 0;}
+  .fillchain .step{
+    background:var(--cream-panel);border:1px solid var(--line);border-radius:8px;
+    padding:9px 16px;font-size:.92rem;min-width:200px;text-align:center;color:var(--ink);
+  }
+  .fillchain .step.blank{
+    border:1px dashed var(--orange-dark);color:var(--orange-dark);font-family:"IBM Plex Mono",monospace;font-weight:600;
+  }
+  .fillchain .arrow{color:var(--ink-soft);}
+
+  /* comparativa GUI/CLI + comandos */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+  @media(max-width:680px){.duo{grid-template-columns:1fr;}}
+  .term{background:#1B1F27;color:#DCE4E8;border-radius:8px;padding:12px 14px;font-family:"IBM Plex Mono",monospace;
+    font-size:.83rem;overflow-x:auto;white-space:pre;border:1px solid #2C3341;}
+  .term .c{color:#8FB99A;}
+
+  table.grid{width:100%;border-collapse:collapse;background:var(--cream-panel);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;font-size:.88rem;}
+  table.grid th,table.grid td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);}
+  table.grid th:last-child,table.grid td:last-child{border-right:none;}
+  table.grid thead th{background:var(--deep);color:var(--on-deep);font-size:.72rem;font-weight:600;font-family:"IBM Plex Mono",monospace;}
+  table.grid tbody tr:last-child td{border-bottom:none;}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);}
+
+  /* details / respuesta */
+  details{
+    background:var(--cream-panel);border:1px solid var(--line);border-radius:10px;
+    padding:11px 16px;margin:10px 0;
+  }
+  details summary{cursor:pointer;font-weight:600;color:var(--orange-dark);font-size:.9rem;}
+  details p, details ul{margin-top:10px;}
+
+  /* exit ticket */
+  .ticket{background:var(--deep);color:var(--on-deep);border-radius:var(--radius);padding:22px 24px;}
+  .ticket h3{color:var(--on-deep);margin-top:0;}
+  .ticket ol{padding-left:20px;margin:0;}
+  .ticket ol li{margin-bottom:12px;color:#EDE7D9;}
+  .ticket .warn{display:inline-block;background:rgba(224,129,60,.2);color:var(--orange);
+    border:1px solid rgba(224,129,60,.4);border-radius:999px;padding:3px 11px;font-size:.75rem;margin-bottom:14px;}
+
+  footer{max-width:920px;margin:0 auto;padding:30px 24px 50px;color:var(--ink-soft);font-size:.85rem;}
+  .print-btn{display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 18px;border-radius:8px;font-family:"Space Grotesk";font-size:.88rem;font-weight:600;cursor:pointer;}
+  @media print{header.hero::after{display:none;}.print-btn{display:none;}section{break-inside:avoid;}details{border:1px solid #999;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow-row">
+      <span class="pill solid">Módulo ISO · 0369</span>
+      <span class="pill">1º ASIR</span>
+      <span class="pill">Bloque 1 · Fundamentos</span>
+    </div>
+    <h1>El sistema informático y la arquitectura del SO</h1>
+    <p class="hero-sub">Sesión basada en problemas: partimos de acciones cotidianas (abrir un navegador, guardar un archivo, conectar un pendrive) para descubrir por qué existe un sistema operativo y cómo se organiza por dentro.</p>
+    <div class="hero-meta">
+      <div><div class="label">DURACIÓN TOTAL</div><div class="val">≈ 120 min</div></div>
+      <div><div class="label">FORMATO</div><div class="val">Pregunta → teoría → actividad</div></div>
+      <div><div class="label">CIERRE</div><div class="val">Exit ticket individual</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. PROBLEMA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Punto de partida: un problema</h2><span class="sec-time">10 min</span></div>
+    <p class="lede">Antes de dar ninguna definición, planteamos una secuencia de acciones que todo el mundo reconoce y dejamos que el grupo intente explicarlas.</p>
+
+    <div class="problem">
+      <h3>En tu ordenador, ahora mismo…</h3>
+      <ol>
+        <li>Enciendes el ordenador.</li>
+        <li>Abres Firefox.</li>
+        <li>Ves un vídeo de YouTube.</li>
+        <li>Descargas un PDF.</li>
+        <li>Lo guardas en el SSD.</li>
+        <li>Conectas unos auriculares USB.</li>
+      </ol>
+      <ul class="qlist">
+        <li>¿Firefox controla directamente la CPU?</li>
+        <li>¿YouTube decide dónde colocar los datos en la RAM?</li>
+        <li>¿El programa sabe qué modelo exacto de SSD tienes?</li>
+        <li>¿Cada aplicación debe conocer cómo funciona cada tarjeta de sonido?</li>
+      </ul>
+    </div>
+    <p style="margin-top:14px;">Dejad que el grupo responda y discuta antes de continuar. La conclusión a la que queremos llegar entre todos: <b>ninguna aplicación toca el hardware directamente</b> — algo se encarga de intermediar. Ese "algo" es el sistema operativo.</p>
+  </section>
+
+  <!-- 2. SISTEMA INFORMATICO -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>El sistema informático</h2><span class="sec-time">15 min</span></div>
+    <p class="lede">Un sistema informático está formado por tres grandes componentes.</p>
+
+    <div class="grid3">
+      <div class="card">
+        <h4>Hardware</h4>
+        <p>El soporte físico: CPU, RAM, almacenamiento, dispositivos de E/S, interfaces de red…</p>
+        <div class="ex">No "sabe" que queremos abrir Firefox.</div>
+      </div>
+      <div class="card">
+        <h4>Software</h4>
+        <p>La parte lógica: sistema operativo, aplicaciones, utilidades, controladores, servicios.</p>
+        <div class="ex">Da instrucciones al hardware.</div>
+      </div>
+      <div class="card">
+        <h4>Usuario</h4>
+        <p>Quien utiliza el sistema para conseguir un objetivo concreto.</p>
+        <div class="ex">El propósito de todo lo demás.</div>
+      </div>
+    </div>
+
+    <h3>La relación entre los tres</h3>
+    <div class="chain">
+      <div class="node">USUARIO</div><div class="arrow">↓</div>
+      <div class="node">APLICACIONES</div><div class="arrow">↓</div>
+      <div class="node">SISTEMA OPERATIVO</div><div class="arrow">↓</div>
+      <div class="node">HARDWARE</div>
+    </div>
+
+    <h3>Actividad rápida · ¿Hardware, software o usuario?</h3>
+    <p class="lede" style="margin-bottom:10px;">Clasificad cada elemento: Firefox · SSD NVMe · Administrador del sistema · Windows Server · Tarjeta de red · LibreOffice · Alumno · Ubuntu · Driver NVIDIA · RAM</p>
+    <details>
+      <summary>Ver clasificación y la pregunta trampa</summary>
+      <p><b>Hardware:</b> SSD NVMe, tarjeta de red, RAM.<br>
+      <b>Software:</b> Firefox, Windows Server, LibreOffice, Ubuntu, Driver NVIDIA.<br>
+      <b>Usuario:</b> Administrador del sistema, Alumno.</p>
+      <p><b>Pregunta trampa:</b> ¿dónde pondrías un <i>driver</i>? No es hardware (es código), pero tampoco es una aplicación de usuario — vive en una zona intermedia que retomamos más adelante, en el apartado de drivers.</p>
+    </details>
+  </section>
+
+  <!-- 3. QUE HACE EL SO -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Entonces, ¿qué hace realmente el SO?</h2><span class="sec-time">15 min</span></div>
+    <p class="lede">El sistema operativo administra los recursos del equipo y ofrece una forma organizada de utilizarlos: gestiona usuarios, dispositivos de E/S, procesos, memoria, almacenamiento y comunicaciones, además de seguridad y abstracción.</p>
+
+    <h3>Gestión del procesador</h3>
+    <p>Firefox, LibreOffice, Spotify, el antivirus y las actualizaciones quieren usar la CPU a la vez. <b>¿Quién decide cuál se ejecuta primero?</b> El sistema operativo — no hace falta entrar todavía en planificación de procesos, solo introducir la idea de que alguien reparte el turno.</p>
+
+    <h3>Gestión de memoria</h3>
+    <p>Cuando Firefox necesita memoria, no dice "dame exactamente las celdas físicas 0xA4458–0xB2458": la solicita al SO, que decide dónde colocarla y qué hacer cuando escasea (esto volverá con más detalle cuando veamos monitorización, RAM reservada, caché y paginación).</p>
+
+    <h3>Gestión de almacenamiento</h3>
+    <p>Al hacer <i>Guardar como → trabajo.pdf</i>, LibreOffice no necesita saber el modelo del SSD, el controlador, los sectores físicos ni los comandos NVMe. El SO ofrece una abstracción sencilla:</p>
+    <div class="term">C:\Usuarios\Alumno\Documentos\trabajo.pdf
+/home/alumno/documentos/trabajo.pdf</div>
+  </section>
+
+  <!-- 4. ARQUITECTURA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Arquitectura de un sistema operativo</h2><span class="sec-time">15 min</span></div>
+    <p class="lede">De arriba abajo, cada capa solo habla con la capa inmediatamente inferior.</p>
+
+    <div class="layers">
+      <div class="layer l1">USUARIO</div>
+      <div class="layer l2">APLICACIONES <small>Firefox · LibreOffice · Odoo</small></div>
+      <div class="layer l3">SERVICIOS / API</div>
+      <div class="layer l4">KERNEL <small>CPU · RAM · procesos · E/S</small></div>
+      <div class="layer l5">DRIVERS <small>audio · red · GPU · USB</small></div>
+      <div class="layer l6">HARDWARE</div>
+    </div>
+  </section>
+
+  <!-- 5. KERNEL -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>El kernel</h2><span class="sec-time">10 min</span></div>
+    <p class="lede">Pensadlo como el controlador de tráfico del sistema: el kernel no hace el trabajo de Firefox ni el de LibreOffice, <b>decide cómo esos programas pueden utilizar los recursos disponibles</b>.</p>
+    <p>Gestiona, entre otras cosas: procesador, memoria, entrada/salida, procesos y comunicación con el hardware.</p>
+    <div class="problem" style="padding:16px 20px;">
+      <ul class="qlist" style="margin:0;">
+        <li>Si Firefox se bloquea, ¿debería bloquearse necesariamente todo el ordenador?</li>
+      </ul>
+    </div>
+    <p style="margin-top:12px;">Esta pregunta es la puerta de entrada a los conceptos de <b>aislamiento</b> y <b>protección</b> entre procesos.</p>
+  </section>
+
+  <!-- 6. DRIVERS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Drivers</h2><span class="sec-time">10 min</span></div>
+    <p class="lede">Es la parte que más se suele confundir con el propio SO. Un driver traduce las órdenes genéricas del sistema operativo a las instrucciones concretas que entiende un dispositivo — es el "puente" entre el SO y los periféricos.</p>
+
+    <div class="duo">
+      <div class="fillchain">
+        <div class="step">Word</div><div class="arrow">↓</div>
+        <div class="step">Windows</div><div class="arrow">↓</div>
+        <div class="step">Driver HP</div><div class="arrow">↓</div>
+        <div class="step">Impresora HP</div>
+      </div>
+      <div class="fillchain">
+        <div class="step">Word</div><div class="arrow">↓</div>
+        <div class="step">Windows</div><div class="arrow">↓</div>
+        <div class="step">Driver Epson</div><div class="arrow">↓</div>
+        <div class="step">Impresora Epson</div>
+      </div>
+    </div>
+    <p>Word es el mismo en los dos casos — no necesita código especial para cada impresora. El driver es lo que cambia.</p>
+  </section>
+
+  <!-- 7. ACTIVIDAD POTENTE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Actividad · Completa la cadena</h2><span class="sec-time">20 min</span></div>
+    <p class="lede">Tres casos con huecos por rellenar. Nivel ya propio de ASIR: hay que combinar kernel, driver, sistema de archivos, SO y aplicación.</p>
+
+    <h3>Caso A · Spotify reproduce una canción</h3>
+    <div class="fillchain">
+      <div class="step">Spotify</div><div class="arrow">↓</div>
+      <div class="step blank">?</div><div class="arrow">↓</div>
+      <div class="step">Kernel</div><div class="arrow">↓</div>
+      <div class="step blank">?</div><div class="arrow">↓</div>
+      <div class="step">Tarjeta de sonido</div><div class="arrow">↓</div>
+      <div class="step">Altavoces</div>
+    </div>
+    <details><summary>Ver solución</summary><p>Spotify → <b>Sistema Operativo / Servicios de audio</b> → Kernel → <b>Driver de audio</b> → Tarjeta de sonido → Altavoces.</p></details>
+
+    <h3>Caso B · Guardar un PDF</h3>
+    <div class="fillchain">
+      <div class="step">LibreOffice</div><div class="arrow">↓</div>
+      <div class="step blank">?</div><div class="arrow">↓</div>
+      <div class="step">SSD</div>
+    </div>
+    <details><summary>Ver solución</summary><p>El SO (a través del sistema de archivos) decide dónde guardar, controla el dispositivo, proporciona la ruta lógica y gestiona los permisos de acceso.</p></details>
+
+    <h3>Caso C · Conectar un pendrive</h3>
+    <div class="fillchain">
+      <div class="step">Pendrive</div><div class="arrow">↓</div>
+      <div class="step">USB</div><div class="arrow">↓</div>
+      <div class="step blank">?</div><div class="arrow">↓</div>
+      <div class="step">Explorador de archivos</div>
+    </div>
+    <details><summary>Ver solución</summary><p>Entre medias intervienen: <b>driver USB → kernel → sistema de archivos → SO</b>, que finalmente expone el contenido a la aplicación (el explorador).</p></details>
+  </section>
+
+  <!-- 8. GUI vs CLI -->
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>GUI frente a CLI</h2><span class="sec-time">10 min</span></div>
+    <p class="lede">Solo después de entender la arquitectura tiene sentido hablar de cómo interactuamos con ella.</p>
+    <div class="scrollx">
+      <table class="grid">
+        <thead><tr><th>Dato</th><th>Windows (CLI)</th><th>Linux (CLI)</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre del equipo</td><td class="mono">hostname</td><td class="mono">hostname</td></tr>
+          <tr><td>Info del sistema</td><td class="mono">systeminfo</td><td class="mono">uname -a</td></tr>
+          <tr><td>Procesos activos</td><td class="mono">tasklist</td><td class="mono">ps</td></tr>
+          <tr><td>Configuración de red</td><td class="mono">ipconfig</td><td class="mono">ip addr</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="problem" style="padding:16px 20px;margin-top:16px;">
+      <ul class="qlist" style="margin:0;"><li>¿Por qué un servidor puede no tener entorno gráfico?</li></ul>
+    </div>
+    <p style="margin-top:12px;">Aquí introducimos el concepto de <b>headless</b>: un servidor sin GUI ahorra recursos y se administra igualmente por CLI o de forma remota.</p>
+  </section>
+
+  <!-- 9. MINI PRACTICA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">09</span><h2>Mini práctica final · Radiografía del sistema</h2><span class="sec-time">20 min</span></div>
+    <p class="lede">Sin dar directamente todos los comandos: obtened la siguiente información usando únicamente el terminal. Primero en Windows; después, si hay una máquina Linux disponible, repetidlo allí.</p>
+    <div class="scrollx">
+      <table class="grid">
+        <thead><tr><th>Dato</th><th>Resultado</th><th>Comando utilizado</th></tr></thead>
+        <tbody>
+          <tr><td>Nombre del equipo</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Sistema operativo</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Versión</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Arquitectura</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>Dirección IP</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>5 procesos activos</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px;"><b>Pregunta final:</b> ¿la información obtenida es sobre hardware, sobre software, o sobre ambos?</p>
+  </section>
+
+  <!-- 10. EXIT TICKET -->
+  <section>
+    <div class="sec-head"><span class="sec-num">10</span><h2>Exit ticket</h2><span class="sec-time">5 min</span></div>
+    <div class="ticket">
+      <span class="warn">Sin apuntes</span>
+      <h3>Últimas cinco preguntas, individuales</h3>
+      <ol>
+        <li>¿Qué diferencia hay entre kernel y driver?</li>
+        <li>¿Por qué una aplicación no debería acceder directamente al hardware?</li>
+        <li>Ordena de arriba abajo: Driver · Usuario · Kernel · Hardware · Aplicación.</li>
+        <li>¿Por qué podemos administrar un servidor sin entorno gráfico?</li>
+      </ol>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:18px;">Material de apoyo docente · Bloque 1, Módulo ISO (0369) — Implantación de Sistemas Operativos · 1º ASIR. Le sirve al alumnado como guion de clase y, después, como tema de consulta.</p>
+</footer>
+
+</body>
+</html>

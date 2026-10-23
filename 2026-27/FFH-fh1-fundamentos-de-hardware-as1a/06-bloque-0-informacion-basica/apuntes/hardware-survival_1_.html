@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de Hardware · Binario &amp; Hex</title>
+<style>
+
+/* ============ TOKENS ============ */
+:root{
+  --paper: #eef0f4;
+  --paper-line: #d2d7df;
+  --ink: #12161f;
+  --ink-soft: #4a5162;
+  --petrol-900: #0c1220;
+  --petrol-800: #16203a;
+  --petrol-700: #22325a;
+  --petrol-600: #34498f;
+  --cyan: #5fb4ff;
+  --orange: #b06cf0;
+  --orange-soft: #e6dafa;
+  --panel-radius: 2px;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+@font-face{
+  font-family:'Space Grotesk';
+  src: local('Space Grotesk');
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  background-blend-mode: multiply;
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+img,svg{display:block;max-width:100%;}
+
+/* ============ HERO / BOOT ============ */
+.hero{
+  position:relative;
+  background: radial-gradient(1200px 500px at 20% -10%, var(--petrol-700), var(--petrol-900) 60%);
+  color:#eef1fa;
+  padding: 56px 24px 40px;
+  overflow:hidden;
+  border-bottom: 6px solid var(--orange);
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px;
+  pointer-events:none;
+}
+.hero-inner{ position:relative; max-width: 880px; margin: 0 auto; }
+.kit-tag{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family: var(--mono); font-size: 13px; color: var(--cyan);
+  border: 1px solid rgba(111,199,201,.5);
+  padding: 4px 10px; border-radius: var(--panel-radius);
+  margin-bottom: 22px;
+}
+.hero h1{
+  font-size: clamp(32px, 6vw, 54px);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.hero p.sub{
+  font-size: 18px;
+  color: #c7d0ea;
+  margin: 0 0 32px;
+  max-width: 46ch;
+}
+.boot-log{
+  font-family: var(--mono);
+  font-size: 14px;
+  background: rgba(4,18,21,.8);
+  border: 1px solid rgba(111,199,201,.25);
+  border-radius: var(--panel-radius);
+  padding: 18px 20px;
+  max-width: 460px;
+}
+.boot-log div{ color:#9fd0ff; opacity:0; animation: boot-in .35s ease-out forwards; white-space:nowrap; }
+.boot-log div span.ok{ color:#9fd0ff; float:right; margin-left: 24px;}
+.hero .boot-log div:nth-child(1){animation-delay:.1s}
+.hero .boot-log div:nth-child(2){animation-delay:.4s}
+.hero .boot-log div:nth-child(3){animation-delay:.7s}
+.hero .boot-log div:nth-child(4){animation-delay:1.0s}
+.hero .boot-log div:nth-child(5){animation-delay:1.3s; color:#c9a0f5; font-weight:600;}
+#boss-status.boot-log div{ animation-delay: 0s; }
+#boss-status.boot-log div:nth-child(1){ animation-delay: .05s; }
+#boss-status.boot-log div:nth-child(2){ animation-delay: .30s; }
+#boss-status.boot-log div:nth-child(3){ animation-delay: .55s; }
+#boss-status.boot-log div:nth-child(4){ animation-delay: .80s; }
+#boss-status.boot-log div:nth-child(5){ animation-delay: 1.05s; }
+#boss-status.boot-log div:nth-child(6){ animation-delay: 1.30s; }
+#boss-status.boot-log div:nth-child(7){ animation-delay: 1.55s; }
+@keyframes boot-in{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
+@media (prefers-reduced-motion: reduce){
+  .boot-log div{ animation: none !important; opacity:1 !important; }
+}
+
+/* ============ LEVEL NAV ============ */
+.level-nav{
+  position: sticky; top:0; z-index: 20;
+  background: var(--petrol-900);
+  border-bottom: 1px solid var(--petrol-700);
+  overflow-x:auto;
+}
+.level-nav-inner{
+  display:flex; max-width: 960px; margin:0 auto;
+}
+.level-btn{
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #7a86ab;
+  background: none; border:none; cursor:pointer;
+  padding: 14px 16px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  white-space: nowrap;
+  display:flex; flex-direction:column; gap:2px; align-items:flex-start;
+  border-bottom: 3px solid transparent;
+}
+.level-btn b{ color:#e4e6f5; font-family:var(--sans); font-weight:600; font-size:13px; }
+.level-btn.active{ color: var(--cyan); border-bottom-color: var(--orange); background: rgba(255,255,255,.03); }
+.level-btn.active b{ color:#fff; }
+.level-btn[disabled]{ opacity:.35; cursor:not-allowed; }
+.level-btn .num{ font-size:15px; }
+
+/* ============ LEVEL PANEL ============ */
+.level{ display:none; max-width: 780px; margin: 0 auto; padding: 48px 24px 90px; }
+.level.active{ display:block; }
+
+.level-mark{
+  display:flex; align-items:baseline; gap:14px; margin-bottom: 6px;
+}
+.level-mark .n{
+  font-family: var(--mono); font-size: 44px; color: var(--petrol-800);
+  font-weight:700; line-height:1;
+}
+.level-mark .t{
+  font-family: var(--mono); font-size:13px; letter-spacing: .06em;
+  color: var(--ink-soft);
+}
+.level h2{
+  font-size: clamp(26px, 4vw, 36px);
+  margin: 4px 0 10px;
+  color: var(--petrol-900);
+}
+.level-quote{
+  font-size: 17px;
+  color: var(--ink-soft);
+  border-left: 3px solid var(--orange);
+  padding-left: 16px;
+  margin: 0 0 40px;
+  max-width: 52ch;
+}
+
+/* ---- diagram frame (blueprint) ---- */
+.blueprint{
+  background: var(--petrol-900);
+  border-radius: var(--panel-radius);
+  padding: 22px 18px 18px;
+  margin: 0 0 34px;
+  position:relative;
+}
+.blueprint::before,.blueprint::after{
+  content:""; position:absolute; width:14px; height:14px;
+  border: 2px solid var(--cyan); opacity:.7;
+}
+.blueprint::before{ top:8px; left:8px; border-right:none; border-bottom:none; }
+.blueprint::after{ bottom:8px; right:8px; border-left:none; border-top:none; }
+.blueprint svg{ width:100%; height:auto; }
+.blueprint .cap{
+  font-family: var(--mono); font-size:12px; color: var(--cyan);
+  margin-top:10px; text-align:center; letter-spacing:.04em;
+}
+
+/* ---- command block ---- */
+.block{ margin-bottom: 30px; }
+.block-head{
+  display:flex; align-items:center; gap:10px;
+  font-family: var(--mono); font-size: 13px;
+  color: var(--petrol-800); font-weight:700;
+  letter-spacing: .03em;
+  margin-bottom: 10px;
+}
+.block-head .icon{ font-size:17px; }
+.block p{ margin: 6px 0 12px; color: var(--ink); }
+
+.term{
+  background: var(--petrol-900);
+  color: #dce6fb;
+  font-family: var(--mono);
+  font-size: 14.5px;
+  border-radius: var(--panel-radius);
+  padding: 14px 16px;
+  margin: 0 0 4px;
+  overflow-x:auto;
+}
+.term .ln{ display:flex; gap:10px; flex-wrap:wrap; }
+.term .ln + .ln{ margin-top:2px; }
+.term .prompt{ color: var(--cyan); user-select:none; }
+.term .cmt{ color:#5a5f7a; }
+
+.hint{
+  font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+  border-left: 2px solid var(--paper-line);
+  padding-left:12px; margin: 10px 0 0;
+}
+.hint b{ color: var(--petrol-800); }
+
+/* ---- bit table ---- */
+.bit-table{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:14px; margin: 8px 0 18px; }
+.bit-table th,.bit-table td{ border:1px solid var(--paper-line); padding:8px 6px; text-align:center; }
+.bit-table th{ background: var(--petrol-900); color:#eef1fa; font-weight:600; }
+.bit-table td.on{ background: var(--orange-soft); font-weight:700; color:#5c3d99; }
+
+/* ---- callouts ---- */
+.callout{
+  border-radius: var(--panel-radius);
+  padding: 16px 18px;
+  margin: 26px 0;
+}
+.callout.tip{
+  background: var(--orange-soft);
+  border: 1px solid var(--orange);
+}
+.callout.tip .head{ color:#5c3d99; }
+.callout.note{
+  background: #e6e9fa;
+  border: 1px solid var(--petrol-600);
+}
+.callout.note .head{ color: var(--petrol-800); }
+.callout .head{
+  font-family: var(--mono); font-weight:700; font-size: 13px;
+  display:flex; align-items:center; gap:8px; margin-bottom:8px;
+}
+.callout p{ margin:0; font-size:14.5px; }
+.callout code{ font-family: var(--mono); background: rgba(0,0,0,.06); padding:1px 5px; border-radius:2px; }
+
+/* ---- mission ---- */
+.mission{
+  background: var(--petrol-800);
+  color: #eef1fa;
+  border-radius: var(--panel-radius);
+  padding: 22px 22px 24px;
+  margin: 34px 0 10px;
+  position: relative;
+  border: 1px solid var(--petrol-600);
+}
+.mission .head{
+  font-family: var(--mono); font-size: 13px; color: var(--orange);
+  font-weight:700; letter-spacing:.04em; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.mission p{ margin: 0 0 14px; color:#d8d6f5; font-size:14.5px;}
+.mission .term{ background: rgba(0,0,0,.35); }
+.mission .checklist{ list-style:none; margin:14px 0 0; padding:0; font-family:var(--mono); font-size:13.5px; }
+.mission .checklist li{ padding:5px 0; color:#c2cbea; display:flex; gap:10px; align-items:flex-start;}
+.mission .checklist li::before{ content:"□"; color: var(--cyan); }
+
+/* ---- checkpoint / unlock terminal ---- */
+.checkpoint{
+  background: var(--petrol-900);
+  color: #eef1fa;
+  border: 1px solid var(--orange);
+  border-radius: var(--panel-radius);
+  padding: 22px 22px 24px;
+  margin: 44px 0 10px;
+  position: relative;
+}
+.checkpoint .head{
+  font-family: var(--mono); font-size: 13px; color: var(--orange);
+  font-weight:700; letter-spacing:.04em; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.checkpoint p{ margin: 0 0 14px; color:#d8d6f5; font-size:14.5px; }
+.checkpoint .term{ background: rgba(0,0,0,.35); }
+.cp-input{
+  background: transparent; border: none; border-bottom: 1px solid var(--cyan);
+  color:#eef1fa; font-family: var(--mono); font-size: 14.5px;
+  flex: 1; outline: none; padding: 1px 4px; min-width: 0;
+}
+.cp-input::placeholder{ color: #5a5f7a; }
+.cp-feedback{ font-family: var(--mono); font-size: 13.5px; min-height: 18px; margin-top: 6px; }
+.cp-feedback.ok{ color:#7fd1ff; }
+.cp-feedback.err{ color:#ff8f8a; }
+.cp-btn{
+  font-family: var(--mono); background: var(--orange); color:#1c0f2e;
+  border:none; border-radius: var(--panel-radius); padding: 10px 18px;
+  font-weight:700; cursor:pointer; margin-top: 6px; font-size:13px;
+}
+.cp-btn:hover{ background:#9a52d9; }
+.cp-code{
+  display:none; font-family: var(--mono); font-size:13px;
+  background: rgba(0,0,0,.4); border: 1px dashed var(--orange);
+  padding: 10px 14px; margin-top: 12px; color:#e9d6fb; letter-spacing:.05em;
+}
+
+/* ---- level footer nav ---- */
+.level-footer{
+  margin-top: 54px; padding-top: 24px;
+  border-top: 1px dashed var(--paper-line);
+  display:flex; justify-content:space-between; align-items:center;
+  font-family: var(--mono); font-size:13px; color: var(--ink-soft);
+}
+.level-footer button{
+  font-family: var(--mono); font-size: 13px;
+  background: var(--petrol-800); color:#eef1fa;
+  border:none; border-radius: var(--panel-radius);
+  padding: 10px 16px; cursor:pointer;
+}
+.level-footer button:hover{ background: var(--petrol-700); }
+.level-footer button[disabled]{ opacity:.3; cursor:not-allowed; }
+
+/* ---- calculadora ---- */
+.calc-grid{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+.calc-field{ display:flex; flex-direction:column; gap:6px; }
+.calc-field label{ font-family: var(--mono); font-size: 11px; color: var(--cyan); letter-spacing:.06em; }
+.calc-input{
+  font-family: var(--mono); font-size: 18px; color:#eef1fa;
+  background: rgba(0,0,0,.35); border: 1px solid var(--petrol-600);
+  border-radius: var(--panel-radius); padding: 10px 12px; outline:none;
+}
+.calc-input:focus{ border-color: var(--orange); }
+.calc-bits{ display:flex; flex-wrap:wrap; gap:6px; margin-top: 6px; }
+.calc-bit{
+  width: 36px; height: 36px; border-radius: 3px;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--mono); font-size: 14px; font-weight:700;
+  background: var(--petrol-800); color:#b3bfe0; border:1px solid var(--petrol-600);
+}
+.calc-bit.on{ background: var(--orange); color:#1c0f2e; border-color:#d9b8fa; }
+.calc-bit-col{ display:flex; flex-direction:column; align-items:center; gap:4px; }
+.calc-bit-val{ font-family: var(--mono); font-size:9px; color:#8892c2; }
+
+/* ---- glosario ---- */
+.glossary{ width:100%; border-collapse:collapse; font-size:14.5px; margin-top:10px; }
+.glossary td{ padding:8px 10px; border-bottom:1px solid var(--paper-line); vertical-align:top; }
+.glossary td:first-child{ font-family:var(--mono); font-weight:700; color:var(--petrol-800); width:130px; white-space:nowrap; }
+
+/* ---- solución desplegable ---- */
+details.reveal{
+  margin-top: 10px; font-family: var(--mono); font-size: 13.5px;
+  background: #fbfaf6; border: 1px dashed var(--paper-line);
+  border-radius: var(--panel-radius); padding: 10px 14px;
+}
+details.reveal summary{
+  cursor:pointer; color: var(--petrol-800); font-weight:700; font-size:13px;
+  list-style: none;
+}
+details.reveal summary::-webkit-details-marker{ display:none; }
+details.reveal summary::before{ content:"▸ "; }
+details.reveal[open] summary::before{ content:"▾ "; }
+details.reveal[open] summary{ margin-bottom:8px; }
+details.reveal .step{ color: var(--ink); padding: 2px 0; }
+
+@media (max-width: 620px){
+  .calc-grid{ grid-template-columns: 1fr; }
+  .hero{ padding: 40px 18px 30px; }
+  .boot-log{ font-size:12.5px; max-width:100%; }
+  .level{ padding: 34px 16px 70px; }
+  .bit-table{ font-size:11.5px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kit-tag">🖥️ kit / fundamentos-hardware / v1</span>
+    <h1>Fundamentos de Hardware</h1>
+    <p class="sub">Tu kit para entender lo que hay dentro del chip: binario, hexadecimal, y por qué una CPU "piensa" solo con 0 y 1.</p>
+    <div class="boot-log">
+      <div>Detectando CPU............. <span class="ok">[ OK ]</span></div>
+      <div>Inicializando ALU.......... <span class="ok">[ OK ]</span></div>
+      <div>Probando líneas de bus..... <span class="ok">[ OK ]</span></div>
+      <div>Preparando misión 00....... <span class="ok">[ OK ]</span></div>
+      <div>STATUS: READY_</div>
+    </div>
+  </div>
+</header>
+
+<nav class="level-nav">
+  <div class="level-nav-inner" id="nav"></div>
+</nav>
+
+<!-- ============ LEVEL 00 ============ -->
+<section class="level active" data-level="00">
+  <div class="level-mark"><span class="n">00</span><span class="t">MISIÓN · BOOT</span></div>
+  <h2>El idioma real del hardware</h2>
+  <p class="level-quote">Antes de hablar de bytes y direcciones, hay que entender por qué una máquina solo puede "ver" dos cosas.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="12" fill="#eef1fa">
+        <rect x="25" y="35" width="150" height="70" rx="3" fill="#22325a" stroke="#5fb4ff" stroke-width="1.4"/>
+        <text x="100" y="65" text-anchor="middle" font-size="13">Sin corriente</text>
+        <text x="100" y="85" text-anchor="middle" fill="#c9a0f5" font-weight="700">= 0</text>
+
+        <line x1="175" y1="70" x2="230" y2="70" stroke="#5fb4ff" stroke-width="1.6"/>
+        <text x="200" y="60" text-anchor="middle" font-size="11" fill="#b3bfe0">un transistor</text>
+
+        <rect x="230" y="35" width="150" height="70" rx="3" fill="#b06cf0" stroke="#c9a0f5" stroke-width="1.4"/>
+        <text x="305" y="65" text-anchor="middle" fill="#1c0f2e" font-size="13">Con corriente</text>
+        <text x="305" y="85" text-anchor="middle" fill="#1c0f2e" font-weight="700">= 1</text>
+
+        <rect x="410" y="35" width="130" height="70" rx="3" fill="#16203a" stroke="#3a4568" stroke-dasharray="3 3"/>
+        <text x="475" y="60" text-anchor="middle" font-size="11" fill="#b3bfe0">millones de estos</text>
+        <text x="475" y="78" text-anchor="middle" font-size="11" fill="#b3bfe0">= tu procesador</text>
+      </g>
+    </svg>
+    <div class="cap">Un transistor solo distingue dos estados — apagado o encendido</div>
+  </div>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg">
+      <g stroke="#5fb4ff" stroke-width="1.4" fill="none">
+        <line x1="150" y1="45" x2="150" y2="25"/><line x1="190" y1="45" x2="190" y2="25"/>
+        <line x1="230" y1="45" x2="230" y2="25"/><line x1="270" y1="45" x2="270" y2="25"/>
+        <line x1="310" y1="45" x2="310" y2="25"/><line x1="350" y1="45" x2="350" y2="25"/>
+        <line x1="150" y1="165" x2="150" y2="185"/><line x1="190" y1="165" x2="190" y2="185"/>
+        <line x1="230" y1="165" x2="230" y2="185"/><line x1="270" y1="165" x2="270" y2="185"/>
+        <line x1="310" y1="165" x2="310" y2="185"/><line x1="350" y1="165" x2="350" y2="185"/>
+        <line x1="120" y1="65" x2="100" y2="65"/><line x1="120" y1="90" x2="100" y2="90"/>
+        <line x1="120" y1="115" x2="100" y2="115"/><line x1="120" y1="140" x2="100" y2="140"/>
+        <line x1="380" y1="65" x2="400" y2="65"/><line x1="380" y1="90" x2="400" y2="90"/>
+        <line x1="380" y1="115" x2="400" y2="115"/><line x1="380" y1="140" x2="400" y2="140"/>
+      </g>
+      <rect x="120" y="45" width="260" height="120" rx="4" fill="#16203a" stroke="#5fb4ff" stroke-width="1.8"/>
+      <circle cx="140" cy="63" r="4" fill="#b06cf0"/>
+      <text x="250" y="95" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#eef1fa" font-weight="700">CPU</text>
+      <text x="250" y="118" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#b8c3e8">millones de transistores</text>
+      <text x="250" y="134" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#b8c3e8">empaquetados en un chip</text>
+    </svg>
+    <div class="cap">Cada pin entra o sale en solo dos estados — por eso todo lo que cruza ese chip es binario</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⚡</span> POR QUÉ SOLO 0 Y 1</div>
+    <p>Un chip está hecho de transistores: diminutos interruptores eléctricos. Es mucho más fiable fabricar algo que distinga solo entre "hay voltaje" y "no hay voltaje" que algo que distinga con precisión diez niveles distintos. Por eso toda la electrónica digital se construye sobre <b>dos únicos estados</b>.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔢</span> BIT</div>
+    <p>Un <b>bit</b> (binary digit) es la unidad más pequeña de información: un 0 o un 1. Por sí solo casi no dice nada — el truco está en juntar varios.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📦</span> NIBBLE Y BYTE</div>
+    <p>Un grupo de <b>4 bits</b> se llama <b>nibble</b>. Un grupo de <b>8 bits</b> se llama <b>byte</b>, y es la unidad básica con la que trabaja casi todo el hardware: una dirección de memoria, un carácter de texto, un píxel de color — todo se mide en bytes.</p>
+    <div class="hint"><b>1 byte</b> = 8 bits = 2 nibbles. Con 8 bits puedes representar 256 valores distintos (de 0 a 255) — ni uno más.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔄</span> POR QUÉ HACEN FALTA VARIAS POSICIONES</div>
+    <p>Piensa en el cuentakilómetros de un coche. Cada rueda solo tiene 10 símbolos (0 al 9). Cuando una rueda llega a 9 y tiene que seguir contando, vuelve a 0 y empuja a la rueda de al lado un paso más — por eso después del 9 viene el 10, no un símbolo nuevo. Ese "empujón a la siguiente posición cuando se acaban los símbolos" es exactamente lo que vas a usar para contar en binario y en hexadecimal. La única diferencia es cuántos símbolos tiene cada rueda: 2 en binario, 16 en hexadecimal.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📖</span> VOCABULARIO QUE VAS A NECESITAR</div>
+    <p>No hace falta que memorices esto ahora — solo tenlo cerca, porque va a aparecer todo el rato:</p>
+    <table class="glossary">
+      <tr><td>Base</td><td>Cuántos símbolos distintos usa un sistema para contar. Decimal = base 10 (0 al 9). Binario = base 2 (0 y 1). Hexadecimal = base 16 (0-9 y A-F).</td></tr>
+      <tr><td>Potencia</td><td>Un número multiplicado por sí mismo varias veces: 2³ significa 2×2×2 = 8. Las vas a usar para saber cuánto "vale" cada posición de un número.</td></tr>
+      <tr><td>Resto</td><td>Lo que sobra al dividir dos números. 13 ÷ 2 = 6 y sobra 1 → el resto es 1. Es la pieza clave del nivel 02.</td></tr>
+      <tr><td>Acarreo</td><td>Lo que "te llevas" a la columna de al lado al sumar — igual que cuando sumas 7+8 en decimal y te llevas una a las decenas.</td></tr>
+      <tr><td>Desbordamiento</td><td>Cuando un resultado no cabe en el espacio disponible (por ejemplo, 8 bits) y el bit que sobra se pierde sin más.</td></tr>
+    </table>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO TODAVÍA</div>
+    <p>No hace falta que memorices tablas de conversión de golpe. En los siguientes niveles vas a construir el método paso a paso, y al final lo vas a poder hacer sin pensar — como sumar.</p>
+  </div>
+
+  <div class="level-footer">
+    <button disabled>← inicio</button>
+    <span>NIVEL 00 / 07</span>
+    <button onclick="goTo('01')">01 · Binario →</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 01 ============ -->
+<section class="level" data-level="01">
+  <div class="level-mark"><span class="n">01</span><span class="t">MISIÓN · BINARIO</span></div>
+  <h2>Leer números en base 2</h2>
+  <p class="level-quote">El sistema decimal que usas a diario tiene 10 símbolos. El binario solo tiene 2 — pero funciona con la misma lógica posicional.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔟</span> LO QUE YA SABES, SIN DARTE CUENTA</div>
+    <p>Cuando escribes <b>247</b> en decimal, en realidad estás diciendo: 2×100 + 4×10 + 7×1. Cada posición vale diez veces más que la anterior, porque estás en <b>base 10</b>.</p>
+    <table class="bit-table">
+      <tr><th>Posición</th><td>centenas (100)</td><td>decenas (10)</td><td>unidades (1)</td></tr>
+      <tr><th>Dígito</th><td>2</td><td>4</td><td>7</td></tr>
+      <tr><th>Vale</th><td>2×100=200</td><td>4×10=40</td><td>7×1=7</td></tr>
+    </table>
+    <div class="hint">200 + 40 + 7 = <b>247</b>. Nunca lo piensas así porque lo automatizaste hace años — pero es justo el mecanismo que vas a usar ahora.</div>
+    <p style="margin-top:14px;">El binario es exactamente igual, pero en <b>base 2</b>: cada posición vale el <b>doble</b> que la anterior, no diez veces más. En vez de "centenas, decenas, unidades" tienes "cuatros, doses, unos" (y si hay más bits, "ochos, dieciseises, treintaidoses"...).</p>
+  </div>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="13" fill="#eef1fa" text-anchor="middle">
+        <text x="45" y="30" fill="#b3bfe0" font-size="11">128</text>
+        <text x="115" y="30" fill="#b3bfe0" font-size="11">64</text>
+        <text x="185" y="30" fill="#b3bfe0" font-size="11">32</text>
+        <text x="255" y="30" fill="#b3bfe0" font-size="11">16</text>
+        <text x="325" y="30" fill="#b3bfe0" font-size="11">8</text>
+        <text x="395" y="30" fill="#b3bfe0" font-size="11">4</text>
+        <text x="465" y="30" fill="#b3bfe0" font-size="11">2</text>
+        <text x="535" y="30" fill="#b3bfe0" font-size="11">1</text>
+
+        <rect x="20" y="42" width="50" height="40" rx="2" fill="#16203a" stroke="#3a4568"/>
+        <text x="45" y="67">0</text>
+        <rect x="90" y="42" width="50" height="40" rx="2" fill="#b06cf0" stroke="#c9a0f5"/>
+        <text x="115" y="67" fill="#1c0f2e">1</text>
+        <rect x="160" y="42" width="50" height="40" rx="2" fill="#16203a" stroke="#3a4568"/>
+        <text x="185" y="67">0</text>
+        <rect x="230" y="42" width="50" height="40" rx="2" fill="#16203a" stroke="#3a4568"/>
+        <text x="255" y="67">0</text>
+        <rect x="300" y="42" width="50" height="40" rx="2" fill="#b06cf0" stroke="#c9a0f5"/>
+        <text x="325" y="67" fill="#1c0f2e">1</text>
+        <rect x="370" y="42" width="50" height="40" rx="2" fill="#16203a" stroke="#3a4568"/>
+        <text x="395" y="67">0</text>
+        <rect x="440" y="42" width="50" height="40" rx="2" fill="#16203a" stroke="#3a4568"/>
+        <text x="465" y="67">0</text>
+        <rect x="510" y="42" width="50" height="40" rx="2" fill="#b06cf0" stroke="#c9a0f5"/>
+        <text x="535" y="67" fill="#1c0f2e">1</text>
+      </g>
+    </svg>
+    <div class="cap">01001001 → solo sumas las columnas naranjas: 64 + 8 + 1 = 73</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📐</span> EL MÉTODO: BINARIO → DECIMAL</div>
+    <p>Escribe debajo de cada bit su valor posicional (128, 64, 32, 16, 8, 4, 2, 1 — empezando por la derecha). Suma solo las posiciones donde hay un <b>1</b>. Los ceros no aportan nada a la suma — ignóralos.</p>
+    <table class="bit-table">
+      <tr><th>128</th><th>64</th><th>32</th><th>16</th><th>8</th><th>4</th><th>2</th><th>1</th></tr>
+      <tr><td>0</td><td class="on">1</td><td>0</td><td>0</td><td class="on">1</td><td>0</td><td>0</td><td class="on">1</td></tr>
+    </table>
+    <div class="hint">64 + 8 + 1 = <b>73</b>. Ese es el número decimal que representa <code style="font-family:var(--mono)">01001001</code>.</div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p>No memorices la tabla de posiciones: cada casilla vale el doble de la anterior. Empieza en 1 y ve duplicando hacia la izquierda — 1, 2, 4, 8, 16, 32, 64, 128 — hasta llenar tantas posiciones como bits tengas.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧮</span> PRACTICA</div>
+    <p>Convierte <code style="font-family:var(--mono)">1011</code> a decimal. Pista: solo necesitas 4 posiciones — 8, 4, 2, 1.</p>
+    <table class="bit-table">
+      <tr><th>8</th><th>4</th><th>2</th><th>1</th></tr>
+      <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+    </table>
+    <details class="reveal">
+      <summary>Ver solución paso a paso</summary>
+      <div class="step">Bit en 8 → hay un 1 → suma 8</div>
+      <div class="step">Bit en 4 → hay un 0 → no suma nada</div>
+      <div class="step">Bit en 2 → hay un 1 → suma 2</div>
+      <div class="step">Bit en 1 → hay un 1 → suma 1</div>
+      <div class="step">8 + 0 + 2 + 1 = <b>11</b></div>
+    </details>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 01</div>
+    <p>Convierte a mano estos tres binarios a decimal, sumando solo las posiciones con 1:</p>
+    <div class="term">
+      <div class="ln"><span>1101</span><span class="cmt"># 8+4+0+1</span></div>
+      <div class="ln"><span>0110</span><span class="cmt"># 0+4+2+0</span></div>
+      <div class="ln"><span>10000000</span><span class="cmt"># solo el bit más a la izquierda</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Escribiste las potencias de 2 encima de cada bit antes de sumar</li>
+      <li>Comprobaste que 11111111 (8 unos) da 255 — el máximo de un byte</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>¿A qué número decimal equivale el binario <code>1011</code>?</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">bin&gt;</span>
+        <input type="text" id="cp01-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el número decimal..."
+               onkeydown="if(event.key==='Enter') checkConversion('01', 10, 11, 'HW-2F91-01');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('01', 10, 11, 'HW-2F91-01')">Verificar</button>
+    <div class="cp-feedback" id="cp01-feedback"></div>
+    <div class="cp-code" id="cp01-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('00')">← 00 · Boot</button>
+    <span>NIVEL 01 / 07</span>
+    <button id="footer-next-02" data-requires="02" disabled>02 · Decimal → Binario 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 02 ============ -->
+<section class="level" data-level="02">
+  <div class="level-mark"><span class="n">02</span><span class="t">MISIÓN · DECIMAL → BINARIO</span></div>
+  <h2>El camino de vuelta</h2>
+  <p class="level-quote">Saber leer binario es la mitad. La otra mitad es poder escribirlo tú, partiendo de un número normal.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🤔</span> POR QUÉ FUNCIONA DIVIDIR ENTRE 2</div>
+    <p>La última posición del binario (la de "unos") solo puede ser 0 o 1 — y eso es exactamente lo mismo que preguntar "¿este número es par o impar?". Un resto de <b>0</b> al dividir entre 2 significa par (el último bit es 0); un resto de <b>1</b> significa impar (el último bit es 1). Al dividir entre 2 otra vez, le haces la misma pregunta a la <em>siguiente</em> posición — y así sucesivamente. Por eso los restos, leídos del último al primero, te dan el número completo.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">➗</span> MÉTODO: DIVISIONES SUCESIVAS</div>
+    <p>Divide el número entre 2 una y otra vez, anotando el resto (0 o 1) de cada división. Cuando llegues a 0, lee los restos <b>de abajo hacia arriba</b>: ese es tu número en binario.</p>
+    <div class="term">
+      <div class="ln"><span>13 ÷ 2 = 6</span><span class="cmt"># resto 1</span></div>
+      <div class="ln"><span> 6 ÷ 2 = 3</span><span class="cmt"># resto 0</span></div>
+      <div class="ln"><span> 3 ÷ 2 = 1</span><span class="cmt"># resto 1</span></div>
+      <div class="ln"><span> 1 ÷ 2 = 0</span><span class="cmt"># resto 1</span></div>
+    </div>
+    <div class="hint">Leyendo los restos de abajo a arriba: <b>1101</b>. Compruébalo al revés con lo que aprendiste en el nivel anterior: 8+4+0+1 = 13. ✔</div>
+    <details class="reveal">
+      <summary>Ver un segundo ejemplo completo (20 → binario)</summary>
+      <div class="step">20 ÷ 2 = 10, resto 0</div>
+      <div class="step">10 ÷ 2 = 5, resto 0</div>
+      <div class="step">5 ÷ 2 = 2, resto 1</div>
+      <div class="step">2 ÷ 2 = 1, resto 0</div>
+      <div class="step">1 ÷ 2 = 0, resto 1</div>
+      <div class="step">Restos de abajo a arriba: <b>10100</b></div>
+      <div class="step">Comprobación: 16+0+4+0+0 = 20 ✔</div>
+    </details>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR — SIN DIVIDIR</div>
+    <p>Para números pequeños es más rápido "restar potencias de 2" de mayor a menor: si el número es ≥ a la potencia, pon un 1 y réstala; si no, pon un 0 y pasa a la siguiente. Con 13: ¿≥8? sí (1), quedan 5. ¿≥4? sí (1), quedan 1. ¿≥2? no (0). ¿≥1? sí (1). Resultado: 1101.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">💾</span> POR QUÉ IMPORTA EN HARDWARE</div>
+    <p>Cuando un sistema reserva "8 bits para este valor", ese valor solo puede moverse entre <b>0 y 255</b>. Si un contador de hardware llega a 255 y le pides que sume uno más, no puede — vuelve a 0. Esto se llama <b>desbordamiento (overflow)</b> y es una fuente real de errores en electrónica y en programación de bajo nivel.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>No memorices resultados de conversión — memoriza el método. Con divisiones sucesivas puedes convertir cualquier número, sin importar el tamaño.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 02</div>
+    <p>Convierte estos decimales a binario usando divisiones sucesivas, en papel:</p>
+    <div class="term">
+      <div class="ln"><span>9</span></div>
+      <div class="ln"><span>20</span></div>
+      <div class="ln"><span>100</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Anotaste el resto de cada división antes de seguir dividiendo</li>
+      <li>Leíste los restos de abajo hacia arriba al final</li>
+    </ul>
+    <details class="reveal">
+      <summary>Ver soluciones</summary>
+      <div class="step">9 → <b>1001</b></div>
+      <div class="step">20 → <b>10100</b> (ya lo viste resuelto arriba)</div>
+      <div class="step">100 → <b>1100100</b></div>
+    </details>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Convierte el decimal <code>26</code> a binario.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">dec&gt;</span>
+        <input type="text" id="cp02-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el binario, ej: 1010..."
+               onkeydown="if(event.key==='Enter') checkConversion('02', 2, 26, 'HW-8C4D-02');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('02', 2, 26, 'HW-8C4D-02')">Verificar</button>
+    <div class="cp-feedback" id="cp02-feedback"></div>
+    <div class="cp-code" id="cp02-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('01')">← 01 · Binario</button>
+    <span>NIVEL 02 / 07</span>
+    <button id="footer-next-03" data-requires="03" disabled>03 · Hexadecimal 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 03 ============ -->
+<section class="level" data-level="03">
+  <div class="level-mark"><span class="n">03</span><span class="t">MISIÓN · HEXADECIMAL</span></div>
+  <h2>Un binario más corto de leer</h2>
+  <p class="level-quote">Nadie lee direcciones de memoria en binario — son demasiado largas. Por eso existe el hexadecimal.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🤔</span> POR QUÉ EXISTE</div>
+    <p>Un byte en binario son 8 caracteres: <code style="font-family:var(--mono)">01001001</code>. Escribir y leer eso constantemente es lento y fácil de equivocar. El <b>hexadecimal (base 16)</b> agrupa los bits de 4 en 4 (un nibble) y les da un único símbolo — así un byte entero se escribe con solo <b>2 caracteres</b>.</p>
+    <p>Recuerda el cuentakilómetros del nivel 00: aquí cada "rueda" tiene 16 símbolos en vez de 10. Por eso necesita préstamos de más símbolos que los dígitos normales — y ahí entran las letras.</p>
+  </div>
+
+  <table class="bit-table">
+    <tr><th>Decimal</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+    <tr><th>Hex</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td class="on">A</td><td class="on">B</td><td class="on">C</td><td class="on">D</td><td class="on">E</td><td class="on">F</td></tr>
+  </table>
+  <div class="hint">Como base 16 necesita 16 símbolos y solo hay 10 dígitos, se usan las letras <b>A–F</b> para los valores del 10 al 15.</div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📐</span> HEXADECIMAL → DECIMAL</div>
+    <p>Funciona igual que el binario, pero cada posición vale 16 veces la anterior en vez de 2. Para un número de dos dígitos: (primer dígito × 16) + segundo dígito.</p>
+    <div class="term">
+      <div class="ln"><span>2F</span><span class="cmt"># 2×16 + F(15) = 32+15</span></div>
+      <div class="ln"><span>= 47</span></div>
+    </div>
+    <details class="reveal">
+      <summary>Ver un segundo ejemplo completo (0x3D → decimal)</summary>
+      <div class="step">Primer dígito: 3 → vale 3×16 = 48</div>
+      <div class="step">Segundo dígito: D → vale 13 (letra D = 13)</div>
+      <div class="step">48 + 13 = <b>61</b></div>
+    </details>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🏷️</span> CÓMO SE ESCRIBE EN CÓDIGO Y MANUALES</div>
+    <p>Para que no se confunda con un número decimal, el hexadecimal suele llevar el prefijo <code style="font-family:var(--mono)">0x</code>. <code style="font-family:var(--mono)">0x2F</code> es el mismo 47 de arriba, escrito como lo verías en un manual técnico o en el código de un firmware.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p>Para pasar de hexadecimal a decimal sin dudar, memoriza solo las letras: A=10, B=11, C=12, D=13, E=14, F=15. El resto son los mismos dígitos que ya conoces.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>No hace falta que memorices conversiones de números grandes de cabeza. En el trabajo real, hasta los técnicos usan una calculadora en modo programador — lo que tienes que entender es <em>qué</em> representa cada dígito.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 03</div>
+    <p>Convierte estos hexadecimales a decimal:</p>
+    <div class="term">
+      <div class="ln"><span>0x1A</span></div>
+      <div class="ln"><span>0xFF</span></div>
+      <div class="ln"><span>0x10</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Comprobaste que 0xFF = 255, el mismo tope que viste con 8 bits en binario</li>
+      <li>Notaste que 0x10 no es "diez" — es 16, el equivalente a "10" en su propia base</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>¿A qué decimal equivale el hexadecimal <code>0x1A</code>? (escribe solo el número, sin 0x)</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">hex&gt;</span>
+        <input type="text" id="cp03-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el número decimal..."
+               onkeydown="if(event.key==='Enter') checkConversion('03', 10, 26, 'HW-5A17-03');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('03', 10, 26, 'HW-5A17-03')">Verificar</button>
+    <div class="cp-feedback" id="cp03-feedback"></div>
+    <div class="cp-code" id="cp03-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('02')">← 02 · Decimal → Binario</button>
+    <span>NIVEL 03 / 07</span>
+    <button id="footer-next-04" data-requires="04" disabled>04 · Binario ↔ Hex 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 04 ============ -->
+<section class="level" data-level="04">
+  <div class="level-mark"><span class="n">04</span><span class="t">MISIÓN · BINARIO ↔ HEX</span></div>
+  <h2>El atajo que usan de verdad los técnicos</h2>
+  <p class="level-quote">No necesitas pasar por decimal para ir de binario a hexadecimal — hay un camino directo, y es el que se usa en la vida real.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 140" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="13" fill="#eef1fa" text-anchor="middle">
+        <rect x="30" y="30" width="220" height="45" rx="2" fill="#16203a" stroke="#5fb4ff"/>
+        <text x="140" y="57">0100</text>
+        <rect x="260" y="30" width="220" height="45" rx="2" fill="#16203a" stroke="#5fb4ff"/>
+        <text x="370" y="57">1001</text>
+
+        <line x1="140" y1="75" x2="140" y2="100" stroke="#5fb4ff" stroke-width="1.4"/>
+        <line x1="370" y1="75" x2="370" y2="100" stroke="#5fb4ff" stroke-width="1.4"/>
+
+        <rect x="90" y="100" width="100" height="34" rx="2" fill="#b06cf0" stroke="#c9a0f5"/>
+        <text x="140" y="122" fill="#1c0f2e" font-weight="700">4</text>
+        <rect x="320" y="100" width="100" height="34" rx="2" fill="#b06cf0" stroke="#c9a0f5"/>
+        <text x="370" y="122" fill="#1c0f2e" font-weight="700">9</text>
+      </g>
+    </svg>
+    <div class="cap">01001001 se separa en dos nibbles — 0100 = 4 y 1001 = 9 — y se lee directo: 0x49</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">✂️</span> EL MÉTODO: AGRUPAR DE 4 EN 4</div>
+    <p>Un dígito hexadecimal representa exactamente un nibble (4 bits) — no es casualidad, es la razón de ser del hexadecimal. Para convertir binario a hex: agrupa los bits de 4 en 4 desde la derecha, y convierte cada grupo por separado a su dígito hex (usando lo que aprendiste en el nivel anterior).</p>
+    <div class="term">
+      <div class="ln"><span>1010 1100</span><span class="cmt"># separa en dos nibbles</span></div>
+      <div class="ln"><span>1010 = A</span></div>
+      <div class="ln"><span>1100 = C</span></div>
+      <div class="ln"><span>→ 0xAC</span></div>
+    </div>
+    <div class="hint">Si el número de bits no es múltiplo de 4, rellena con ceros a la izquierda antes de agrupar — no cambia el valor.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔁</span> EL CAMINO INVERSO: HEX → BINARIO</div>
+    <p>Igual de directo: convierte cada dígito hex a su nibble de 4 bits por separado, y los juntas en orden.</p>
+    <div class="term">
+      <div class="ln"><span>0xB3</span></div>
+      <div class="ln"><span>B = 1011</span></div>
+      <div class="ln"><span>3 = 0011</span></div>
+      <div class="ln"><span>→ 10110011</span></div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ POR QUÉ ES EL ATAJO "DE VERDAD"</div>
+    <p>Pasar por decimal para convertir binario↔hex funciona, pero es lento e innecesario. Agrupando de 4 en 4 conviertes cualquier byte en segundos y sin calculadora — así es como lo hacen los técnicos leyendo un volcado de memoria.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 04</div>
+    <p>Convierte directamente, agrupando en nibbles:</p>
+    <div class="term">
+      <div class="ln"><span>11110000</span><span class="cmt"># binario → hex</span></div>
+      <div class="ln"><span>0x3E</span><span class="cmt"># hex → binario</span></div>
+    </div>
+    <ul class="checklist">
+      <li>No pasaste por decimal en ningún momento</li>
+      <li>Comprobaste que cada nibble te da un único dígito hex, nunca dos</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Convierte el binario <code>10101100</code> a hexadecimal (sin el prefijo 0x).</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">bin&gt;</span>
+        <input type="text" id="cp04-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el hexadecimal, ej: AC..."
+               onkeydown="if(event.key==='Enter') checkConversion('04', 16, 172, 'HW-3B60-04');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('04', 16, 172, 'HW-3B60-04')">Verificar</button>
+    <div class="cp-feedback" id="cp04-feedback"></div>
+    <div class="cp-code" id="cp04-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('03')">← 03 · Hexadecimal</button>
+    <span>NIVEL 04 / 07</span>
+    <button id="footer-next-05" data-requires="05" disabled>05 · Aritmética 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 05 ============ -->
+<section class="level" data-level="05">
+  <div class="level-mark"><span class="n">05</span><span class="t">MISIÓN · ARITMÉTICA BINARIA</span></div>
+  <h2>Sumar como lo hace un circuito</h2>
+  <p class="level-quote">Un procesador no "sabe" sumar como tú — solo sabe combinar 0 y 1 siguiendo reglas fijas. Y esas reglas explican límites reales del hardware.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">➕</span> LAS CUATRO REGLAS</div>
+    <div class="term">
+      <div class="ln"><span>0 + 0 = 0</span></div>
+      <div class="ln"><span>0 + 1 = 1</span></div>
+      <div class="ln"><span>1 + 0 = 1</span></div>
+      <div class="ln"><span>1 + 1 = 10</span><span class="cmt"># pon 0, arrastra 1 (igual que 5+5 en decimal)</span></div>
+    </div>
+    <p>Es exactamente lo mismo que cuando sumas en decimal y el resultado de una columna pasa de 9: escribes lo que sobra y "arrastras" 1 a la siguiente columna. En binario, eso ocurre en cuanto una columna supera 1 — eso es todo lo que necesitas para reproducir la tabla de arriba.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧮</span> PASOS DEL CÁLCULO</div>
+    <p>Vamos a sumar <code style="font-family:var(--mono)">0110 + 0101</code> aplicando esas cuatro reglas, columna por columna.</p>
+
+    <p style="margin-bottom:6px;"><b>1. Coloca los números uno sobre otro:</b></p>
+    <div class="term">
+      <div class="ln"><span>  0110</span></div>
+      <div class="ln"><span>+ 0101</span></div>
+      <div class="ln"><span>------</span></div>
+    </div>
+
+    <p style="margin-bottom:6px;"><b>2. Suma columna por columna, de derecha a izquierda:</b></p>
+    <ul style="margin:0 0 16px; padding-left:22px; font-size:14.5px; line-height:1.8; color:var(--ink);">
+      <li>Columna 1 (derecha): <code style="font-family:var(--mono)">0 + 1 = 1</code></li>
+      <li>Columna 2: <code style="font-family:var(--mono)">1 + 0 = 1</code></li>
+      <li>Columna 3: <code style="font-family:var(--mono)">1 + 1 = 10</code> → escribe <b>0</b> y lleva <b>1</b></li>
+      <li>Columna 4 (izquierda): <code style="font-family:var(--mono)">0 + 0 + 1</code> (el acarreo) <code style="font-family:var(--mono)">= 1</code></li>
+    </ul>
+
+    <p><b>3. Resultado final:</b> <code style="font-family:var(--mono)">1011</code></p>
+
+    <div class="hint">Fíjate en qué columna hizo falta acarreo: solo la 3ª, porque fue la única donde la suma pasó de 1. Ese acarreo es lo que empuja a la columna siguiente — el mismo mecanismo que un "me llevo una" en una suma decimal normal.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🚨</span> DESBORDAMIENTO (OVERFLOW)</div>
+    <p>Si un registro de hardware solo tiene 4 bits, el máximo que puede guardar es <code style="font-family:var(--mono)">1111</code> = 15. Si le sumas 1 más, el resultado real sería <code style="font-family:var(--mono)">10000</code> (16) — pero no cabe en 4 bits. El bit extra se pierde, y el registro "vuelve a 0". Esto no es un error de software: es una consecuencia física de cuántos cables tiene ese registro.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ ESTO PASA DE VERDAD</div>
+    <p>Los contadores de 8 bits que se reinician al pasar de 255, los relojes de 16 bits que "dan la vuelta", los famosos bugs de software antiguos por desbordamiento — todos son la misma regla de arriba, aplicada a hardware con un número fijo de bits.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 05</div>
+    <p>Suma a mano, con acarreo, y comprueba en decimal:</p>
+    <div class="term">
+      <div class="ln"><span>0110 + 0101</span></div>
+      <div class="ln"><span>1111 + 0001</span><span class="cmt"># ¿cabe el resultado en 4 bits?</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Marcaste el acarreo de cada columna antes de pasar a la siguiente</li>
+      <li>Identificaste en qué suma hay desbordamiento</li>
+    </ul>
+    <details class="reveal">
+      <summary>Ver solución de 1111 + 0001 (no la de 0110+0101 — esa es tu checkpoint)</summary>
+      <div class="step">1+1=10 → pones 0, acarreas 1</div>
+      <div class="step">1+0+1(acarreo)=10 → pones 0, acarreas 1</div>
+      <div class="step">1+0+1(acarreo)=10 → pones 0, acarreas 1</div>
+      <div class="step">1+0+1(acarreo)=10 → pones 0, acarreas 1 — pero ya no hay más columnas</div>
+      <div class="step">En 4 bits el resultado real (16) no cabe → se queda en <b>0000</b>, desbordamiento</div>
+    </details>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Suma <code>0110 + 0101</code> en binario. Escribe el resultado en binario.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">alu&gt;</span>
+        <input type="text" id="cp05-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el resultado en binario..."
+               onkeydown="if(event.key==='Enter') checkConversion('05', 2, 11, 'HW-9E22-05');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('05', 2, 11, 'HW-9E22-05')">Verificar</button>
+    <div class="cp-feedback" id="cp05-feedback"></div>
+    <div class="cp-code" id="cp05-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('04')">← 04 · Binario ↔ Hex</button>
+    <span>NIVEL 05 / 07</span>
+    <button id="footer-next-06" data-requires="06" disabled>06 · Hardware real 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 06 ============ -->
+<section class="level" data-level="06">
+  <div class="level-mark"><span class="n">06</span><span class="t">MISIÓN · HARDWARE REAL</span></div>
+  <h2>Dónde te lo vas a encontrar</h2>
+  <p class="level-quote">Esto no es matemática abstracta: es el idioma en el que están escritas las direcciones de memoria, los colores de tu pantalla y las tarjetas de red.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📍</span> DIRECCIONES DE MEMORIA</div>
+    <p>Cada byte de la memoria RAM tiene una dirección única, y esas direcciones se escriben en hexadecimal porque son mucho más cortas que en binario. Cuando un técnico ve un volcado de memoria como <code style="font-family:var(--mono)">0x7FFE2A10</code>, está leyendo en hex lo que por dentro son 32 bits.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🎨</span> COLORES EN PANTALLA</div>
+    <p>Un color web como <code style="font-family:var(--mono)">#FF7A00</code> son tres bytes seguidos en hexadecimal: <b>FF</b> de rojo, <b>7A</b> de verde, <b>00</b> de azul. Cada componente va de 0x00 (nada de ese color) a 0xFF (máxima intensidad) — el mismo tope de 255 que ya viste en el nivel 00.</p>
+    <div class="term">
+      <div class="ln"><span>#FF7A00</span></div>
+      <div class="ln"><span>R = 0xFF = 255</span></div>
+      <div class="ln"><span>G = 0x7A = 122</span></div>
+      <div class="ln"><span>B = 0x00 = 0</span></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🌐</span> DIRECCIONES MAC Y BLOQUES DE RED</div>
+    <p>Una dirección MAC (la identidad física de una tarjeta de red) se escribe como seis pares hexadecimales: <code style="font-family:var(--mono)">3C:E1:A2:0F:5B:99</code>. Cada par es un byte completo — exactamente el mismo agrupamiento en nibbles que practicaste en el nivel 04.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">💽</span> POTENCIAS DE 2 EN EL ALMACENAMIENTO</div>
+    <p>Por qué un "disco de 512 GB" o una "memoria de 4 GB" — esos números son potencias de 2 (2⁹ = 512, 2² = 4), no una coincidencia de marketing. La memoria se organiza en direcciones binarias, así que su capacidad natural siempre cae en una potencia de 2.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🚩</span> REGISTROS DE ESTADO (BANDERAS DE BITS)</div>
+    <p>Muchos componentes de hardware devuelven su estado como un solo byte, donde <b>cada bit por separado</b> significa algo: bit 0 = "encendido", bit 1 = "hay error", bit 2 = "batería baja"... Leer ese byte en binario te dice de un vistazo qué está pasando, bit a bit.</p>
+    <div class="term">
+      <div class="ln"><span>00000101</span><span class="cmt"># bit 0 y bit 2 encendidos</span></div>
+      <div class="ln"><span>→ "encendido" + "batería baja"</span></div>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>No memorices qué representa cada bit de cada chip — eso está en la hoja de datos (datasheet) del componente. Lo que necesitas es poder <em>leer</em> ese binario o hex cuando lo tengas delante, que es justo lo que ya sabes hacer.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 06</div>
+    <p>Sin abrir ninguna herramienta, solo con lo aprendido:</p>
+    <div class="term">
+      <div class="ln"><span>#2A6E4C</span><span class="cmt"># separa en R, G, B y pásalos a decimal</span></div>
+      <div class="ln"><span>1C:AF:03</span><span class="cmt"># convierte cada par hex a binario</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Reconociste que cada componente de color es un byte completo (2 dígitos hex)</li>
+      <li>Convertiste cada par de la MAC como un nibble a la vez, no como un número completo</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>En el color <code>#3C9F00</code>, ¿cuál es el valor decimal del componente verde (G = 9F)?</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">rgb&gt;</span>
+        <input type="text" id="cp06-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el número decimal..."
+               onkeydown="if(event.key==='Enter') checkConversion('06', 10, 159, 'HW-6D8F-06');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkConversion('06', 10, 159, 'HW-6D8F-06')">Verificar</button>
+    <div class="cp-feedback" id="cp06-feedback"></div>
+    <div class="cp-code" id="cp06-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('05')">← 05 · Aritmética binaria</button>
+    <span>NIVEL 06 / 07</span>
+    <button id="footer-next-07" data-requires="07" disabled>07 · Reto final 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 07 — FINAL BOSS ============ -->
+<section class="level" data-level="07">
+  <div class="level-mark"><span class="n">07</span><span class="t">MISIÓN · RETO FINAL</span></div>
+  <h2>Diagnóstico de un dispositivo</h2>
+  <p class="level-quote">Un sensor acaba de reportar su estado. Tienes que leerlo tú, sin ayuda, combinando todo lo anterior.</p>
+
+  <div class="callout tip">
+    <div class="head">🚨 INFORME DE DIAGNÓSTICO</div>
+    <p>No es un examen de memoria: es una simulación. Resuelve los tres pasos, en el orden que quieras, combinando lo que aprendiste en los niveles anteriores.</p>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 1 — BYTE DE ESTADO</div>
+    <p>El sensor devuelve el byte de estado <code>01011000</code>. ¿Cuál es su valor decimal?</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpA-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el número decimal..."
+               onkeydown="if(event.key==='Enter') checkBossStep('A', 10, 88);">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('A', 10, 88)">Verificar</button>
+    <div class="cp-feedback" id="cpA-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 2 — DIRECCIÓN DE MEMORIA</div>
+    <p>Ese mismo valor decimal (88) es la dirección donde el sensor guarda su registro. Escríbela como la vería un técnico: en hexadecimal, sin el prefijo <code>0x</code>.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpB-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el hexadecimal..."
+               onkeydown="if(event.key==='Enter') checkBossStep('B', 16, 88);">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('B', 16, 88)">Verificar</button>
+    <div class="cp-feedback" id="cpB-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 3 — MARGEN DE SEGURIDAD</div>
+    <p>El registro es de 8 bits. El sensor está a punto de sumar <code>10101000</code> (el equivalente a una alerta) a su valor actual. Súmalo en binario a <code>01011000</code> y escribe el resultado — sin arrastrar el bit que se sale de los 8 bits disponibles (déjalo en 8 bits, como haría el propio registro).</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpC-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe el binario de 8 bits..."
+               onkeydown="if(event.key==='Enter') checkBossStep('C', 2, 0);">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('C', 2, 0)">Verificar</button>
+    <div class="cp-feedback" id="cpC-feedback"></div>
+    <div class="hint" id="cpC-hint" style="display:none;">88 + 168 = 256, y 256 no cabe en 8 bits (máximo 255). El registro se desborda y vuelve a 0 — igual que viste en el nivel 05.</div>
+  </div>
+
+  <div class="mission" id="boss-report" style="display:none;">
+    <div class="head">📋 INFORME — CIERRE</div>
+    <p>En una frase, como se lo explicarías a un compañero: ¿qué le pasó al registro del sensor y por qué?</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="boss-note" class="cp-input" autocomplete="off" spellcheck="false" placeholder="ej: el registro se desbordó al pasar de 255, volvió a 0">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="closeBoss()">Cerrar informe</button>
+  </div>
+
+  <div class="boot-log" id="boss-status" style="display:none; max-width:520px; margin-top:30px;">
+    <div>Bits &amp; bytes.............. <span class="ok">[ OK ]</span></div>
+    <div>Binario → decimal.......... <span class="ok">[ OK ]</span></div>
+    <div>Decimal → binario.......... <span class="ok">[ OK ]</span></div>
+    <div>Hexadecimal................ <span class="ok">[ OK ]</span></div>
+    <div>Binario ↔ hex.............. <span class="ok">[ OK ]</span></div>
+    <div>Aritmética &amp; overflow...... <span class="ok">[ OK ]</span></div>
+    <div style="color:#c9a0f5; font-weight:700;">STATUS: HARDWARE READY</div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('06')">← 06 · Hardware real</button>
+    <span>NIVEL 07 / 07</span>
+    <button onclick="goTo('08')">🧮 Calculadora →</button>
+  </div>
+</section>
+
+<!-- ============ HERRAMIENTA · CALCULADORA ============ -->
+<section class="level" data-level="08">
+  <div class="level-mark"><span class="n">🧮</span><span class="t">HERRAMIENTA · SIEMPRE DISPONIBLE</span></div>
+  <h2>Calculadora bin / hex / dec</h2>
+  <p class="level-quote">Escribe un número en cualquiera de los tres campos y mira cómo se traduce a los otros dos, bit a bit — para comprobar tus cálculos de los niveles anteriores.</p>
+
+  <div class="blueprint">
+    <div class="calc-grid">
+      <div class="calc-field">
+        <label for="calcDec">DECIMAL</label>
+        <input type="text" id="calcDec" class="calc-input" autocomplete="off" spellcheck="false" placeholder="0" oninput="updateFromDec()">
+      </div>
+      <div class="calc-field">
+        <label for="calcBin">BINARIO</label>
+        <input type="text" id="calcBin" class="calc-input" autocomplete="off" spellcheck="false" placeholder="00000000" oninput="updateFromBin()">
+      </div>
+      <div class="calc-field">
+        <label for="calcHex">HEXADECIMAL</label>
+        <input type="text" id="calcHex" class="calc-input" autocomplete="off" spellcheck="false" placeholder="0x00" oninput="updateFromHex()">
+      </div>
+    </div>
+    <div id="calcBitsWrap"></div>
+    <div class="cap">Acepta valores de 0 a 65535 (hasta 16 bits) — ideal para un byte (0-255) o dos bytes seguidos</div>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 CÓMO USARLA</div>
+    <p>No la uses para saltarte el cálculo a mano en las misiones — úsala <em>después</em>, para comprobar si lo que hiciste en papel coincide. Los recuadros de abajo se colorean igual que en los diagramas: naranja/ámbar es un bit en 1.</p>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('07')">← 07 · Reto final</button>
+    <span>HERRAMIENTA</span>
+    <button onclick="goTo('00')">↺ 00 · Boot</button>
+  </div>
+</section>
+
+<script>
+const LEVELS = [
+  {id:'00', label:'Boot', open:true},
+  {id:'01', label:'Binario', open:true},
+  {id:'02', label:'Dec → Bin', open:false},
+  {id:'03', label:'Hexadecimal', open:false},
+  {id:'04', label:'Bin ↔ Hex', open:false},
+  {id:'05', label:'Aritmética', open:false},
+  {id:'06', label:'Hardware real', open:false},
+  {id:'07', label:'Reto final', open:false},
+  {id:'08', label:'🧮 Calculadora', open:true},
+];
+
+let unlockedExtra = [];
+try{ unlockedExtra = JSON.parse(localStorage.getItem('hw_unlocked') || '[]'); }catch(e){ unlockedExtra = []; }
+
+function isUnlocked(id){
+  const lv = LEVELS.find(l=>l.id===id);
+  return !!lv && (lv.open || unlockedExtra.includes(id));
+}
+
+const nav = document.getElementById('nav');
+LEVELS.forEach(lv=>{
+  const btn = document.createElement('button');
+  btn.className = 'level-btn' + (lv.id==='00' ? ' active' : '');
+  btn.dataset.level = lv.id;
+  btn.addEventListener('click', ()=> isUnlocked(lv.id) && goTo(lv.id));
+  nav.appendChild(btn);
+});
+
+function updateLockUI(){
+  document.querySelectorAll('.level-btn').forEach(btn=>{
+    const lv = LEVELS.find(l=>l.id===btn.dataset.level);
+    const unlocked = isUnlocked(lv.id);
+    btn.disabled = !unlocked;
+    btn.innerHTML = '<span class="num">'+lv.id+'</span><b>'+lv.label+(unlocked?'':' 🔒')+'</b>';
+  });
+  document.querySelectorAll('[data-requires]').forEach(btn=>{
+    const id = btn.dataset.requires;
+    const lv = LEVELS.find(l=>l.id===id);
+    if(!lv) return;
+    const unlocked = isUnlocked(id);
+    btn.disabled = !unlocked;
+    btn.textContent = id + ' · ' + lv.label + (unlocked ? ' →' : ' 🔒');
+    btn.onclick = unlocked ? (()=>goTo(id)) : null;
+  });
+}
+updateLockUI();
+
+function unlockLevel(id){
+  if(!unlockedExtra.includes(id)){
+    unlockedExtra.push(id);
+    localStorage.setItem('hw_unlocked', JSON.stringify(unlockedExtra));
+  }
+  updateLockUI();
+}
+
+function normNum(s){
+  return s.trim().toLowerCase().replace(/^0x/,'').replace(/\s+/g,'');
+}
+
+function validForBase(val, base){
+  if(val.length===0) return false;
+  if(base===2) return /^[01]+$/.test(val);
+  if(base===16) return /^[0-9a-f]+$/.test(val);
+  return /^[0-9]+$/.test(val);
+}
+
+/* checkConversion: valida que lo escrito, interpretado en 'base', equivalga a expectedDecimal */
+function checkConversion(id, base, expectedDecimal, code){
+  const input = document.getElementById('cp'+id+'-input');
+  const feedback = document.getElementById('cp'+id+'-feedback');
+  const codeBox = document.getElementById('cp'+id+'-code');
+  const val = normNum(input.value);
+  const valid = validForBase(val, base);
+  const parsed = valid ? parseInt(val, base) : NaN;
+  const ok = valid && !isNaN(parsed) && parsed === expectedDecimal;
+  const nums = LEVELS.map(l=>l.id);
+  const idx = nums.indexOf(id);
+  const nextId = idx>=0 && idx+1<nums.length ? nums[idx+1] : null;
+
+  if(ok){
+    feedback.className = 'cp-feedback ok';
+    feedback.textContent = '✔ ACCESO CONCEDIDO';
+    if(codeBox){
+      codeBox.style.display = 'block';
+      codeBox.textContent = 'CÓDIGO DE DESBLOQUEO · NIVEL '+nextId+': '+code;
+    }
+    if(nextId) unlockLevel(nextId);
+  } else {
+    feedback.className = 'cp-feedback err';
+    let hintBase = base===2 ? 'binario (solo 0 y 1)' : base===16 ? 'hexadecimal (0-9, A-F)' : 'decimal';
+    feedback.textContent = 'acceso denegado — revisa tu conversión (se espera un valor en ' + hintBase + ')';
+  }
+}
+
+let bossDone = {A:false, B:false, C:false};
+function checkBossStep(step, base, expectedDecimal){
+  const input = document.getElementById('cp'+step+'-input');
+  const feedback = document.getElementById('cp'+step+'-feedback');
+  const val = normNum(input.value);
+  const valid = validForBase(val, base);
+  const parsed = valid ? parseInt(val, base) : NaN;
+  let ok;
+  if(step==='C'){
+    /* paso 3: 88 + 168 = 256, que no cabe en 8 bits -> el registro se desborda y vuelve a 0 */
+    ok = valid && base===2 && val.length<=8 && /^0+$/.test(val);
+  } else {
+    ok = valid && !isNaN(parsed) && parsed === expectedDecimal;
+  }
+
+  if(ok){
+    feedback.className = 'cp-feedback ok';
+    feedback.textContent = '✔ correcto';
+    input.disabled = true;
+    bossDone[step] = true;
+    if(step==='C'){
+      const hint = document.getElementById('cpC-hint');
+      if(hint) hint.style.display = 'block';
+    }
+    if(bossDone.A && bossDone.B && bossDone.C){
+      document.getElementById('boss-report').style.display = 'block';
+    }
+  } else {
+    feedback.className = 'cp-feedback err';
+    feedback.textContent = 'todavía no — revisa el cálculo antes de reintentar';
+  }
+}
+
+function closeBoss(){
+  document.getElementById('boss-status').style.display = 'block';
+  document.getElementById('boss-report').style.display = 'none';
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+}
+
+/* ---- calculadora en vivo ---- */
+const MAX_CALC = 65535;
+
+function renderBits(value){
+  const wrap = document.getElementById('calcBitsWrap');
+  if(!wrap) return;
+  if(isNaN(value) || value===null){ wrap.innerHTML = ''; return; }
+  let bitCount = value > 255 ? 16 : 8;
+  const bin = value.toString(2).padStart(bitCount, '0');
+  let html = '<div class="calc-bits">';
+  for(let i=0;i<bin.length;i++){
+    const bitVal = Math.pow(2, bin.length - 1 - i);
+    const on = bin[i]==='1';
+    html += '<div class="calc-bit-col"><div class="calc-bit'+(on?' on':'')+'">'+bin[i]+'</div><div class="calc-bit-val">'+bitVal+'</div></div>';
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function setCalcFields(value){
+  if(isNaN(value) || value<0 || value>MAX_CALC){
+    renderBits(NaN);
+    return;
+  }
+  document.getElementById('calcDec').value = value;
+  document.getElementById('calcBin').value = value.toString(2);
+  document.getElementById('calcHex').value = value.toString(16).toUpperCase();
+  renderBits(value);
+}
+
+function updateFromDec(){
+  const raw = document.getElementById('calcDec').value.trim();
+  if(raw===''){ renderBits(NaN); return; }
+  if(!/^[0-9]+$/.test(raw)) return;
+  const value = parseInt(raw, 10);
+  if(isNaN(value) || value>MAX_CALC) return;
+  document.getElementById('calcBin').value = value.toString(2);
+  document.getElementById('calcHex').value = value.toString(16).toUpperCase();
+  renderBits(value);
+}
+
+function updateFromBin(){
+  const raw = document.getElementById('calcBin').value.trim();
+  if(raw===''){ renderBits(NaN); return; }
+  if(!/^[01]+$/.test(raw)) return;
+  const value = parseInt(raw, 2);
+  if(isNaN(value) || value>MAX_CALC) return;
+  document.getElementById('calcDec').value = value;
+  document.getElementById('calcHex').value = value.toString(16).toUpperCase();
+  renderBits(value);
+}
+
+function updateFromHex(){
+  let raw = document.getElementById('calcHex').value.trim().toLowerCase().replace(/^0x/,'');
+  if(raw===''){ renderBits(NaN); return; }
+  if(!/^[0-9a-f]+$/.test(raw)) return;
+  const value = parseInt(raw, 16);
+  if(isNaN(value) || value>MAX_CALC) return;
+  document.getElementById('calcDec').value = value;
+  document.getElementById('calcBin').value = value.toString(2);
+  renderBits(value);
+}
+
+function goTo(id){
+  if(!isUnlocked(id)) return;
+  document.querySelectorAll('.level').forEach(el=>{
+    el.classList.toggle('active', el.dataset.level === id);
+  });
+  document.querySelectorAll('.level-btn').forEach(el=>{
+    el.classList.toggle('active', el.dataset.level === id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+setCalcFields(88);
+</script>
+
+</body>
+</html>

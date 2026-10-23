@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASO Survival · Administracion de Sistemas Operativos</title>
+<style>
+  :root{
+    --paper:#F4F7FB; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --azul:#2563EB; --naranja:#EA580C; --verde:#059669; --morado:#7C3AED; --rojo:#DC2626;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px 16px 70px}
+  button,input,select{font-family:inherit}
+  button{cursor:pointer}
+
+  header{text-align:center;margin-bottom:18px}
+  header h1{margin:0;font-size:29px;letter-spacing:-.02em}
+  header p{margin:5px 0 0;color:var(--soft);font-size:13.5px}
+
+  .fases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:16px}
+  .fase{border-radius:var(--r);padding:14px 16px;color:#fff;text-align:left;border:none;position:relative;overflow:hidden}
+  .fase.f1{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+  .fase.f2{background:linear-gradient(135deg,#F97316,#EA580C)}
+  .fase.f3{background:linear-gradient(135deg,#10B981,#059669)}
+  .fase.gen{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .fase .n{font-size:11px;opacity:.85;letter-spacing:.08em;text-transform:uppercase}
+  .fase h2{margin:2px 0 8px;font-size:17px}
+  .fase small{opacity:.9;font-size:12px;display:block;margin-bottom:9px}
+  .barra{height:8px;border-radius:5px;background:rgba(255,255,255,.28);overflow:hidden}
+  .barra i{display:block;height:100%;background:#fff;border-radius:5px;transition:width .3s}
+  .fase.gen .barra{background:#E2E8F0}
+  .fase.gen .barra i{background:linear-gradient(90deg,#10B981,#2563EB)}
+  .pct{font-size:26px;font-weight:800;letter-spacing:-.03em}
+
+  nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:16px;overflow-x:auto}
+  nav button{flex:1;min-width:120px;border:none;background:none;padding:9px 12px;border-radius:9px;font-size:14px;color:var(--soft);white-space:nowrap}
+  nav button.on{background:var(--azul);color:#fff;font-weight:600}
+
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  @media (min-width:901px){.term-panel{position:sticky;top:14px}}
+  @media (max-width:900px){.cols{grid-template-columns:1fr}.lateral{order:-1}}
+  @media (min-width:1300px){.cols{grid-template-columns:1fr 420px}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .panel h3{margin:0 0 3px;font-size:17px}
+  .panel .sub{color:var(--soft);font-size:13px;margin-bottom:14px}
+
+  .buscador{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .buscador input{flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 13px;font-size:12.5px;color:var(--soft)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .bloque{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:#fff}
+  .bloque>.cab{display:flex;align-items:center;gap:11px;padding:12px 14px;width:100%;border:none;background:none;text-align:left}
+  .bloque>.cab:hover{background:#F8FAFC}
+  .bloque.abierto{border-color:#BFDBFE;background:#F8FBFF}
+  .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex:none;background:#EFF6FF}
+  .cab b{font-size:14.5px}
+  .cab span{color:var(--soft);font-size:12.5px}
+  .cab .estado{margin-left:auto;font-size:11.5px;color:var(--soft);white-space:nowrap}
+  .cmds{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px;padding:0 14px 14px}
+
+  .cmd{border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;position:relative}
+  .cmd.ok{border-color:#A7F3D0;background:#F0FDF9}
+  .cmd code.t{display:block;background:var(--ink);color:#A5F3FC;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:9px;overflow-x:auto}
+  .lin{display:flex;gap:7px;font-size:12.5px;margin-bottom:5px;align-items:flex-start}
+  .lin b{flex:none;font-size:11px;padding:1px 6px;border-radius:5px}
+  .b1{background:#DBEAFE;color:#1D4ED8}
+  .b2{background:#DCFCE7;color:#15803D}
+  .b3{background:#EDE9FE;color:#6D28D9}
+  .lin code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11.5px}
+  .lin code.ej{cursor:pointer;border-bottom:1px dashed var(--soft)}
+  .lin code.ej:hover{background:#E2E8F0}
+  .chk-resp{margin-top:9px}
+  .in-resp{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;transition:border-color .15s,background .15s}
+  .in-resp.acierto{border-color:#86EFAC;background:#F0FDF9}
+
+  .lateral{display:flex;flex-direction:column;gap:14px}
+  .acciones{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .acciones button{border:none;border-radius:11px;padding:13px 11px;color:#fff;font-size:13.5px;font-weight:600;text-align:left}
+  .a1{background:var(--azul)} .a2{background:var(--naranja)} .a3{background:var(--verde)}
+  .a4{background:var(--morado)} .a5{background:var(--rojo)} .a6{background:#0F766E}
+
+  .ra{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .ra .anillo{position:relative;width:100%;aspect-ratio:1;max-width:62px;margin:0 auto}
+  .ra small{display:block;font-size:10px;color:var(--soft);margin-top:4px;line-height:1.25}
+
+  /* terminal */
+  .term{background:#0B1220;border-radius:12px;padding:0;overflow:hidden;border:1px solid #1E293B}
+  .term .barra-t{background:#111C30;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1E293B}
+  .punto{width:10px;height:10px;border-radius:50%}
+  .term .tit{color:#94A3B8;font-size:12px;margin-left:6px}
+  .term .out{height:420px;overflow-y:auto;overflow-x:hidden;padding:12px 14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#E2E8F0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.45}
+  .term .out .pr{color:#4ADE80}
+  .term .out .err{color:#FCA5A5}
+  .term .out .inf{color:#93C5FD}
+  .entrada{display:flex;align-items:center;gap:8px;border-top:1px solid #1E293B;padding:9px 12px;background:#0F172A}
+  .entrada span{color:#4ADE80;font-family:ui-monospace,monospace;font-size:13px;white-space:nowrap}
+  .entrada input{flex:1;background:none;border:none;color:#E2E8F0;font-family:ui-monospace,monospace;font-size:13px;outline:none}
+
+  .reto{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;background:#fff;display:flex;gap:12px;align-items:flex-start}
+  .reto.hecho{border-color:#A7F3D0;background:#F0FDF9}
+  .reto .num{width:28px;height:28px;border-radius:8px;background:#FEF3C7;color:#B45309;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+  .reto.hecho .num{background:var(--verde);color:#fff}
+  .reto b{display:block;font-size:14.5px}
+  .reto p{margin:3px 0 8px;font-size:13px;color:var(--soft)}
+  .reto button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px}
+
+  .preg{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff}
+  .preg .q{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .op{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;margin-bottom:6px;font-size:13.5px}
+  .op:hover{border-color:#94A3B8}
+  .op.bien{background:#DCFCE7;border-color:#86EFAC;font-weight:600}
+  .op.mal{background:#FEE2E2;border-color:#FCA5A5}
+  .expl{font-size:12.5px;color:var(--soft);margin-top:7px;padding-left:2px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  td code{font-family:ui-monospace,monospace;background:#F1F5F9;padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+  .oculto{display:none !important}
+  .nota{font-size:12.5px;color:var(--soft)}
+  .pie{text-align:center;color:var(--soft);font-size:13px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+  @media print{nav,.fases,.lateral,.acciones,.entrada,button{display:none !important}body{background:#fff}}
+
+  .toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none;max-width:calc(100vw - 36px)}
+  .toast{background:#0F172A;color:#fff;padding:11px 16px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:0 10px 25px rgba(15,23,42,.25);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s}
+  .toast.in{opacity:1;transform:none}
+  .toast.ok{background:#059669}
+
+  .banner-iframe{display:none;position:fixed;top:0;left:0;right:0;z-index:100000;background:linear-gradient(90deg,#F59E0B,#EA580C);color:#fff;padding:10px 16px;font:600 13.5px/1.3 -apple-system,Segoe UI,Roboto,Arial,sans-serif;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .banner-iframe.on{display:flex}
+  .banner-iframe button{border:none;border-radius:8px;padding:7px 14px;font-weight:700;font-size:12.5px;background:#fff;color:#9A3412;cursor:pointer;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="banner-iframe" id="bannerIframe"><span>⚠️ Esta página se ve dentro de un recuadro pequeño. Para verla completa, ábrela a pantalla completa.</span><button id="btnFullscreen">Abrir a pantalla completa ↗</button></div>
+
+<div class="wrap">
+
+<header>
+  <h1>ASO Survival</h1>
+  <p>Modulo 0374 &middot; 2&ordm; ASIR &middot; Directorio, acceso remoto, scripting, integracion, procesos, automatizacion e impresion</p>
+</header>
+
+<div class="fases" id="fases"></div>
+
+<nav>
+  <button data-tab="aprender" class="on">Centro de aprendizaje</button>
+  <button data-tab="retos">Mini retos</button>
+  <button data-tab="test">Autoevaluacion</button>
+  <button data-tab="chuleta">Chuleta</button>
+  <button data-tab="ayuda">Ayuda</button>
+</nav>
+
+<div class="cols">
+  <div>
+    <section id="tab-aprender" class="panel">
+      <h3>Centro de aprendizaje</h3>
+      <p class="sub">Despliega un bloque, lee la ficha y prueba el comando en la terminal de al lado. En cuanto lo ejecutes bien se registra solo. La terminal acepta <b>Bash</b>, <b>PowerShell</b> y algunos comandos de <b>Windows Server</b>.</p>
+      <div class="buscador">
+        <input id="busca" placeholder="Buscar: ssh, Get-ADUser, systemctl, smb...">
+        <button class="chip on" data-cat="">Todos</button>
+        <button class="chip" data-cat="scripting">Scripting</button>
+        <button class="chip" data-cat="remoto">Remoto</button>
+        <button class="chip" data-cat="directorio">Directorio</button>
+        <button class="chip" data-cat="integracion">Integracion</button>
+        <button class="chip" data-cat="procesos">Procesos</button>
+        <button class="chip" data-cat="auto">Automatizacion</button>
+        <button class="chip" data-cat="impresion">Impresion</button>
+      </div>
+      <div id="bloques"></div>
+    </section>
+
+    <section id="tab-retos" class="panel oculto">
+      <h3>Mini retos</h3>
+      <p class="sub">Se comprueban solos en cuanto se cumple la condicion. Suman puntos.</p>
+      <div id="retos"></div>
+    </section>
+
+    <section id="tab-test" class="panel oculto">
+      <h3>Autoevaluacion</h3>
+      <p class="sub" id="subTest">Doce preguntas. Responde y te digo al momento por que.</p>
+      <div id="test"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="chip" id="testReset">Empezar de nuevo</button>
+      </div>
+    </section>
+
+    <section id="tab-chuleta" class="panel oculto">
+      <h3>Chuleta</h3>
+      <p class="sub">Todos los comandos del modulo en una tabla. Imprimela y llevala en la carpeta.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="chip" onclick="window.print()">Imprimir</button>
+        <button class="chip" id="copiarChuleta">Copiar como texto</button>
+      </div>
+      <div id="chuleta"></div>
+      <textarea id="cajaChuleta" class="oculto" style="width:100%;min-height:140px;margin-top:10px"></textarea>
+    </section>
+
+    <section id="tab-ayuda" class="panel oculto">
+      <h3>Ayuda</h3>
+      <p class="sub">Como sacarle partido a esto.</p>
+      <div id="ayuda"></div>
+    </section>
+  </div>
+
+  <aside class="lateral">
+    <div class="panel term-panel" id="panelTerminal">
+      <h3 style="font-size:15px">Terminal de practicas</h3>
+      <p class="sub" style="margin-bottom:10px">Bash + PowerShell simulados, no tocan tu equipo. <code>ayuda</code> lista los comandos, <code>reiniciar</code> lo deja como al empezar.</p>
+      <div class="term">
+        <div class="barra-t">
+          <i class="punto" style="background:#EF4444"></i><i class="punto" style="background:#F59E0B"></i><i class="punto" style="background:#22C55E"></i>
+          <span class="tit">alumno@aso</span>
+        </div>
+        <div class="out" id="out"></div>
+        <div class="entrada"><span id="prompt">alumno@aso:~$</span><input id="cmd" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <p class="nota" style="margin-top:8px">&uarr; &darr; repiten comandos. Si vienes de una ficha, el comando aparece como pista: escribelo tu.</p>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Acciones rapidas</h3>
+      <p class="sub" style="margin-bottom:11px">Lo que mas vas a usar.</p>
+      <div class="acciones">
+        <button class="a1" data-ir="chuleta">Abrir chuleta</button>
+        <button class="a2" id="btnTerminal">Ir a la terminal</button>
+        <button class="a3" data-ir="retos">Mini retos</button>
+        <button class="a4" data-ir="test">Autoevaluacion</button>
+        <button class="a5" id="btnSiguiente">Siguiente paso</button>
+        <button class="a6" id="btnReiniciar">Reiniciar progreso</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Resultados de aprendizaje</h3>
+      <p class="sub" style="margin-bottom:11px">Tu avance en cada RA del modulo.</p>
+      <div class="ra" id="ra"></div>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Racha y actividad</h3>
+      <p class="sub" style="margin-bottom:8px">Lo que llevas hecho.</p>
+      <div id="stats" class="nota"></div>
+    </div>
+  </aside>
+</div>
+
+<p class="pie">Objetivo: manejar con soltura la administracion de sistemas Windows y Linux del modulo ASO.</p>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<script>
+/* ============ CONTENIDO · MODULO ASO 0374 ============ */
+/* fase 1 = 1a evaluacion (RA7, RA4, RA1, RA6); fase 2 = 2a evaluacion (RA2, RA3, RA5) */
+const BLOQUES=[
+ {id:0,fase:1,tit:"Scripting Bash",sub:"RA7 · guiones en Linux",ico:"\uD83D\uDC27",ra:["RA7"],cmds:[
+  {c:"bash",cat:"scripting",q:"Ejecuta un script. Con -x muestra cada linea (depuracion).",e:"bash -x script.sh",p:"Ejecuta un script en modo depuracion."},
+  {c:"chmod +x",cat:"scripting",q:"Da permiso de ejecucion a un script.",e:"chmod +x script.sh",p:"Haz ejecutable un script."},
+  {c:"read",cat:"scripting",q:"Lee un valor del teclado y lo guarda en una variable.",e:"read nombre",p:"Pide un dato por teclado."},
+  {c:"if",cat:"scripting",q:"Condicional. Compara con -eq -ne -gt -lt y comprueba ficheros con -f.",e:"if [ $n -gt 10 ]; then echo alto; fi",p:"Comprueba si un numero es mayor que 10."},
+  {c:"for",cat:"scripting",q:"Bucle sobre una lista o un rango.",e:"for i in 1 2 3; do echo $i; done",p:"Recorre tres valores."},
+  {c:"grep",cat:"scripting",q:"Busca texto. Base de las expresiones regulares.",e:"grep root /etc/passwd",p:"Busca root en /etc/passwd."}]},
+
+ {id:1,fase:1,tit:"Scripting PowerShell",sub:"RA7 · guiones en Windows",ico:"\uD83D\uDD35",ra:["RA7"],cmds:[
+  {c:"Get-Process",cat:"scripting",q:"Lista procesos como objetos. La clave: PowerShell trabaja con objetos.",e:"Get-Process",p:"Lista los procesos."},
+  {c:"Get-Member",cat:"scripting",q:"Muestra propiedades y metodos de un objeto.",e:"Get-Date | Get-Member",p:"Mira los miembros de Get-Date."},
+  {c:"Where-Object",cat:"scripting",q:"Filtra objetos que cumplen una condicion.",e:"Get-Service | Where-Object Status -eq Running",p:"Filtra servicios en ejecucion."},
+  {c:"function",cat:"scripting",q:"Define una funcion con verbo-sustantivo.",e:"function Get-Saludo { param($N) \"Hola $N\" }",p:"Crea una funcion que salude."},
+  {c:"Get-Service",cat:"scripting",q:"Lista servicios y su estado.",e:"Get-Service",p:"Lista los servicios."}]},
+
+ {id:2,fase:1,tit:"Acceso remoto",sub:"RA4 · SSH, RDP y tuneles",ico:"\uD83D\uDD10",ra:["RA4"],cmds:[
+  {c:"ssh",cat:"remoto",q:"Abre una sesion remota cifrada en otro equipo.",e:"ssh alumno@192.168.1.10",p:"Conecta por SSH a un servidor."},
+  {c:"ssh-keygen",cat:"remoto",q:"Genera un par de claves publica/privada para acceso sin contrasena.",e:"ssh-keygen -t ed25519",p:"Genera tus claves SSH."},
+  {c:"ssh-copy-id",cat:"remoto",q:"Copia tu clave publica al servidor para entrar sin contrasena.",e:"ssh-copy-id alumno@192.168.1.10",p:"Instala tu clave en el servidor."},
+  {c:"scp",cat:"remoto",q:"Copia ficheros entre equipos por SSH.",e:"scp notas.txt alumno@192.168.1.10:/tmp",p:"Copia un fichero al servidor."},
+  {c:"systemctl status ssh",cat:"remoto",q:"Comprueba el estado del servicio SSH.",e:"systemctl status ssh",p:"Mira si SSH esta activo."}]},
+
+ {id:3,fase:1,tit:"Directorio (AD y LDAP)",sub:"RA1 · dominio Windows y OpenLDAP",ico:"\uD83D\uDCC7",ra:["RA1"],cmds:[
+  {c:"Get-ADUser",cat:"directorio",q:"Consulta usuarios del dominio. -Filter aplica filtros de busqueda.",e:"Get-ADUser -Filter *",p:"Lista los usuarios del dominio."},
+  {c:"New-ADUser",cat:"directorio",q:"Crea un usuario en Active Directory.",e:"New-ADUser -Name asir01",p:"Crea un usuario en el dominio."},
+  {c:"New-ADOrganizationalUnit",cat:"directorio",q:"Crea una unidad organizativa (OU).",e:"New-ADOrganizationalUnit -Name RADIO",p:"Crea una OU."},
+  {c:"Get-ADGroup",cat:"directorio",q:"Consulta los grupos del dominio.",e:"Get-ADGroup -Filter *",p:"Lista los grupos del dominio."},
+  {c:"ldapsearch",cat:"directorio",q:"Consulta un directorio LDAP (OpenLDAP en Linux).",e:"ldapsearch -x -b dc=empresa,dc=lab",p:"Busca en el arbol LDAP."}]},
+
+ {id:4,fase:1,tit:"Integracion (Samba/NFS)",sub:"RA6 · recursos entre Windows y Linux",ico:"\uD83D\uDD17",ra:["RA6"],cmds:[
+  {c:"smbclient",cat:"integracion",q:"Accede a recursos compartidos Samba desde Linux.",e:"smbclient -L 192.168.1.10",p:"Lista los recursos compartidos."},
+  {c:"testparm",cat:"integracion",q:"Comprueba la sintaxis de smb.conf.",e:"testparm",p:"Valida la configuracion de Samba."},
+  {c:"pdbedit -L",cat:"integracion",q:"Lista los usuarios de Samba.",e:"pdbedit -L",p:"Mira los usuarios de Samba."},
+  {c:"showmount -e",cat:"integracion",q:"Muestra los recursos NFS que exporta un servidor.",e:"showmount -e 192.168.1.10",p:"Lista los recursos NFS."},
+  {c:"mount",cat:"integracion",q:"Monta un recurso NFS como si fuera local.",e:"mount 192.168.1.10:/datos /mnt/datos",p:"Monta un recurso NFS."}]},
+
+ {id:5,fase:2,tit:"Procesos del sistema",sub:"RA2 · ps, kill, /proc y arranque",ico:"\u2699",ra:["RA2"],cmds:[
+  {c:"ps aux",cat:"procesos",q:"Fotografia de todos los procesos en ejecucion.",e:"ps aux",p:"Busca el proceso de bash."},
+  {c:"top",cat:"procesos",q:"Monitor en tiempo real de CPU y memoria.",e:"top",p:"Que proceso consume mas CPU?"},
+  {c:"kill",cat:"procesos",q:"Envia una senal a un proceso para terminarlo.",e:"kill 1234",p:"Termina un proceso por su PID."},
+  {c:"cat /proc",cat:"procesos",q:"El sistema de ficheros /proc identifica cada proceso por su PID.",e:"cat /proc/1/status",p:"Mira el estado del proceso 1."},
+  {c:"systemctl",cat:"procesos",q:"Gestiona servicios y la secuencia de arranque (systemd).",e:"systemctl list-units --type=service",p:"Lista los servicios activos."}]},
+
+ {id:6,fase:2,tit:"Automatizacion",sub:"RA3 · cron, tareas y despliegue",ico:"\uD83D\uDD01",ra:["RA3"],cmds:[
+  {c:"crontab -e",cat:"auto",q:"Edita las tareas programadas del usuario.",e:"crontab -e",p:"Abre tu crontab."},
+  {c:"crontab -l",cat:"auto",q:"Lista las tareas programadas.",e:"crontab -l",p:"Mira tus tareas programadas."},
+  {c:"at",cat:"auto",q:"Programa una tarea para una sola vez en el futuro.",e:"at 22:00",p:"Programa una tarea puntual."},
+  {c:"Get-ScheduledTask",cat:"auto",q:"Lista las tareas programadas de Windows. Para crearlas: Register-ScheduledTask (en CMD, schtasks).",e:"Get-ScheduledTask",p:"Lista las tareas de Windows."},
+  {c:"terraform",cat:"auto",q:"Automatiza el despliegue de infraestructura (ampliacion).",e:"terraform plan",p:"Previsualiza un despliegue."}]},
+
+ {id:7,fase:2,tit:"Impresion (CUPS)",sub:"RA5 · servidores de impresion",ico:"\uD83D\uDDA8",ra:["RA5"],cmds:[
+  {c:"lpstat -p",cat:"impresion",q:"Muestra el estado de las impresoras.",e:"lpstat -p",p:"Lista las impresoras."},
+  {c:"lpadmin",cat:"impresion",q:"Anade o configura impresoras en CUPS.",e:"lpadmin -p laser -E",p:"Anade una impresora."},
+  {c:"lp",cat:"impresion",q:"Envia un trabajo a la cola de impresion.",e:"lp -d laser notas.txt",p:"Imprime un fichero."},
+  {c:"lpq",cat:"impresion",q:"Muestra la cola de trabajos de una impresora.",e:"lpq -P laser",p:"Mira la cola de impresion."},
+  {c:"cancel",cat:"impresion",q:"Cancela un trabajo de impresion.",e:"cancel laser-1",p:"Cancela un trabajo."}]}
+];
+
+const RETOS=[
+ {id:"r1",t:"Depura un script",d:"Ejecuta un script en modo depuracion con bash -x.",ok:()=>hecho.bashx},
+ {id:"r2",t:"Objetos en PowerShell",d:"Ejecuta Get-Process y luego Get-Process | Get-Member.",ok:()=>hecho.getprocess&&hecho.getmember},
+ {id:"r3",t:"Conecta por SSH",d:"Abre una sesion remota con ssh y genera tus claves con ssh-keygen.",ok:()=>hecho.ssh&&hecho.keygen},
+ {id:"r4",t:"Consulta el dominio",d:"Lista los usuarios del dominio con Get-ADUser -Filter *.",ok:()=>hecho.aduser},
+ {id:"r5",t:"Recursos compartidos",d:"Lista los recursos Samba con smbclient y los NFS con showmount -e.",ok:()=>hecho.smb&&hecho.showmount},
+ {id:"r6",t:"Gestiona procesos",d:"Mira los procesos con ps aux y consulta /proc del proceso 1.",ok:()=>hecho.ps&&hecho.proc},
+ {id:"r7",t:"Programa una tarea",d:"Abre tu crontab con crontab -e y listalo con crontab -l.",ok:()=>hecho.crontab_e&&hecho.crontab_l},
+ {id:"r8",t:"Administra impresion",d:"Lista las impresoras con lpstat -p y anade una con lpadmin.",ok:()=>hecho.lpstat&&hecho.lpadmin}
+];
+
+const TEST=[
+ {q:"En PowerShell, por la tuberia viajan...",o:["Texto","Objetos","Bytes","Nada"],r:1,e:"PowerShell pasa objetos con propiedades y metodos."},
+ {q:"Que comando genera un par de claves para SSH?",o:["ssh","ssh-keygen","scp","ssh-copy-id"],r:1,e:"ssh-keygen crea la clave publica y la privada."},
+ {q:"Que protocolo usa Active Directory para el directorio?",o:["SMB","LDAP","NFS","RDP"],r:1,e:"AD implementa el protocolo LDAP."},
+ {q:"Con que compruebas la sintaxis de smb.conf?",o:["testparm","smbclient","pdbedit","showmount"],r:0,e:"testparm valida la configuracion de Samba antes de reiniciar."},
+ {q:"Que sistema de ficheros identifica los procesos en Linux?",o:["/etc","/proc","/var","/dev"],r:1,e:"Cada proceso tiene una carpeta en /proc con su PID."},
+ {q:"Que fichero programa tareas repetitivas en Linux?",o:["/etc/fstab","crontab","/etc/hosts","at"],r:1,e:"El crontab define tareas periodicas; at es para una sola vez."},
+ {q:"Que servicio gestiona la impresion en Linux?",o:["CUPS","Samba","NFS","GRUB"],r:0,e:"CUPS es el sistema de impresion de Linux, accesible por web en el puerto 631."},
+ {q:"Como se filtran objetos en PowerShell?",o:["grep","Where-Object","Select-Object","Filter-Object"],r:1,e:"Where-Object filtra; Select-Object elige propiedades."},
+ {q:"Que RA se trabaja en la empresa (dualizado)?",o:["RA1","RA6","RA7","RA3"],r:1,e:"RA6, la integracion de sistemas, es el RA dualizado."},
+ {q:"Que cmdlet lista los usuarios del dominio?",o:["Get-LocalUser","Get-ADUser","Get-User","net user"],r:1,e:"Get-ADUser consulta Active Directory; -Filter aplica busquedas."},
+ {q:"Que hace kill 1234?",o:["Reinicia el equipo","Termina el proceso con PID 1234","Borra un fichero","Lista procesos"],r:1,e:"Envia una senal de terminacion al proceso indicado."},
+ {q:"Con que copias un fichero a un servidor por SSH?",o:["cp","scp","mv","rsync-ssh"],r:1,e:"scp copia de forma segura sobre el canal de SSH."}
+];
+
+const AYUDA=[
+ ["Por donde empiezo?","Los bloques siguen el orden del curso: 1a evaluacion (scripting, remoto, directorio, integracion) y 2a evaluacion (procesos, automatizacion, impresion). Cada ficha se registra sola al ejecutar el comando bien."],
+ ["La terminal es de verdad?","No, es una simulacion. Reconoce los comandos mas comunes de Bash y PowerShell del modulo y da respuestas de ejemplo. No toca tu equipo ni la red."],
+ ["Bash o PowerShell?","Las dos. La terminal detecta si escribes un comando de Linux (ssh, ps, crontab) o de PowerShell (Get-ADUser, Get-Service)."],
+ ["Se guarda mi progreso?","Si, en este navegador y en este equipo. En otro ordenador empezaras de cero."],
+ ["Los mini retos?","Se comprueban solos al ejecutar los comandos. En cuanto cumples la condicion, suman puntos."],
+ ["El RA6 no tiene bloque propio?","El RA6 (integracion) se trabaja sobre todo en la empresa. Aqui tienes sus comandos basicos (Samba y NFS) en el bloque de integracion."]
+];
+
+const norm=s=>String(s||"").trim().toLowerCase();
+const RESPUESTAS={};
+
+const PUNTOS_DOMINADO=2, PUNTOS_RETO=15, PUNTOS_TEST=5;
+function puntos(){ const d=Object.keys(prog.dominados).length; const r=Object.keys(prog.retos).length; const t=TEST.filter((p,i)=>prog.test[i]===p.r).length; return d*PUNTOS_DOMINADO + r*PUNTOS_RETO + t*PUNTOS_TEST; }
+function toast(msg,tipo){ const cont=document.getElementById("toasts"); if(!cont) return; const t=document.createElement("div"); t.className="toast"+(tipo?" "+tipo:""); t.textContent=msg; cont.appendChild(t); requestAnimationFrame(()=>t.classList.add("in")); setTimeout(()=>{ t.classList.remove("in"); setTimeout(()=>t.remove(),300); },3200); }
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const stripTags=s=>String(s).replace(/<[^>]*>/g,"");
+
+/* ============ ESTADO SIMULADO ============ */
+let cwd, hecho, hist=[], hi=0;
+function nuevoFS(){ cwd="/home/alumno"; hecho={}; }
+const existe=r=>false, nodo=r=>null;
+
+let ultimosSegmentos=[];
+const esErrorTotal=html=>/^<span class="err">[\s\S]*<\/span>$/.test(String(html).trim());
+function ejec(linea){
+  const raw=linea.trim(); ultimosSegmentos=[];
+  if(!raw) return "";
+  hist.push(raw); hi=hist.length;
+  const segmentos=raw.split("|").map(s=>s.trim()).filter(Boolean);
+  let salida=ejecUno(segmentos[0]);
+  for(let j=1;j<segmentos.length;j++){ salida=aplicarFiltro(salida,segmentos[j]); ultimosSegmentos.push({comando:segmentos[j],salida}); }
+  ultimosSegmentos.push({comando:segmentos[0],salida});
+  return salida;
+}
+function aplicarFiltro(html,filtro){
+  const t=filtro.split(/\s+/); const nombre=t[0].toLowerCase();
+  let datos=String(html).split("\n").filter(l=>!/^-{2,}/.test(stripTags(l))&&stripTags(l).trim()!=="");
+  if(nombre==="get-member"||nombre==="gm"){ hecho.getmember=true;
+    return "   TypeName: System.Diagnostics.Process\n\nName       MemberType Definition\n----       ---------- ----------\nKill       Method     void Kill()\nId         Property   int Id\nName       Property   string Name"; }
+  if(nombre==="where-object"||nombre==="where"||nombre==="?"){ const m=filtro.match(/-eq\s+(\w+)/i); if(m) return datos.filter(l=>stripTags(l).toLowerCase().includes(m[1].toLowerCase())).join("\n"); return datos.join("\n"); }
+  if(nombre==="measure-object"||nombre==="measure") return '<span class="inf">Count : '+datos.length+'</span>';
+  if(nombre==="select-object"||nombre==="select"){ const m=filtro.match(/-first\s+(\d+)/i); if(m) return datos.slice(0,+m[1]).join("\n"); return datos.join("\n"); }
+  if(nombre==="grep") { const pat=(t.slice(1).find(x=>!x.startsWith("-"))||"").toLowerCase(); return datos.filter(l=>stripTags(l).toLowerCase().includes(pat)).join("\n"); }
+  return datos.join("\n");
+}
+function tok(raw){ const o=[]; let a="",q=null; for(const ch of raw){ if(q){ if(ch===q)q=null; else a+=ch; } else if(ch==='"'||ch==="'")q=ch; else if(/\s/.test(ch)){ if(a){o.push(a);a="";} } else a+=ch; } if(a)o.push(a); return o; }
+function ejecUno(raw){
+  const t=tok(raw); const c0=t[0]||""; const c=c0.toLowerCase(); const a=t.slice(1);
+  const err=m=>'<span class="err">'+m+'</span>'; const inf=m=>'<span class="inf">'+m+'</span>';
+  const full=raw.toLowerCase();
+  switch(c){
+    case "ayuda": case "help":
+      return inf("Comandos simulados:")+"\nBash: bash chmod read if for grep ssh ssh-keygen ssh-copy-id scp systemctl ps top kill cat crontab at lpstat lpadmin lp lpq cancel smbclient testparm pdbedit showmount mount ldapsearch\nPowerShell: Get-Process Get-Member Where-Object Get-Service function Get-ADUser New-ADUser New-ADOrganizationalUnit Get-ADGroup Get-ScheduledTask Register-ScheduledTask\nreiniciar deja el sistema como al empezar.";
+    case "reiniciar": nuevoFS(); pintarRetos(); return inf("Sistema simulado reiniciado.");
+    case "clear": case "clear-host": case "cls": $("out").innerHTML=""; return "";
+    /* --- RA7 Bash --- */
+    case "bash": if(a.join(" ").includes("-x")){ hecho.bashx=true; return inf("+ echo hola\nhola\n(traza de ejecucion simulada)"); } return "";
+    case "chmod": return "";
+    case "read": return inf("(read) En la consola simulada no es interactivo.");
+    case "if": return inf("(if) Practica el if dentro de un script.");
+    case "for": { const m=raw.match(/in\s+([^;]+);/); if(m) return m[1].trim().split(/\s+/).join("\n"); return inf("Uso: for i in 1 2 3; do echo $i; done"); }
+    case "grep": { hecho.grep=true; if(/passwd/.test(full)) return "root:x:0:0:root:/root:/bin/bash"; return inf("(grep) busca un patron en un fichero"); }
+    /* --- RA7 PowerShell --- */
+    case "get-date": return new Date().toLocaleString("es-ES");
+    case "get-process": case "ps": if(c==="ps"){ hecho.ps=true; return "USER  PID  COMMAND\nroot    1  /sbin/init\nalumno 812 bash\nalumno 901 top"; }
+      hecho.getprocess=true; return "Handles  Id ProcessName\n-------  -- -----------\n    240 812 bash\n    150 901 powershell";
+    case "get-member": hecho.getmember=true; return "   TypeName: System.DateTime\nName MemberType Definition\n---- ---------- ----------\nYear Property   int Year";
+    case "where-object": case "get-service": if(c==="get-service"){ hecho.getservice=true; return "Status  Name    StartType\n------  ----    ---------\nRunning Spooler Automatic\nStopped WinRM   Manual"; } return err("Where-Object va tras una tuberia: Get-Service | Where-Object ...");
+    case "function": return inf("Funcion definida (simulado). Llamala por su nombre.");
+    /* --- RA4 Remoto --- */
+    case "ssh": hecho.ssh=true; return inf("Conectando a "+(a[0]||"servidor")+"...\nUltimo acceso: hoy.\nalumno@servidor:~$ (sesion remota simulada)");
+    case "ssh-keygen": hecho.keygen=true; return inf("Generando par de claves ed25519...\nClave publica guardada en ~/.ssh/id_ed25519.pub");
+    case "ssh-copy-id": return inf("Clave instalada. Ya puedes entrar sin contrasena.");
+    case "scp": return inf((a[0]||"fichero")+"  100%  1KB  transferido");
+    case "systemctl": { const sub=(a[0]||"").toLowerCase(); if(sub==="status") return "\u25CF "+(a[1]||"ssh")+".service - activo (running)"; if(sub==="list-units"||sub==="list-unit-files") return "UNIT           LOAD   ACTIVE SUB\nssh.service    loaded active running\ncron.service   loaded active running"; return inf("Uso: systemctl status|start|stop servicio"); }
+    /* --- RA1 Directorio --- */
+    case "get-aduser": hecho.aduser=true; return "Name    Enabled\n----    -------\nadmin   True\nasir01  True\nasir02  True";
+    case "new-aduser": return inf("Usuario "+(a.find(x=>!x.startsWith("-"))||"nuevo")+" creado en el dominio.");
+    case "new-adorganizationalunit": return inf("OU creada.");
+    case "get-adgroup": return "Name           GroupScope\n----           ----------\nAdmins         Global\nContabilidad   Global";
+    case "ldapsearch": hecho.ldap=true; return "dn: dc=empresa,dc=lab\ndn: ou=usuarios,dc=empresa,dc=lab\ndn: uid=asir01,ou=usuarios,dc=empresa,dc=lab";
+    /* --- RA6 Integracion --- */
+    case "smbclient": hecho.smb=true; return "Sharename  Type  Comment\n---------  ----  -------\ndatos      Disk  Carpeta compartida\nprint$     Disk  Printer Drivers";
+    case "testparm": return inf("Load smb config files from /etc/samba/smb.conf\nLoaded services file OK.\nServer role: ROLE_STANDALONE");
+    case "pdbedit": return "asir01:1001:Alumno ASIR";
+    case "showmount": hecho.showmount=true; return "Export list for servidor:\n/datos   192.168.1.*\n/comun   192.168.1.*";
+    case "mount": return inf("Recurso montado en /mnt (simulado).");
+    /* --- RA2 Procesos --- */
+    case "top": return "PID   USER   %CPU  COMMAND\n901   alumno  4.0  top\n812   alumno  0.3  bash";
+    case "kill": return "";
+    case "cat": if(/\/proc/.test(full)){ hecho.proc=true; return "Name:\tinit\nState:\tS (sleeping)\nPid:\t1\nPPid:\t0"; } return inf("(cat) muestra un fichero");
+    /* --- RA3 Automatizacion --- */
+    case "crontab": if(a[0]==="-e"){ hecho.crontab_e=true; return inf("Abriendo el editor de crontab... (simulado)"); } if(a[0]==="-l"){ hecho.crontab_l=true; return "0 2 * * * /usr/local/bin/copia.sh\n*/15 * * * * /usr/local/bin/check.sh"; } return inf("Uso: crontab -e | crontab -l");
+    case "at": return inf("warning: comandos se ejecutaran con /bin/sh\nat> (escribe la tarea y Ctrl-D) (simulado)");
+    case "register-scheduledtask": case "get-scheduledtask": return "TaskName        State\n--------        -----\nCopiaDiaria     Ready";
+    case "terraform": return inf("Terraform (ampliacion): "+(a[0]||"plan")+"\nPlan: 2 to add, 0 to change, 0 to destroy.");
+    /* --- RA5 Impresion --- */
+    case "lpstat": hecho.lpstat=true; return "impresora laser esta inactiva\nimpresora oficina esta inactiva";
+    case "lpadmin": hecho.lpadmin=true; return inf("Impresora anadida a CUPS.");
+    case "lp": return inf("solicitud id es laser-1 (1 fichero)");
+    case "lpq": return "laser esta lista\nRank  Owner  Job  Files      Size\n1st   alumno 1    notas.txt  1024";
+    case "cancel": return inf("Trabajo cancelado.");
+    default:
+      if(/^\$\w+\s*=/.test(raw)) return "";
+      return err("'"+esc(c0)+"' no se reconoce (escribe ayuda para ver los comandos).");
+  }
+}
+
+/* ============ ESTADO Y ALMACENAMIENTO ============ */
+const KEY="aso_survival_modulo_v1";
+let prog={dominados:{},retos:{},test:{},visitas:0};
+const $=id=>document.getElementById(id);
+const store={ async get(){ try{return localStorage.getItem(KEY)}catch(e){return null} }, async set(v){ try{localStorage.setItem(KEY,v)}catch(e){} } };
+let tg=null;
+function guardar(){clearTimeout(tg);tg=setTimeout(()=>store.set(JSON.stringify(prog)).catch(()=>{}),300)}
+async function cargar(){ try{const v=await store.get(); if(v) prog=Object.assign(prog,JSON.parse(v));}catch(e){} prog.visitas=(prog.visitas||0)+1; }
+
+const TODOS=()=>BLOQUES.flatMap(b=>b.cmds.map(c=>({...c,bloque:b.id,fase:b.fase,ra:b.ra})));
+const idc=c=>c.bloque+"|"+c.c;
+function pctFase(f){ const l=TODOS().filter(c=>!f||c.fase===f); return Math.round(100*l.filter(c=>prog.dominados[idc(c)]).length/(l.length||1)); }
+function pintarFases(){
+  const info=[[1,"1ª evaluacion","Scripting, remoto, directorio e integracion"],
+              [2,"2ª evaluacion","Procesos, automatizacion e impresion"]];
+  let h=info.map(([n,t,s])=>`<button class="fase f${n}" data-fase="${n}">
+      <span class="n">Bloque ${n}</span><h2>${t}</h2><small>${s}</small>
+      <div class="barra"><i style="width:${pctFase(n)}%"></i></div>
+      <small style="margin:6px 0 0">${pctFase(n)}% completado</small></button>`).join("");
+  const g=pctFase(null);
+  h+=`<div class="fase gen"><span class="n" style="color:var(--soft)">Tu progreso general</span>
+      <div style="display:flex;align-items:baseline;gap:8px"><span class="pct">${g}%</span>
+      <span class="nota">${TODOS().filter(c=>prog.dominados[idc(c)]).length} de ${TODOS().length} comandos</span></div>
+      <div class="barra" style="margin-top:8px"><i style="width:${g}%"></i></div>
+      <small style="margin-top:7px;color:var(--soft)">${g===0?"Empieza por el bloque de scripting.":g<40?"Vas arrancando, sigue asi.":g<80?"Ya te defiendes en el modulo.":"Esto ya lo tienes."}</small></div>`;
+  $("fases").innerHTML=h;
+  $("fases").querySelectorAll("[data-fase]").forEach(b=>b.onclick=()=>{ filtroFase=filtroFase===+b.dataset.fase?null:+b.dataset.fase; ir("aprender"); pintarBloques(); });
+}
+let filtroFase=null, filtroCat="", abiertos={0:true};
+function pintarBloques(){
+  const q=$("busca").value.toLowerCase().trim();
+  $("bloques").innerHTML=BLOQUES.filter(b=>!filtroFase||b.fase===filtroFase).map(b=>{
+    const cs=b.cmds.filter(c=>(!filtroCat||c.cat===filtroCat)&&(!q||(c.c+" "+c.q+" "+c.e).toLowerCase().includes(q)));
+    if(!cs.length&&(q||filtroCat)) return "";
+    const dom=b.cmds.filter(c=>prog.dominados[b.id+"|"+c.c]).length;
+    const ab=abiertos[b.id]||q;
+    return `<div class="bloque ${ab?"abierto":""}">
+      <button class="cab" data-b="${b.id}"><span class="ico">${b.ico}</span>
+        <span><b>${b.tit}</b><br><span>${b.sub}</span></span>
+        <span class="estado">${dom}/${b.cmds.length} ${ab?"▲":"▼"}</span></button>
+      ${ab?`<div class="cmds">${cs.map(c=>ficha(b,c)).join("")}</div>`:""}
+    </div>`;
+  }).join("")||'<p class="nota">Ningun comando encaja con la busqueda.</p>';
+  $("bloques").querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{ const i=+x.dataset.b; abiertos[i]=!abiertos[i]; pintarBloques(); });
+  $("bloques").querySelectorAll("[data-probar]").forEach(x=>x.onclick=()=>{ irTerminal(x.dataset.probar); });
+}
+function ficha(b,c){
+  const k=b.id+"|"+c.c, ok=!!prog.dominados[k];
+  return `<div class="cmd ${ok?"ok":""}">
+    <code class="t">${esc(c.c)}</code>
+    <div class="lin"><b class="b1">Qué hace</b><span>${c.q}</span></div>
+    <div class="lin"><b class="b2">Ejemplo</b><code class="ej" data-probar="${esc(c.e)}" title="Ir a la terminal con este comando como pista">${esc(c.e)}</code></div>
+    <div class="lin"><b class="b3">Prueba tú</b><span>${c.p}</span></div>
+    </div>`;
+}
+function pintarRA(){
+  const RAS=[["RA1","Directorio"],["RA2","Procesos"],["RA3","Automatizacion"],["RA4","Remoto"],["RA5","Impresion"],["RA6","Integracion"],["RA7","Scripting"]];
+  $("ra").innerHTML=RAS.map(([r,t])=>{
+    const l=TODOS().filter(c=>c.ra.includes(r));
+    const p=l.length?Math.round(100*l.filter(c=>prog.dominados[idc(c)]).length/l.length):0;
+    const col=p>=70?"#059669":p>=35?"#EA580C":"#2563EB"; const C=2*Math.PI*22;
+    return `<div><div class="anillo"><svg viewBox="0 0 56 56" width="100%">
+      <circle cx="28" cy="28" r="22" fill="none" stroke="#E2E8F0" stroke-width="6"/>
+      <circle cx="28" cy="28" r="22" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round"
+        stroke-dasharray="${(C*p/100).toFixed(1)} ${C}" transform="rotate(-90 28 28)"/>
+      <text x="28" y="32" text-anchor="middle" font-size="12" font-weight="700" fill="#0F172A">${p}%</text>
+    </svg></div><small><b>${r}</b><br>${t}</small></div>`;
+  }).join("");
+}
+function pintarStats(){
+  const d=Object.keys(prog.dominados).length, r=Object.keys(prog.retos).length;
+  const th=TEST.filter((p,i)=>prog.test[i]!==undefined).length; const ta=TEST.filter((p,i)=>prog.test[i]===p.r).length;
+  const testTxt=th?ta+" de "+TEST.length+(th<TEST.length?" (en curso)":""):"sin hacer";
+  $("stats").innerHTML=`<div class="pts">${puntos()} pts</div>
+    Comandos vistos: <b>${d}</b> de ${TODOS().length}<br>
+    Retos superados: <b>${r}</b> de ${RETOS.length}<br>
+    Autoevaluación: <b>${testTxt}</b><br>
+    Sesiones abiertas: <b>${prog.visitas}</b>`;
+}
+function marcarUsoAuto(escrito,resultado){
+  let t=escrito.trim().split(/\s+/); if(!t[0]) return;
+  const tokens=t.map(x=>x.toLowerCase()); if(esErrorTotal(resultado)) return;
+  const candidatos=[];
+  TODOS().forEach(c=>{ const k=idc(c); if(prog.dominados[k]) return;
+    const exp=c.c.toLowerCase().split(/\s+/);
+    if(exp[0]!==tokens[0]) return;
+    if(!exp.every(tok=>tokens.some(x=>x===tok||x.startsWith(tok)))) return;
+    candidatos.push({c,k,esp:exp.length}); });
+  const maxEsp=candidatos.length?Math.max(...candidatos.map(x=>x.esp)):0;
+  let nuevo=false;
+  candidatos.filter(x=>x.esp===maxEsp).forEach(({c,k})=>{ prog.dominados[k]=1; nuevo=true; toast("¡Bien! "+c.c+" · +"+PUNTOS_DOMINADO+" pts","ok"); });
+  if(nuevo){ guardar(); pintarFases(); pintarRA(); pintarStats(); if(!$("tab-aprender").classList.contains("oculto")) pintarBloques(); }
+}
+function comprobarRetosAuto(){
+  let nuevo=false;
+  RETOS.forEach(r=>{ if(prog.retos[r.id]) return; let bien=false; try{ bien=r.ok(); }catch(e){ bien=false; }
+    if(bien){ prog.retos[r.id]=1; nuevo=true; toast("Reto superado: "+r.t+" · +"+PUNTOS_RETO+" pts","ok"); } });
+  if(nuevo){ guardar(); pintarStats(); if(!$("tab-retos").classList.contains("oculto")) pintarRetos(); }
+}
+function pintarRetos(){
+  $("retos").innerHTML=RETOS.map((r,i)=>`<div class="reto ${prog.retos[r.id]?"hecho":""}">
+    <span class="num">${prog.retos[r.id]?"✓":i+1}</span>
+    <div style="flex:1"><b>${r.t}</b><p>${r.d}</p>
+    ${prog.retos[r.id]?`<span class="nota" style="color:var(--verde);font-weight:600">Superado · +${PUNTOS_RETO} pts</span>`:`<button data-irterm>Ir a la terminal</button><span class="nota" style="margin-left:9px">Se marca solo al conseguirlo.</span>`}
+    </div></div>`).join("");
+  $("retos").querySelectorAll("[data-irterm]").forEach(b=>b.onclick=()=>irTerminal());
+}
+function pintarTest(){
+  $("test").innerHTML=TEST.map((p,i)=>{
+    const dada=prog.test[i];
+    return `<div class="preg"><div class="q">${i+1}. ${p.q}</div>
+      ${p.o.map((o,j)=>{ let cl=""; if(dada!==undefined) cl=j===p.r?"bien":(j===dada?"mal":"");
+        return `<button class="op ${cl}" data-p="${i}" data-o="${j}" ${dada!==undefined?"disabled":""}>${o}</button>`; }).join("")}
+      ${dada!==undefined?`<div class="expl">${dada===p.r?"Correcto. ":"La buena era: "+p.o[p.r]+". "}${p.e}
+        <button class="chip" data-retry="${i}" style="margin-left:8px;padding:3px 10px;font-size:11.5px">Volver a intentar</button></div>`:""}</div>`;
+  }).join("");
+  const hechas=TEST.filter((p,i)=>prog.test[i]!==undefined).length; const acierto=TEST.filter((p,i)=>prog.test[i]===p.r).length;
+  $("subTest").textContent=hechas?`Llevas ${hechas} de ${TEST.length} respondidas y ${acierto} aciertos.`:"Doce preguntas. Responde y te digo al momento por qué. Puedes volver a intentar cualquiera.";
+  if(hechas===TEST.length&&prog.test.nota!==acierto){ prog.test.nota=acierto; guardar(); toast("Autoevaluación: "+acierto+" de "+TEST.length,"ok"); }
+  $("test").querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{ prog.test[+b.dataset.p]=+b.dataset.o; guardar(); pintarTest(); pintarStats(); });
+  $("test").querySelectorAll("[data-retry]").forEach(b=>b.onclick=()=>{ delete prog.test[+b.dataset.retry]; guardar(); pintarTest(); pintarStats(); });
+}
+function pintarChuleta(){
+  $("chuleta").innerHTML=BLOQUES.map(b=>`<h4 style="margin:16px 0 6px;font-size:14px">${b.tit} · ${b.ra.join(", ")}</h4>
+    <table><tr><th style="width:28%">Comando</th><th>Qué hace</th><th style="width:30%">Ejemplo</th></tr>
+    ${b.cmds.map(c=>`<tr><td><code>${esc(c.c)}</code></td><td>${c.q}</td><td><code>${esc(c.e)}</code></td></tr>`).join("")}
+    </table>`).join("");
+}
+function pintarAyuda(){ $("ayuda").innerHTML=AYUDA.map(([t,d])=>`<div style="margin-bottom:13px"><b style="font-size:14px">${t}</b><p class="nota" style="margin:3px 0 0">${d}</p></div>`).join(""); }
+
+/* ============ TERMINAL ============ */
+function escribir(html,eco){ const o=$("out"); if(eco!==undefined) o.innerHTML+=`<span class="pr">${esc(prompt_())}</span> ${esc(eco)}\n`; if(html) o.innerHTML+=html+"\n"; o.scrollTop=o.scrollHeight; }
+function prompt_(){ return "alumno@aso:~$"; }
+function refrescarPrompt(){$("prompt").textContent=prompt_()}
+$("cmd").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){ const v=$("cmd").value; const r=ejec(v);
+    const low=v.trim().toLowerCase(); if(low==="clear"||low==="cls"||low==="clear-host") escribir(r); else escribir(r,v);
+    $("cmd").value=""; refrescarPrompt();
+    ultimosSegmentos.forEach(s=>marcarUsoAuto(s.comando,s.salida)); comprobarRetosAuto();
+  }
+  if(e.key==="ArrowUp"){ if(hi>0){hi--;$("cmd").value=hist[hi]||""} e.preventDefault(); }
+  if(e.key==="ArrowDown"){ if(hi<hist.length-1){hi++;$("cmd").value=hist[hi]||""}else{hi=hist.length;$("cmd").value=""} e.preventDefault(); }
+});
+
+/* ============ NAVEGACION ============ */
+function ir(t){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  ["aprender","retos","test","chuleta","ayuda"].forEach(x=>$("tab-"+x).classList.toggle("oculto",x!==t));
+  if(t==="retos") pintarRetos(); if(t==="test") pintarTest(); if(t==="chuleta") pintarChuleta();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function irTerminal(pista){ if(pista!==undefined){ $("cmd").value=""; $("cmd").placeholder="Escribe: "+pista; } $("panelTerminal").scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>$("cmd").focus(),350); }
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ir(b.dataset.tab));
+document.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
+$("btnTerminal").onclick=()=>irTerminal();
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{ filtroCat=b.dataset.cat; document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("on",x===b)); pintarBloques(); });
+$("busca").oninput=pintarBloques;
+$("btnSiguiente").onclick=()=>{ const p=TODOS().find(c=>!prog.dominados[idc(c)]); if(!p){alert("Ya los has visto todos. Pásate por los mini retos.");return}
+  filtroFase=null; filtroCat=""; $("busca").value=""; document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("on",x.dataset.cat===""));
+  abiertos={}; abiertos[p.bloque]=true; ir("aprender"); pintarBloques();
+  setTimeout(()=>{const el=document.querySelector(".bloque.abierto");if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},100); };
+$("btnReiniciar").onclick=()=>{ if(!confirm("Esto borra tu progreso, los retos y la autoevaluación. ¿Seguro?"))return;
+  prog={dominados:{},retos:{},test:{},visitas:1}; nuevoFS(); guardar();
+  pintarFases();pintarBloques();pintarRA();pintarStats();pintarRetos();pintarTest();
+  $("out").innerHTML=""; escribir('<span class="inf">Todo reiniciado.</span>'); };
+$("testReset").onclick=()=>{prog.test={};guardar();pintarTest();pintarStats()};
+$("copiarChuleta").onclick=async()=>{ const txt=BLOQUES.map(b=>`== ${b.tit} (${b.ra.join(", ")}) ==\n`+b.cmds.map(c=>`${c.c}\t${c.q}\tEjemplo: ${c.e}`).join("\n")).join("\n\n");
+  const ta=$("cajaChuleta"); ta.classList.remove("oculto"); ta.value=txt; ta.select(); try{await navigator.clipboard.writeText(txt)}catch(e){} };
+
+/* ============ ARRANQUE ============ */
+nuevoFS();
+cargar().then(()=>{
+  pintarFases();pintarBloques();pintarRA();pintarStats();pintarRetos();pintarTest();pintarChuleta();pintarAyuda();
+  escribir('<span class="inf">Terminal de prácticas del módulo ASO: acepta <b>Bash</b> y <b>PowerShell</b>. Escribe <b>ayuda</b>.</span>\nSistema simulado: nada de lo que hagas aquí afecta a tu equipo.');
+  refrescarPrompt();
+});
+
+const TITULO_INFORME='Informe ASO Survival - Modulo completo';
+const ARCHIVO_INFORME='Modulo';
+
+/* ============ GENERADOR DE PDF PROPIO (sin internet, sin librerias) ============ */
+function MiniPDF(){
+  var K=72/25.4, H=842, ops=[];
+  function enc(s){ var o=""; s=String(s);
+    for(var i=0;i<s.length;i++){ var c=s.charCodeAt(i);
+      if(c===0x2013||c===0x2014) c=45; else if(c===0x2018||c===0x2019) c=39; else if(c===0x201C||c===0x201D) c=34; else if(c===0x20AC) c=128;
+      if(c>255) c=63; var ch=String.fromCharCode(c);
+      if(ch==="\\"||ch==="("||ch===")") ch="\\"+ch; o+=ch; }
+    return o; }
+  function col(c){ return (c[0]/255).toFixed(3)+" "+(c[1]/255).toFixed(3)+" "+(c[2]/255).toFixed(3); }
+  function ancho(s,size){ return String(s).length*size*0.52; }
+  var api={
+    rect:function(x,y,w,h,c){ ops.push(col(c)+" rg "+(x*K).toFixed(2)+" "+(H-(y+h)*K).toFixed(2)+" "+(w*K).toFixed(2)+" "+(h*K).toFixed(2)+" re f"); },
+    line:function(x1,y1,x2,y2,c){ ops.push(col(c)+" RG 0.8 w "+(x1*K).toFixed(2)+" "+(H-y1*K).toFixed(2)+" m "+(x2*K).toFixed(2)+" "+(H-y2*K).toFixed(2)+" l S"); },
+    text:function(s,x,y,o){ o=o||{}; var size=o.size||11, f=o.bold?"F2":"F1", c=o.color||[15,23,42];
+      var px=x*K; if(o.align==="right") px-=ancho(s,size); if(o.align==="center") px-=ancho(s,size)/2;
+      ops.push("BT /"+f+" "+size+" Tf "+col(c)+" rg "+px.toFixed(2)+" "+(H-y*K).toFixed(2)+" Td ("+enc(s)+") Tj ET"); },
+    wrap:function(s,x,y,maxW,o){ o=o||{}; var size=o.size||11, maxC=Math.max(10,Math.floor(maxW*K/(size*0.52))), pal=String(s).split(" "), l="", n=0;
+      for(var i=0;i<pal.length;i++){ if((l+" "+pal[i]).trim().length>maxC){ api.text(l.trim(),x,y+n*size*0.45,o); n++; l=pal[i]; } else l+=" "+pal[i]; }
+      if(l.trim()){ api.text(l.trim(),x,y+n*size*0.45,o); n++; } return n*size*0.45; },
+    bytes:function(){
+      var cont=ops.join("\n"), objs=[];
+      objs.push("<< /Type /Catalog /Pages 2 0 R >>");
+      objs.push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+      objs.push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>");
+      objs.push("<< /Length "+cont.length+" >>\nstream\n"+cont+"\nendstream");
+      objs.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+      objs.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+      var out="%PDF-1.4\n", off=[];
+      for(var i=0;i<objs.length;i++){ off.push(out.length); out+=(i+1)+" 0 obj\n"+objs[i]+"\nendobj\n"; }
+      var xref=out.length;
+      out+="xref\n0 "+(objs.length+1)+"\n0000000000 65535 f \n";
+      for(var j=0;j<off.length;j++) out+=String(off[j]).padStart(10,"0")+" 00000 n \n";
+      out+="trailer\n<< /Size "+(objs.length+1)+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF";
+      var b=new Uint8Array(out.length); for(var k=0;k<out.length;k++) b[k]=out.charCodeAt(k)&255; return b; }
+  };
+  return api;
+}
+function descargarPDF(bytes,nombreFichero,aviso){
+  var blob=new Blob([bytes],{type:"application/pdf"}), url=URL.createObjectURL(blob);
+  try{ if(window.navigator&&window.navigator.msSaveOrOpenBlob){ window.navigator.msSaveOrOpenBlob(blob,nombreFichero); return; } }catch(e){}
+  var a=document.createElement("a"); a.href=url; a.download=nombreFichero; a.style.display="none";
+  document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); },500);
+  if(aviso){ aviso.innerHTML='PDF generado. Si no se ha descargado solo, <a href="'+url+'" download="'+nombreFichero+'" target="_blank" style="font-weight:700">pulsa aquí para descargarlo</a> y súbelo a la tarea de Aeducar.'; aviso.style.color="#059669"; }
+}
+
+/* ============ INFORME PDF (identificacion + resultados) ============ */
+(function(){
+
+  // Insertar tarjeta de identificacion + boton en la barra lateral (antes de "Racha")
+  function insertarPanel(){
+    var lateral=document.querySelector('.lateral'); if(!lateral) return;
+    var div=document.createElement('div'); div.className='panel';
+    div.innerHTML='<h3 style="font-size:15px">Entrega en Aeducar</h3>'+
+      '<p class="sub" style="margin-bottom:10px">Descarga el PDF con tu nombre y tus resultados y súbelo a la tarea de Aeducar.</p>'+
+      '<input id="alumNombre" placeholder="Nombre y apellidos" autocomplete="off" '+
+        'style="width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:9px">'+
+      '<button id="btnPDF" class="a1" style="width:100%;border:none;border-radius:11px;padding:12px;color:#fff;font-size:14px;font-weight:600;background:var(--azul)">Descargar informe PDF</button>'+
+      '<p class="nota" id="avisoPDF" style="margin-top:8px"></p>';
+    lateral.appendChild(div);
+    document.getElementById('btnPDF').onclick=generarPDF;
+  }
+
+  function calcular(){
+    var totalCmd=TODOS().length;
+    var domin=Object.keys(prog.dominados).length;
+    var pctCmd=Math.round(100*domin/(totalCmd||1));
+    var retos=Object.keys(prog.retos).length, totalRetos=RETOS.length;
+    var aciertos=TEST.filter(function(p,i){return prog.test[i]===p.r;}).length;
+    var respondidas=TEST.filter(function(p,i){return prog.test[i]!==undefined;}).length;
+    var apto = (pctCmd>=80) && (retos>=Math.ceil(totalRetos*0.75)) && (aciertos>=8);
+    return {totalCmd,domin,pctCmd,retos,totalRetos,aciertos,respondidas,totalTest:TEST.length,apto};
+  }
+
+  function generarPDF(){
+    var campo=document.getElementById('alumNombre'); var nombre=((window.__alumno||'')|| (campo?campo.value:'')||'').trim();
+    var aviso=document.getElementById('avisoPDF');
+    if(!nombre){ aviso.textContent='Escribe tu nombre y apellidos antes de descargar.'; aviso.style.color='#DC2626'; return; }
+    try{
+      var r=calcular(), d=MiniPDF(), W=210, x=20, y;
+      d.rect(0,0,W,18,[37,99,235]);
+      d.text(TITULO_INFORME,x,11.5,{size:14,bold:true,color:[255,255,255]});
+      y=32;
+      d.text('Módulo: 0374 Administración de Sistemas Operativos · 2º ASIR',x,y,{size:11}); y+=8;
+      d.text('Alumno/a: '+nombre,x,y,{size:12,bold:true}); y+=8;
+      var f=new Date();
+      d.text('Fecha: '+f.toLocaleDateString('es-ES')+'  '+f.toLocaleTimeString('es-ES'),x,y,{size:11}); y+=8;
+      d.line(x,y,W-x,y,[203,212,229]); y+=11;
+      d.text('Resultados de las pruebas',x,y,{size:13,bold:true}); y+=10;
+      function fila(l,v){ d.text(l,x,y,{size:11}); d.text(v,W-x,y,{size:11,bold:true,align:'right'}); y+=8; }
+      fila('Comandos dominados', r.domin+' de '+r.totalCmd+'  ('+r.pctCmd+'%)');
+      fila('Mini retos superados', r.retos+' de '+r.totalRetos);
+      fila('Autoevaluación (aciertos)', r.aciertos+' de '+r.totalTest+(r.respondidas<r.totalTest?'  (incompleta)':''));
+      y+=2; d.line(x,y,W-x,y,[203,212,229]); y+=10;
+      d.rect(x,y-2,W-2*x,15,r.apto?[220,252,231]:[254,226,226]);
+      d.text(r.apto?'RESULTADO: APTO':'RESULTADO: NO APTO TODAVÍA',W/2,y+7.5,{size:14,bold:true,align:'center',color:r.apto?[21,128,61]:[185,28,28]});
+      y+=24;
+      if(!r.apto){
+        var faltan=[];
+        if(r.pctCmd<80) faltan.push('dominar más comandos (mínimo 80%)');
+        if(r.retos<Math.ceil(r.totalRetos*0.75)) faltan.push('superar más mini retos (mínimo '+Math.ceil(r.totalRetos*0.75)+' de '+r.totalRetos+')');
+        if(r.aciertos<8) faltan.push('mejorar la autoevaluación (mínimo 8 de '+r.totalTest+')');
+        y+=d.wrap('Te falta: '+faltan.join('; ')+'.',x,y,W-2*x,{size:11});
+      }
+      d.wrap('Criterio de APTO: al menos 80% de comandos dominados, '+Math.ceil(r.totalRetos*0.75)+' de '+r.totalRetos+' mini retos y 8 de '+r.totalTest+' aciertos en la autoevaluación.',x,y+6,W-2*x,{size:9,color:[71,85,105]});
+      d.wrap('Informe de autoevaluación generado en el navegador. Sirve como evidencia de trabajo, no como examen oficial.',x,282,W-2*x,{size:8,color:[100,116,139]});
+      var limpio=nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_');
+      descargarPDF(d.bytes(),'ASO_'+ARCHIVO_INFORME+'_'+limpio+'.pdf',aviso);
+    }catch(e){ aviso.textContent='No se ha podido generar el PDF: '+e.message; aviso.style.color='#DC2626'; }
+  }
+
+  if(document.readyState!=='loading') insertarPanel();
+  else document.addEventListener('DOMContentLoaded',insertarPanel);
+})();
+
+/* ============ PUERTA DE IDENTIFICACION (obligatoria) ============ */
+(function(){
+  var KEYN="__aso_alumno_nombre";
+  function guardado(){ try{return localStorage.getItem(KEYN)||"";}catch(e){return "";} }
+  window.__alumno = guardado();
+
+  var ov=document.createElement('div');
+  ov.id='gateIdent';
+  ov.setAttribute('style','position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1D4ED8,#5b2be0);display:flex;align-items:center;justify-content:center;padding:20px;');
+  ov.innerHTML=
+    '<div style="background:#fff;border-radius:16px;max-width:440px;width:100%;padding:26px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3);font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif">'+
+    '<h2 style="margin:0 0 6px;font-size:1.35em;color:#0F172A">Identifícate para empezar</h2>'+
+    '<p style="margin:0 0 16px;color:#64748B;font-size:14px">Escribe tu <b>nombre y apellidos</b>. Es obligatorio: aparecerán en el informe PDF que entregarás en Aeducar.</p>'+
+    '<input id="gateNombre" placeholder="Nombre y apellidos" autocomplete="name" '+
+      'style="width:100%;box-sizing:border-box;border:2px solid #CBD5E1;border-radius:10px;padding:12px 14px;font-size:15px;margin-bottom:6px">'+
+    '<p id="gateErr" style="color:#DC2626;font-size:13px;min-height:18px;margin:0 0 10px"></p>'+
+    '<button id="gateBtn" style="width:100%;border:none;border-radius:11px;padding:13px;color:#fff;font-size:15px;font-weight:700;background:#2563EB;cursor:pointer">Entrar</button>'+
+    '</div>';
+
+  function poner(){
+    document.body.appendChild(ov);
+    var inp=document.getElementById('gateNombre');
+    var err=document.getElementById('gateErr');
+    var btn=document.getElementById('gateBtn');
+    if(window.__alumno) inp.value=window.__alumno;
+    setTimeout(function(){inp.focus();},100);
+    function entrar(){
+      var v=(inp.value||'').trim().replace(/\s+/g,' ');
+      // exigir al menos dos palabras (nombre y apellido)
+      if(v.split(' ').filter(Boolean).length<2){ err.textContent='Escribe tu nombre y al menos un apellido.'; inp.focus(); return; }
+      window.__alumno=v; try{localStorage.setItem(KEYN,v);}catch(e){}
+      ov.parentNode&&ov.parentNode.removeChild(ov);
+      var campo=document.getElementById('alumNombre'); if(campo) campo.value=v;
+    }
+    btn.onclick=entrar;
+    inp.addEventListener('keydown',function(e){ if(e.key==='Enter') entrar(); });
+  }
+  if(document.readyState!=='loading') poner();
+  else document.addEventListener('DOMContentLoaded',poner);
+})();
+
+/* ============ AVISO SI SE VE DENTRO DE UN IFRAME (Aeducar incrustado) ============ */
+(function(){
+  function comprobar(){
+    try{
+      if(window.self!==window.top){
+        var b=document.getElementById("bannerIframe");
+        if(b) b.classList.add("on");
+      }
+    }catch(e){
+      var b=document.getElementById("bannerIframe");
+      if(b) b.classList.add("on");
+    }
+  }
+  function activar(){
+    var btn=document.getElementById("btnFullscreen");
+    if(btn) btn.onclick=function(){ window.open(location.href,"_blank"); };
+  }
+  if(document.readyState!=="loading"){ comprobar(); activar(); }
+  else document.addEventListener("DOMContentLoaded",function(){ comprobar(); activar(); });
+})();
+</script>
+</body>
+</html>
