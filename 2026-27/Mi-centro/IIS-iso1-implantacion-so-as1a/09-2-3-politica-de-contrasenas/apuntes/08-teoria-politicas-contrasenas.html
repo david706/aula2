@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Políticas de contraseñas y directivas de cuenta — ISO UD2</title><style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:12px 14px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;gap:22px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+
+html,body{height:100%}
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 80px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:1.9rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.25rem;color:var(--navy2);margin:.9em 0 .3em}
+.slide p,.slide li{font-size:1.18rem}
+.slide li{margin:.3em 0}
+.slide pre{font-size:1rem}
+.slide table{font-size:1.02rem}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.q{background:#eef3f8;border-left:6px solid var(--navy2);border-radius:12px;padding:14px 18px;margin:14px 0;cursor:pointer}
+.q .ans{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--navy2)}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.big{font-family:Consolas,"Courier New",monospace;font-size:2.2rem;font-weight:700;color:var(--navy);margin:10px 0}
+.notes{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:8px}
+.notes::before{content:"📝 Notas para el profesor · ";font-weight:700}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media(max-width:860px){.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+</style></head><body><div class="deck"><section class="slide on"><div class="cover"><div class="kicker">&gt; module ISO 0369 · UD2 · RA2 · CE b) Asegurar el acceso al sistema</div><h1>Políticas de contraseñas y directivas de cuenta</h1><p>Calidad, caducidad, bloqueo y estado de las cuentas en Linux (shadow, chage, PAM) y en Windows (secpol.msc, net accounts, net user).</p><p style="font-size:1rem;opacity:.8;margin-top:30px">1.º ASIR · Implantación de Sistemas Operativos · I.E.S. Pablo Serrano · Curso 2026/27</p></div>
+<p class="notes">Usa ← → o espacio para avanzar. Tecla <b>D</b> cambia a modo documento (todo seguido, para Aeducar). Las cajas azules se despliegan al hacer clic.</p></section>
+<section class="slide"><div class="kicker">ÍNDICE</div><h2>Qué vamos a ver</h2><ol class="toc"><li>La contraseña es la puerta; la política, la cerradura</li><li>/etc/shadow: los nueve campos</li><li>chage, passwd y usermod</li><li>Calidad de la contraseña: pam_pwquality</li><li>Bloqueo por intentos fallidos: pam_faillock</li><li>Directiva de seguridad local: secpol.msc</li><li>Acciones sobre una cuenta</li><li>Lo que dice hoy la seguridad (no lo de hace 15 años)</li><li>Para llevarse a casa</li></ol></section><section class="slide"><div class="kicker">1 · POR QUÉ</div><h2>La contraseña es la puerta; la política, la cerradura</h2>
+<p>Un sistema con permisos perfectos cae igual si <code>ana</code> usa <code>ana1234</code> y nunca la cambia. El CE b) de RA2 pide exactamente esto: <b>asegurar el acceso mediante directivas de cuenta y de contraseñas</b>.</p>
+<div class="cols"><div class="box"><h3>Qué controla una política</h3><ul><li><b>Calidad</b>: longitud, complejidad, no reutilizar.</li><li><b>Vida</b>: caducidad máxima, mínimo entre cambios, aviso previo.</li><li><b>Bloqueo</b>: intentos fallidos, duración del bloqueo.</li><li><b>Cuenta</b>: caducidad, primer cambio obligatorio, deshabilitar.</li></ul></div>
+<div class="box"><h3>Dónde vive cada cosa</h3><table><tr><th></th><th>Linux</th><th>Windows local</th></tr><tr><td>Calidad</td><td>PAM pwquality</td><td>secpol.msc → Directiva de contraseñas</td></tr><tr><td>Vida</td><td>/etc/shadow, chage, login.defs</td><td>secpol.msc → Directiva de contraseñas</td></tr><tr><td>Bloqueo</td><td>PAM faillock</td><td>secpol.msc → Directiva de bloqueo</td></tr><tr><td>Cuenta</td><td>usermod, chage -E, passwd -l</td><td>net user, lusrmgr</td></tr></table></div></div></section><section class="slide"><div class="kicker">2 · LINUX · SHADOW</div><h2>/etc/shadow: los nueve campos</h2>
+<pre>ana:$y$j9T$abc…:20734:0:90:7:14:20900:
+<i>  1    2        3   4  5 6  7    8    9</i></pre>
+<table><tr><th>#</th><th>Campo</th><th>Significado</th></tr><tr><td>1</td><td>usuario</td><td></td></tr><tr><td>2</td><td>hash</td><td><code>$y$</code> yescrypt (Ubuntu 22.04+), <code>$6$</code> SHA-512. <code>!</code> o <code>*</code> delante = bloqueada</td></tr><tr><td>3</td><td>último cambio</td><td>días desde 1/1/1970. <b>0 = debe cambiarla al entrar</b></td></tr><tr><td>4</td><td>mínimo</td><td>días que debe esperar para volver a cambiarla</td></tr><tr><td>5</td><td>máximo</td><td>caducidad: días de validez</td></tr><tr><td>6</td><td>aviso</td><td>días antes de caducar que se avisa</td></tr><tr><td>7</td><td>inactividad</td><td>días tras caducar antes de deshabilitar</td></tr><tr><td>8</td><td>caducidad de cuenta</td><td>fecha absoluta en días</td></tr></table>
+<p>Verlo bonito: <code>sudo chage -l ana</code>.</p></section><section class="slide"><div class="kicker">3 · LINUX · CHAGE</div><h2>chage, passwd y usermod</h2>
+<pre><b># envejecimiento de una cuenta</b>
+sudo chage -M 90 -m 1 -W 7 ana      <i># máx 90 días, mín 1, aviso 7</i>
+sudo chage -d 0 ana                 <i># obligar a cambiar en el próximo login</i>
+sudo chage -E 2027-06-30 luis       <i># la cuenta caduca ese día (becario)</i>
+sudo chage -E -1 luis               <i># quitar caducidad</i>
+sudo chage -l ana                   <i># consultar</i>
+<b># bloquear / desbloquear</b>
+sudo passwd -l pedro                <i># pone ! delante del hash</i>
+sudo passwd -u pedro
+sudo usermod -L pedro / -U pedro    <i># igual</i>
+sudo usermod -s /usr/sbin/nologin pedro   <i># sin shell: no entra por consola/SSH</i>
+<b># valores por defecto para usuarios NUEVOS</b>
+sudo nano /etc/login.defs           <i># PASS_MAX_DAYS 90  PASS_MIN_DAYS 1  PASS_WARN_AGE 7</i></pre>
+<div class="warn"><code>login.defs</code> solo afecta a cuentas creadas <b>después</b>; a las existentes hay que aplicarles <code>chage</code> una a una (o con un bucle).</div></section><section class="slide"><div class="kicker">4 · LINUX · PAM</div><h2>Calidad de la contraseña: pam_pwquality</h2>
+<p>PAM (Pluggable Authentication Modules) es la cadena por la que pasa cualquier login. El módulo <code>pam_pwquality</code> comprueba la contraseña nueva cuando alguien hace <code>passwd</code>.</p>
+<pre>sudo apt install libpam-pwquality
+sudo nano /etc/security/pwquality.conf
+minlen = 10          <i># longitud mínima</i>
+dcredit = -1         <i># al menos 1 dígito</i>
+ucredit = -1         <i># al menos 1 mayúscula</i>
+lcredit = -1         <i># al menos 1 minúscula</i>
+ocredit = -1         <i># al menos 1 símbolo</i>
+maxrepeat = 3        <i># no más de 3 iguales seguidos</i>
+usercheck = 1        <i># no puede contener el nombre de usuario</i>
+enforce_for_root     <i># que también se lo aplique a root</i></pre>
+<p>Probar: <code>su - ana</code> → <code>passwd</code> → poner <code>hola</code> → "La contraseña es demasiado corta / BAD PASSWORD". Nota: <b>root con <code>sudo passwd ana</code> se salta las reglas</b> salvo que pongas <code>enforce_for_root</code>; la prueba válida es como el propio usuario.</p><p class="notes">Si el paquete no instala por falta de red en la VM, recordar que Ubuntu Server 24.04 ya trae pam_pwquality en la cadena common-password (minlen por defecto 8). Comprobar con grep pwquality /etc/pam.d/common-password.</p></section><section class="slide"><div class="kicker">5 · LINUX · BLOQUEO</div><h2>Bloqueo por intentos fallidos: pam_faillock</h2>
+<pre>sudo nano /etc/security/faillock.conf
+deny = 5             <i># intentos</i>
+unlock_time = 600    <i># segundos bloqueado (0 = hasta que lo desbloquee root)</i>
+fail_interval = 900  <i># ventana en la que se cuentan los fallos</i>
+<b># activar en la cadena PAM (Ubuntu no lo trae activo):</b>
+sudo nano /etc/pam.d/common-auth
+auth    required   pam_faillock.so preauth
+auth    [success=1 default=ignore] pam_unix.so nullok
+auth    [default=die] pam_faillock.so authfail
+auth    sufficient pam_faillock.so authsucc
+<b># consultar y desbloquear</b>
+sudo faillock --user pedro
+sudo faillock --user pedro --reset</pre>
+<div class="danger">Editar <code>/etc/pam.d/*</code> a mano puede dejarte fuera del sistema. Mantén <b>una sesión root abierta</b> en otra terminal mientras pruebas, y haz una copia: <code>sudo cp /etc/pam.d/common-auth{,.bak}</code>.</div>
+<p>Registro de intentos: <code>sudo journalctl -u ssh</code> o <code>sudo grep "Failed password" /var/log/auth.log</code>, y <code>lastb</code> (logins fallidos) / <code>last</code> (correctos).</p></section><section class="slide"><div class="kicker">6 · WINDOWS · SECPOL</div><h2>Directiva de seguridad local: secpol.msc</h2>
+<p><b>Win+R → secpol.msc</b> → Directivas de cuenta. Se aplica a todas las cuentas locales del equipo (en RA4 lo mismo se hará para todo el dominio con una GPO).</p>
+<div class="cols"><div class="box"><h3>Directiva de contraseñas</h3><ul><li>Longitud mínima (0–14+)</li><li>Debe cumplir requisitos de complejidad (3 de 4: mayús, minús, dígito, símbolo; sin el nombre)</li><li>Vigencia máxima / mínima</li><li>Exigir historial (no repetir las últimas N)</li><li>Almacenar con cifrado reversible: <b>siempre deshabilitado</b></li></ul></div>
+<div class="box"><h3>Directiva de bloqueo de cuenta</h3><ul><li>Umbral: intentos fallidos</li><li>Duración del bloqueo (minutos; 0 = hasta que lo desbloquee un admin)</li><li>Restablecer el contador tras N minutos</li><li>Permitir bloqueo de Administrador (Win 11 22H2+)</li></ul></div></div>
+<pre>:: lo mismo por línea de comandos
+net accounts                     :: ver la política actual
+net accounts /minpwlen:10 /maxpwage:90 /minpwage:1 /uniquepw:5
+net accounts /lockoutthreshold:5 /lockoutduration:15 /lockoutwindow:15</pre>
+<p class="muted">La complejidad no se puede activar con <code>net accounts</code>: secpol.msc o <code>secedit</code>.</p></section><section class="slide"><div class="kicker">7 · WINDOWS · CUENTAS</div><h2>Acciones sobre una cuenta</h2>
+<pre>net user ana /logonpasswordchg:yes     :: cambiar contraseña en el próximo inicio
+net user ana /passwordchg:no           :: el usuario NO puede cambiarla
+net user ana /expires:30/06/2027       :: la cuenta caduca
+net user ana /active:no                :: deshabilitar
+net user ana /times:L-V,8:00-18:00     :: horas de inicio de sesión
+net user ana                           :: ver todo lo anterior
+<b># PowerShell</b>
+Set-LocalUser -Name ana -PasswordNeverExpires $false -AccountExpires (Get-Date "2027-06-30")
+Disable-LocalUser -Name pedro
+Get-LocalUser | Select Name,Enabled,PasswordLastSet,PasswordExpires</pre>
+<p>Dónde se ven los intentos: <b>Visor de eventos → Registros de Windows → Seguridad</b>, ID <b>4625</b> (fallo de inicio de sesión), <b>4624</b> (éxito), <b>4740</b> (cuenta bloqueada). Hace falta tener activada la auditoría de inicio de sesión (secpol → Directiva de auditoría), que lo retomaremos en RA7.</p></section><section class="slide"><div class="kicker">8 · BUENAS PRÁCTICAS</div><h2>Lo que dice hoy la seguridad (no lo de hace 15 años)</h2>
+<div class="cols"><div class="box"><h3>Recomendado (NIST SP 800-63B, ENS, INCIBE)</h3><ul><li><b>Longitud</b> por encima de complejidad: 12+ caracteres, frases.</li><li>Comprobar contra listas de contraseñas filtradas.</li><li>Caducidad <b>solo</b> si hay sospecha de compromiso, no cada 90 días por sistema.</li><li>Bloqueo por intentos, pero con desbloqueo automático para no facilitar denegación de servicio.</li><li>MFA siempre que se pueda.</li></ul></div>
+<div class="box"><h3>Lo que verás en empresas (y en el examen)</h3><ul><li>8–10 caracteres con complejidad 3 de 4.</li><li>Caducidad 90 días, historial 5.</li><li>Bloqueo tras 5 intentos, 15–30 minutos.</li></ul><p class="muted">Son requisitos de normativas antiguas que siguen en muchos pliegos. Debes saber configurarlos y saber argumentar por qué la longitud importa más.</p></div></div>
+<div class="q">🤔 ¿Por qué obligar a cambiar la contraseña cada 30 días puede ser contraproducente? <small>(clic)</small><div class="ans">Porque la gente acaba con patrones predecibles (Enero2026!, Febrero2026!) o las apunta. Mejor larga, única y cambiada cuando haya motivo.</div></div></section><section class="slide"><div class="kicker">9 · RESUMEN</div><h2>Para llevarse a casa</h2>
+<ol><li>Calidad (qué contraseña vale), vida (cuánto dura), bloqueo (cuántos intentos), cuenta (hasta cuándo existe).</li><li>Linux: <code>chage</code> por cuenta, <code>login.defs</code> para las nuevas, <code>pwquality</code> para calidad, <code>faillock</code> para bloqueo.</li><li>Windows: <code>secpol.msc</code> (o <code>net accounts</code>) para el equipo; <code>net user</code> para cada cuenta.</li><li>Las pruebas se hacen <b>como el usuario</b>, no como root/Administrador.</li><li>Mantén una sesión de administrador abierta cuando toques PAM.</li></ol>
+<div class="info"><b>Ahora:</b> Práctica 5 · Políticas de contraseñas (1 sesión).</div></section></div>
+<div class="nav"><button class="sec" onclick="go(-1)">← Anterior</button><button onclick="go(1)">Siguiente →</button><div class="pb"><span id="pb"></span></div><span class="n" id="n"></span><button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+document.querySelectorAll('.q').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+</script></body></html>

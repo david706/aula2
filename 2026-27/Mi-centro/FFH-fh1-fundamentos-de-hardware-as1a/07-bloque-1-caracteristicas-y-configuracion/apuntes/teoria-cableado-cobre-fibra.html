@@ -1,0 +1,262 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cableado de red: cobre y fibra óptica — FHW RA1</title><style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:12px 14px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;gap:22px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+
+html,body{height:100%}
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 80px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:1.9rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.25rem;color:var(--navy2);margin:.9em 0 .3em}
+.slide p,.slide li{font-size:1.18rem}
+.slide li{margin:.3em 0}
+.slide pre{font-size:1rem}
+.slide table{font-size:1.02rem}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.q{background:#eef3f8;border-left:6px solid var(--navy2);border-radius:12px;padding:14px 18px;margin:14px 0;cursor:pointer}
+.q .ans{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--navy2)}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.big{font-family:Consolas,"Courier New",monospace;font-size:2.2rem;font-weight:700;color:var(--navy);margin:10px 0}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media(max-width:860px){.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+
+.c{display:inline-block;width:46px;height:14px;border-radius:7px;vertical-align:middle;margin-right:8px;border:1px solid #9aa7b3}
+.k-bn{background:repeating-linear-gradient(90deg,#fff 0 7px,#f28c28 7px 14px)}.k-n{background:#f28c28}
+.k-bv{background:repeating-linear-gradient(90deg,#fff 0 7px,#2e9d4a 7px 14px)}.k-v{background:#2e9d4a}
+.k-ba{background:repeating-linear-gradient(90deg,#fff 0 7px,#2b62c9 7px 14px)}.k-a{background:#2b62c9}
+.k-bm{background:repeating-linear-gradient(90deg,#fff 0 7px,#7a4a22 7px 14px)}.k-m{background:#7a4a22}
+.rj td:first-child{width:60px;text-align:center;font-weight:700}
+#ordena{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+#ordena label{display:flex;flex-direction:column;gap:4px;font-weight:700;color:var(--navy)}
+#ordena select{font:inherit;padding:6px;border-radius:8px;border:1px solid var(--line)}
+#ordena .bien select{border:2px solid var(--green);background:#e6f3ea}#ordena .mal select{border:2px solid var(--red);background:#fbe9e6}
+.btnc{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.btnc.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+@media(max-width:860px){#ordena{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div class="deck"><section class="slide on"><div class="cover"><div class="kicker">&gt; module FHW 0371 · RA1 · CE c) y h) · Mecanismos de conexión y comunicación</div><h1>Cableado de red: cobre y fibra óptica</h1><p>Cómo sale el equipo a la red: el cable de par trenzado, el RJ45 y sus normas, el patch panel y el rack, y por qué la luz viaja dentro de una fibra.</p><p style="font-size:1rem;opacity:.8;margin-top:30px">1.º ASIR · Fundamentos de Hardware · I.E.S. Pablo Serrano · Curso 2026/27</p></div>
+<p class="muted" style="margin-top:18px">Usa ← → o la barra espaciadora para avanzar. La tecla <b>D</b> pone todo seguido, como un documento. Las cajas azules se abren al hacer clic.</p></section>
+
+<section class="slide"><div class="kicker">ÍNDICE</div><h2>Qué vamos a ver</h2><ol class="toc">
+<li>Del equipo al switch: la cadena completa</li><li>El cable de par trenzado: UTP, FTP y STP</li><li>Categorías: 5e, 6, 6A…</li><li>El conector RJ45 y las normas T568A y T568B</li><li>Ordena los colores</li><li>Patch panel y rack</li><li>Fibra óptica: qué es y de qué está hecha</li><li>Por qué la luz no se escapa</li><li>Monomodo y multimodo</li><li>Quién emite la luz: LED, VCSEL y láser</li><li>Conectores y módulos SFP</li><li>Seguridad con la fibra</li><li>¿Cobre o fibra?</li><li>Comprueba lo que sabes</li></ol></section>
+
+<section class="slide"><div class="kicker">1 · DEL EQUIPO AL SWITCH</div><h2>La cadena completa</h2>
+<p>Hasta ahora hemos visto lo que hay <b>dentro</b> de la caja. La tarjeta de red (NIC) es la puerta de salida: desde ahí hasta el switch hay una cadena de piezas que tiene nombre.</p>
+<svg viewBox="0 0 1000 210" style="width:100%;max-width:1000px;margin:10px 0" role="img" aria-label="Cadena del equipo al switch">
+<defs><marker id="fl" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" refX="12" refY="7" orient="auto"><path d="M0,0 L14,7 L0,14 z" fill="#2b6ca3"/></marker></defs>
+<g font-family="Segoe UI,Arial" font-size="15" text-anchor="middle">
+<rect x="10" y="60" width="120" height="70" rx="10" fill="#1f4e79"/><text x="70" y="92" fill="#fff">Equipo</text><text x="70" y="112" fill="#fff" font-size="12">tarjeta de red</text>
+<line x1="130" y1="95" x2="205" y2="95" stroke="#2b6ca3" stroke-width="4" marker-end="url(#fl)"/><text x="168" y="80" font-size="12" fill="#5b6b7a">latiguillo</text>
+<rect x="210" y="60" width="120" height="70" rx="10" fill="#e07a2b"/><text x="270" y="100" fill="#fff">Roseta</text>
+<line x1="330" y1="95" x2="535" y2="95" stroke="#2b6ca3" stroke-width="6" marker-end="url(#fl)"/><text x="432" y="80" font-size="12" fill="#5b6b7a">cable horizontal</text><text x="432" y="118" font-size="12" fill="#5b6b7a">por pared o techo · máx. 90 m</text>
+<rect x="540" y="40" width="440" height="140" rx="12" fill="none" stroke="#1f4e79" stroke-width="2" stroke-dasharray="6 4"/><text x="760" y="30" fill="#1f4e79" font-size="13">Armario o rack</text>
+<rect x="560" y="60" width="140" height="70" rx="10" fill="#3f8a52"/><text x="630" y="100" fill="#fff">Patch panel</text>
+<line x1="700" y1="95" x2="815" y2="95" stroke="#2b6ca3" stroke-width="4" marker-end="url(#fl)"/><text x="757" y="80" font-size="12" fill="#5b6b7a">latiguillo</text>
+<rect x="820" y="60" width="140" height="70" rx="10" fill="#1f4e79"/><text x="890" y="100" fill="#fff">Switch</text>
+</g></svg>
+<ul><li><b>Latiguillo</b> (<i>patch cord</i>): cable corto, flexible, con un RJ45 en cada punta. Se cambia cuando haga falta.</li>
+<li><b>Cable horizontal</b>: va fijo por la pared o el techo, de la roseta al armario. Es rígido y no se toca.</li>
+<li><b>Patch panel</b>: donde termina el cable horizontal dentro del rack. Desde ahí, latiguillos cortos al switch.</li></ul>
+<div class="info">Un enlace completo de cobre no pasa de <b>100 m</b>: 90 m de cable horizontal + 10 m de latiguillos entre las dos puntas.</div></section>
+
+<section class="slide"><div class="kicker">2 · PAR TRENZADO</div><h2>El cable de par trenzado</h2>
+<p>Un cable de red tiene <b>8 hilos de cobre</b> agrupados en <b>4 pares</b> (naranja, verde, azul y marrón). Cada par va trenzado sobre sí mismo: así las interferencias afectan igual a los dos hilos del par y se anulan, y un par no «se oye» en el de al lado (diafonía).</p>
+<table><tr><th>Tipo</th><th>Nombre técnico</th><th>Blindaje</th><th>Dónde se usa</th></tr>
+<tr><td><b>UTP</b></td><td>U/UTP</td><td>Ninguno</td><td>Oficinas, aulas: el más común y barato</td></tr>
+<tr><td><b>FTP</b></td><td>F/UTP</td><td>Una lámina de aluminio que envuelve los 4 pares</td><td>Zonas con algo de ruido eléctrico</td></tr>
+<tr><td><b>STP</b></td><td>S/FTP</td><td>Malla general y lámina en cada par</td><td>Talleres, fábricas, cerca de motores o cables de corriente</td></tr></table>
+<p class="muted">Cómo leer el nombre: lo que va antes de la barra es el blindaje de todo el cable (U = ninguno, F = lámina, S = malla) y lo que va después, el de cada par.</p>
+<div class="warn">Un cable blindado solo protege si el blindaje está <b>conectado a tierra</b> en las dos puntas, con conectores y patch panel blindados. Mal instalado, puede ir peor que un UTP.</div></section>
+
+<section class="slide"><div class="kicker">3 · CATEGORÍAS</div><h2>Categorías: cuánto aguanta cada cable</h2>
+<table><tr><th>Categoría</th><th>Frecuencia</th><th>Velocidad típica</th><th>Distancia</th><th>Uso hoy</th></tr>
+<tr><td>Cat 5e</td><td>100 MHz</td><td>1 Gbit/s</td><td>100 m</td><td>Instalaciones existentes; vale para Gigabit</td></tr>
+<tr><td>Cat 6</td><td>250 MHz</td><td>1 Gbit/s (10 Gbit/s hasta unos 55 m)</td><td>100 m</td><td>Lo más instalado en obra nueva</td></tr>
+<tr><td>Cat 6A</td><td>500 MHz</td><td>10 Gbit/s</td><td>100 m</td><td>Instalaciones pensadas para muchos años, puntos de acceso Wi-Fi rápidos</td></tr>
+<tr><td>Cat 7</td><td>600 MHz</td><td>10 Gbit/s</td><td>100 m</td><td>Poco usado: es de la norma europea e internacional (ISO), no de la americana</td></tr>
+<tr><td>Cat 8</td><td>2000 MHz</td><td>25–40 Gbit/s</td><td>30 m</td><td>Solo dentro de centros de datos, entre equipos cercanos</td></tr></table>
+<div class="info">La categoría está <b>impresa en la cubierta</b> del cable, junto con el tipo (U/UTP, F/UTP…) y los metros. Es lo primero que se mira.</div>
+<p>El enlace va a la velocidad de su pieza más floja: un cable Cat 6A con un latiguillo Cat 5e es un enlace Cat 5e.</p></section>
+
+<section class="slide"><div class="kicker">4 · RJ45</div><h2>El conector RJ45 y las normas T568A y T568B</h2>
+<p>El conector es el <b>RJ45</b> (su nombre técnico es 8P8C: 8 posiciones, 8 contactos). Los pines se cuentan del 1 al 8 mirando el conector con la pestaña hacia abajo y los contactos hacia ti, de izquierda a derecha.</p>
+<div class="cols"><div><h3>T568A</h3><table class="rj"><tr><th>Pin</th><th>Color</th></tr>
+<tr><td>1</td><td><span class="c k-bv"></span>Blanco-verde</td></tr><tr><td>2</td><td><span class="c k-v"></span>Verde</td></tr><tr><td>3</td><td><span class="c k-bn"></span>Blanco-naranja</td></tr><tr><td>4</td><td><span class="c k-a"></span>Azul</td></tr>
+<tr><td>5</td><td><span class="c k-ba"></span>Blanco-azul</td></tr><tr><td>6</td><td><span class="c k-n"></span>Naranja</td></tr><tr><td>7</td><td><span class="c k-bm"></span>Blanco-marrón</td></tr><tr><td>8</td><td><span class="c k-m"></span>Marrón</td></tr></table></div>
+<div><h3>T568B</h3><table class="rj"><tr><th>Pin</th><th>Color</th></tr>
+<tr><td>1</td><td><span class="c k-bn"></span>Blanco-naranja</td></tr><tr><td>2</td><td><span class="c k-n"></span>Naranja</td></tr><tr><td>3</td><td><span class="c k-bv"></span>Blanco-verde</td></tr><tr><td>4</td><td><span class="c k-a"></span>Azul</td></tr>
+<tr><td>5</td><td><span class="c k-ba"></span>Blanco-azul</td></tr><tr><td>6</td><td><span class="c k-v"></span>Verde</td></tr><tr><td>7</td><td><span class="c k-bm"></span>Blanco-marrón</td></tr><tr><td>8</td><td><span class="c k-m"></span>Marrón</td></tr></table></div></div>
+<p>Las dos normas solo <b>intercambian el par naranja y el verde</b>. El azul y el marrón están igual en las dos.</p>
+<ul><li><b>Cable directo</b>: la misma norma en las dos puntas (lo normal: T568B–T568B). Equipo con switch, switch con patch panel…</li>
+<li><b>Cable cruzado</b>: T568A en una punta y T568B en la otra. Se usaba para unir dos equipos iguales (PC con PC). Hoy casi todas las tarjetas y switches detectan el cable y se adaptan solos (<b>Auto-MDI-X</b>).</li>
+<li>Lo importante en una instalación: <b>usar la misma norma en todo el edificio</b>.</li></ul></section>
+
+<section class="slide"><div class="kicker">5 · ACTIVIDAD</div><h2>Ordena los colores de la norma T568B</h2>
+<p>Elige el color de cada pin y pulsa «Comprobar». Puedes repetirlo las veces que quieras.</p>
+<div id="ordena" class="box"></div>
+<p><button class="btnc" onclick="comprobarRJ()">Comprobar</button> <button class="btnc sec" onclick="ponerA()">Cambiar a T568A</button> <span id="rjres" style="font-weight:700;margin-left:10px"></span></p>
+<p class="muted">Truco: en T568B el <b>naranja</b> va primero (pines 1 y 2); en T568A, el <b>verde</b>. El par azul va en el centro (4 y 5), con el blanco-azul en el 5.</p></section>
+
+<section class="slide"><div class="kicker">6 · PATCH PANEL Y RACK</div><h2>Patch panel y rack</h2>
+<div class="cols"><div>
+<h3>El patch panel</h3>
+<ul><li><b>Por detrás</b>: llega el cable horizontal de cada roseta. Cada hilo se <b>inserta</b> en su contacto con una <b>herramienta de impacto</b> (<i>punch-down</i>), siguiendo el código de colores impreso en el panel (A o B). No se pone conector.</li>
+<li><b>Por delante</b>: una boca RJ45 por cada roseta, numerada. De ahí salen <b>latiguillos</b> cortos al switch.</li>
+<li>Así, cambiar a qué puerto del switch va una mesa es solo cambiar un latiguillo: el cable de la pared no se toca.</li></ul></div>
+<div><h3>El rack</h3>
+<ul><li>Armario con medidas estándar: <b>19 pulgadas</b> de ancho. La altura se mide en <b>U</b> (1 U = 44,45 mm). Un patch panel de 24 bocas ocupa 1 U.</li>
+<li>Orden típico: patch panel, pasahilos (organizador horizontal), switch, y abajo el SAI, que pesa más.</li>
+<li><b>Etiquetado</b>: cada boca del patch panel con el mismo número que su roseta («A-12» = aula A, toma 12).</li></ul></div></div>
+<div class="info"><b>PoE</b> (<i>Power over Ethernet</i>): algunos switches dan también corriente por el cable de red, y así se alimentan puntos de acceso Wi-Fi, cámaras o teléfonos IP sin enchufe aparte.</div></section>
+
+<section class="slide"><div class="kicker">7 · FIBRA ÓPTICA</div><h2>Fibra óptica: qué es y de qué está hecha</h2>
+<div class="cols"><div><p>En vez de corriente eléctrica, la fibra lleva <b>luz</b> por un hilo de <b>vidrio</b> más fino que un pelo. Un «1» es luz y un «0» es oscuridad, miles de millones de veces por segundo.</p>
+<ul><li><b>Núcleo</b>: el vidrio por el que viaja la luz.</li><li><b>Revestimiento</b> (<i>cladding</i>): otro vidrio alrededor, con un índice de refracción algo menor. Es lo que mantiene la luz dentro.</li><li><b>Recubrimiento</b>: plástico que protege el vidrio.</li><li><b>Fibras de refuerzo y cubierta</b>: dan resistencia al tirar y protegen del exterior.</li></ul></div>
+<svg viewBox="0 0 300 300" style="width:100%;max-width:300px" role="img" aria-label="Sección de una fibra óptica"><g font-family="Segoe UI,Arial" font-size="13">
+<circle cx="150" cy="150" r="130" fill="#e07a2b"/><circle cx="150" cy="150" r="105" fill="#f7d9b8"/><circle cx="150" cy="150" r="80" fill="#d6dee6"/><circle cx="150" cy="150" r="55" fill="#a9c7e6"/><circle cx="150" cy="150" r="18" fill="#ffd28a" stroke="#e07a2b"/>
+<text x="150" y="155" text-anchor="middle">núcleo</text><text x="150" y="112" text-anchor="middle">revestimiento</text><text x="150" y="83" text-anchor="middle">recubrimiento</text><text x="150" y="58" text-anchor="middle">refuerzo</text><text x="150" y="33" text-anchor="middle" fill="#fff">cubierta</text></g></svg></div></section>
+
+<section class="slide"><div class="kicker">8 · LA FÍSICA, SIN MIEDO</div><h2>Por qué la luz no se escapa</h2>
+<p>Cuando la luz pasa de un material a otro (del agua al aire, del vidrio a otro vidrio) <b>se desvía</b>: es la <b>refracción</b>. Lo has visto con una pajita en un vaso de agua, que parece partida.</p>
+<p>Cada material tiene un <b>índice de refracción</b> (n): cuanto más alto, más «frena» la luz. El núcleo de la fibra tiene un índice un poco <b>mayor</b> que el revestimiento.</p>
+<svg viewBox="0 0 900 200" style="width:100%;max-width:900px;margin:8px 0" role="img" aria-label="Reflexión total interna en la fibra"><g font-family="Segoe UI,Arial" font-size="14">
+<rect x="20" y="40" width="860" height="120" fill="#a9c7e6"/><rect x="20" y="70" width="860" height="60" fill="#ffe7b0"/>
+<text x="30" y="60" fill="#1f4e79">revestimiento (n más bajo)</text><text x="30" y="185" fill="#1f4e79">revestimiento</text><text x="760" y="105" fill="#7a4a12">núcleo (n más alto)</text>
+<polyline points="20,100 120,70 220,130 320,70 420,130 520,70 620,130 720,70" fill="none" stroke="#b8422f" stroke-width="3"/></g></svg>
+<p>Si la luz llega al borde del núcleo con un ángulo muy «rasante», en vez de salir <b>rebota entera</b> hacia dentro: es la <b>reflexión total interna</b>. Rebote a rebote, la luz recorre kilómetros sin salirse, aunque el cable haga curvas suaves.</p>
+<div class="q"><b>Para curiosos: la ley de Snell</b> <small>(clic para verla)</small><div class="ans"><p>La desviación sigue la ley de Snell: <b>n₁ · sen θ₁ = n₂ · sen θ₂</b> (los ángulos se miden desde la perpendicular a la superficie). Pasando del núcleo (n₁ ≈ 1,48) al revestimiento (n₂ ≈ 1,46), a partir de un ángulo llamado <b>crítico</b> (sen θc = n₂ / n₁, unos 80,6°) ya no hay rayo que salga: todo rebota. No hace falta calcularlo; basta con entender la idea.</p></div></div>
+<div class="warn">Por eso la fibra tiene un <b>radio de curvatura mínimo</b>: si la doblas demasiado, la luz llega al borde con un ángulo que ya no rebota, se escapa y la señal se pierde (o el vidrio se rompe).</div></section>
+
+<section class="slide"><div class="kicker">9 · TIPOS DE FIBRA</div><h2>Monomodo y multimodo</h2>
+<table><tr><th></th><th>Multimodo (MM)</th><th>Monomodo (SM)</th></tr>
+<tr><td>Núcleo / revestimiento</td><td>50/125 µm o 62,5/125 µm</td><td>9/125 µm</td></tr>
+<tr><td>Cómo viaja la luz</td><td>Muchos caminos (modos) a la vez, que llegan con un poco de retraso unos respecto a otros</td><td>Un solo camino, casi recto</td></tr>
+<tr><td>Distancia a 10 Gbit/s</td><td>300–400 m (OM3 y OM4)</td><td>De 10 km a más de 40 km</td></tr>
+<tr><td>Luz</td><td>850 nm (infrarrojo cercano)</td><td>1310 y 1550 nm (infrarrojo)</td></tr>
+<tr><td>Emisor</td><td>LED o VCSEL (barato)</td><td>Láser (más caro)</td></tr>
+<tr><td>Color de la cubierta</td><td>Naranja (OM1, OM2), aguamarina (OM3, OM4), violeta (OM4 en Europa), verde lima (OM5)</td><td>Amarillo (OS1, OS2)</td></tr>
+<tr><td>Dónde</td><td>Dentro de un edificio o de un centro de datos</td><td>Entre edificios, ciudades, la fibra que llega a casa</td></tr></table>
+<svg viewBox="0 0 900 150" style="width:100%;max-width:900px" role="img" aria-label="Luz en fibra multimodo y monomodo"><g font-family="Segoe UI,Arial" font-size="13">
+<rect x="20" y="15" width="400" height="60" fill="#ffe7b0" stroke="#e07a2b"/><polyline points="20,45 70,18 120,72 170,18 220,72 270,18 320,72 370,18 420,45" fill="none" stroke="#b8422f" stroke-width="2"/><polyline points="20,45 100,24 180,66 260,24 340,66 420,45" fill="none" stroke="#2b6ca3" stroke-width="2"/><line x1="20" y1="45" x2="420" y2="45" stroke="#3f8a52" stroke-width="2"/><text x="220" y="100" text-anchor="middle">Multimodo: núcleo ancho, varios caminos</text>
+<rect x="480" y="35" width="400" height="20" fill="#fff3a6" stroke="#c9b100"/><line x1="480" y1="45" x2="880" y2="45" stroke="#b8422f" stroke-width="2"/><text x="680" y="100" text-anchor="middle">Monomodo: núcleo muy fino, un solo camino</text></g></svg></section>
+
+<section class="slide"><div class="kicker">10 · EMISORES Y RECEPTORES</div><h2>Quién emite la luz: LED, VCSEL y láser</h2>
+<table><tr><th>Emisor</th><th>Cómo es su luz</th><th>Con qué fibra</th><th>Velocidad</th></tr>
+<tr><td><b>LED</b></td><td>Poco potente y con varios colores mezclados; se abre mucho</td><td>Multimodo antigua</td><td>Baja (hasta unos 100 Mbit/s)</td></tr>
+<tr><td><b>VCSEL</b></td><td>Láser pequeño y barato, a 850 nm</td><td>Multimodo actual</td><td>1, 10, 25 Gbit/s y más</td></tr>
+<tr><td><b>Láser</b> (FP, DFB)</td><td>Un solo color muy puro y un haz muy estrecho, a 1310 o 1550 nm</td><td>Monomodo</td><td>Muy alta y a gran distancia</td></tr></table>
+<p>En el otro extremo, un <b>fotodiodo</b> convierte la luz otra vez en señal eléctrica.</p>
+<h3>Los módulos SFP</h3>
+<p>Ni el ordenador ni el switch llevan el láser «soldado»: usan un <b>transceptor</b> enchufable, normalmente un <b>SFP</b>, que se mete en un hueco del switch y al que se conecta la fibra.</p>
+<ul><li><b>SFP</b>: 1 Gbit/s · <b>SFP+</b>: 10 Gbit/s · <b>SFP28</b>: 25 Gbit/s · <b>QSFP</b>: 40 o 100 Gbit/s.</li>
+<li>Los dos extremos tienen que coincidir: mismo tipo de fibra (MM o SM) y misma longitud de onda.</li>
+<li>Para unir fibra con un equipo que solo tiene RJ45 se usa un <b>conversor de medios</b>.</li></ul></section>
+
+<section class="slide"><div class="kicker">11 · CONECTORES</div><h2>Conectores de fibra</h2>
+<table><tr><th>Conector</th><th>Cómo es</th><th>Dónde lo verás</th></tr>
+<tr><td><b>LC</b></td><td>Pequeño, con pestaña como un RJ45; suelen ir de dos en dos (dúplex)</td><td>El más común hoy: en los SFP de switches y servidores</td></tr>
+<tr><td><b>SC</b></td><td>Cuadrado, se empuja y se tira (<i>push-pull</i>)</td><td>Paneles, y la fibra que llega a casa (router de la operadora)</td></tr>
+<tr><td><b>ST</b></td><td>Redondo, de bayoneta (se gira)</td><td>Instalaciones antiguas</td></tr>
+<tr><td><b>MTP/MPO</b></td><td>Rectangular, con 12 o 24 fibras en un solo conector</td><td>Centros de datos</td></tr></table>
+<p>Se usan <b>dos fibras</b> por enlace: una para enviar y otra para recibir (o una sola con dos colores de luz distintos).</p>
+<div class="info"><b>El color del conector</b> dice cómo está pulida la punta: <b>azul = UPC</b> (plana), <b>verde = APC</b> (en ángulo de 8°, típica de la fibra de operadora). No se pueden mezclar: un verde contra un azul daña las puntas y la señal cae.</div>
+<div class="warn">Una mota de polvo en la punta de un conector es una piedra en mitad de la autopista: se limpian siempre antes de conectar y se guardan con su <b>tapón</b>.</div></section>
+
+<section class="slide"><div class="kicker">12 · SEGURIDAD</div><h2>Seguridad con la fibra</h2>
+<div class="danger"><b>Nunca mires el extremo de una fibra ni de un SFP</b>, ni siquiera si «no se ve nada»: la luz de 850, 1310 o 1550 nm es <b>infrarroja e invisible</b>, y un láser puede dañar el ojo sin que te des cuenta.</div>
+<ul><li>Para comprobar si llega luz se usa un medidor de potencia óptica, nunca el ojo. Y con el móvil tampoco: la cámara no protege.</li>
+<li>Pon siempre los <b>tapones</b> en conectores y huecos SFP que no se usen.</li>
+<li>Al cortar o empalmar fibra quedan <b>astillas de vidrio</b> casi invisibles que se clavan en la piel: se recogen en un recipiente y no se tocan con la mano.</li>
+<li>Los láseres se clasifican por su peligrosidad (clase 1, 2, 3R…). Los de los equipos de red son de clase 1 en uso normal, pero con la fibra suelta o el SFP al aire ya no se puede confiar en eso.</li></ul></section>
+
+<section class="slide"><div class="kicker">13 · COMPARATIVA</div><h2>¿Cobre o fibra?</h2>
+<table><tr><th></th><th>Par trenzado (cobre)</th><th>Fibra óptica</th></tr>
+<tr><td>Distancia</td><td>100 m</td><td>De cientos de metros a decenas de km</td></tr>
+<tr><td>Velocidad</td><td>Hasta 10 Gbit/s en un puesto normal</td><td>10, 25, 100 Gbit/s y más</td></tr>
+<tr><td>Interferencias</td><td>Le afectan (motores, cables de corriente)</td><td>No le afectan: es luz</td></tr>
+<tr><td>Electricidad</td><td>Conduce: un rayo o una diferencia de tierra entre edificios puede romper equipos</td><td>No conduce: aísla un edificio de otro</td></tr>
+<tr><td>Seguridad</td><td>Se puede «escuchar» la señal desde fuera con equipos especiales</td><td>Muy difícil de interceptar sin cortarla</td></tr>
+<tr><td>Coste e instalación</td><td>Barato; los conectores se ponen con herramientas sencillas</td><td>Más caro; empalmar fibra necesita una fusionadora</td></tr>
+<tr><td>Cuidado</td><td>Resistente</td><td>Delicada: curvas cerradas, golpes y suciedad en las puntas</td></tr>
+<tr><td>Alimentación</td><td>Puede llevar corriente (PoE)</td><td>No</td></tr></table>
+<div class="ok"><b>En la práctica:</b> cobre hasta el puesto de trabajo, y fibra entre armarios, entre plantas, entre edificios y en el centro de datos.</div></section>
+
+<section class="slide"><div class="kicker">14 · AUTOEVALUACIÓN</div><h2>Comprueba lo que sabes</h2>
+<div class="q">1. ¿Por qué los hilos del cable de red van trenzados por parejas? <small>(clic para ver la respuesta)</small><div class="ans">Para que las interferencias afecten igual a los dos hilos del par y se anulen, y para que un par no interfiera en el de al lado (diafonía).</div></div>
+<div class="q">2. En T568B, ¿qué colores van en los pines 1 y 2? <small>(clic)</small><div class="ans">Blanco-naranja (1) y naranja (2). En T568A son blanco-verde y verde.</div></div>
+<div class="q">3. ¿Qué diferencia hay entre un cable directo y uno cruzado? ¿Por qué hoy casi no se usan cruzados? <small>(clic)</small><div class="ans">Directo: la misma norma en las dos puntas. Cruzado: T568A en una y T568B en otra. Hoy casi todos los equipos tienen Auto-MDI-X y se adaptan solos.</div></div>
+<div class="q">4. ¿Cómo se conecta el cable horizontal al patch panel? <small>(clic)</small><div class="ans">Por detrás, insertando cada hilo en su contacto con la herramienta de impacto, siguiendo el código de colores del panel. No lleva conector. Por delante se conectan latiguillos RJ45.</div></div>
+<div class="q">5. ¿Qué distancia máxima tiene un enlace de cobre y cómo se reparte? <small>(clic)</small><div class="ans">100 m: hasta 90 m de cable horizontal y 10 m de latiguillos.</div></div>
+<div class="q">6. ¿Qué mantiene la luz dentro de la fibra? <small>(clic)</small><div class="ans">La reflexión total interna: el núcleo tiene un índice de refracción mayor que el revestimiento y, con ángulos rasantes, la luz rebota entera hacia dentro.</div></div>
+<div class="q">7. Ves una fibra de cubierta amarilla y otra aguamarina. ¿Qué es cada una? <small>(clic)</small><div class="ans">Amarilla: monomodo (OS1/OS2), para largas distancias. Aguamarina: multimodo OM3 u OM4, para distancias cortas dentro de un edificio.</div></div>
+<div class="q">8. ¿Qué conector encontrarás en un módulo SFP de un switch? ¿Y qué significa un conector verde? <small>(clic)</small><div class="ans">LC (normalmente dúplex). Verde = pulido APC (en ángulo); no se puede conectar con uno azul (UPC).</div></div>
+<div class="q">9. ¿Por qué no se debe mirar el extremo de una fibra? <small>(clic)</small><div class="ans">Porque la luz es infrarroja e invisible y, si es láser, puede dañar el ojo sin que lo notes.</div></div>
+<div class="q">10. La ferretería tiene dos naves separadas 300 m. ¿Cobre o fibra? ¿Por qué? <small>(clic)</small><div class="ans">Fibra: el cobre no pasa de 100 m, y además la fibra no conduce la electricidad entre edificios ni le afectan las interferencias. Multimodo OM3/OM4 llega a 300 m a 10 Gbit/s; monomodo, con margen de sobra.</div></div></section>
+
+<section class="slide"><div class="kicker">RESUMEN</div><h2>Para llevarte</h2><ol>
+<li>Del equipo al switch: latiguillo, roseta, cable horizontal, patch panel, latiguillo. Máximo 100 m.</li>
+<li>Par trenzado: 4 pares; UTP, FTP o STP según el blindaje; la categoría manda en la velocidad.</li>
+<li>RJ45: T568B (naranja primero) o T568A (verde primero); la misma en toda la instalación.</li>
+<li>Patch panel: por detrás, hilos insertados con la herramienta de impacto; por delante, latiguillos.</li>
+<li>Fibra: luz por vidrio; la reflexión total interna la mantiene dentro; cuidado con las curvas.</li>
+<li>Multimodo (naranja o aguamarina, LED/VCSEL, cortas distancias) y monomodo (amarilla, láser, kilómetros).</li>
+<li>Conectores LC, SC, ST; módulos SFP; azul UPC y verde APC no se mezclan.</li>
+<li>Nunca mires una fibra: la luz es invisible.</li></ol></section>
+</div>
+<div class="nav"><button class="sec" onclick="go(-1)">← Anterior</button><button onclick="go(1)">Siguiente →</button><div class="pb"><span id="pb"></span></div><span class="n" id="n"></span><button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+document.querySelectorAll('.q').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+const COL={bn:'Blanco-naranja',n:'Naranja',bv:'Blanco-verde',v:'Verde',ba:'Blanco-azul',a:'Azul',bm:'Blanco-marrón',m:'Marrón'};
+const NORMA={B:['bn','n','bv','a','ba','v','bm','m'],A:['bv','v','bn','a','ba','n','bm','m']};let norma='B';
+function pintaRJ(){const o=document.getElementById('ordena');o.innerHTML='';for(let p=1;p<=8;p++){const l=document.createElement('label');l.innerHTML='Pin '+p+'<select data-p="'+p+'"><option value="">—</option>'+Object.entries(COL).map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select>';o.appendChild(l);}
+ document.querySelector('#ordena').closest('.slide').querySelector('h2').textContent='Ordena los colores de la norma T568'+norma;document.getElementById('rjres').textContent='';}
+function comprobarRJ(){let ok=0;document.querySelectorAll('#ordena select').forEach(s=>{const p=+s.dataset.p;const bien=s.value===NORMA[norma][p-1];s.parentElement.classList.toggle('bien',bien);s.parentElement.classList.toggle('mal',!bien&&s.value!=='');if(bien)ok++;});
+ document.getElementById('rjres').textContent=ok===8?'¡Perfecto! 8 de 8.':ok+' de 8 bien. Revisa los marcados en rojo.';}
+function ponerA(){norma=norma==='B'?'A':'B';document.querySelector('[onclick="ponerA()"]').textContent='Cambiar a T568'+(norma==='B'?'A':'B');pintaRJ();}
+pintaRJ();
+</script></body></html>

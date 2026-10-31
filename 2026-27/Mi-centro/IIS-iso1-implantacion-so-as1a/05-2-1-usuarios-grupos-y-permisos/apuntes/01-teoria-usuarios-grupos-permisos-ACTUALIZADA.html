@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teoría: usuarios, grupos y permisos — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+/* ---- modo presentación ---- */
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 70px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:2rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.3rem;color:var(--navy2);margin:1em 0 .3em}
+.slide p,.slide li{font-size:1.25rem}
+.slide li{margin:.35em 0}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.cols{display:grid;gap:26px;grid-template-columns:1fr 1fr;align-items:start}
+.cols3{display:grid;gap:18px;grid-template-columns:repeat(3,1fr)}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.box.o{border-top:6px solid var(--orange)}.box.g{border-top:6px solid var(--green)}.box.b{border-top:6px solid var(--navy2)}.box.r{border-top:6px solid var(--red)}
+pre{background:var(--code);color:#e8f0f7;border-radius:12px;padding:16px 20px;overflow:auto;font-size:1.05rem;line-height:1.55;margin:.6em 0}
+pre b{color:#ffd28a}pre i{color:#8fd19e;font-style:normal}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:2px 6px;border-radius:5px;font-size:.95em}
+table{width:100%;border-collapse:collapse;margin:.6em 0;background:#fff;font-size:1.1rem}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.big{font-size:3.4rem;font-family:Consolas,"Courier New",monospace;text-align:center;color:var(--navy);letter-spacing:.08em;margin:.3em 0}
+.big span{display:inline-block;padding:0 .25em;border-radius:10px}
+.u{background:#ffe3c9}.g{background:#d8f0dd}.oth{background:#dbe8f6}
+.callout{border-left:8px solid var(--orange);background:#fff4e5;border-radius:12px;padding:14px 20px;margin:.8em 0;font-size:1.2rem}
+.callout.red{border-color:var(--red);background:#fbe9e6}
+.callout.green{border-color:var(--green);background:#e9f5ec}
+.callout.blue{border-color:var(--navy2);background:#e8f1fa}
+.q{background:var(--navy);color:#fff;border-radius:14px;padding:18px 24px;font-size:1.3rem;margin:.8em 0}
+.q b{color:#ffd28a}
+.q code{background:rgba(255,255,255,.18);color:#fff}
+.ans{display:none;margin-top:10px;font-size:1.1rem;background:rgba(255,255,255,.12);border-radius:8px;padding:10px 14px}
+.q.open .ans{display:block}
+.q small{display:block;opacity:.75;font-size:.85rem;margin-top:6px}
+.tag{display:inline-block;border-radius:6px;padding:2px 10px;font-size:.9rem;font-weight:700;color:#fff;background:var(--navy2);vertical-align:middle}
+.tag.o{background:var(--orange)}.tag.g{background:var(--green)}.tag.r{background:var(--red)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.notes{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:8px}
+.notes::before{content:"📝 Notas para el profesor · ";font-weight:700}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media (max-width:860px){.cols,.cols3{grid-template-columns:1fr}.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.big{font-size:2rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- 1 PORTADA -->
+<section class="slide on">
+  <div class="cover">
+    <div class="kicker">&gt; module ISO 0369 · UD2 · RA2 · Configurar el software de base</div>
+    <h1>Usuarios, grupos y permisos</h1>
+    <p>Quién eres, a qué grupo perteneces y qué puedes tocar.<br>Linux (Ubuntu) y Windows, cara a cara.</p>
+    <p style="font-size:1rem;opacity:.8;margin-top:30px">1.º/2.º ASIR · Implantación de Sistemas Operativos · I.E.S. Pablo Serrano · Curso 2026/27</p>
+  </div>
+  <p class="notes">Usa ← → o espacio para avanzar. Tecla <b>D</b> cambia a modo documento (todo seguido, para Aeducar). Las preguntas en azul se despliegan al hacer clic.</p>
+</section>
+
+<!-- 2 ÍNDICE -->
+<section class="slide">
+  <div class="kicker">ÍNDICE</div>
+  <h2>Qué vamos a ver</h2>
+  <ol class="toc">
+    <li>¿Por qué existen los usuarios? Mínimo privilegio</li>
+    <li>Usuarios en Linux: UID, /etc/passwd, /etc/shadow</li>
+    <li>Grupos en Linux: primario y secundarios</li>
+    <li>Comandos: adduser, usermod, passwd, chage</li>
+    <li>root y sudo</li>
+    <li>Permisos rwx: leer <code>ls -l</code></li>
+    <li>r, w, x en archivos vs directorios (la trampa)</li>
+    <li>Notación octal y simbólica, chmod, chown, umask</li>
+    <li>¿Quién puede borrar un archivo?</li>
+    <li>SUID, SGID y sticky bit</li>
+    <li>ACL: setfacl / getfacl</li>
+    <li>Usuarios en Windows: SAM, SID, grupos integrados</li>
+    <li>Herramientas: lusrmgr, net user, PowerShell, secpol</li>
+    <li>Permisos NTFS: acumulación, denegar, herencia</li>
+    <li>Compartido vs NTFS, icacls</li>
+    <li>Tabla de equivalencias y resumen</li>
+  </ol>
+</section>
+
+<!-- 3 POR QUÉ -->
+<section class="slide">
+  <div class="kicker">1 · PUNTO DE PARTIDA</div>
+  <h2>¿Por qué existen los usuarios?</h2>
+  <div class="cols">
+    <div>
+      <p>Un sistema operativo multiusuario tiene que responder tres preguntas cada vez que alguien toca un archivo:</p>
+      <ol>
+        <li><b>¿Quién eres?</b> → identificación (usuario)</li>
+        <li><b>¿Puedes demostrarlo?</b> → autenticación (contraseña)</li>
+        <li><b>¿Tienes derecho a hacer esto?</b> → autorización (permisos)</li>
+      </ol>
+      <p>Los <b>grupos</b> existen para no tener que dar permisos persona a persona: se da el permiso al grupo "contabilidad" y se mete o saca gente del grupo.</p>
+    </div>
+    <div>
+      <div class="callout"><b>Principio de mínimo privilegio</b><br>Cada cuenta tiene exactamente los permisos que necesita para su trabajo. Ni uno más. Si una cuenta se ve comprometida, el daño queda acotado.</div>
+      <div class="callout red"><b>Regla de oro del administrador</b><br>Una persona = una cuenta. Nunca se comparten cuentas: sin trazabilidad no hay seguridad ni auditoría.</div>
+    </div>
+  </div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 <b>Pregunta a clase:</b> ¿Por qué el instalador de Ubuntu no te deja entrar directamente como root? ¿Y por qué Windows te pide confirmación (UAC) aunque seas administrador?
+    <div class="ans">Porque trabajar siempre con todos los privilegios convierte cualquier error o malware en un desastre total. Se trabaja como usuario normal y se eleva solo cuando hace falta (sudo / UAC).</div><small>clic para mostrar respuesta</small></div>
+</section>
+
+<!-- 4 USUARIOS LINUX -->
+<section class="slide">
+  <div class="kicker">2 · LINUX</div>
+  <h2>Cómo guarda Linux a los usuarios</h2>
+  <div class="cols">
+    <div>
+      <pre>$ cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+ana:x:1001:1001:Ana Pérez:/home/ana:/bin/bash
+<i>nombre : x : UID : GID : descripción : home : shell</i></pre>
+      <ul>
+        <li><b>UID</b> = identificador numérico. Es lo que el sistema usa de verdad; el nombre es para humanos.</li>
+        <li><b>0</b> = root · <b>1–999</b> = cuentas de servicio · <b>≥ 1000</b> = personas</li>
+        <li>La <b>x</b> indica que la contraseña está en otro archivo.</li>
+        <li>Shell <code>nologin</code> = cuenta que no puede iniciar sesión (servicios).</li>
+      </ul>
+    </div>
+    <div>
+      <pre>$ sudo cat /etc/shadow
+ana:$6$k3Jd…hash…:20730:0:90:7:::
+<i>usuario : hash : último cambio : mín : máx : aviso : …</i></pre>
+      <table>
+        <tr><th>Archivo</th><th>Permisos</th><th>Contiene</th></tr>
+        <tr><td>/etc/passwd</td><td>644 (todos leen)</td><td>Cuentas</td></tr>
+        <tr><td>/etc/shadow</td><td>640 root:shadow</td><td>Hashes y caducidad</td></tr>
+        <tr><td>/etc/group</td><td>644</td><td>Grupos y miembros</td></tr>
+        <tr><td>/etc/skel/</td><td>—</td><td>Plantilla del home nuevo</td></tr>
+      </table>
+      <div class="callout blue">Las contraseñas <b>nunca</b> se guardan en claro: se guarda un <b>hash</b> (SHA-512, yescrypt). Al entrar, se calcula el hash de lo que tecleas y se compara.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 GRUPOS LINUX -->
+<section class="slide">
+  <div class="kicker">3 · LINUX</div>
+  <h2>Grupos: primario y secundarios</h2>
+  <div class="cols">
+    <div>
+      <pre>$ id ana
+uid=1001(ana) gid=1001(ana) groups=1001(ana),27(sudo),1005(contabilidad)
+$ getent group contabilidad
+contabilidad:x:1005:ana,luis</pre>
+      <ul>
+        <li><b>Grupo primario</b> (GID en /etc/passwd): el que reciben por defecto los archivos que creas. En Ubuntu es un grupo privado con tu nombre.</li>
+        <li><b>Grupos secundarios</b> (/etc/group): tantos como haga falta. Aquí es donde se reparten los permisos.</li>
+        <li>Los cambios de grupo se aplican al <b>iniciar sesión de nuevo</b> (o con <code>newgrp</code>).</li>
+      </ul>
+    </div>
+    <div>
+      <div class="box b"><h3>Grupos del sistema que conviene conocer</h3>
+      <table>
+        <tr><th>Grupo</th><th>Para qué</th></tr>
+        <tr><td>sudo</td><td>Puede ejecutar comandos como root</td></tr>
+        <tr><td>adm</td><td>Leer logs de /var/log</td></tr>
+        <tr><td>www-data</td><td>Servidor web</td></tr>
+        <tr><td>docker, lxd, libvirt</td><td>Virtualización / contenedores (≈ root)</td></tr>
+        <tr><td>plugdev, cdrom, audio, video</td><td>Dispositivos en el escritorio</td></tr>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 COMANDOS LINUX -->
+<section class="slide">
+  <div class="kicker">4 · LINUX</div>
+  <h2>Comandos de gestión</h2>
+  <div class="cols">
+    <div>
+<pre><b># Crear</b>
+sudo adduser ana            <i># Ubuntu: interactivo, crea home, pide clave</i>
+sudo useradd -m -s /bin/bash luis   <i># bajo nivel, universal</i>
+sudo passwd luis
+sudo groupadd contabilidad
+<b># Modificar</b>
+sudo usermod -aG contabilidad ana   <i># añadir a grupo (-a = append)</i>
+sudo gpasswd -d ana contabilidad    <i># sacar del grupo</i>
+sudo usermod -L luis / -U luis      <i># bloquear / desbloquear</i>
+sudo usermod -s /usr/sbin/nologin luis
+<b># Borrar</b>
+sudo deluser --remove-home luis
+sudo groupdel contabilidad</pre>
+    </div>
+    <div>
+<pre><b># Contraseñas y caducidad</b>
+sudo chage -l ana           <i># ver</i>
+sudo chage -M 90 -W 7 ana   <i># máx 90 días, aviso 7 antes</i>
+sudo passwd -e ana          <i># forzar cambio en el próximo login</i>
+<b># Consultar</b>
+id ana ; groups ana
+getent passwd ana ; getent group
+who ; w ; last</pre>
+      <div class="callout red"><b>El error que suspende exámenes</b><br><code>usermod -G sudo ana</code> (sin <code>-a</code>) <b>sustituye</b> la lista de grupos secundarios: Ana sale de contabilidad. Siempre <code>-aG</code>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 ROOT Y SUDO -->
+<section class="slide">
+  <div class="kicker">5 · LINUX</div>
+  <h2>root y sudo</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li><b>root</b> (UID 0) se salta todos los permisos. En Ubuntu su cuenta está <b>bloqueada</b> por defecto: nadie entra como root.</li>
+        <li><b>sudo</b> ejecuta <i>un</i> comando con privilegios de root y lo <b>registra</b> en el log (<code>/var/log/auth.log</code>): sabemos quién hizo qué.</li>
+        <li>Quién puede usar sudo lo dice <code>/etc/sudoers</code>, que se edita solo con <code>visudo</code> (comprueba la sintaxis antes de guardar).</li>
+        <li>En Ubuntu basta con pertenecer al grupo <b>sudo</b>.</li>
+      </ul>
+      <pre>sudo -l                 <i># qué puedo hacer con sudo</i>
+sudo -i                 <i># shell de root (con cuidado)</i>
+sudo -u www-data ls /var/www   <i># actuar como otro usuario</i></pre>
+    </div>
+    <div>
+      <div class="box o"><h3>Delegar solo lo necesario</h3>
+      <p>Que el operador de backups pueda lanzar el script de copias, y nada más:</p>
+      <pre>/etc/sudoers.d/backups
+luis ALL=(root) NOPASSWD: /usr/local/bin/backup.sh</pre>
+      <p>Esto es mínimo privilegio aplicado a la administración.</p></div>
+      <div class="callout">Comparación: <b>sudo</b> ≈ <b>UAC + grupo Administradores</b> en Windows. En ambos trabajas como usuario normal y elevas de forma puntual.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 PERMISOS RWX -->
+<section class="slide">
+  <div class="kicker">6 · PERMISOS LINUX</div>
+  <h2>Leer <code>ls -l</code></h2>
+  <pre>$ ls -l
+-rw-r-----  1 ana  contabilidad  8192 oct  6 09:10 nominas.ods
+drwxrwx---  2 ana  contabilidad  4096 oct  6 09:12 informes
+-rwxr-x---  1 root sudo           312 oct  6 09:15 backup.sh
+lrwxrwxrwx  1 root root             9 oct  6 09:16 actual -> informes</pre>
+  <div class="big"><span>-</span><span class="u">rw-</span><span class="g">r--</span><span class="oth">---</span></div>
+  <div class="cols3">
+    <div class="box" style="border-top:6px solid #e07a2b"><h3>u · propietario</h3><p>El usuario dueño del archivo (<code>ana</code>). Normalmente quien lo creó.</p></div>
+    <div class="box g"><h3>g · grupo</h3><p>Los miembros del grupo del archivo (<code>contabilidad</code>), salvo el dueño.</p></div>
+    <div class="box b"><h3>o · otros</h3><p>Todos los demás usuarios del sistema.</p></div>
+  </div>
+  <p>El primer carácter es el <b>tipo</b>: <code>-</code> archivo · <code>d</code> directorio · <code>l</code> enlace simbólico · <code>c</code>/<code>b</code> dispositivo.</p>
+  <div class="callout"><b>Linux mira un solo trío.</b> Si eres el dueño se aplica "u" y se acaba la comprobación, aunque "g" u "o" fueran más generosos. Si no eres el dueño pero estás en el grupo, "g". Si no, "o". <b>root ignora todo.</b></div>
+</section>
+
+<!-- 9 ARCHIVO VS DIRECTORIO -->
+<section class="slide">
+  <div class="kicker">7 · PERMISOS LINUX</div>
+  <h2>r, w, x no significan lo mismo en un directorio</h2>
+  <table>
+    <tr><th>Permiso</th><th>Valor</th><th>En un ARCHIVO</th><th>En un DIRECTORIO</th></tr>
+    <tr><td><b>r</b> read</td><td>4</td><td>Ver el contenido (<code>cat</code>, abrirlo)</td><td>Listar los nombres que contiene (<code>ls</code>)</td></tr>
+    <tr><td><b>w</b> write</td><td>2</td><td>Modificar el contenido</td><td><b>Crear, borrar y renombrar</b> entradas dentro</td></tr>
+    <tr><td><b>x</b> execute</td><td>1</td><td>Ejecutarlo como programa o script</td><td><b>Entrar</b> (<code>cd</code>) y acceder a lo que hay dentro</td></tr>
+  </table>
+  <div class="cols">
+    <div class="box r"><h3>Caso 1 · r sin x (<code>r--</code>)</h3><p>Puedes ver los <i>nombres</i> de los archivos pero no abrir ninguno ni entrar. Como un escaparate con la puerta cerrada.</p></div>
+    <div class="box g"><h3>Caso 2 · x sin r (<code>--x</code>)</h3><p>Puedes entrar y abrir un archivo <i>si sabes su nombre exacto</i>, pero <code>ls</code> falla. Como un pasillo a oscuras: pasas si conoces el camino.</p></div>
+  </div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 Creo <code>/srv/publico</code> con <code>chmod 644</code> para que todos lean. Los usuarios ven la carpeta pero <code>cd /srv/publico</code> da "Permiso denegado". <b>¿Qué falta?</b>
+    <div class="ans">El permiso <b>x</b>. Para una carpeta de lectura pública hace falta <code>755</code> (r-x para grupo y otros). Regla práctica: a un directorio casi siempre se le da r y x juntos.</div><small>clic para mostrar respuesta</small></div>
+</section>
+
+<!-- 10 OCTAL Y COMANDOS -->
+<section class="slide">
+  <div class="kicker">8 · PERMISOS LINUX</div>
+  <h2>Octal, simbólico, chmod, chown, umask</h2>
+  <div class="cols">
+    <div>
+      <p>Cada trío se suma: <b>r=4, w=2, x=1</b>.</p>
+      <div class="big" style="font-size:2.4rem"><span class="u">rwx</span><span class="g">r-x</span><span class="oth">---</span> = <span class="u">7</span><span class="g">5</span><span class="oth">0</span></div>
+      <table>
+        <tr><th>Octal</th><th>Simbólico</th><th>Uso habitual</th></tr>
+        <tr><td>644</td><td>rw-r--r--</td><td>Archivo normal</td></tr>
+        <tr><td>755</td><td>rwxr-xr-x</td><td>Scripts, directorios públicos</td></tr>
+        <tr><td>700</td><td>rwx------</td><td>Carpeta privada (~/.ssh)</td></tr>
+        <tr><td>600</td><td>rw-------</td><td>Claves, archivos con contraseñas</td></tr>
+        <tr><td>770</td><td>rwxrwx---</td><td>Carpeta de grupo cerrada al resto</td></tr>
+        <tr><td>777</td><td>rwxrwxrwx</td><td>Casi nunca es la respuesta correcta</td></tr>
+      </table>
+    </div>
+    <div>
+<pre><b># chmod — cambiar permisos</b>
+chmod 640 nominas.ods          <i># octal</i>
+chmod g+w nominas.ods          <i># simbólico: + añade</i>
+chmod o-rx informes/           <i>#            - quita</i>
+chmod u=rwx,g=rx,o= backup.sh  <i>#            = fija</i>
+chmod -R 750 /srv/proyecto     <i># recursivo</i>
+<b># chown / chgrp — cambiar dueño y grupo (root)</b>
+sudo chown ana:contabilidad nominas.ods
+sudo chown -R ana /srv/proyecto
+sudo chgrp contabilidad informes/
+<b># umask — permisos por defecto al CREAR</b>
+umask            <i># 0022 → archivos 644, carpetas 755</i>
+umask 027        <i># archivos 640, carpetas 750</i>
+umask 077        <i># todo privado: 600 / 700</i></pre>
+      <div class="callout blue"><b>umask se resta</b> del máximo: 666 para archivos (nunca nacen ejecutables), 777 para directorios. 666 − 022 = 644.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 QUIÉN BORRA -->
+<section class="slide">
+  <div class="kicker">9 · PERMISOS LINUX</div>
+  <h2>¿Quién puede borrar un archivo?</h2>
+  <div class="cols">
+    <div>
+      <pre>$ ls -ld /srv/buzon
+drwxrwxrwx 2 root root 4096 /srv/buzon
+$ ls -l /srv/buzon
+-rw------- 1 ana ana 120 secreto.txt</pre>
+      <div class="q" onclick="this.classList.toggle('open')">🤔 Pedro no es ana ni root. <b>¿Puede leer secreto.txt? ¿Puede borrarlo?</b>
+        <div class="ans"><b>Leer: no</b> (600, cae en "otros"). <b>Borrar: sí.</b> Borrar o renombrar modifica la lista de entradas del <i>directorio</i>, y en el directorio Pedro tiene w y x. Los permisos del archivo protegen su contenido, no su existencia.</div><small>clic para mostrar respuesta</small></div>
+    </div>
+    <div>
+      <div class="callout red"><b>Idea clave</b><br>Crear, borrar y renombrar son operaciones <b>sobre el directorio</b>, no sobre el archivo. Por eso un 777 en una carpeta compartida es peligroso aunque los archivos estén protegidos.</div>
+      <p>La solución a este problema concreto es el <b>sticky bit</b> → siguiente diapositiva.</p>
+      <p>Esto también explica por qué <code>/home/ana</code> es 750 y no 777: nadie puede borrarle nada a Ana aunque algún archivo suyo sea legible.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 ESPECIALES -->
+<section class="slide">
+  <div class="kicker">10 · PERMISOS LINUX</div>
+  <h2>Los tres bits especiales</h2>
+  <table>
+    <tr><th>Bit</th><th>Octal</th><th>Se ve como</th><th>Efecto</th><th>Ejemplo real</th></tr>
+    <tr><td><b>SUID</b></td><td>4xxx</td><td><code>-rw<b>s</b>r-xr-x</code></td><td>El programa se ejecuta con los permisos del <b>dueño</b> del archivo, no de quien lo lanza</td><td><code>/usr/bin/passwd</code> (root): un usuario normal escribe en /etc/shadow</td></tr>
+    <tr><td><b>SGID</b></td><td>2xxx</td><td><code>drwxrw<b>s</b>r-x</code></td><td>En directorios: lo que se crea dentro <b>hereda el grupo</b> del directorio. En ejecutables: corre con el grupo del archivo</td><td>Carpeta compartida de departamento</td></tr>
+    <tr><td><b>Sticky</b></td><td>1xxx</td><td><code>drwxrwxrw<b>t</b></code></td><td>En directorios: solo el <b>dueño de cada archivo</b> (o del directorio, o root) puede borrarlo o renombrarlo</td><td><code>/tmp</code></td></tr>
+  </table>
+  <div class="cols">
+    <div>
+<pre>chmod 2770 /srv/contabilidad   <i># SGID + rwxrwx---</i>
+chmod g+s  /srv/contabilidad   <i># igual, simbólico</i>
+chmod 1777 /srv/buzon          <i># sticky: buzón público</i>
+chmod +t   /srv/buzon
+chmod u+s  programa            <i># SUID (muy raro necesitarlo)</i>
+find / -perm -4000 -type f 2>/dev/null   <i># auditar SUID</i></pre>
+    </div>
+    <div>
+      <div class="callout green"><b>Receta "carpeta de departamento"</b><br>
+      <code>mkdir /srv/conta && chgrp contabilidad /srv/conta && chmod 2770 /srv/conta</code><br>
+      Grupo correcto, cerrada al resto, y todo lo nuevo nace con grupo contabilidad. Para que además nazca con w para el grupo: <code>umask 002</code> o una ACL por defecto.</div>
+      <p>Mayúscula <code>S</code> o <code>T</code> en <code>ls -l</code> = el bit está puesto pero falta la <code>x</code> debajo: normalmente un error.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ACL -->
+<section class="slide">
+  <div class="kicker">11 · PERMISOS LINUX</div>
+  <h2>ACL: cuando un solo grupo no basta</h2>
+  <div class="cols">
+    <div>
+      <p>Un archivo solo tiene <b>un</b> dueño y <b>un</b> grupo. ¿Y si Marta (dirección) tiene que <i>leer</i> la carpeta de contabilidad sin poder escribir, y sin abrirla a "otros"?</p>
+      <p>Las <b>listas de control de acceso</b> añaden entradas para usuarios o grupos extra sin tocar u/g/o.</p>
+<pre>sudo apt install acl                 <i># suele venir ya</i>
+setfacl -m u:marta:rX /srv/conta     <i># usuario extra (X = x solo en dirs)</i>
+setfacl -R -m g:direccion:rX /srv/conta
+setfacl -d -m g:contabilidad:rwx /srv/conta   <i># ACL POR DEFECTO: la heredan los nuevos</i>
+setfacl -x u:marta /srv/conta        <i># quitar</i>
+setfacl -b /srv/conta                <i># borrar todas</i>
+getfacl /srv/conta</pre>
+    </div>
+    <div>
+<pre>$ ls -l
+drwxrws---<b>+</b> 2 ana contabilidad 4096 conta
+$ getfacl conta
+# owner: ana
+# group: contabilidad
+user::rwx
+user:marta:r-x
+group::rwx
+mask::rwx
+other::---
+default:group:contabilidad:rwx</pre>
+      <ul>
+        <li>El <b>+</b> al final de los permisos avisa de que hay ACL.</li>
+        <li><b>mask</b> = tope máximo para grupo y entradas extra.</li>
+        <li>Las ACL son el <b>puente conceptual a Windows</b>: allí <i>todo</i> son ACL.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 14 WINDOWS USUARIOS -->
+<section class="slide">
+  <div class="kicker">12 · WINDOWS</div>
+  <h2>Usuarios y grupos en Windows</h2>
+  <div class="cols">
+    <div>
+      <ul>
+        <li>Sin dominio, las cuentas son <b>locales</b>: viven en la base <b>SAM</b> del equipo (<code>C:\Windows\System32\config\SAM</code>, cifrada).</li>
+        <li>Cada cuenta y grupo tiene un <b>SID</b>: <code>S-1-5-21-…-1001</code>. Es el UID de Windows. Los permisos apuntan al SID, no al nombre.</li>
+        <li>Si borras "ana" y la vuelves a crear, tiene <b>otro SID</b>: para Windows es otra persona y pierde todos sus permisos (SID huérfano en las ACL).</li>
+        <li>Tipos de cuenta: <b>local</b>, <b>cuenta Microsoft</b> (vinculada a la nube) y, más adelante, <b>de dominio</b> (Active Directory, RA4).</li>
+      </ul>
+      <pre>whoami /user        <i># mi SID</i>
+whoami /groups      <i># mis grupos</i>
+wmic useraccount get name,sid</pre>
+    </div>
+    <div>
+      <table>
+        <tr><th>Grupo integrado</th><th>≈ Linux</th><th>Qué puede</th></tr>
+        <tr><td><b>Administradores</b></td><td>sudo</td><td>Control total (con UAC)</td></tr>
+        <tr><td><b>Usuarios</b></td><td>usuario normal</td><td>Trabajar; no instala a nivel sistema</td></tr>
+        <tr><td>Usuarios avanzados</td><td>—</td><td>Herencia histórica, hoy sin privilegios reales</td></tr>
+        <tr><td>Invitados</td><td>nobody</td><td>Mínimo; deshabilitado por defecto</td></tr>
+        <tr><td>Usuarios de escritorio remoto</td><td>—</td><td>Entrar por RDP sin ser admin</td></tr>
+        <tr><td>Operadores de copia</td><td>—</td><td>Hacer backup saltándose permisos</td></tr>
+        <tr><td>SYSTEM</td><td>root</td><td>El propio sistema; más que Administradores</td></tr>
+      </table>
+      <div class="callout">Cuenta <b>Administrador</b> integrada: existe siempre, deshabilitada en el cliente, activa en Windows Server (es con la que entráis tras instalar).</div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 WINDOWS HERRAMIENTAS -->
+<section class="slide">
+  <div class="kicker">13 · WINDOWS</div>
+  <h2>Herramientas de gestión</h2>
+  <div class="cols">
+    <div>
+      <table>
+        <tr><th>Herramienta</th><th>Cómo abrirla</th><th>Nota</th></tr>
+        <tr><td>Usuarios y grupos locales</td><td><code>lusrmgr.msc</code></td><td>Gráfica; no existe en Home</td></tr>
+        <tr><td>Administración de equipos</td><td><code>compmgmt.msc</code></td><td>La incluye</td></tr>
+        <tr><td>Directiva de seguridad local</td><td><code>secpol.msc</code></td><td>Políticas de contraseña y bloqueo</td></tr>
+        <tr><td><b>CMD</b></td><td><code>net user</code>, <code>net localgroup</code></td><td><b>La vía que usaremos en clase:</b> funciona en CMD, Windows PowerShell y PowerShell 7</td></tr>
+        <tr><td>PowerShell</td><td><code>*-LocalUser</code>, <code>*-LocalGroup*</code></td><td>Solo en <b>Windows PowerShell 5.1</b> (icono azul). En PowerShell 7 dan error "no reconocido"</td></tr>
+        <tr><td>Configuración → Cuentas</td><td>Interfaz moderna</td><td>Limitada; empuja a cuenta Microsoft</td></tr>
+      </table>
+      <div class="callout blue"><b>Políticas en secpol.msc</b> → Directivas de cuenta: longitud mínima, complejidad, vigencia máxima, historial; bloqueo tras N intentos. Equivalente Linux: <code>chage</code>, <code>/etc/login.defs</code>, PAM <code>pam_pwquality</code> / <code>faillock</code>.</div>
+    </div>
+    <div>
+<pre><b>:: CMD como administrador</b>
+net user ana P@ssw0rd2026 /add /fullname:"Ana Pérez"
+net user ana /active:no
+net user ana /logonpasswordchg:yes
+net user ana /delete
+net localgroup Contabilidad /add
+net localgroup Contabilidad ana /add
+net localgroup Administradores luis /add   <i>:: ¡cuidado!</i>
+net user ; net user ana ; net localgroup
+<b>:: Consulta (también en PowerShell 7)</b>
+net localgroup Administradores
+whoami /groups</pre>
+      <div class="callout"><b>¿Y <code>New-LocalUser</code>?</b> Solo existe en <i>Windows PowerShell 5.1</i> (el azul). Si abres <code>pwsh</code> (PowerShell 7) falla. Para scripts en 7: <code>Import-Module Microsoft.PowerShell.LocalAccounts -UseWindowsPowerShell</code>. En clase, <b>net user</b>.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 NTFS -->
+<section class="slide">
+  <div class="kicker">14 · WINDOWS</div>
+  <h2>Permisos NTFS</h2>
+  <div class="cols">
+    <div>
+      <p>Cada archivo o carpeta en NTFS tiene una <b>ACL</b> formada por entradas (<b>ACE</b>): <i>quién</i> (SID) + <i>permitir/denegar</i> + <i>qué</i>. Se ve en Propiedades → <b>Seguridad</b>.</p>
+      <table>
+        <tr><th>Permiso NTFS</th><th>≈ Linux</th><th>Incluye</th></tr>
+        <tr><td>Control total</td><td>rwx + chmod/chown</td><td>Todo, incluso cambiar la ACL</td></tr>
+        <tr><td>Modificar</td><td>rwx</td><td>Leer, escribir, ejecutar, <b>borrar</b></td></tr>
+        <tr><td>Lectura y ejecución</td><td>r-x</td><td>Leer y ejecutar / atravesar</td></tr>
+        <tr><td>Mostrar contenido de carpeta</td><td>r-x (solo dirs)</td><td>Listar</td></tr>
+        <tr><td>Lectura</td><td>r--</td><td>Leer</td></tr>
+        <tr><td>Escritura</td><td>-w-</td><td>Crear y modificar, sin borrar</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="box o"><h3>Regla 1 · Acumulación</h3><p>Si estás en dos grupos, tienes la <b>suma</b> de sus permisos. Contabilidad (Modificar) + Becarios (Lectura) = Modificar. <b>Diferencia clave con Linux</b>, que solo mira un trío.</p></div>
+      <div class="box r"><h3>Regla 2 · Denegar gana</h3><p>Un <b>Denegar</b> explícito anula cualquier Permitir, incluso Control total. Por eso casi nunca se usa: lo correcto es <i>no conceder</i> el permiso.</p></div>
+      <div class="box b"><h3>Regla 3 · Herencia</h3><p>Subcarpetas y archivos heredan la ACL del padre (entradas en gris). Se puede <b>deshabilitar la herencia</b>: copiar las entradas o eliminarlas. Las entradas explícitas prevalecen sobre las heredadas.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 COMPARTIDO E ICACLS -->
+<section class="slide">
+  <div class="kicker">15 · WINDOWS</div>
+  <h2>Compartir en red e icacls</h2>
+  <div class="cols">
+    <div>
+      <p>Al compartir una carpeta hay <b>dos</b> juegos de permisos:</p>
+      <ul>
+        <li><b>Permisos de recurso compartido</b> (pestaña Compartir): solo aplican al acceso por red. Tres niveles: Lectura, Cambiar, Control total.</li>
+        <li><b>Permisos NTFS</b> (pestaña Seguridad): aplican siempre, en local y en red.</li>
+      </ul>
+      <div class="callout red"><b>Permiso efectivo por red = el más restrictivo de los dos.</b><br>Compartido "Todos: Lectura" + NTFS "Modificar" → por red solo lectura.</div>
+      <div class="callout green"><b>Práctica estándar:</b> compartido = Control total a <i>Usuarios autenticados</i>, y se controla todo con NTFS. Un solo sitio donde mirar.</div>
+      <p>Para comprobar qué puede hacer realmente alguien: Seguridad → Opciones avanzadas → <b>Acceso efectivo</b>.</p>
+    </div>
+    <div>
+<pre>icacls C:\Datos\Conta                       <i>:: ver ACL</i>
+icacls C:\Datos\Conta /grant Contabilidad:(OI)(CI)M
+icacls C:\Datos\Conta /grant marta:(OI)(CI)RX
+icacls C:\Datos\Conta /remove Usuarios
+icacls C:\Datos\Conta /inheritance:d        <i>:: quitar herencia (copiando)</i>
+icacls C:\Datos\Conta /deny luis:(OI)(CI)W  <i>:: evítalo</i>
+icacls C:\Datos\Conta /setowner ana /T
+takeown /f C:\Datos\Viejo /r                <i>:: tomar posesión</i>
+net share Conta=C:\Datos\Conta /grant:"Usuarios autenticados",FULL
+net share                                   <i>:: ver compartidos</i>
+<b>F</b> control total · <b>M</b> modificar · <b>RX</b> lectura+ejecución · <b>R</b> lectura · <b>W</b> escritura
+<b>(OI)</b> hereda a archivos · <b>(CI)</b> hereda a subcarpetas · <b>/T</b> recursivo</pre>
+      <p><code>icacls … /grant marta:(OI)(CI)RX</code> ≡ <code>setfacl -R -m u:marta:rX</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- 18 EQUIVALENCIAS -->
+<section class="slide">
+  <div class="kicker">16 · RESUMEN</div>
+  <h2>Tabla de equivalencias</h2>
+  <table>
+    <tr><th>Concepto</th><th>🐧 Linux</th><th>🪟 Windows</th></tr>
+    <tr><td>Identificador de cuenta</td><td>UID / GID</td><td>SID</td></tr>
+    <tr><td>Base de cuentas</td><td>/etc/passwd, /etc/shadow, /etc/group</td><td>SAM (local) · Active Directory (dominio)</td></tr>
+    <tr><td>Superusuario</td><td>root (UID 0)</td><td>Administrador / SYSTEM</td></tr>
+    <tr><td>Elevación puntual</td><td>sudo</td><td>UAC ("Ejecutar como administrador")</td></tr>
+    <tr><td>Grupo de administradores</td><td>sudo (wheel en otras distros)</td><td>Administradores</td></tr>
+    <tr><td>Crear usuario</td><td>adduser / useradd</td><td>net user /add · lusrmgr (New-LocalUser solo en PowerShell 5.1)</td></tr>
+    <tr><td>Añadir a grupo</td><td>usermod -aG</td><td>net localgroup G u /add</td></tr>
+    <tr><td>Política de contraseñas</td><td>chage, login.defs, PAM</td><td>secpol.msc → Directivas de cuenta</td></tr>
+    <tr><td>Modelo de permisos</td><td>u/g/o + rwx (un solo trío cuenta)</td><td>ACL con ACE (se acumulan; Denegar gana)</td></tr>
+    <tr><td>Ver permisos</td><td>ls -l · getfacl</td><td>Propiedades → Seguridad · icacls</td></tr>
+    <tr><td>Cambiar permisos</td><td>chmod · setfacl</td><td>icacls /grant · pestaña Seguridad</td></tr>
+    <tr><td>Cambiar dueño</td><td>chown</td><td>icacls /setowner · takeown</td></tr>
+    <tr><td>Herencia</td><td>SGID (grupo) · ACL por defecto</td><td>Herencia NTFS (OI)(CI), activada por defecto</td></tr>
+    <tr><td>Permisos por defecto</td><td>umask</td><td>Herencia del padre</td></tr>
+    <tr><td>"Cada uno borra lo suyo"</td><td>sticky bit (1777)</td><td>Escritura sin Modificar + "Eliminar subcarpetas y archivos" solo al propietario (Creator Owner)</td></tr>
+  </table>
+</section>
+
+<!-- 19 CIERRE -->
+<section class="slide">
+  <div class="kicker">PARA LLEVARSE A CASA</div>
+  <h2>Las 7 ideas que hay que recordar</h2>
+  <div class="cols">
+    <ol>
+      <li><b>Una persona, una cuenta.</b> Los permisos se dan a grupos, no a personas.</li>
+      <li><b>Mínimo privilegio:</b> usuario normal + elevación puntual (sudo / UAC).</li>
+      <li>El sistema identifica por <b>UID / SID</b>, no por nombre.</li>
+      <li>En Linux solo cuenta <b>un trío</b> (u, g u o); en Windows los permisos <b>se acumulan</b> y <b>Denegar gana</b>.</li>
+      <li>En un directorio, <b>x</b> es entrar y <b>w</b> es crear/borrar: borrar depende de la carpeta, no del archivo.</li>
+      <li><b>SGID + umask/ACL por defecto</b> para carpetas de equipo; <b>sticky</b> para buzones públicos.</li>
+      <li>Por red, el permiso efectivo es el <b>más restrictivo</b> entre compartido y NTFS.</li>
+    </ol>
+    <div>
+      <div class="callout green"><b>Y ahora, a las máquinas</b><br>Práctica survival #2: usuarios, grupos y permisos. Misiones en Ubuntu Server, Ubuntu Desktop, Windows y Windows Server. Entrega: informe PDF en Aeducar.</div>
+      <div class="callout blue"><b>Lo siguiente en UD2:</b> procesos y servicios (systemctl, services.msc), red TCP/IP y gestión de software.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <button class="sec" onclick="go(-1)">← Anterior</button>
+  <button onclick="go(1)">Siguiente →</button>
+  <div class="pb"><span id="pb"></span></div>
+  <span class="n" id="n"></span>
+  <button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+</script>
+</body>
+</html>

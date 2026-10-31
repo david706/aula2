@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patch Panel y RJ45</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root { color-scheme:dark; --bg:#0b0d12; --panel:#151922; --panel2:#1c2230; --line:#2a3242; --ink:#e6e9ef; --muted:#9aa4b5; --amber:#f2b632; --amber2:#ffd36b; --ok:#3ddc84; --warn:#ff8a3d; --bad:#ff5a5a; --blue:#4da3ff; --font-ui:"Segoe UI",Roboto,Arial,sans-serif; --font-mono:Consolas,"Courier New",monospace; }
+  * { box-sizing:border-box; } [hidden]{display:none!important}
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-ui); }
+  .wrap { max-width:1100px; margin:0 auto; padding-block:14px 40px; padding-inline:16px; }
+  .intro { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
+  .intro h1 { margin:0; font-size:22px; text-wrap:balance; } .intro p { margin:4px 0 0; color:var(--muted); max-width:66ch; font-size:14px; }
+  .progress { font-family:var(--font-mono); font-size:13px; color:var(--amber2); border:1px solid var(--line); padding:6px 10px; border-radius:6px; background:var(--panel); }
+  h2.sec { font-size:18px; margin:26px 0 6px; color:var(--amber); }
+  p.lead { color:var(--muted); margin:0 0 10px; max-width:72ch; font-size:14px; line-height:1.5; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .card svg { width:100%; height:auto; display:block; max-width:100%; }
+  .hs { cursor:pointer; } .hs rect,.hs circle,.hs path,.hs polygon { transition:filter .15s; } .hs:hover rect,.hs:hover circle,.hs:hover path,.hs:hover polygon { filter:brightness(1.3); }
+  .hs.done > rect:first-child, .hs.done > circle:first-child { stroke:var(--ok); stroke-width:1.5; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } @media (max-width:760px){ .two{grid-template-columns:1fr} }
+  .mono { font-family:var(--font-mono); }
+  .seg { display:flex; gap:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; width:max-content; max-width:100%; margin-bottom:10px; }
+  .seg button { font-family:inherit; font-size:13px; border:0; background:var(--panel2); color:var(--muted); padding:7px 14px; cursor:pointer; } .seg button.on { background:var(--amber); color:#1a1200; font-weight:600; }
+  .pins { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:8px; }
+  .pin { border:1px solid var(--line); border-radius:6px; padding:6px 4px; text-align:center; font-family:var(--font-mono); font-size:11px; background:#0b0d12; }
+  .pin i { display:block; height:22px; border-radius:3px; margin-bottom:4px; }
+  .pin small { color:var(--muted); display:block; font-size:10px; }
+  .drop { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .chip { border:1px solid var(--line); border-radius:6px; padding:6px 10px; font-family:var(--font-mono); font-size:12px; cursor:grab; background:#0b0d12; display:flex; align-items:center; gap:6px; user-select:none; }
+  .chip i { width:14px; height:14px; border-radius:3px; display:inline-block; }
+  .slots { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:8px; }
+  .slot { min-height:52px; border:1px dashed var(--line); border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; color:var(--muted); background:#0b0d12; flex-direction:column; gap:4px; }
+  .slot.ok { border-color:var(--ok); border-style:solid; } .slot.ko { border-color:var(--bad); border-style:solid; }
+  .msg { font-family:var(--font-mono); font-size:12.5px; margin-top:8px; min-height:18px; color:var(--muted); line-height:1.5; } .msg b { color:var(--amber2); }
+  .btn { font-family:inherit; font-size:12.5px; border:1px solid var(--line); background:#1f2633; color:var(--ink); border-radius:4px; padding:5px 10px; cursor:pointer; } .btn:hover { border-color:var(--amber); }
+  table.cat { border-collapse:collapse; width:100%; font-size:13px; font-family:var(--font-mono); font-variant-numeric:tabular-nums; } .cat th,.cat td { border:1px solid var(--line); padding:6px 8px; text-align:center; } .cat th { color:var(--amber); } .cat td:first-child { text-align:left; font-weight:600; } .cat tr.hl td { background:var(--panel2); }
+  .tw { overflow-x:auto; }
+  .gloss { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; } .g { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.45; } .g b { color:var(--amber); font-family:var(--font-mono); }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:20; }
+  .modal .mc { background:var(--panel); border:1px solid var(--amber); border-radius:10px; max-width:720px; width:100%; max-height:90vh; overflow:auto; padding:18px 20px; }
+  .modal h2 { margin:0 0 4px; font-size:19px; color:var(--amber); } .modal .where { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .modal p,.modal li { font-size:14px; line-height:1.55; } .modal p { margin:8px 0; max-width:68ch; } .modal ul { margin:6px 0 6px 18px; padding:0; }
+  .modal .foot { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .tag { display:inline-block; font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--amber2); margin-right:4px; }
+  .label { font-family:var(--font-mono); font-size:8px; fill:#e6e9ef; }
+</style>
+
+<div class="wrap">
+<div class="intro">
+  <div><h1>Patch panel, RJ45 y cableado estructurado</h1>
+  <p>Lo que hay entre la roseta de la pared y el switch. Pulsa cada parte del panel y del rack, monta un conector con la norma T568A/B y comprueba qué categoría de cable hace falta para cada velocidad.</p></div>
+  <div class="progress" id="progress">Partes vistas: 0 / 14</div>
+</div>
+
+<h2 class="sec">1 · El patch panel en el rack</h2>
+<div class="card">
+<svg viewBox="0 0 680 300" role="img" aria-label="Rack de 19 pulgadas con patch panel, switch y organizador">
+  <rect x="0" y="0" width="680" height="300" rx="8" fill="#12151c"/>
+  <g class="hs" data-c="rack"><rect x="30" y="10" width="14" height="280" fill="#3a3f4b"/><rect x="636" y="10" width="14" height="280" fill="#3a3f4b"/><g fill="#0b0d12"><circle cx="37" cy="30" r="3"/><circle cx="37" cy="48" r="3"/><circle cx="37" cy="66" r="3"/><circle cx="37" cy="100" r="3"/><circle cx="37" cy="118" r="3"/><circle cx="37" cy="136" r="3"/><circle cx="37" cy="170" r="3"/><circle cx="37" cy="188" r="3"/><circle cx="37" cy="206" r="3"/><circle cx="37" cy="240" r="3"/><circle cx="37" cy="258" r="3"/><circle cx="37" cy="276" r="3"/></g><text x="16" y="150" class="label" transform="rotate(-90 16 150)" text-anchor="middle">19" · 1U = 44,45 mm</text></g>
+  <!-- patch panel 24 ports -->
+  <g class="hs" data-c="panel"><rect x="50" y="20" width="580" height="54" rx="3" fill="#2b2f38" stroke="#4a5060"/><text x="60" y="34" class="label" style="fill:#9aa4b5">PATCH PANEL 24 × RJ45 · Cat 6 · 1U</text></g>
+  <g id="ports"></g>
+  <g class="hs" data-c="labels"><rect x="50" y="76" width="580" height="8" fill="#e9e2c8"/><text x="340" y="83" class="label" style="fill:#0b0d12;font-size:6px" text-anchor="middle">A-01 · A-02 · A-03 · … · A-24  (etiquetas: armario-panel-puerto)</text></g>
+  <!-- cable manager -->
+  <g class="hs" data-c="manager"><rect x="50" y="92" width="580" height="40" rx="3" fill="#1f2633" stroke="#4a5060"/><g fill="#0b0d12"><rect x="70" y="98" width="30" height="28"/><rect x="120" y="98" width="30" height="28"/><rect x="170" y="98" width="30" height="28"/><rect x="220" y="98" width="30" height="28"/><rect x="270" y="98" width="30" height="28"/><rect x="320" y="98" width="30" height="28"/><rect x="370" y="98" width="30" height="28"/><rect x="420" y="98" width="30" height="28"/><rect x="470" y="98" width="30" height="28"/><rect x="520" y="98" width="30" height="28"/><rect x="570" y="98" width="30" height="28"/></g><text x="340" y="146" class="label" style="fill:#9aa4b5" text-anchor="middle">organizador de cables 1U</text></g>
+  <!-- switch -->
+  <g class="hs" data-c="switch"><rect x="50" y="160" width="580" height="54" rx="3" fill="#232833" stroke="#4a5060"/><text x="60" y="174" class="label" style="fill:#9aa4b5">SWITCH 24 × 1000BASE-T + 4 × SFP+</text><g id="swports"></g><g fill="#0b0d12" stroke="#4da3ff"><rect x="556" y="184" width="16" height="20"/><rect x="576" y="184" width="16" height="20"/><rect x="596" y="184" width="16" height="20"/><rect x="616" y="184" width="10" height="20"/></g></g>
+  <!-- patch cords -->
+  <g class="hs" data-c="patchcord"><path d="M92 62 C 92 120, 92 140, 92 190" stroke="#4da3ff" stroke-width="3" fill="none"/><path d="M164 62 C 164 120, 164 140, 164 190" stroke="#3ddc84" stroke-width="3" fill="none"/><path d="M236 62 C 236 120, 236 140, 236 190" stroke="#f2b632" stroke-width="3" fill="none"/><text x="120" y="250" class="label" style="fill:#9aa4b5">latiguillos (patch cords) 0,5–1 m</text></g>
+  <!-- horizontal cabling to the back -->
+  <g class="hs" data-c="horizontal"><path d="M630 40 C 660 40, 660 260, 640 280" stroke="#4da5ff" stroke-width="5" fill="none" stroke-dasharray="6 3" opacity=".7"/><text x="540" y="290" class="label" style="fill:#9aa4b5">cableado horizontal → rosetas (≤ 90 m)</text></g>
+  <!-- PDU / ground -->
+  <g class="hs" data-c="ground"><rect x="50" y="232" width="200" height="20" rx="3" fill="#1f2633" stroke="#4a5060"/><text x="150" y="246" class="label" style="fill:#9aa4b5" text-anchor="middle">barra de tierra / PDU</text></g>
+</svg>
+</div>
+
+<h2 class="sec">2 · Un puerto por detrás y por delante</h2>
+<div class="two">
+  <div class="card">
+    <svg viewBox="0 0 320 220" role="img" aria-label="Parte trasera de un puerto del patch panel: bloque IDC de 110">
+      <rect x="0" y="0" width="320" height="220" rx="8" fill="#12151c"/>
+      <text x="10" y="16" class="label" style="fill:#f2b632;font-size:10px">TRASERA: bloque IDC (110) del puerto 01</text>
+      <g class="hs" data-c="idc"><rect x="40" y="40" width="240" height="70" rx="4" fill="#2b2f38" stroke="#4a5060"/>
+        <g id="idcpins"></g>
+        <text x="160" y="126" class="label" style="fill:#9aa4b5" text-anchor="middle">cada hilo se "pincha" en su ranura con la herramienta de impacto</text></g>
+      <g class="hs" data-c="punch"><rect x="40" y="150" width="120" height="14" rx="3" fill="#8e97a3"/><rect x="160" y="146" width="40" height="22" rx="3" fill="#c0392b"/><polygon points="200,150 214,157 200,164" fill="#c0c0c0"/><text x="120" y="184" class="label" style="fill:#9aa4b5">herramienta de impacto (punch-down) 110</text></g>
+      <g class="hs" data-c="utp"><path d="M230 150 c20 0 30 20 50 20" stroke="#4da3ff" stroke-width="8" fill="none"/><text x="236" y="188" class="label" style="fill:#9aa4b5">cable UTP rígido (sólido) AWG 23–24</text></g>
+    </svg>
+  </div>
+  <div class="card">
+    <svg viewBox="0 0 320 220" role="img" aria-label="Conector RJ45 macho y hembra">
+      <rect x="0" y="0" width="320" height="220" rx="8" fill="#12151c"/>
+      <text x="10" y="16" class="label" style="fill:#f2b632;font-size:10px">DELANTE: RJ45 hembra (panel) y macho (latiguillo)</text>
+      <g class="hs" data-c="rj45"><rect x="40" y="40" width="80" height="70" rx="6" fill="#0b0d12" stroke="#666"/><g id="fpins"></g><text x="80" y="126" class="label" style="fill:#9aa4b5" text-anchor="middle">hembra 8P8C</text></g>
+      <g class="hs" data-c="plug"><polygon points="170,50 270,50 270,110 240,110 240,120 200,120 200,110 170,110" fill="#e9eef5" stroke="#999"/><g id="ppins"></g><rect x="205" y="40" width="30" height="10" fill="#c0c0c0"/><text x="220" y="136" class="label" style="fill:#9aa4b5" text-anchor="middle">macho 8P8C con pestaña</text></g>
+      <text x="10" y="170" class="label" style="fill:#9aa4b5">Pines 1 → 8 mirando los contactos, pestaña abajo.</text>
+      <text x="10" y="184" class="label" style="fill:#9aa4b5">Pares: 1-2 · 3-6 · 4-5 · 7-8 (no 3-4). Ethernet 10/100 usa 1-2 y 3-6;</text>
+      <text x="10" y="198" class="label" style="fill:#9aa4b5">Gigabit y PoE usan los cuatro pares.</text>
+    </svg>
+  </div>
+</div>
+
+<h2 class="sec">3 · Monta el conector: T568A / T568B</h2>
+<p class="lead">Arrastra cada hilo a su pin. La norma elegida es la que dice el orden; en una instalación se usa la <b>misma</b> en los dos extremos (B es la más habitual en España).</p>
+<div class="card">
+  <div class="seg"><button class="on" data-n="B">T568B</button><button data-n="A">T568A</button><button data-n="X">Cruzado (A ↔ B)</button></div>
+  <div class="pins" id="ref"></div>
+  <div class="drop" id="chips"></div>
+  <div class="slots" id="slots"></div>
+  <div class="msg" id="wmsg"></div>
+  <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="check">Comprobar</button><button class="btn" id="reset">Vaciar</button><button class="btn" id="auto">Ver solución</button></div>
+</div>
+
+<h2 class="sec">4 · ¿Qué categoría necesito?</h2>
+<div class="card">
+  <div class="seg" id="speed"><button data-s="100" >100 Mb/s</button><button class="on" data-s="1000">1 Gb/s</button><button data-s="2500">2,5 Gb/s</button><button data-s="10000">10 Gb/s</button><button data-s="40000">40 Gb/s</button></div>
+  <div class="tw"><table class="cat" id="cattable">
+    <tr><th>Categoría</th><th>Ancho de banda</th><th>Velocidad máx. a 100 m</th><th>Uso típico</th><th>Apantallado</th></tr>
+    <tr data-c="5e"><td>Cat 5e</td><td>100 MHz</td><td>1 Gb/s (2,5 Gb/s a 100 m según instalación)</td><td>instalaciones 2000–2010, aún en muchos centros</td><td>UTP</td></tr>
+    <tr data-c="6"><td>Cat 6</td><td>250 MHz</td><td>1 Gb/s · 10 Gb/s hasta 37–55 m</td><td>mínimo recomendable hoy</td><td>UTP / F/UTP</td></tr>
+    <tr data-c="6a"><td>Cat 6A</td><td>500 MHz</td><td>10 Gb/s a 100 m</td><td>instalación nueva, puntos de acceso Wi-Fi 6/7</td><td>U/UTP o F/UTP</td></tr>
+    <tr data-c="7"><td>Cat 7 / 7A</td><td>600 / 1000 MHz</td><td>10 Gb/s (40 Gb/s a 50 m en 7A)</td><td>industrial; usa conector GG45/TERA, no RJ45 puro</td><td>S/FTP</td></tr>
+    <tr data-c="8"><td>Cat 8</td><td>2000 MHz</td><td>25–40 Gb/s a 30 m</td><td>solo dentro del CPD (servidor ↔ switch)</td><td>S/FTP</td></tr>
+  </table></div>
+  <div class="msg" id="catmsg"></div>
+</div>
+
+<h2 class="sec">5 · Glosario</h2>
+<div class="gloss">
+  <div class="g"><b>Cableado estructurado</b> Norma (ISO/IEC 11801, EIA/TIA-568) que separa el cableado fijo de la pared (horizontal, ≤ 90 m) de los latiguillos (≤ 5 m por extremo): canal total 100 m.</div>
+  <div class="g"><b>Keystone</b> Módulo RJ45 hembra que encaja a presión en paneles y rosetas; permite paneles mixtos (cobre, fibra, HDMI).</div>
+  <div class="g"><b>UTP / F/UTP / S/FTP</b> Sin pantalla / pantalla general de aluminio / malla general + pantalla por par. La pantalla solo sirve si se conecta a tierra en el panel.</div>
+  <div class="g"><b>AWG</b> Grosor del hilo (menor número = más grueso). Cable de pared AWG 23 sólido; latiguillos AWG 24–26 trenzado (flexible, no se pincha en IDC).</div>
+  <div class="g"><b>PoE / PoE+ / PoE++</b> 15 / 30 / 60–90 W por el mismo cable para teléfonos, cámaras y puntos de acceso. Calienta el mazo: Cat 6A y no más de 24 cables por manojo.</div>
+  <div class="g"><b>Certificar vs comprobar</b> Un tester de continuidad dice si los 8 hilos llegan y en qué orden. Un certificador mide atenuación, NEXT y return loss y da un informe por toma; es lo que exige un contrato.</div>
+  <div class="g"><b>Etiquetado</b> Cada toma de pared lleva el mismo código que su puerto del panel (armario-panel-puerto: A1-24). Sin etiquetas el rack se convierte en adivinanza.</div>
+  <div class="g"><b>Radio de curvatura</b> Mínimo 4 veces el diámetro del cable (≈ 25 mm). Doblar en ángulo o apretar bridas degrada la señal a 10 Gb/s.</div>
+</div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="mc" role="dialog" aria-modal="true"><h2 id="mTitle"></h2><div class="where" id="mWhere"></div><div id="mBody"></div><div class="foot"><span id="mTags"></span><button class="btn" id="mClose">Cerrar (Esc)</button></div></div></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const C={
+    rack:{t:'Rack de 19"', w:"Perfiles laterales con agujeros", tags:["1U","19 pulgadas"], b:`<p>Armario o bastidor normalizado: los equipos miden <b>19 pulgadas</b> (482,6 mm) de ancho entre orejas y su altura se cuenta en <b>unidades U</b> (1U = 44,45 mm). Un patch panel de 24 puertos ocupa 1U; uno de 48, 2U; un switch de acceso, 1U; un servidor, 1–4U.</p><ul><li>Los agujeros van en grupos de tres por U; los tornillos con tuerca enjaulada M6 se ponen en el 1º y 3º.</li><li>Orden habitual de arriba abajo: paneles de cobre, organizador, switch, organizador, fibra, servidores abajo (pesan), SAI en la base.</li></ul>`},
+    panel:{t:"Patch panel de 24 puertos", w:"Bandeja superior del rack", tags:["cableado fijo","Cat 6"], b:`<p>Es el <b>punto de terminación</b> del cableado fijo de la pared: cada cable que llega de una roseta se pincha por detrás en un puerto, y por delante queda un RJ45 hembra. Así el cable rígido de la pared no se toca nunca; lo que se conecta y desconecta son los latiguillos.</p><ul><li>Su categoría debe ser igual o superior a la del cable (panel Cat 6 con cable Cat 6A desperdicia el cable).</li><li>Sin panel se conectaría el cable de pared directamente al switch: se rompe con el uso, no se puede etiquetar bien y no se puede certificar.</li><li>Un panel no hace nada eléctricamente: no amplifica, no conmuta. Es un conector grande y ordenado.</li></ul>`},
+    port:{t:"Puerto RJ45 del panel", w:"Uno de los 24 conectores hembra", tags:["8P8C","keystone"], b:`<p>Conector hembra <b>8P8C</b> (8 posiciones, 8 contactos), llamado RJ45 por costumbre. En paneles modulares es un <b>keystone</b> que se saca y se sustituye por separado; en los fijos van soldados a una placa común.</p><p>Por delante recibe el latiguillo hacia el switch; por detrás tiene el bloque IDC donde se pinchan los 8 hilos del cable de pared. Cada puerto corresponde a una toma de la pared con el mismo número.</p>`},
+    labels:{t:"Etiquetado", w:"Tira de etiquetas bajo los puertos", tags:["documentación","A-01"], b:`<p>Cada puerto lleva un código que se repite en la roseta de la pared, en el plano y en la hoja de certificación. Esquema habitual: <b>armario-panel-puerto</b> (A1-07 = armario A, panel 1, puerto 7) o por planta y sala (P2-S3-07).</p><ul><li>Se etiqueta el cable por los dos extremos antes de pincharlo (etiqueta autolaminada o tubo termorretráctil).</li><li>Norma de referencia: TIA-606 (administración de la infraestructura).</li><li>Un rack sin etiquetas obliga a "tonear" cada cable con un generador de tono para saber a qué toma va.</li></ul>`},
+    manager:{t:"Organizador de cables (1U)", w:"Bandeja con anillas entre panel y switch", tags:["gestión de cables"], b:`<p>Guía los latiguillos del panel al switch sin que cuelguen delante de los puertos. Se pone <b>uno por cada panel/switch</b>. Con organizadores horizontales y verticales los latiguillos de 1 m llegan a cualquier puerto sin tirones.</p><ul><li>Radio de curvatura: mínimo 4 × diámetro; nada de doblar en ángulo recto.</li><li>Bridas de velcro, no de plástico apretadas: deforman los pares y aumentan la diafonía.</li><li>Latiguillos del largo justo: el sobrante se convierte en nido.</li></ul>`},
+    switch:{t:"Switch de acceso", w:"Bandeja bajo el organizador", tags:["1000BASE-T","SFP+","PoE"], b:`<p>El equipo que <b>sí</b> hace algo: conmuta tramas entre sus puertos. 24 puertos RJ45 a 1 Gb/s (1000BASE-T) para las tomas de la pared y 4 puertos <b>SFP+</b> (10 Gb/s, fibra o DAC) de subida (uplink) hacia el switch de núcleo.</p><ul><li>Se conecta al panel con latiguillos, nunca con el cable rígido de la pared.</li><li>Si es <b>PoE</b>, alimenta teléfonos, cámaras y puntos de acceso por el mismo cable; hay que sumar el presupuesto de potencia (p. ej. 370 W para 24 puertos).</li><li>Un switch "gestionable" permite VLAN, monitorización y control por puerto; un "no gestionable" solo conmuta.</li></ul>`},
+    patchcord:{t:"Latiguillos (patch cords)", w:"Cables de colores panel ↔ switch", tags:["trenzado","≤ 5 m"], b:`<p>Cables cortos (0,5–3 m) con RJ45 macho en los dos extremos, de hilo <b>trenzado</b> (flexible). Unen puerto del panel y puerto del switch; son la parte del canal que se mueve y se cambia.</p><ul><li>Se compran hechos y certificados; hacerlos a mano con crimpadora solo para pruebas o emergencias.</li><li>Colores por función (azul datos, amarillo voz, rojo servidores, verde uplinks…): el código lo decide el centro y se documenta.</li><li>Misma categoría que la instalación: un latiguillo Cat 5e en un canal Cat 6A limita todo el canal.</li></ul>`},
+    horizontal:{t:"Cableado horizontal", w:"Cables que salen por detrás del panel hacia las rosetas", tags:["≤ 90 m","sólido"], b:`<p>Cable <b>rígido</b> (hilo sólido AWG 23) que va por canaleta, falso techo o suelo técnico desde el panel hasta cada <b>roseta</b> de pared. Máximo <b>90 m</b>; con los latiguillos de los dos extremos el canal completo llega a 100 m, que es el límite de Ethernet sobre cobre.</p><ul><li>Una toma por cable: nunca se comparte un cable para dos tomas (aunque 10/100 "funcione" con 2 pares).</li><li>Separación de líneas eléctricas: mínimo 20–30 cm en paralelo, cruces en ángulo recto.</li><li>Se instala, se certifica y no se vuelve a tocar en 15–20 años: por eso se pone Cat 6A aunque hoy baste 1 Gb/s.</li></ul>`},
+    ground:{t:"Tierra del rack y PDU", w:"Barra inferior", tags:["seguridad","apantallado"], b:`<p>El rack, los paneles apantallados y las PDU (regletas de rack) se conectan a la <b>barra de tierra</b>. Sin ella, la pantalla de un cable F/UTP no protege de nada y el chasis del rack puede quedar en tensión ante un fallo.</p><p>La PDU reparte la alimentación del SAI a switches y servidores; las gestionables permiten apagar un puerto de corriente por red (reiniciar un switch colgado desde casa).</p>`},
+    idc:{t:"Bloque IDC 110", w:"Trasera de cada puerto", tags:["punch-down","T568A/B"], b:`<p><b>IDC</b> = Insulation Displacement Contact: cada ranura tiene dos cuchillas que cortan el aislante del hilo y muerden el cobre al pincharlo. No se pela el hilo.</p><ul><li>El bloque lleva serigrafiados los colores en orden <b>A</b> y <b>B</b>; se sigue el mismo que en el resto de la instalación.</li><li>Se destrenza lo mínimo (menos de 13 mm): cada centímetro destrenzado empeora la diafonía (NEXT).</li><li>Un hilo mal pinchado da "pares abiertos" en el tester: se repincha, no se tira del hilo.</li></ul>`},
+    punch:{t:"Herramienta de impacto (punch-down)", w:"Mango con cuchilla 110 intercambiable", tags:["herramienta"], b:`<p>Empuja el hilo dentro del IDC y, con el lado de <b>corte</b> hacia fuera, recorta el sobrante en el mismo golpe. Tiene resorte con ajuste de fuerza (hi/lo).</p><ul><li>Cuchilla 110 para paneles y keystones; 66 para regletas de telefonía antiguas; Krone para bloques LSA europeos.</li><li>Lado de corte hacia el exterior del bloque: si se pone hacia dentro, corta el hilo bueno.</li><li>Riesgo: la cuchilla es afilada y el golpe seco; mano libre lejos del bloque.</li></ul>`},
+    utp:{t:"Cable UTP de pared", w:"Cable de 4 pares que llega al IDC", tags:["4 pares","AWG 23"], b:`<p>Cuatro pares trenzados (8 hilos) de cobre sólido, con código de color: <b>azul, naranja, verde, marrón</b>, cada uno con su hilo blanco/color. El trenzado distinto de cada par cancela interferencias; por eso importa no destrenzar.</p><ul><li>Cubierta: LSZH (baja emisión de humos) en interiores públicos como un instituto; PVC en otros; PE negro para exterior.</li><li>Cat 6/6A llevan un separador en cruz entre pares.</li><li>Cobre real, no <b>CCA</b> (aluminio recubierto): el CCA se rompe en el IDC y no aguanta PoE.</li></ul>`},
+    rj45:{t:"RJ45 hembra (8P8C)", w:"Frente del puerto o roseta", tags:["8P8C","pines"], b:`<p>Ocho contactos de resorte. Numerados 1–8 de izquierda a derecha <b>mirando la hembra con la pestaña abajo</b>. Los pares van a los pines 1-2, 3-6, 4-5 y 7-8 (el par central 4-5 está rodeado por el 3-6: herencia del telefónico RJ11).</p><p>10/100BASE-T usa solo 1-2 (TX) y 3-6 (RX); 1000BASE-T y PoE usan los cuatro pares. Por eso un cable con solo dos pares buenos "funciona" a 100 Mb/s y falla a 1 Gb/s: síntoma clásico.</p>`},
+    plug:{t:"RJ45 macho (crimpado)", w:"Extremo del latiguillo", tags:["crimpadora","pestaña"], b:`<p>Conector transparente con 8 cuchillas que se clavan en los hilos al <b>crimpar</b>. Solo se usa en latiguillos (hilo trenzado): un macho crimpado sobre cable sólido de pared falla con el tiempo.</p><ul><li>Pestaña abajo y contactos hacia ti: pin 1 a la izquierda.</li><li>La cubierta debe entrar bajo la mordaza del conector; si no, el cable se arranca de los pines.</li><li>Conectores "pass-through" dejan asomar los hilos y se recortan tras crimpar: más fáciles de comprobar.</li><li>Cat 6A macho ≠ Cat 5e macho: mayor diámetro de hilo y separador.</li></ul>`}
+  };
+  const seen=new Set(), N=Object.keys(C).length;
+  function upd(){ $("#progress").textContent=`Partes vistas: ${seen.size} / ${N}`; }
+  function open(id){ const c=C[id]; if(!c) return; $("#mTitle").textContent=c.t; $("#mWhere").textContent=c.w; $("#mBody").innerHTML=c.b; $("#mTags").innerHTML=c.tags.map(t=>`<span class="tag">${t}</span>`).join(""); $("#modal").hidden=false; $("#mClose").focus(); seen.add(id); upd(); $$(`[data-c="${id}"]`).forEach(e=>e.classList.add("done")); }
+  function close(){ $("#modal").hidden=true; }
+  $("#mClose").addEventListener("click",close); $("#modal").addEventListener("click",e=>{ if(e.target===$("#modal")) close(); }); document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+
+  // ports
+  let ph=""; for(let i=0;i<24;i++){ const x=58+i*23.6; ph+=`<g class="hs" data-c="port"><rect x="${x}" y="40" width="18" height="22" rx="2" fill="#0b0d12" stroke="#666"/><rect x="${x+5}" y="58" width="8" height="4" fill="#333"/><text x="${x+9}" y="70" class="label" style="font-size:5px;fill:#9aa4b5" text-anchor="middle">${String(i+1).padStart(2,"0")}</text></g>`; }
+  $("#ports").innerHTML=ph;
+  let sh=""; for(let i=0;i<24;i++){ const x=58+i*20; sh+=`<rect x="${x}" y="184" width="16" height="20" rx="2" fill="#0b0d12" stroke="#555"/><circle cx="${x+8}" cy="180" r="1.6" fill="${i<3?'#3ddc84':'#333'}"/>`; }
+  $("#swports").innerHTML=sh;
+  const COL={wo:["#f5f5f5","#ff8a3d"],o:["#ff8a3d"],wg:["#f5f5f5","#3ddc84"],bl:["#4da3ff"],wbl:["#f5f5f5","#4da3ff"],g:["#3ddc84"],wbr:["#f5f5f5","#8b5a2b"],br:["#8b5a2b"]};
+  const NAME={wo:"blanco-naranja",o:"naranja",wg:"blanco-verde",bl:"azul",wbl:"blanco-azul",g:"verde",wbr:"blanco-marrón",br:"marrón"};
+  const T568B=["wo","o","wg","bl","wbl","g","wbr","br"], T568A=["wg","g","wo","bl","wbl","o","wbr","br"];
+  function grad(k){ const c=COL[k]; return c.length===1? c[0] : `repeating-linear-gradient(90deg,${c[0]} 0 4px,${c[1]} 4px 8px)`; }
+  // idc/female/plug pins colored per B
+  function svgpins(id,x0,y,w,h,gap){ let s=""; T568B.forEach((k,i)=>{ const c=COL[k]; const x=x0+i*gap; s+= c.length===1? `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c[0]}"/>` : `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c[1]}"/><rect x="${x}" y="${y}" width="${w}" height="${h/2}" fill="${c[0]}" opacity=".85"/>`; s+=`<text x="${x+w/2}" y="${y+h+9}" class="label" style="font-size:6px;fill:#9aa4b5" text-anchor="middle">${i+1}</text>`; }); $("#"+id).innerHTML=s; }
+  svgpins("idcpins",56,52,18,30,28); svgpins("fpins",50,56,6,24,8.5); svgpins("ppins",186,62,7,30,9);
+  // wiring exercise
+  let norm="B", placed=Array(8).fill(null);
+  function refOrder(){ return norm==="A"?T568A:T568B; }
+  function renderRef(){ const o=refOrder(); $("#ref").innerHTML=o.map((k,i)=>`<div class="pin"><i style="background:${grad(k)}"></i>${i+1}<small>${norm==="X"?(i<8?'?':''):NAME[k]}</small></div>`).join(""); if(norm==="X") $("#ref").innerHTML=T568A.map((k,i)=>`<div class="pin"><i style="background:${grad(k)}"></i>${i+1}<small>extremo A: ${NAME[k]}</small></div>`).join(""); }
+  function renderChips(){ const used=new Set(placed.filter(Boolean)); const keys=Object.keys(COL).sort(()=>0.5-Math.random()); $("#chips").innerHTML=keys.filter(k=>!used.has(k)).map(k=>`<div class="chip" draggable="true" data-k="${k}"><i style="background:${grad(k)}"></i>${NAME[k]}</div>`).join(""); }
+  function renderSlots(){ $("#slots").innerHTML=placed.map((k,i)=>`<div class="slot" data-i="${i}">${k?`<div class="chip" draggable="true" data-k="${k}" data-from="${i}"><i style="background:${grad(k)}"></i>${NAME[k]}</div>`:''}<span>pin ${i+1}</span></div>`).join(""); }
+  function renderAll(){ renderRef(); renderChips(); renderSlots(); }
+  let dragK=null, dragFrom=null;
+  document.addEventListener("dragstart",e=>{ const c=e.target.closest(".chip"); if(!c) return; dragK=c.dataset.k; dragFrom=c.dataset.from!==undefined?+c.dataset.from:null; });
+  document.addEventListener("dragover",e=>{ if(e.target.closest(".slot")||e.target.closest("#chips")) e.preventDefault(); });
+  document.addEventListener("drop",e=>{ const s=e.target.closest(".slot"); if(s&&dragK){ e.preventDefault(); const i=+s.dataset.i; if(dragFrom!==null) placed[dragFrom]=placed[i]; placed[i]=dragK; dragK=null; dragFrom=null; renderChips(); renderSlots(); return; } if(e.target.closest("#chips")&&dragFrom!==null){ e.preventDefault(); placed[dragFrom]=null; dragK=null; dragFrom=null; renderChips(); renderSlots(); } });
+  // tap fallback: click chip then slot
+  let sel=null; $("#chips").addEventListener("click",e=>{ const c=e.target.closest(".chip"); if(!c) return; sel=c.dataset.k; $$("#chips .chip").forEach(x=>x.style.borderColor=x.dataset.k===sel?"var(--amber)":""); });
+  $("#slots").addEventListener("click",e=>{ const s=e.target.closest(".slot"); if(!s) return; const i=+s.dataset.i; if(sel){ placed[i]=sel; sel=null; renderChips(); renderSlots(); } else if(placed[i]){ placed[i]=null; renderChips(); renderSlots(); } });
+  $$(".seg button[data-n]").forEach(b=>b.addEventListener("click",()=>{ norm=b.dataset.n; $$(".seg button[data-n]").forEach(x=>x.classList.toggle("on",x===b)); placed=Array(8).fill(null); renderAll(); $("#wmsg").innerHTML= norm==="X"? "Cable cruzado: un extremo en A y el otro en B. Monta aquí el extremo <b>B</b>. Hoy casi no hace falta: los switches y tarjetas tienen Auto-MDI/X." : norm==="A"? "T568A: par verde en 1-2. Es la norma que prefieren las administraciones en EE. UU. y la que se usa si hay telefonía antigua compartida." : "T568B: par naranja en 1-2. La más extendida en instalaciones comerciales y en España."; }));
+  $("#check").addEventListener("click",()=>{ const o=norm==="A"?T568A:T568B; let ok=0; $$("#slots .slot").forEach((s,i)=>{ const good=placed[i]===o[i]; s.classList.toggle("ok",good); s.classList.toggle("ko",!good&&placed[i]); if(good) ok++; }); const pairs=[[0,1],[2,5],[3,4],[6,7]]; let msg=`<b>${ok}/8</b> pines correctos. `; if(ok===8) msg+="Conector correcto: el tester daría los 4 pares bien mapeados."; else { const wrongPairs=pairs.filter(([a,b])=>placed[a]!==o[a]||placed[b]!==o[b]).map(([a,b])=>`${a+1}-${b+1}`); msg+=`Pares afectados: ${wrongPairs.join(", ")}. `; if(placed[2]&&placed[3]&&placed[2].replace("w","")===placed[3].replace("w","")) msg+="Has puesto un par en 3-4: es el error clásico (split pair). El tester de continuidad lo da por bueno, pero a 1 Gb/s falla por diafonía."; } $("#wmsg").innerHTML=msg; });
+  $("#reset").addEventListener("click",()=>{ placed=Array(8).fill(null); renderAll(); $("#wmsg").textContent=""; });
+  $("#auto").addEventListener("click",()=>{ placed=(norm==="A"?T568A:T568B).slice(); renderChips(); renderSlots(); $("#wmsg").innerHTML="Solución cargada. Fíjate: solo cambian de sitio los pares naranja y verde entre A y B; azul y marrón van igual."; });
+  renderAll(); $("#wmsg").innerHTML="T568B: par naranja en 1-2. La más extendida en instalaciones comerciales y en España.";
+
+  // category
+  const NEED={100:{min:"5e",msg:"100BASE-TX usa 2 pares y 31 MHz: cualquier Cat 5e vale. No compres nada nuevo por esto."},1000:{min:"5e",msg:"1000BASE-T usa los 4 pares a 62,5 MHz: Cat 5e llega a 100 m si está bien instalado; Cat 6 da margen. Es lo que tiene casi todo instituto."},2500:{min:"5e",msg:"2.5GBASE-T se diseñó para reutilizar Cat 5e/6 existente (100 MHz). Ideal para puntos de acceso Wi-Fi 6 sin recablear."},10000:{min:"6a",msg:"10GBASE-T necesita 400 MHz: Cat 6A a 100 m; con Cat 6 solo 37–55 m según diafonía entre cables. Instalación nueva = 6A."},40000:{min:"8",msg:"40GBASE-T solo a 30 m con Cat 8: es cableado de CPD entre servidor y switch, no de planta. Para distancias mayores, fibra."}};
+  const ORDER=["5e","6","6a","7","8"];
+  function cat(s){ const n=NEED[s]; const mi=ORDER.indexOf(n.min); $$("#cattable tr[data-c]").forEach(tr=>{ const i=ORDER.indexOf(tr.dataset.c); tr.classList.toggle("hl", i>=mi); tr.style.opacity = i>=mi? "1":".45"; }); $("#catmsg").innerHTML=`Mínimo: <b>Cat ${n.min.toUpperCase()}</b>. ${n.msg}`; }
+  $("#speed").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $$("#speed button").forEach(x=>x.classList.toggle("on",x===b)); cat(+b.dataset.s); });
+  cat(1000);
+  $$(".hs").forEach(el=>{ el.setAttribute("tabindex","0"); el.addEventListener("click",()=>open(el.dataset.c)); el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(el.dataset.c);} }); });
+})();
+</script>
+</body>
+</html>

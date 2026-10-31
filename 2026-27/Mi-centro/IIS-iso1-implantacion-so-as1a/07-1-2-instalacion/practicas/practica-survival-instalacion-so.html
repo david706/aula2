@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Práctica survival · Instalación de Ubuntu Desktop, Ubuntu Server y Windows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --cream:#F3EFE5; --cream-panel:#FFFFFF; --navy:#182A45; --navy-2:#24385A;
+    --orange:#E0813C; --orange-dark:#B85F22; --ink:#22282F; --ink-soft:#5B6470;
+    --line:#DDD5C2; --deep:#182A45; --on-deep:#F3EFE5;
+    --ok:#2F7A46; --ok-bg:#E4F2E7; --bad:#B4472B; --bad-bg:#FBE7E1;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+      --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+      --ok-bg:#1E3324; --bad-bg:#3A241E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+    --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+    --ok-bg:#1E3324; --bad-bg:#3A241E;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 60px;}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+  /* HEADER */
+  header.top{
+    background:var(--deep); color:var(--on-deep);
+    padding:22px 20px 20px; position:sticky; top:0; z-index:5;
+    padding-top:calc(22px + env(safe-area-inset-top,0px));
+  }
+  .top-inner{max-width:760px;margin:0 auto;}
+  .top-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .top-title{font-weight:700;font-size:1.05rem;}
+  .top-sub{font-size:.78rem;color:#B8AF97;}
+  .progress-track{
+    margin-top:14px; height:8px; background:rgba(243,239,229,.15);
+    border-radius:999px; overflow:hidden; display:flex; gap:2px;
+  }
+  .progress-seg{height:100%;flex:1;background:rgba(243,239,229,.15);border-radius:999px;overflow:hidden;position:relative;}
+  .progress-fill{height:100%;width:0%;background:var(--orange);transition:width .3s ease;}
+  .blocklabels{display:flex;justify-content:space-between;margin-top:6px;font-size:.68rem;color:#A79E88;font-family:"IBM Plex Mono",monospace;}
+  .blocklabels span.active{color:var(--orange);font-weight:600;}
+
+  main{padding-top:26px;}
+
+  /* CARD */
+  .card{
+    background:var(--cream-panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; margin-bottom:20px; animation:fadein .25s ease;
+  }
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .card .eyebrow{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:"IBM Plex Mono",monospace; font-size:.72rem; font-weight:600;
+    color:var(--orange-dark); text-transform:none; margin-bottom:12px;
+  }
+  .card h2{font-size:1.25rem;margin:0 0 12px;color:var(--navy);font-weight:700;line-height:1.3;}
+  .card .ctx{color:var(--ink-soft);font-size:.95rem;margin-bottom:18px;}
+  .card .ctx code{background:var(--cream);padding:1px 6px;border-radius:4px;font-size:.85em;}
+
+  /* INTRO BLOCK CARD */
+  .intro-icon{font-size:2.4rem;margin-bottom:10px;display:block;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    font-family:"Space Grotesk"; font-weight:600; font-size:.92rem;
+    border:none; border-radius:9px; padding:12px 20px;
+    background:var(--deep); color:var(--on-deep);
+    transition:opacity .15s ease;
+  }
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .btn:not(:disabled):hover{opacity:.88;}
+  .btn.secondary{background:transparent;color:var(--navy);border:1px solid var(--line);}
+
+  /* QUESTION */
+  .question{font-weight:600;color:var(--navy);font-size:1.02rem;margin-bottom:14px;}
+  .options{display:grid;gap:9px;margin-bottom:16px;}
+  .opt{
+    display:flex; align-items:flex-start; gap:11px;
+    border:1px solid var(--line); border-radius:10px; padding:12px 14px;
+    cursor:pointer; font-size:.93rem; background:var(--cream-panel);
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .opt:hover{border-color:var(--orange);}
+  .opt input{margin-top:2px;accent-color:var(--orange-dark);flex:0 0 auto;}
+  .opt.selected{border-color:var(--orange-dark);background:color-mix(in srgb, var(--orange) 8%, var(--cream-panel));}
+  .opt.correct{border-color:var(--ok);background:var(--ok-bg);}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-bg);}
+  .opt.disabledopt{pointer-events:none;opacity:.7;}
+
+  .feedback{border-radius:10px;padding:13px 15px;font-size:.9rem;margin-bottom:16px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--ok-bg);color:var(--ok);border:1px solid color-mix(in srgb, var(--ok) 40%, transparent);}
+  .feedback.bad{background:var(--bad-bg);color:var(--bad);border:1px solid color-mix(in srgb, var(--bad) 40%, transparent);}
+  .feedback b{display:block;margin-bottom:3px;}
+
+  .card-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .attempts{font-size:.76rem;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;}
+
+  /* FORM */
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:.82rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+  .field input{
+    width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:8px;
+    font-family:"Space Grotesk"; font-size:.95rem; background:var(--cream-panel); color:var(--ink);
+  }
+  .field input:focus{outline:2px solid var(--orange);outline-offset:1px;}
+
+  .summary-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:16px 0;}
+  .summary-table th,.summary-table td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);}
+  .summary-table th{font-family:"IBM Plex Mono",monospace;font-size:.68rem;color:var(--ink-soft);font-weight:600;}
+  .badge-ok{color:var(--ok);font-weight:600;}
+  .badge-hint{color:var(--orange-dark);font-weight:600;}
+
+  .finalscore{
+    text-align:center; background:var(--deep); color:var(--on-deep);
+    border-radius:var(--radius); padding:22px; margin-bottom:18px;
+  }
+  .finalscore .big{font-size:2.2rem;font-weight:700;font-family:"IBM Plex Mono",monospace;}
+  .finalscore .lbl{font-size:.8rem;color:#C9C2AE;margin-top:4px;}
+
+  footer{max-width:760px;margin:0 auto;padding:20px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="top-row">
+      <div>
+        <div class="top-title">🧭 Práctica survival · Instalación de sistemas</div>
+        <div class="top-sub">Módulo ISO (0369) · Ubuntu Desktop · Ubuntu Server · Windows · Windows Server</div>
+      </div>
+      <div class="top-sub" id="stepCounter">Paso 1</div>
+    </div>
+    <div class="progress-track" id="progressTrack"></div>
+    <div class="blocklabels" id="blockLabels"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="cardHost"></div>
+</main>
+
+<footer>Práctica de aula · Módulo ISO (0369) · 1º ASIR</footer>
+
+<script>
+/* ========================= DATOS ========================= */
+const BLOCKS = [
+  {key:'A', icon:'🖥️', label:'Laboratorio virtual', intro:{
+    title:'Antes de instalar nada…',
+    text:'Vas a crear cuatro máquinas virtuales en tu hipervisor (VirtualBox o VMware): dos de escritorio (<b>Ubuntu Desktop</b> y <b>Windows</b>) y dos de servidor (<b>Ubuntu Server</b> y <b>Windows Server</b>). Primero dos preguntas de concepto (RAM y red) y después, ficha en mano, las configuráis las cuatro una a una — nombre, RAM, vCPUs, disco y red — antes de arrancar ningún instalador.'
+  }},
+  {key:'B', icon:'🐧', label:'Ubuntu Desktop', intro:{
+    title:'Instalación de Ubuntu Desktop',
+    text:'Arranca la VM desde la ISO de Ubuntu Desktop. Vas a ir tomando, paso a paso, las mismas decisiones que tomaríais en el aula.'
+  }},
+  {key:'C', icon:'🖧', label:'Ubuntu Server', intro:{
+    title:'Instalación de Ubuntu Server',
+    text:'Misma ISO, distinto propósito: esta VM no tendrá entorno gráfico. El instalador de Ubuntu Server (Subiquity) es de texto, pero las decisiones son igual de importantes.'
+  }},
+  {key:'D', icon:'🪟', label:'Windows', intro:{
+    title:'Instalación de Windows',
+    text:'Instalas Windows (cliente) en la tercera VM. Aquí retomamos conceptos de particiones y licencias que ya vimos en clase.'
+  }},
+  {key:'E', icon:'🗄️', label:'Windows Server', intro:{
+    title:'Instalación de Windows Server',
+    text:'Cuarta y última VM. Aunque el instalador se parece mucho al de Windows cliente, hay decisiones distintas porque este equipo, más adelante, será un servidor de verdad — incluido, en un futuro bloque, controlador de dominio.'
+  }},
+];
+
+const QUESTIONS = [
+  // ---------- BLOQUE A ----------
+  {block:'A',
+   ctx:'Al crear la VM, el hipervisor te pide cuánta memoria RAM le asignas. Ubuntu Desktop necesita margen suficiente para el entorno gráfico y las aplicaciones del aula.',
+   q:'¿Cuánta RAM mínima recomienda oficialmente Ubuntu para que Ubuntu Desktop vaya fluido?',
+   options:['512 MB','2 GB','4 GB','16 GB'],
+   correct:2,
+   ok:'4 GB es el mínimo recomendado por Ubuntu para Desktop. Con menos, el entorno gráfico va muy justo.',
+   bad:'Piensa en lo que necesita un entorno gráfico completo (GNOME) más las aplicaciones típicas de un aula, no solo el sistema base.'},
+  {block:'A',
+   ctx:'Ahora te toca elegir el <b>adaptador de red</b> de la VM. Quieres que salga a Internet a través de la conexión de tu equipo anfitrión, pero sin que sea visible como un equipo más de la red física del aula.',
+   q:'¿Qué modo de red debes seleccionar?',
+   options:['NAT','Adaptador puente (Bridge)','Solo anfitrión (Host-only)','Red interna'],
+   correct:0,
+   ok:'Correcto: NAT hace de traductor de direcciones. La VM sale a Internet usando la IP de tu equipo anfitrión, pero no es directamente alcanzable desde la red física del aula.',
+   bad:'Bridge conectaría la VM directamente a la red física del centro como un equipo más — justo lo que quieres evitar aquí.'},
+
+  // ---------- BLOQUE B: Ubuntu Desktop ----------
+  {block:'B',
+   ctx:'Arrancas desde la ISO y aparece la pantalla de bienvenida con dos botones grandes.',
+   q:'¿Qué opción eliges si quieres instalar el sistema en el disco virtual, y no solo probarlo desde el propio USB/ISO?',
+   options:['Try Ubuntu','Install Ubuntu'],
+   correct:1,
+   ok:'"Install Ubuntu" arranca el asistente de instalación. "Try Ubuntu" solo ejecuta un live-CD temporal, sin tocar el disco.',
+   bad:'"Try Ubuntu" es solo para probar el sistema sin instalarlo — no persiste nada al reiniciar.'},
+  {block:'B',
+   ctx:'El instalador te pregunta el tipo de instalación y muestra la casilla <code>Descargar actualizaciones mientras se instala Ubuntu</code>. El aula de hoy no tiene salida a Internet.',
+   q:'¿Qué deberías hacer con esa casilla en esta situación?',
+   options:['Marcarla, siempre es mejor actualizar','Dejarla desmarcada','Da igual, no afecta a la instalación'],
+   correct:1,
+   ok:'Sin red, marcarla puede hacer que el instalador se quede esperando o falle al intentar descargar paquetes. Mejor dejarla desmarcada y actualizar después.',
+   bad:'Recuerda que esa casilla depende de tener conexión a Internet durante la instalación — y hoy el aula no la tiene.'},
+  {block:'B',
+   ctx:'Llegas a la pantalla de tipo de instalación de disco. Quieres controlar tú mismo las particiones — por ejemplo, crear una partición <code>ext4</code> y otra de <code>swap</code>, como hicisteis con <code>fdisk</code> y GParted en la práctica de particionamiento.',
+   q:'¿Qué opción del instalador debes elegir?',
+   options:['Borrar disco e instalar Ubuntu','Algo más (instalación manual)','Actualizar a la última versión'],
+   correct:1,
+   ok:'"Algo más" te lleva al particionador manual, donde defines tú el esquema de particiones — igual que hicisteis con fdisk/GParted.',
+   bad:'"Borrar disco e instalar Ubuntu" es la opción automática: el instalador decide el particionado por ti, sin preguntarte.'},
+  {block:'B',
+   ctx:'Casi al final, el instalador te pide crear el usuario, el nombre del equipo y la contraseña, con una casilla <code>Iniciar sesión automáticamente</code>.',
+   q:'¿Por qué NO conviene marcar esa casilla en un equipo de aula que van a compartir varios alumnos?',
+   options:['Porque ralentiza el arranque','Porque cualquiera que encienda el equipo entraría directamente a la sesión de otro usuario sin contraseña','Porque Ubuntu no permite esa opción'],
+   correct:1,
+   ok:'Exacto: en un equipo compartido, el inicio de sesión automático salta la autenticación — cualquiera accedería a los archivos y la sesión de quien instaló el sistema.',
+   bad:'Piensa en quién más va a usar ese mismo equipo después de ti.'},
+
+  // ---------- BLOQUE C: Ubuntu Server ----------
+  {block:'C',
+   ctx:'Vas a instalar la misma familia de sistema, Ubuntu, pero en su edición Server, que por defecto no trae entorno gráfico.',
+   q:'¿Por qué se instala habitualmente un servidor sin interfaz gráfica (headless)?',
+   options:['Porque Ubuntu Server no permite instalar GUI nunca','Ahorra recursos del equipo y se administra igualmente por SSH/CLI','Porque es obligatorio por licencia'],
+   correct:1,
+   ok:'Un servidor headless libera RAM y CPU que la GUI consumiría, y se administra perfectamente por SSH o consola — como vimos en la sesión de arquitectura del SO.',
+   bad:'Recuerda la pregunta que os hicimos en la sesión de arquitectura: ¿por qué un servidor puede no tener entorno gráfico?'},
+  {block:'C',
+   ctx:'El instalador de Ubuntu Server (Subiquity) llega a la pantalla de configuración de red del equipo.',
+   q:'Este servidor debe tener siempre la misma dirección IP para que los demás equipos del aula lo encuentren sin sorpresas. ¿Qué configuración de red eliges?',
+   options:['DHCP automático','IP estática'],
+   correct:1,
+   ok:'Con IP estática, la dirección no cambia entre reinicios — imprescindible para un servidor al que otros equipos deben conectarse de forma fiable.',
+   bad:'DHCP asigna la IP automáticamente, pero puede cambiar entre reinicios o renovaciones de concesión — no es lo ideal para un servidor.'},
+  {block:'C',
+   ctx:'En el particionado, Ubuntu Server propone por defecto usar <b>LVM</b> (Logical Volume Manager) en lugar de particiones fijas tradicionales.',
+   q:'¿Qué ventaja aporta LVM frente a las particiones tradicionales?',
+   options:['Es obligatorio para poder arrancar el sistema','Permite redimensionar o añadir espacio a los volúmenes más adelante sin tener que reparticionar el disco desde cero','Hace que el disco sea más rápido físicamente'],
+   correct:1,
+   ok:'Exacto: LVM añade una capa lógica entre las particiones físicas y los sistemas de archivos, permitiendo ampliar volúmenes sobre la marcha — muy útil en un servidor que crecerá con el tiempo.',
+   bad:'Piensa en la palabra "Logical" de LVM: la ventaja está en la flexibilidad para gestionar el espacio, no en la velocidad.'},
+  {block:'C',
+   ctx:'En la pantalla de perfil de usuario aparece la casilla <code>Install OpenSSH server</code>. Vas a administrar este servidor en remoto desde el primer momento, sin monitor conectado.',
+   q:'¿Qué debes hacer con esa casilla?',
+   options:['Dejarla desmarcada, ya la instalarás si hace falta','Marcarla, para poder conectarte por SSH desde el primer arranque'],
+   correct:1,
+   ok:'Marcándola tendrás acceso SSH nada más arrancar — imprescindible si el servidor va a funcionar headless desde el primer momento.',
+   bad:'Si no la marcas, tras el primer arranque no tendrás forma remota de entrar al servidor sin volver a conectar un monitor y teclado.'},
+
+  // ---------- BLOQUE D: Windows ----------
+  {block:'D',
+   ctx:'Arrancas la tercera VM desde la ISO de Windows. Tras elegir idioma y "Instalar ahora", aparece la pantalla para introducir la clave de producto. Estás en un entorno de pruebas del aula y todavía no tienes una clave asignada.',
+   q:'¿Qué eliges en esta pantalla?',
+   options:['Introducir una clave inventada','"No tengo clave de producto" (se activa más adelante)','Cancelar la instalación hasta tener clave'],
+   correct:1,
+   ok:'Windows permite instalarse sin clave y activarse después — perfecto para un entorno de pruebas. Recordad la sesión de licenciamiento: en un centro real se usaría una clave de Volumen (VLK).',
+   bad:'No hace falta cancelar ni inventar nada: Windows deja continuar sin clave y activarlo más tarde.'},
+  {block:'D',
+   ctx:'A continuación el instalador pregunta el tipo de instalación.',
+   q:'Para una instalación limpia sobre un disco virtual nuevo, ¿qué opción eliges?',
+   options:['Actualizar: instalar Windows y conservar archivos','Personalizada: instalar solo Windows (avanzado)'],
+   correct:1,
+   ok:'"Personalizada" es la instalación limpia, sin sistema previo que actualizar — la que corresponde a un disco virtual nuevo.',
+   bad:'"Actualizar" solo tiene sentido si ya hay una versión de Windows instalada que quieras conservar.'},
+  {block:'D',
+   ctx:'Llegas a la pantalla de selección de disco. El disco está completamente vacío y la VM tiene firmware UEFI (como la mayoría de hipervisores actuales por defecto).',
+   q:'¿Qué tabla de particiones usará Windows automáticamente al crear las particiones en este disco?',
+   options:['MBR','GPT'],
+   correct:1,
+   ok:'Con firmware UEFI y disco vacío, Windows crea automáticamente una tabla GPT — la misma que estudiasteis en la práctica de particionamiento: sin límite de 4 particiones primarias y con redundancia de la tabla.',
+   bad:'Repasad la sesión de particionamiento: MBR es el esquema ligado a la BIOS clásica, no a UEFI.'},
+  {block:'D',
+   ctx:'Tras copiar los archivos y reiniciar, Windows pide crear una cuenta. Este es un equipo de laboratorio del centro, sin que los datos de los alumnos deban vincularse a una cuenta personal en la nube.',
+   q:'¿Qué tipo de cuenta es más apropiada crear aquí?',
+   options:['Cuenta Microsoft (online)','Cuenta local'],
+   correct:1,
+   ok:'Una cuenta local mantiene los datos del alumno solo en ese equipo, sin sincronizarlos con una cuenta personal en la nube — lo más adecuado para un equipo compartido de laboratorio.',
+   bad:'Una cuenta Microsoft sincroniza configuración y archivos con la nube — no es lo que buscamos en un PC de aula compartido.'},
+  {block:'D',
+   ctx:'Poco después, Windows pregunta: "¿Quieres permitir que tu PC sea detectable por otros equipos y dispositivos en esta red?". Este equipo va a estar en la red del aula y necesitarás compartir carpetas o la impresora con otros PCs del mismo centro.',
+   q:'¿Qué perfil de red eliges?',
+   options:['Red pública (no detectable)','Red privada (detectable, permite compartir recursos)'],
+   correct:1,
+   ok:'Red privada permite el descubrimiento de red y compartir recursos con otros equipos de confianza — adecuado dentro del aula. Red pública es para redes no confiables, como el wifi de una cafetería, donde no quieres ser visible.',
+   bad:'Piensa en qué perfil usarías en la wifi de una cafetería frente al que usarías en la red interna y de confianza del centro.'},
+
+  // ---------- BLOQUE E: Windows Server ----------
+  {block:'E',
+   ctx:'Arrancas la cuarta VM desde la ISO de Windows Server. En la pantalla de selección de sistema operativo aparecen dos opciones para casi cada edición: "Standard/Datacenter (Desktop Experience)" y "Standard/Datacenter (Server Core)".',
+   q:'Es tu primer contacto con Windows Server y todavía vais a administrarlo casi todo desde la interfaz gráfica. ¿Qué opción eliges ahora?',
+   options:['Server Core (sin entorno gráfico)','Desktop Experience (con entorno gráfico)'],
+   correct:1,
+   ok:'"Desktop Experience" instala el entorno gráfico completo — lo más práctico mientras estáis aprendiendo. Recordad la sesión de arquitectura: en producción, muchos servidores se instalan como Server Core (headless) para ahorrar recursos, y esa es la opción que elegiríais con el servidor ya en marcha y administrado por CLI/remoto.',
+   bad:'Server Core no tiene interfaz gráfica — es la opción headless, más eficiente en producción pero más difícil para vuestro primer contacto con el sistema.'},
+  {block:'E',
+   ctx:'Igual que en Windows cliente, llegas a la pantalla de particionado con el disco virtual vacío y firmware UEFI.',
+   q:'¿Qué tabla de particiones creará Windows Server automáticamente, y por tanto qué límite de particiones primarias deja de aplicar?',
+   options:['MBR, límite de 4 particiones primarias','GPT, sin ese límite'],
+   correct:1,
+   ok:'Igual que en Windows cliente: con UEFI y disco vacío, Windows Server crea una tabla GPT, sin el límite de 4 particiones primarias del esquema MBR clásico.',
+   bad:'Repasad la sesión de particionamiento: el límite de 4 particiones primarias es cosa de MBR, no de GPT.'},
+  {block:'E',
+   ctx:'Tras la instalación, el primer inicio de sesión te obliga a establecer la contraseña del usuario Administrador. Este servidor, más adelante, tendrá que responder siempre en la misma dirección para que otros equipos lo encuentren de forma fiable — igual que planificasteis con Ubuntu Server.',
+   q:'¿Qué configuración de red le asignas a este servidor?',
+   options:['DHCP automático','IP estática'],
+   correct:1,
+   ok:'Mismo criterio que en Ubuntu Server: un servidor necesita una dirección que no cambie entre reinicios, así que se configura con IP estática.',
+   bad:'DHCP puede cambiar la dirección entre reinicios o renovaciones — nada fiable para un servidor al que otros equipos deben conectarse siempre igual.'},
+  {block:'E',
+   ctx:'Con el servidor ya instalado y con nombre propio, abres el "Administrador del servidor" y ves la opción "Agregar roles y características". Todavía no vais a instalar ningún rol — eso llegará cuando lleguéis al bloque de dominios (RA4) — pero conviene entender qué es.',
+   q:'¿Qué es un "rol" en Windows Server?',
+   options:['Un tipo de cuenta de usuario con más privilegios','Un paquete de software que convierte al servidor en un tipo concreto de servidor (p. ej. controlador de dominio, servidor web, DHCP…)','Un modo de arranque alternativo del sistema'],
+   correct:1,
+   ok:'Un rol es una función completa que el servidor puede desempeñar en la red — como Servicios de dominio de Active Directory (AD DS), Servidor DNS o Servidor web (IIS). Instalar un rol es justamente lo que haréis más adelante para convertir esta VM en controlador de dominio.',
+   bad:'No es una cuenta de usuario ni un modo de arranque: piensa en "qué función va a cumplir este servidor en la red".'},
+];
+
+/* ===================== FICHAS DE CONFIGURACIÓN DE VM (Bloque A) ===================== */
+const VM_SPECS = [
+  {key:'udesktop', block:'A', icon:'🐧', title:'Ubuntu Desktop', minRAM:4096, minDisk:25, minVcpu:2,
+   note:'Requisito oficial de Ubuntu para Desktop: 4 GB de RAM y 25 GB de disco como mínimo.'},
+  {key:'userver', block:'A', icon:'🖧', title:'Ubuntu Server', minRAM:2048, minDisk:20, minVcpu:1,
+   note:'Server no necesita tanta RAM como Desktop al no tener entorno gráfico — con 2 GB y 20 GB de disco es suficiente para el aula.'},
+  {key:'wdesktop', block:'A', icon:'🪟', title:'Windows (cliente)', minRAM:4096, minDisk:64, minVcpu:2,
+   note:'Requisito oficial de Windows 11: 4 GB de RAM y 64 GB de disco como mínimo.'},
+  {key:'wserver', block:'A', icon:'🗄️', title:'Windows Server', minRAM:2048, minDisk:32, minVcpu:2,
+   note:'Windows Server pide algo menos de disco de partida que el cliente, pero conviene no ir justo si más adelante instalaréis el rol AD DS.'},
+];
+
+/* ===================== MOTOR DE LA PRÁCTICA ===================== */
+const sequence = [];
+BLOCKS.forEach(b=>{
+  sequence.push({type:'intro', block:b});
+  QUESTIONS.filter(q=>q.block===b.key).forEach(q=>sequence.push({type:'question', block:b.key, data:q}));
+  VM_SPECS.filter(v=>v.block===b.key).forEach(v=>sequence.push({type:'vmconfig', block:b.key, data:v}));
+});
+sequence.push({type:'form'});
+
+const vmResults = {}; // vm.key -> {name, ram, vcpu, disk, net, valid}
+
+let current = 0;
+const results = {}; // qIndex -> {attempts, gotHint}
+let selectedOpt = null;
+let answered = false;
+
+const host = document.getElementById('cardHost');
+const stepCounter = document.getElementById('stepCounter');
+const progressTrack = document.getElementById('progressTrack');
+const blockLabelsEl = document.getElementById('blockLabels');
+
+function buildProgressBar(){
+  progressTrack.innerHTML = '';
+  blockLabelsEl.innerHTML = '';
+  BLOCKS.forEach(b=>{
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    const fill = document.createElement('div');
+    fill.className = 'progress-fill';
+    fill.id = 'fill-'+b.key;
+    seg.appendChild(fill);
+    progressTrack.appendChild(seg);
+
+    const lbl = document.createElement('span');
+    lbl.textContent = b.icon;
+    lbl.id = 'lbl-'+b.key;
+    blockLabelsEl.appendChild(lbl);
+  });
+}
+buildProgressBar();
+
+function updateProgress(){
+  const step = sequence[current];
+  const curBlock = step.block || 'E';
+  BLOCKS.forEach(b=>{
+    const qs = QUESTIONS.filter(q=>q.block===b.key);
+    const vms = VM_SPECS.filter(v=>v.block===b.key);
+    const total = qs.length + vms.length;
+    let done = 0;
+    qs.forEach(q=>{
+      const globalIdx = QUESTIONS.indexOf(q);
+      if(results[globalIdx] && results[globalIdx].correctDone) done++;
+    });
+    vms.forEach(v=>{
+      if(vmResults[v.key] && vmResults[v.key].valid) done++;
+    });
+    const pct = total ? Math.round(done/total*100) : 0;
+    document.getElementById('fill-'+b.key).style.width = pct+'%';
+    document.getElementById('lbl-'+b.key).classList.toggle('active', b.key===curBlock);
+  });
+  stepCounter.textContent = `Paso ${current+1} de ${sequence.length}`;
+}
+
+function render(){
+  const step = sequence[current];
+  answered = false; selectedOpt = null;
+  updateProgress();
+
+  if(step.type === 'intro'){
+    const b = step.block;
+    host.innerHTML = `
+      <div class="card">
+        <span class="intro-icon">${b.icon}</span>
+        <div class="eyebrow">BLOQUE ${b.key} · ${b.label}</div>
+        <h2>${b.intro.title}</h2>
+        <p class="ctx">${b.intro.text}</p>
+        <div class="card-actions">
+          <span></span>
+          <button class="btn" id="nextBtn">Comenzar bloque →</button>
+        </div>
+      </div>`;
+    document.getElementById('nextBtn').onclick = ()=>{ current++; render(); };
+    return;
+  }
+
+  if(step.type === 'question'){
+    const q = step.data;
+    const qIndex = QUESTIONS.indexOf(q);
+    if(!results[qIndex]) results[qIndex] = {attempts:0, gotHint:false, correctDone:false};
+    const blockMeta = BLOCKS.find(b=>b.key===step.block);
+
+    host.innerHTML = `
+      <div class="card">
+        <div class="eyebrow">${blockMeta.icon} BLOQUE ${step.block} · ${blockMeta.label}</div>
+        <p class="ctx">${q.ctx}</p>
+        <div class="question">${q.q}</div>
+        <div class="options" id="optsHost"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="card-actions">
+          <span class="attempts" id="attemptsLbl"></span>
+          <div style="display:flex;gap:10px;">
+            <button class="btn secondary" id="checkBtn">Comprobar</button>
+            <button class="btn" id="nextBtn" disabled>Continuar →</button>
+          </div>
+        </div>
+      </div>`;
+
+    const optsHost = document.getElementById('optsHost');
+    q.options.forEach((opt,i)=>{
+      const div = document.createElement('label');
+      div.className = 'opt';
+      div.innerHTML = `<input type="radio" name="opt" value="${i}"><span>${opt}</span>`;
+      div.onclick = ()=>{
+        if(results[qIndex].correctDone) return;
+        selectedOpt = i;
+        document.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected','wrong'));
+        div.classList.add('selected');
+        document.getElementById('checkBtn').disabled = false;
+      };
+      optsHost.appendChild(div);
+    });
+
+    updateAttemptsLabel(qIndex);
+
+    document.getElementById('checkBtn').onclick = ()=>checkAnswer(qIndex, q);
+    document.getElementById('nextBtn').onclick = ()=>{ current++; render(); };
+
+    if(results[qIndex].correctDone){
+      // already answered correctly before (e.g. user went back) - lock it in
+      lockCorrect(qIndex, q);
+    }
+    return;
+  }
+
+  if(step.type === 'vmconfig'){
+    renderVmConfig(step.data);
+    return;
+  }
+
+  if(step.type === 'form'){
+    renderForm();
+    return;
+  }
+}
+
+/* ===================== FICHA DE CONFIGURACIÓN DE VM ===================== */
+function renderVmConfig(vm){
+  const saved = vmResults[vm.key];
+  host.innerHTML = `
+    <div class="card">
+      <div class="eyebrow">${vm.icon} BLOQUE A · Laboratorio virtual</div>
+      <h2>Ficha de configuración · ${vm.title}</h2>
+      <p class="ctx">${vm.note}</p>
+      <div class="field"><label>Nombre de la VM</label><input type="text" id="vm_name" placeholder="Ej: ${vm.title.replace(/\s/g,'')}-Aula" value="${saved?saved.name:''}"></div>
+      <div class="field"><label>RAM asignada (MB)</label><input type="number" id="vm_ram" placeholder="Mínimo ${vm.minRAM}" value="${saved?saved.ram:''}"></div>
+      <div class="field"><label>vCPUs</label><input type="number" id="vm_vcpu" placeholder="Mínimo ${vm.minVcpu}" value="${saved?saved.vcpu:''}"></div>
+      <div class="field"><label>Disco duro virtual (GB)</label><input type="number" id="vm_disk" placeholder="Mínimo ${vm.minDisk}" value="${saved?saved.disk:''}"></div>
+      <div class="field">
+        <label>Modo de red</label>
+        <select id="vm_net" style="width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:8px;font-family:'Space Grotesk';font-size:.95rem;background:var(--cream-panel);color:var(--ink);">
+          <option value="">— Selecciona —</option>
+          <option value="nat" ${saved&&saved.net==='nat'?'selected':''}>NAT</option>
+          <option value="bridge" ${saved&&saved.net==='bridge'?'selected':''}>Adaptador puente (Bridge)</option>
+          <option value="hostonly" ${saved&&saved.net==='hostonly'?'selected':''}>Solo anfitrión (Host-only)</option>
+          <option value="internal" ${saved&&saved.net==='internal'?'selected':''}>Red interna</option>
+        </select>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="card-actions">
+        <span></span>
+        <div style="display:flex;gap:10px;">
+          <button class="btn secondary" id="checkBtn">Comprobar configuración</button>
+          <button class="btn" id="nextBtn" ${saved&&saved.valid?'':'disabled'}>Continuar →</button>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('checkBtn').onclick = ()=>checkVmConfig(vm);
+  document.getElementById('nextBtn').onclick = ()=>{ current++; render(); };
+
+  if(saved && saved.valid){
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = '<b>✔ Configuración válida.</b>Ya la tenías guardada — puedes continuar o ajustarla y volver a comprobar.';
+  }
+}
+
+function checkVmConfig(vm){
+  const name = document.getElementById('vm_name').value.trim();
+  const ram = parseInt(document.getElementById('vm_ram').value, 10);
+  const vcpu = parseInt(document.getElementById('vm_vcpu').value, 10);
+  const disk = parseInt(document.getElementById('vm_disk').value, 10);
+  const net = document.getElementById('vm_net').value;
+  const fb = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+
+  const errors = [];
+  if(!name) errors.push('ponle un nombre a la VM');
+  if(!ram || ram < vm.minRAM) errors.push(`la RAM debe ser de al menos ${vm.minRAM} MB (${vm.title} lo necesita para ir fluido)`);
+  if(!vcpu || vcpu < vm.minVcpu) errors.push(`asigna al menos ${vm.minVcpu} vCPU${vm.minVcpu>1?'s':''}`);
+  if(!disk || disk < vm.minDisk) errors.push(`el disco debe ser de al menos ${vm.minDisk} GB`);
+  if(!net) errors.push('selecciona un modo de red');
+  else if(net !== 'nat') errors.push('revisa el modo de red: ¿cuál elegisteis en el Bloque A para salir a Internet sin exponer la VM a la red física del aula?');
+
+  if(errors.length){
+    fb.className = 'feedback bad show';
+    fb.innerHTML = `<b>Revisa esto antes de continuar:</b>${errors.join(' · ')}.`;
+    nextBtn.disabled = true;
+    vmResults[vm.key] = {name, ram, vcpu, disk, net, valid:false};
+  } else {
+    fb.className = 'feedback ok show';
+    fb.innerHTML = `<b>✔ Configuración válida.</b>${vm.title} lista para instalar en la próxima sesión: ${name} · ${ram} MB RAM · ${vcpu} vCPU · ${disk} GB disco · red ${net.toUpperCase()}.`;
+    nextBtn.disabled = false;
+    vmResults[vm.key] = {name, ram, vcpu, disk, net, valid:true};
+  }
+  updateProgress();
+}
+
+function updateAttemptsLabel(qIndex){
+  const r = results[qIndex];
+  const el = document.getElementById('attemptsLbl');
+  if(!el) return;
+  el.textContent = r.attempts>0 ? `Intentos: ${r.attempts}` : '';
+}
+
+function checkAnswer(qIndex, q){
+  if(selectedOpt === null){
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback bad show';
+    fb.innerHTML = '<b>Selecciona una opción antes de comprobar.</b>';
+    return;
+  }
+  const r = results[qIndex];
+  r.attempts++;
+  const opts = document.querySelectorAll('.opt');
+  const fb = document.getElementById('feedback');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if(selectedOpt === q.correct){
+    opts[selectedOpt].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.innerHTML = `<b>✔ Correcto.</b>${q.ok}`;
+    r.correctDone = true;
+    opts.forEach(o=>o.classList.add('disabledopt'));
+    nextBtn.disabled = false;
+    document.getElementById('checkBtn').disabled = true;
+    updateProgress();
+  } else {
+    opts[selectedOpt].classList.add('wrong');
+    fb.className = 'feedback bad show';
+    if(r.attempts >= 3){
+      opts[q.correct].classList.add('correct');
+      fb.innerHTML = `<b>La respuesta correcta era la resaltada en verde.</b>${q.ok}`;
+      r.correctDone = true;
+      r.gotHint = true;
+      opts.forEach(o=>o.classList.add('disabledopt'));
+      nextBtn.disabled = false;
+      document.getElementById('checkBtn').disabled = true;
+      updateProgress();
+    } else {
+      fb.innerHTML = `<b>No es correcto todavía.</b>${q.bad}`;
+      r.gotHint = true;
+    }
+  }
+  updateAttemptsLabel(qIndex);
+}
+
+function lockCorrect(qIndex, q){
+  const opts = document.querySelectorAll('.opt');
+  opts[q.correct].classList.add('correct');
+  opts.forEach(o=>o.classList.add('disabledopt'));
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ok show';
+  fb.innerHTML = `<b>✔ Ya completado.</b>${q.ok}`;
+  document.getElementById('nextBtn').disabled = false;
+  document.getElementById('checkBtn').disabled = true;
+}
+
+/* ===================== FORMULARIO FINAL + INFORME ===================== */
+function renderForm(){
+  const totalQ = QUESTIONS.length;
+  const firstTry = Object.values(results).filter(r=>r.correctDone && !r.gotHint).length;
+  const withHint = Object.values(results).filter(r=>r.correctDone && r.gotHint).length;
+  const done = firstTry + withHint;
+
+  host.innerHTML = `
+    <div class="card">
+      <div class="finalscore">
+        <div class="big">${done} / ${totalQ}</div>
+        <div class="lbl">pasos completados correctamente (${firstTry} a la primera · ${withHint} con pista)</div>
+      </div>
+      <div class="eyebrow">📝 CIERRE · Generar informe</div>
+      <h2>Última parte: identifícate</h2>
+      <p class="ctx">Introduce tu nombre y apellidos tal como quieres que aparezcan en el informe que vas a subir a aeducar.</p>
+      <div class="field"><label>Nombre</label><input type="text" id="fname" placeholder="Ej: Laura"></div>
+      <div class="field"><label>Apellidos</label><input type="text" id="flast" placeholder="Ej: Gómez Ruiz"></div>
+      <div class="card-actions">
+        <span id="formError" style="color:var(--bad);font-size:.85rem;"></span>
+        <button class="btn" id="genBtn">Generar informe PDF ↓</button>
+      </div>
+    </div>`;
+
+  document.getElementById('genBtn').onclick = generateReport;
+}
+
+async function generateReport(){
+  const fname = document.getElementById('fname').value.trim();
+  const flast = document.getElementById('flast').value.trim();
+  const errEl = document.getElementById('formError');
+  if(!fname || !flast){
+    errEl.textContent = 'Rellena nombre y apellidos.';
+    return;
+  }
+  errEl.textContent = '';
+
+  const genBtn = document.getElementById('genBtn');
+  genBtn.disabled = true;
+  genBtn.textContent = 'Generando...';
+
+  if(typeof window.jspdf === 'undefined'){
+    genBtn.disabled = false;
+    genBtn.textContent = 'Generar informe PDF ↓';
+    errEl.textContent = 'No se pudo cargar el generador de PDF (revisa la conexión a Internet) e inténtalo de nuevo.';
+    return;
+  }
+
+  let doc;
+  try{
+  const { jsPDF } = window.jspdf;
+  doc = new jsPDF({unit:'pt', format:'a4'});
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 48;
+  let y = 56;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text('Informe de práctica · Instalación de sistemas operativos', margin, y);
+  y += 20;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(90,90,90);
+  doc.text('Módulo ISO (0369) · Implantación de Sistemas Operativos · 1º ASIR', margin, y);
+  y += 26;
+
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pageW-margin, y); y += 22;
+
+  doc.setTextColor(20,20,20); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('Alumno/a:', margin, y);
+  doc.setFont('helvetica','normal');
+  doc.text(`${fname} ${flast}`, margin+70, y);
+  y += 18;
+  doc.setFont('helvetica','bold');
+  doc.text('Fecha:', margin, y);
+  doc.setFont('helvetica','normal');
+  const now = new Date();
+  doc.text(now.toLocaleDateString('es-ES', {day:'2-digit',month:'2-digit',year:'numeric'}) + '  ' + now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}), margin+70, y);
+  y += 26;
+
+  const totalQ = QUESTIONS.length;
+  const firstTry = Object.values(results).filter(r=>r.correctDone && !r.gotHint).length;
+  const withHint = Object.values(results).filter(r=>r.correctDone && r.gotHint).length;
+  const done = firstTry + withHint;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text(`Resultado: ${done} / ${totalQ} pasos completados  (${firstTry} a la primera, ${withHint} con pista)`, margin, y);
+  y += 24;
+
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pageW-margin, y); y += 20;
+
+  // ---- Resumen de la configuración de las 4 VMs ----
+  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(24,42,69);
+  doc.text('Fichas de configuración de las máquinas virtuales', margin, y);
+  y += 16;
+  VM_SPECS.forEach(vm=>{
+    if(y > 760){ doc.addPage(); y = 56; }
+    const r = vmResults[vm.key];
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(40,40,40);
+    const line = r && r.valid
+      ? `${vm.title}: "${r.name}" · ${r.ram} MB RAM · ${r.vcpu} vCPU · ${r.disk} GB disco · red ${r.net.toUpperCase()}`
+      : `${vm.title}: sin configurar`;
+    doc.text(`• ${line}`, margin+4, y);
+    y += 14;
+  });
+  y += 10;
+
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pageW-margin, y); y += 20;
+
+  const blockTitles = {A:'Bloque A · Laboratorio virtual', B:'Bloque B · Ubuntu Desktop', C:'Bloque C · Ubuntu Server', D:'Bloque D · Windows', E:'Bloque E · Windows Server'};
+  let lastBlock = null;
+
+  QUESTIONS.forEach((q, idx)=>{
+    if(y > 760){ doc.addPage(); y = 56; }
+    if(q.block !== lastBlock){
+      lastBlock = q.block;
+      doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(24,42,69);
+      doc.text(blockTitles[q.block], margin, y);
+      y += 16;
+    }
+    const r = results[idx] || {attempts:0, correctDone:false, gotHint:false};
+    const status = r.correctDone ? (r.gotHint ? 'Correcta (con pista)' : 'Correcta a la primera') : 'No completada';
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(40,40,40);
+    const qLines = doc.splitTextToSize(`${idx+1}. ${q.q}`, pageW - margin*2 - 10);
+    doc.text(qLines, margin+4, y);
+    y += qLines.length*12;
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(r.correctDone ? 40:150, r.correctDone? (r.gotHint?110:120):60, 60);
+    doc.text(`   → Respuesta correcta: ${q.options[q.correct]}   |   Estado: ${status}   |   Intentos: ${r.attempts}`, margin+4, y);
+    y += 16;
+  });
+
+  y += 10;
+  if(y > 740){ doc.addPage(); y = 56; }
+  doc.setDrawColor(200,200,200); doc.line(margin, y, pageW-margin, y); y += 16;
+  doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(120,120,120);
+  doc.text('Documento generado automáticamente al completar la práctica guiada. Listo para subir a aeducar.', margin, y);
+  } catch(buildErr){
+    genBtn.disabled = false;
+    genBtn.textContent = 'Generar informe PDF ↓';
+    errEl.textContent = 'No se pudo construir el PDF. Inténtalo de nuevo.';
+    console.error(buildErr);
+    return;
+  }
+
+  const stripAccents = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const filename = stripAccents(`informe_instalacion_${flast.replace(/\s+/g,'_')}_${fname.replace(/\s+/g,'_')}.pdf`).toLowerCase();
+  const blob = doc.output('blob');
+
+  // Detección segura: 'claude' solo existe dentro del visor de artifacts de Claude.
+  // Fuera de ahí (subido como archivo suelto en Aeducar/Moodle) 'claude' ni siquiera
+  // está definido, así que la detección va en su propio try/catch.
+  let downloads = null;
+  try{
+    if(typeof claude !== 'undefined' && claude && typeof claude.use === 'function'){
+      downloads = await claude.use('downloads');
+    }
+  } catch(e){ downloads = null; }
+
+  try{
+    if(downloads){
+      const res = await downloads.save({filename, data: blob});
+      genBtn.textContent = res.status === 'saved' ? '✔ Informe descargado' : '✔ Informe entregado';
+    } else {
+      // Aeducar/Moodle y cualquier navegador normal: descarga estándar por enlace
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 4000);
+      genBtn.textContent = '✔ Informe descargado';
+    }
+  } catch(e){
+    genBtn.textContent = 'Generar informe PDF ↓';
+    genBtn.disabled = false;
+    errEl.textContent = 'No se pudo guardar el archivo. Inténtalo de nuevo.';
+    console.error(e);
+  }
+}
+
+render();
+</script>
+</body>
+</html>

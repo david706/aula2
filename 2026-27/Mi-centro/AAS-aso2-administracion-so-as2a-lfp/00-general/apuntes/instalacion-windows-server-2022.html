@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instalar Windows Server 2022</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#1d2433; --muted:#5b6478; --line:#e2e6ef;
+  --accent:#2457c5; --accent-soft:#e8eefc;
+  --blue:#2563eb; --blue-bg:#eaf1ff;
+  --green:#15803d; --green-bg:#e9f8ee;
+  --orange:#c2410c; --orange-bg:#fff2e8;
+  --purple:#7c3aed; --purple-bg:#f3edff;
+  --code-bg:#0f172a; --code-text:#e2e8f0;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e121a; --card:#161c27; --text:#e6e9f0; --muted:#9aa3b5; --line:#262e3d;
+    --accent:#7aa2ff; --accent-soft:#1c2840;
+    --blue:#7aa2ff; --blue-bg:#16213a;
+    --green:#4ade80; --green-bg:#122a1c;
+    --orange:#fb923c; --orange-bg:#2e1c10;
+    --purple:#b794f6; --purple-bg:#231a38;
+    --code-bg:#0a0e16; --code-text:#e2e8f0;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e121a; --card:#161c27; --text:#e6e9f0; --muted:#9aa3b5; --line:#262e3d;
+  --accent:#7aa2ff; --accent-soft:#1c2840;
+  --blue:#7aa2ff; --blue-bg:#16213a;
+  --green:#4ade80; --green-bg:#122a1c;
+  --orange:#fb923c; --orange-bg:#2e1c10;
+  --purple:#b794f6; --purple-bg:#231a38;
+  --code-bg:#0a0e16; --code-text:#e2e8f0;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 64px}
+header.hero{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px;margin-bottom:18px}
+.kicker{font-size:.85rem;color:var(--muted);letter-spacing:.02em}
+h1{margin:.2em 0 .3em;font-size:1.7rem;line-height:1.25}
+.lead{color:var(--muted);margin:0}
+details.sec{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden}
+details.sec>summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:650;font-size:1.08rem;display:flex;gap:10px;align-items:center}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:"▸";color:var(--accent);transition:transform .2s}
+details.sec[open]>summary::before{transform:rotate(90deg)}
+details.sec[open]>summary{border-bottom:1px solid var(--line)}
+.body{padding:6px 18px 18px}
+h3{font-size:1rem;margin:1.2em 0 .4em}
+table{width:100%;border-collapse:collapse;font-size:.93rem;margin:.6em 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.9em;background:var(--accent-soft);padding:1px 5px;border-radius:4px}
+.code{position:relative;margin:.6em 0}
+.code pre{background:var(--code-bg);color:var(--code-text);padding:14px 14px;border-radius:8px;overflow-x:auto;margin:0;font-size:.88rem;line-height:1.5}
+.code pre code{background:none;padding:0;color:inherit}
+.copy{position:absolute;top:6px;right:6px;font-size:.75rem;border:1px solid #334155;background:#1e293b;color:#cbd5e1;border-radius:6px;padding:3px 8px;cursor:pointer}
+.box{border-left:4px solid;border-radius:8px;padding:10px 14px;margin:12px 0}
+.box .t{font-weight:650;margin-bottom:4px}
+.box p{margin:.3em 0}
+.box.blue{border-color:var(--blue);background:var(--blue-bg)}
+.box.green{border-color:var(--green);background:var(--green-bg)}
+.box.orange{border-color:var(--orange);background:var(--orange-bg)}
+.box.purple{border-color:var(--purple);background:var(--purple-bg)}
+ol.steps{padding-left:0;list-style:none;counter-reset:s}
+ol.steps>li{counter-increment:s;position:relative;padding:4px 0 10px 42px}
+ol.steps>li::before{content:counter(s);position:absolute;left:0;top:4px;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.screen{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0;font-size:.88rem}
+.screen .tb{background:#1f6fd1;color:#fff;padding:6px 10px;font-weight:600}
+.screen .sc{padding:12px;background:var(--card)}
+.opt{border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin:4px 0}
+.opt.sel{border-color:var(--green);background:var(--green-bg);font-weight:600}
+.opt.bad{opacity:.75}
+footer{color:var(--muted);font-size:.85rem;margin-top:24px;text-align:center}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.toolbar button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:.85rem}
+@media print{details.sec{break-inside:avoid}.copy,.toolbar{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="kicker">Módulo 0374 · Administración de Sistemas Operativos · 2º ASIR</div>
+  <h1>Guía práctica: instalar Windows Server 2022</h1>
+  <p class="lead">Paso a paso para montar <strong>SRV-ASO</strong> (Windows Server 2022 con escritorio, IP 192.168.70.10) en una máquina virtual y dejarlo listo para los apartados de acceso remoto.</p>
+  <div class="toolbar">
+    <button id="openAll">Desplegar todo</button>
+    <button id="closeAll">Plegar todo</button>
+  </div>
+</header>
+
+<details class="sec" open>
+<summary>Cómo usar esta guía</summary>
+<div class="body">
+  <p>Cada apartado se despliega pulsando su título. Los recuadros siguen el mismo código que el tema:</p>
+  <div class="box blue"><div class="t">🧠 Azul · Recuerda</div><p>Conceptos que conviene tener frescos.</p></div>
+  <div class="box green"><div class="t">✅ Verde · Ejemplo resuelto</div><p>Lo que escribes y lo que te devuelve el sistema.</p></div>
+  <div class="box orange"><div class="t">⚠️ Naranja · Ojo</div><p>Errores muy habituales.</p></div>
+  <div class="box purple"><div class="t">✏️ Morado · Ejercicio</div><p>Para practicar y comprobar que lo has entendido.</p></div>
+</div>
+</details>
+
+<details class="sec">
+<summary>1 · Requisitos y descarga de la ISO</summary>
+<div class="body">
+  <h3>Requisitos mínimos de Microsoft vs. lo que usaremos</h3>
+  <table>
+    <tr><th>Recurso</th><th>Mínimo oficial</th><th>En el laboratorio</th></tr>
+    <tr><td>Procesador</td><td>1,4 GHz, 64 bits</td><td>2 núcleos virtuales</td></tr>
+    <tr><td>Memoria RAM</td><td>512 MB (Core) · 2 GB (con escritorio)</td><td>4 GB</td></tr>
+    <tr><td>Disco</td><td>32 GB</td><td>60 GB (dinámico)</td></tr>
+    <tr><td>Red</td><td>Adaptador Ethernet</td><td>1 adaptador en la red 192.168.70.0/24</td></tr>
+  </table>
+
+  <h3>Descargar la ISO</h3>
+  <ol class="steps">
+    <li>Entra en el <strong>Microsoft Evaluation Center</strong> y busca <em>Windows Server 2022</em>.</li>
+    <li>Rellena el formulario y descarga la <strong>ISO en español</strong> (unos 5 GB).</li>
+    <li>Guárdala en una carpeta que encuentres luego desde el programa de virtualización.</li>
+  </ol>
+  <div class="box blue"><div class="t">🧠 Versión de evaluación</div>
+    <p>La ISO de evaluación funciona <strong>180 días</strong> con todas las funciones. Para un curso es suficiente. Puedes ver los días que te quedan con <code>slmgr /dlv</code>.</p>
+  </div>
+  <div class="box orange"><div class="t">⚠️ Usa la ISO de evaluación: no necesitas ninguna clave</div>
+    <p>La versión de evaluación es una <strong>ISO distinta</strong> a la normal y ya viene preparada para funcionar sin clave de producto. <strong>No existe una «clave de evaluación»</strong> que puedas escribir en una ISO normal para convertirla en evaluación.</p>
+    <p>Cómo reconocerla: el nombre del archivo lleva la palabra <code>EVAL</code>, algo como <code>SERVER_EVAL_x64FRE_es-es.iso</code>. Si tu ISO no la lleva (por ejemplo, te la ha pasado alguien o viene de otra web), descarga la buena del Evaluation Center.</p>
+  </div>
+</div>
+</details>
+
+<details class="sec">
+<summary>2 · Crear la máquina virtual</summary>
+<div class="body">
+  <p>Los nombres de los menús cambian según el programa, pero los valores son los mismos.</p>
+  <table>
+    <tr><th>Ajuste</th><th>Valor</th></tr>
+    <tr><td>Nombre</td><td><code>SRV-ASO</code></td></tr>
+    <tr><td>Tipo / versión</td><td>Microsoft Windows · Windows 2022 (64-bit)</td></tr>
+    <tr><td>RAM</td><td>4096 MB</td></tr>
+    <tr><td>CPU</td><td>2</td></tr>
+    <tr><td>Disco</td><td>60 GB, reservado dinámicamente</td></tr>
+    <tr><td>Red</td><td>Red interna, puente o la red de tu entorno (la misma que CLI-ASO y UBU-ASO)</td></tr>
+    <tr><td>Unidad óptica</td><td>La ISO de Windows Server 2022</td></tr>
+  </table>
+
+  <h3>Según tu programa</h3>
+  <table>
+    <tr><th>Programa</th><th>Detalle importante</th></tr>
+    <tr><td>VirtualBox</td><td>Al crear la VM, marca <strong>«Omitir instalación desatendida»</strong> (<em>Skip Unattended Installation</em>). Si no, VirtualBox instala él solo con un usuario y una edición que no has elegido.</td></tr>
+    <tr><td>VMware Workstation</td><td>Elige <strong>«Instalaré el sistema operativo más tarde»</strong> y monta la ISO después, por el mismo motivo.</td></tr>
+    <tr><td>Hyper-V</td><td>Máquina de <strong>generación 2</strong>. El arranque seguro puede quedar activado con la plantilla de Microsoft Windows.</td></tr>
+  </table>
+
+  <div class="box orange"><div class="t">⚠️ Haz la instantánea al final, no ahora</div>
+    <p>Una instantánea de una máquina vacía no sirve de mucho. La haremos en el apartado 6, con el sistema instalado y configurado.</p>
+  </div>
+</div>
+</details>
+
+<details class="sec">
+<summary>3 · El asistente de instalación</summary>
+<div class="body">
+  <ol class="steps">
+    <li><strong>Arranca la VM.</strong> Si aparece <em>«Press any key to boot from CD or DVD…»</em>, pulsa una tecla enseguida: tienes unos segundos.</li>
+    <li><strong>Idioma y teclado.</strong> Idioma: Español (España). Formato de hora: Español (España). Teclado: Español. Pulsa <em>Siguiente</em> y después <strong>Instalar ahora</strong>.</li>
+    <li><strong>Edición.</strong> Con la ISO de evaluación, después de <em>Instalar ahora</em> <strong>no se pide ninguna clave</strong>: aparece directamente la lista de ediciones. Este es el paso donde más gente se equivoca (mira el recuadro de abajo).</li>
+    <li><strong>Licencia.</strong> Marca <em>«Acepto los términos de licencia»</em> y pulsa <em>Siguiente</em>.</li>
+    <li><strong>Tipo de instalación.</strong> Elige <strong>«Personalizada: instalar solo Windows (avanzado)»</strong>. La opción de actualizar solo sirve si ya hay un Windows Server en el disco.</li>
+    <li><strong>Disco.</strong> Selecciona <em>«Espacio sin asignar en la unidad 0»</em> y pulsa <em>Siguiente</em>. El instalador crea solo las particiones que necesita.</li>
+    <li><strong>Copia de archivos.</strong> Tarda entre 5 y 15 minutos. La VM se reiniciará sola un par de veces. <strong>No pulses ninguna tecla</strong> si vuelve a salir el mensaje de arrancar desde DVD.</li>
+  </ol>
+
+  <div class="screen">
+    <div class="tb">Instalación de Windows Server · Seleccione el sistema operativo que desea instalar</div>
+    <div class="sc">
+      <div class="opt bad">Windows Server 2022 Standard Evaluation</div>
+      <div class="opt sel">✔ Windows Server 2022 Standard Evaluation (Experiencia de escritorio)</div>
+      <div class="opt bad">Windows Server 2022 Datacenter Evaluation</div>
+      <div class="opt bad">Windows Server 2022 Datacenter Evaluation (Experiencia de escritorio)</div>
+    </div>
+  </div>
+
+  <div class="box orange"><div class="t">⚠️ Elige la que dice «Experiencia de escritorio»</div>
+    <p>La opción que viene marcada por defecto es la <strong>instalación Server Core</strong>: sin escritorio, solo una consola de comandos. Si la instalas por error, no se puede convertir después en una versión con escritorio: toca reinstalar.</p>
+    <p>Para este curso necesitamos escritorio, porque SRV-ASO va a ser servidor de Escritorio remoto.</p>
+  </div>
+
+  <div class="box orange"><div class="t">⚠️ ¿Te aparece la pantalla «Activar Windows» pidiendo una clave de producto?</div>
+    <p>Entonces <strong>no estás usando la ISO de evaluación</strong>. No busques claves por Internet ni pulses «No tengo clave de producto»: lo correcto es cambiar de ISO.</p>
+    <ol>
+      <li>Apaga la VM.</li>
+      <li>Descarga la ISO de evaluación del Microsoft Evaluation Center (apartado 1).</li>
+      <li>Cámbiala en la unidad de CD/DVD de la VM y vuelve a arrancar.</li>
+    </ol>
+    <p>Sabrás que es la buena porque en la lista de ediciones todas llevan la palabra <strong>Evaluation</strong>.</p>
+  </div>
+
+  <div class="box blue"><div class="t">🧠 Standard o Datacenter</div>
+    <p>Las dos ediciones son técnicamente casi iguales. La diferencia está sobre todo en la licencia: Datacenter permite máquinas virtuales ilimitadas sobre ese servidor y añade funciones avanzadas de almacenamiento y red. Para el laboratorio, <strong>Standard</strong> es suficiente.</p>
+  </div>
+
+  <div class="box orange"><div class="t">⚠️ «Windows no encuentra ningún disco»</div>
+    <p>Pasa sobre todo en VMware o VirtualBox con un controlador de disco poco habitual. Apaga la VM, cambia el controlador del disco a <strong>SATA</strong> (o NVMe en VMware) y vuelve a empezar.</p>
+  </div>
+</div>
+</details>
+
+<details class="sec">
+<summary>4 · Primer arranque: la contraseña del Administrador</summary>
+<div class="body">
+  <p>Al terminar, el sistema pide la contraseña de la cuenta local <strong>Administrador</strong>.</p>
+  <div class="box blue"><div class="t">🧠 Requisitos de complejidad</div>
+    <p>Por defecto, Windows Server exige al menos <strong>8 caracteres</strong> y que use tres de estos cuatro tipos: mayúsculas, minúsculas, números y símbolos. Además, no puede contener el nombre de la cuenta.</p>
+    <p>Ejemplo válido: <code>Aso.2026srv</code>. Ejemplo no válido: <code>administrador1</code>.</p>
+  </div>
+  <div class="box orange"><div class="t">⚠️ Apúntala</div>
+    <p>Es la cuenta con la que entrarás por RDP, WinRM y SSH en el resto del tema. Si la olvidas, la forma más rápida de recuperarte es volver a una instantánea… y todavía no tienes ninguna.</p>
+  </div>
+
+  <h3>Iniciar sesión: el Ctrl+Alt+Supr en una VM</h3>
+  <p>La pantalla de bloqueo pide <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Supr</kbd>, pero si lo pulsas de verdad lo captura tu propio equipo. Usa la combinación del programa:</p>
+  <table>
+    <tr><th>Programa</th><th>Combinación</th></tr>
+    <tr><td>VirtualBox</td><td>Tecla Host (normalmente <kbd>Ctrl</kbd> derecho) + <kbd>Supr</kbd>, o menú <em>Entrada → Teclado → Insertar Ctrl-Alt-Supr</em></td></tr>
+    <tr><td>VMware</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Insert</kbd></td></tr>
+    <tr><td>Hyper-V</td><td><kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Fin</kbd>, o el botón de la barra de la ventana</td></tr>
+  </table>
+  <p>Al entrar se abre solo el <strong>Administrador del servidor</strong>. Si aparece un aviso para probar Windows Admin Center, puedes cerrarlo.</p>
+</div>
+</details>
+
+<details class="sec">
+<summary>5 · Configuración posterior a la instalación</summary>
+<div class="body">
+  <p>Todo se hace en <strong>PowerShell como administrador</strong> (clic derecho en Inicio → <em>Terminal (Administrador)</em> o <em>Windows PowerShell (Administrador)</em>). También puedes hacerlo con el menú de texto <code>sconfig</code> o desde el Administrador del servidor → <em>Servidor local</em>.</p>
+
+  <h3>5.1 · Herramientas de invitado</h3>
+  <p>Mejoran el ratón, la resolución de pantalla y el portapapeles compartido.</p>
+  <ul>
+    <li><strong>VirtualBox:</strong> menú <em>Dispositivos → Insertar imagen de CD de las «Guest Additions»</em> y ejecuta <code>VBoxWindowsAdditions.exe</code>.</li>
+    <li><strong>VMware:</strong> menú <em>VM → Install VMware Tools</em>.</li>
+    <li><strong>Hyper-V:</strong> ya vienen integradas.</li>
+  </ul>
+  <p>Reinicia cuando termine.</p>
+
+  <h3>5.2 · Cambiar el nombre del equipo</h3>
+  <p>El instalador pone un nombre aleatorio tipo <code>WIN-8K2J3L4M5N6</code>. Lo cambiamos a <code>SRV-ASO</code>:</p>
+  <div class="code"><pre><code>Rename-Computer -NewName "SRV-ASO" -Restart</code></pre></div>
+
+  <h3>5.3 · Poner la IP fija</h3>
+  <p>Primero mira cómo se llama tu adaptador de red:</p>
+  <div class="code"><pre><code>Get-NetAdapter</code></pre></div>
+  <p>Normalmente es <code>Ethernet</code>. Después asigna la IP (cambia la puerta de enlace y el DNS por los de tu red si son distintos):</p>
+  <div class="code"><pre><code>New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 192.168.70.10 -PrefixLength 24 -DefaultGateway 192.168.70.1
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses 8.8.8.8,1.1.1.1</code></pre></div>
+  <div class="box orange"><div class="t">⚠️ «The object already exists» / «El objeto ya existe»</div>
+    <p>Sale si el adaptador ya tenía una IP o una puerta de enlace asignada. Quita la configuración anterior y vuelve a lanzar <code>New-NetIPAddress</code>:</p>
+    <div class="code"><pre><code>Remove-NetIPAddress -InterfaceAlias "Ethernet" -Confirm:$false
+Remove-NetRoute -InterfaceAlias "Ethernet" -DestinationPrefix 0.0.0.0/0 -Confirm:$false</code></pre></div>
+  </div>
+  <div class="box blue"><div class="t">🧠 ¿Y si estoy en una red interna sin router?</div>
+    <p>Si las tres máquinas están en una red interna aislada, no hay puerta de enlace: omite <code>-DefaultGateway</code>. Eso sí, entonces no tendrás Internet, y lo necesitas para Windows Update y para instalar OpenSSH más adelante. Una solución habitual es añadir a la VM un segundo adaptador en NAT.</p>
+  </div>
+
+  <h3>5.4 · Zona horaria</h3>
+  <div class="code"><pre><code>Set-TimeZone -Id "Romance Standard Time"   # Madrid (UTC+1 / UTC+2 en verano)
+Get-Date</code></pre></div>
+
+  <h3>5.5 · Permitir el ping</h3>
+  <p>Igual que en el tema: el cortafuegos de Windows bloquea el ping entrante por defecto.</p>
+  <div class="code"><pre><code>New-NetFirewallRule -DisplayName "Permitir ping" -Protocol ICMPv4 -IcmpType 8 -Action Allow</code></pre></div>
+
+  <h3>5.6 · Actualizaciones</h3>
+  <p><em>Configuración → Windows Update → Buscar actualizaciones</em>. Instálalas y reinicia. Puede tardar un buen rato la primera vez: aprovecha para seguir con otra máquina.</p>
+</div>
+</details>
+
+<details class="sec">
+<summary>6 · Comprobaciones finales e instantánea</summary>
+<div class="body">
+  <div class="box green"><div class="t">✅ Así debe quedar SRV-ASO</div>
+<div class="code"><pre><code>PS C:\&gt; hostname
+SRV-ASO
+
+PS C:\&gt; Get-ComputerInfo | Select-Object WindowsProductName, OsVersion
+
+WindowsProductName                          OsVersion
+------------------                          ---------
+Windows Server 2022 Standard Evaluation     10.0.20348
+
+PS C:\&gt; Get-NetIPAddress -InterfaceAlias "Ethernet" -AddressFamily IPv4 | Select-Object IPAddress, PrefixLength
+
+IPAddress     PrefixLength
+---------     ------------
+192.168.70.10           24</code></pre></div>
+    <p>Y desde UBU-ASO o CLI-ASO, el ping debe responder:</p>
+<div class="code"><pre><code>alumno@UBU-ASO:~$ ping -c 2 192.168.70.10
+64 bytes from 192.168.70.10: icmp_seq=1 ttl=128 time=0.41 ms
+64 bytes from 192.168.70.10: icmp_seq=2 ttl=128 time=0.38 ms</code></pre></div>
+    <p>Fíjate en el <code>ttl=128</code>: es el valor inicial típico de Windows (Linux usa 64). Es una pista rápida para saber qué sistema te responde.</p>
+  </div>
+
+  <div class="box green"><div class="t">✅ Comprobar que es la versión de evaluación</div>
+    <p>Ejecuta <code>slmgr /dlv</code>. En la ventana que se abre, la descripción debe incluir <strong>EVAL</strong> y debe aparecer un tiempo restante de unos <strong>180 días</strong>. Si es así, está todo correcto.</p>
+  </div>
+
+  <h3>Haz la instantánea</h3>
+  <p>Apaga la VM (<code>Stop-Computer</code>) y crea una instantánea llamada, por ejemplo, <strong>«SRV-ASO recién instalado»</strong>. Será tu punto de partida seguro para los apartados de RDP, WinRM y SSH.</p>
+</div>
+</details>
+
+<details class="sec">
+<summary>7 · Problemas frecuentes</summary>
+<div class="body">
+  <table>
+    <tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
+    <tr><td>Arranca y vuelve a empezar la instalación desde cero</td><td>Pulsaste una tecla en «Press any key to boot from CD» tras el reinicio</td><td>Apaga, desmonta la ISO o pon el disco duro primero en el orden de arranque</td></tr>
+    <tr><td>El instalador pide una clave de producto</td><td>No es la ISO de evaluación</td><td>Descarga la ISO de evaluación (lleva <code>EVAL</code> en el nombre) y cámbiala en la VM</td></tr>
+    <tr><td>Solo veo una consola negra, sin escritorio</td><td>Instalaste Server Core</td><td>Reinstala eligiendo «(Experiencia de escritorio)»</td></tr>
+    <tr><td>VirtualBox instaló solo, con otro usuario</td><td>No marcaste «Omitir instalación desatendida»</td><td>Borra la VM y créala de nuevo marcando esa opción</td></tr>
+    <tr><td>No encuentra el disco</td><td>Controlador de disco no reconocido</td><td>Cambia el controlador a SATA</td></tr>
+    <tr><td>El ping no responde</td><td>Falta la regla del cortafuegos, IP mal puesta o máquinas en redes distintas</td><td>Revisa la regla, <code>ipconfig</code> y la red de la VM</td></tr>
+    <tr><td>No hay Internet</td><td>Red interna sin puerta de enlace</td><td>Añade un segundo adaptador en NAT</td></tr>
+    <tr><td>Pantalla pequeña o ratón torpe</td><td>Faltan las herramientas de invitado</td><td>Instálalas (apartado 5.1)</td></tr>
+  </table>
+</div>
+</details>
+
+<details class="sec">
+<summary>8 · Ejercicios</summary>
+<div class="body">
+  <div class="box purple"><div class="t">✏️ Ejercicio 8.1 · Core o escritorio</div>
+    <p>Busca dos ventajas de instalar Windows Server en modo <strong>Server Core</strong> en una empresa real. ¿Por qué en este tema usamos la versión con escritorio?</p>
+  </div>
+  <div class="box purple"><div class="t">✏️ Ejercicio 8.2 · Todo con sconfig</div>
+    <p>Vuelve a la instantánea y repite el apartado 5 usando solo el menú <code>sconfig</code>, sin escribir cmdlets. Anota qué opción del menú corresponde a cada paso.</p>
+  </div>
+  <div class="box purple"><div class="t">✏️ Ejercicio 8.3 · ¿Cuántos días me quedan?</div>
+    <p>Ejecuta <code>slmgr /dlv</code> en SRV-ASO. ¿Qué edición aparece y cuánto tiempo de evaluación te queda?</p>
+  </div>
+  <div class="box purple"><div class="t">✏️ Ejercicio 8.4 · Detectar el sistema por el TTL</div>
+    <p>Desde CLI-ASO haz ping a SRV-ASO y a UBU-ASO. Anota el TTL de cada respuesta y explica por qué son distintos.</p>
+  </div>
+</div>
+</details>
+
+<footer>Guía de laboratorio · SRV-ASO · Windows Server 2022 · RA4</footer>
+</div>
+
+<script>
+(function(){
+  document.getElementById('openAll').onclick=function(){document.querySelectorAll('details.sec').forEach(function(d){d.open=true})};
+  document.getElementById('closeAll').onclick=function(){document.querySelectorAll('details.sec').forEach(function(d){d.open=false})};
+  document.querySelectorAll('.code').forEach(function(c){
+    var btn=document.createElement('button');btn.className='copy';btn.textContent='Copiar';
+    btn.onclick=function(){
+      var txt=c.querySelector('code').innerText;
+      var ok=function(){btn.textContent='Copiado';setTimeout(function(){btn.textContent='Copiar'},1500)};
+      if(navigator.clipboard){navigator.clipboard.writeText(txt).then(ok,function(){})}
+    };
+    c.appendChild(btn);
+  });
+})();
+</script>
+</body>
+</html>

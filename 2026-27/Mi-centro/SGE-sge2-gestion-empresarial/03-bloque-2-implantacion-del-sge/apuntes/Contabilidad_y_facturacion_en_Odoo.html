@@ -1,0 +1,444 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Contabilidad y facturación en Odoo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: misma identidad que las otras páginas de SGE. Índice lateral, secciones numeradas, un asiento
+   dibujado como T de debe/haber, tablas de impuestos y diarios, y la práctica final con lista de verificación. */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4; --code:#f1eee6;
+  --ok:#2d7a4f; --warn:#95590e;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3,h4{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700}
+h2{font-size:1.4rem;font-weight:600;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+h2 .n{font-family:var(--fm);font-size:.8rem;color:var(--accent);margin-right:10px;vertical-align:middle}
+h3{font-size:1.05rem;font-weight:600;margin-top:20px}
+h4{font-size:.78rem;font-family:var(--fm);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:16px}
+p{margin:0;max-width:70ch}
+p+p,ul,ol{margin-top:10px}
+ul,ol{padding-left:22px;max-width:70ch}
+li+li{margin-top:5px}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.08rem;color:var(--muted);margin-top:10px;max-width:72ch}
+code{font-family:var(--fm);font-size:.86em;background:var(--soft);padding:1px 6px;border-radius:4px}
+kbd{font-family:var(--fb);font-size:.9em;border:1px solid var(--line);background:var(--paper);padding:1px 7px;border-radius:4px}
+a{color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:.9rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+
+.grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;margin-top:36px}
+@media (max-width:860px){.grid{grid-template-columns:1fr;gap:24px}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:18px}
+nav.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-size:.9rem;padding:5px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover,nav.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+nav.toc .eyebrow{display:block;margin-bottom:8px;padding-left:12px}
+@media (max-width:860px){nav.toc{position:static}nav.toc ol{grid-template-columns:1fr 1fr}}
+main{display:grid;gap:40px;min-width:0}
+section{min-width:0}
+
+.tw{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.82rem;background:var(--soft)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{font-weight:600;border-top:2px solid var(--line)}
+.note{border-left:3px solid var(--accent);background:var(--paper);padding:12px 16px;margin-top:14px;max-width:72ch}
+.note.warn{border-left-color:var(--warn)}
+.note .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.note.warn .eyebrow{color:var(--warn)}
+.steps{counter-reset:p;display:grid;gap:10px;margin-top:12px;padding:0;list-style:none;max-width:none}
+.steps li{position:relative;padding:10px 14px 10px 46px;background:var(--paper);border:1px solid var(--line);margin:0;min-width:0}
+.steps li::before{counter-increment:p;content:counter(p);position:absolute;left:14px;top:9px;font-family:var(--fd);font-weight:700;color:var(--accent)}
+.steps li b{font-weight:600}
+.steps li .r{display:block;font-size:.88rem;color:var(--muted);margin-top:3px}
+pre{position:relative;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0 0;overflow-x:auto;font-family:var(--fm);font-size:.84rem;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.copy{position:absolute;top:8px;right:8px;font:inherit;font-family:var(--fd);font-size:.72rem;border:1px solid var(--line);background:var(--paper);color:var(--muted);padding:3px 8px;border-radius:4px;cursor:pointer}
+.copy:focus-visible,.check input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check{display:grid;gap:8px;margin-top:12px}
+.check label{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);padding:10px 14px;cursor:pointer;font-size:.95rem}
+.check input{margin-top:4px;accent-color:var(--accent)}
+.check label:has(input:checked){border-color:var(--ok);color:var(--muted)}
+.check label:has(input:checked) span{text-decoration:line-through}
+.progress{font-family:var(--fm);font-size:.8rem;color:var(--muted);margin-top:10px}
+.diag{background:var(--paper);border:1px solid var(--line);margin-top:14px;overflow-x:auto}
+.diag svg{display:block;width:100%;min-width:600px;height:auto}
+.diag text{font-family:var(--fb);font-size:13px;fill:var(--ink)}
+.diag .q{font-family:var(--fm);font-size:11px;fill:var(--muted)}
+.diag .m{font-family:var(--fm);font-size:12px;fill:var(--ink)}
+.diag .box{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.diag .main{fill:var(--soft);stroke:var(--accent);stroke-width:1.6}
+.diag .edge{fill:none;stroke:var(--muted);stroke-width:1.3;marker-end:url(#arr)}
+.diag .rule{stroke:var(--line);stroke-width:1.2}
+.caption{font-size:.88rem;color:var(--muted);margin-top:8px}
+figure.ui{margin:16px 0 0;min-width:0}
+figure.ui .win{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--paper)}
+figure.ui .win .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--soft);padding:8px 12px;font-family:var(--fd);font-weight:600;font-size:.84rem;border-bottom:1px solid var(--line)}
+figure.ui .win .bar .chip{font-family:var(--fm);font-size:.72rem;font-weight:400;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:2px 8px;color:var(--muted)}
+figure.ui .win .bar .sp{margin-left:auto;font-family:var(--fm);font-size:.72rem;font-weight:400;color:var(--muted)}
+figure.ui .scroll{overflow-x:auto}
+figure.ui table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:480px;margin:0}
+figure.ui th,figure.ui td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+figure.ui thead th{background:var(--bg);font-family:var(--fd);font-size:.76rem;color:var(--muted);font-weight:600}
+figure.ui td.n,figure.ui th.n{text-align:right;font-variant-numeric:tabular-nums}
+figure.ui tr.tot td{font-weight:600;background:var(--bg)}
+figure.ui tr.sub td:first-child{padding-left:32px;color:var(--muted)}
+figure.ui .cta{font-family:var(--fd);font-size:.74rem;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:2px 8px}
+figure.ui figcaption{font-size:.9rem;color:var(--muted);margin-top:10px;max-width:none}
+figure.ui figcaption b{color:var(--ink)}
+figure.ui ol{margin:8px 0 0;padding-left:20px;font-size:.9rem;max-width:none}
+figure.ui ol li{margin-top:3px}
+figure.ui .dos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+figure.ui .dos table{min-width:0}
+figure.ui .dos td,figure.ui .dos th{padding:6px 8px}
+@media (max-width:700px){figure.ui .dos{grid-template-columns:1fr}}
+@media (max-width:760px){figure.ui .dos td:first-child,figure.ui .dos th:first-child{white-space:normal}figure.ui .dos td,figure.ui .dos th{padding:6px}}
+figure.ui .tb{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:0 8px}
+figure.ui .tb span{font-family:var(--fd);font-size:.82rem;color:var(--muted);padding:8px 10px;border-bottom:2px solid transparent}
+figure.ui .tb span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+figure.ui .flds{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:12px 16px 14px}
+@media (max-width:620px){figure.ui .flds{grid-template-columns:1fr}}
+figure.ui .flds div{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0;font-size:.85rem}
+figure.ui .flds .k{color:var(--muted)}
+figure.ui .flds .v{font-weight:600;text-align:right}
+figure.ui .sw{padding:4px 16px 12px}
+figure.ui .sw .row{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+figure.ui .sw .row:last-child{border-bottom:0}
+figure.ui .pill{flex:0 0 auto;width:30px;height:17px;border-radius:999px;border:1px solid var(--line);background:var(--bg);position:relative;margin-top:2px}
+figure.ui .pill::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--muted)}
+figure.ui .pill.on{background:var(--accent);border-color:var(--accent)}
+figure.ui .pill.on::after{left:15px;background:var(--accent-ink)}
+figure.ui .sw b{font-family:var(--fd);font-size:.86rem;display:block}
+figure.ui .sw p{font-size:.8rem;color:var(--muted);margin:2px 0 0;max-width:none}
+figure.ui .tree{font-family:var(--fm);font-size:.8rem;padding:12px 16px;line-height:1.85;overflow-x:auto}
+figure.ui .tree div{white-space:nowrap}
+figure.ui .tree .d{color:var(--muted)}
+figure.ui .tree .hl{color:var(--accent);font-weight:600}
+figure.ui .dlg{border:1px solid var(--accent);border-radius:6px;background:var(--bg);padding:12px 14px;margin:14px 16px}
+figure.ui .dlg b{font-family:var(--fd);font-size:.88rem}
+figure.ui .dlg p{font-size:.84rem;color:var(--muted);margin:4px 0 10px;max-width:none}
+figure.ui .btns{display:flex;flex-wrap:wrap;gap:8px}
+figure.ui .btn{font-family:var(--fd);font-size:.78rem;border:1px solid var(--line);border-radius:4px;padding:3px 10px;color:var(--muted)}
+figure.ui .btn.pri{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM · Bloque 2 · Implantación</p>
+  <h1 style="margin-top:6px">Contabilidad y facturación en Odoo</h1>
+  <p class="lead">Cada factura que confirmas en Odoo es un asiento contable. Esta guía configura la parte financiera de la empresa ficticia en Odoo 19 Community: plan contable español, impuestos, diarios y banco; después emite facturas de cliente y de proveedor, las cobra y las paga, y enseña a leer el asiento que queda detrás. Termina con la copia de seguridad y la actualización del sistema, que cierran la implantación.</p>
+  <div class="meta">
+    <span>Requisito <b>Guía de parametrización hecha</b></span>
+    <span>Aplicación <b>Facturación (account) + localización l10n_es</b></span>
+  </div>
+
+  <div class="grid">
+  <nav class="toc" aria-label="Índice">
+    <span class="eyebrow">Contenido</span>
+    <ol>
+      <li><a href="#s1">1. Qué hay en Community</a></li>
+      <li><a href="#s2">2. Plan contable y ejercicio fiscal</a></li>
+      <li><a href="#s3">3. Impuestos y posiciones fiscales</a></li>
+      <li><a href="#s4">4. Diarios y banco</a></li>
+      <li><a href="#s5">5. Factura de cliente</a></li>
+      <li><a href="#s6">6. Factura de proveedor</a></li>
+      <li><a href="#s7">7. Cobros, pagos y conciliación</a></li>
+      <li><a href="#s8">8. Leer el asiento</a></li>
+      <li><a href="#s9">9. Copias y actualización</a></li>
+      <li><a href="#s10">10. Lista de verificación</a></li>
+    </ol>
+  </nav>
+
+  <main>
+  <section id="s1">
+    <h2><span class="n">01</span>Qué hay en Community y qué no</h2>
+    <p style="margin-top:12px">La aplicación se llama <em>Facturación</em>. Genera los asientos igual que la versión Enterprise, pero no incluye los informes financieros ni el cierre. Para esta unidad basta con lo que hay; lo que falte se consulta en la base de datos, como veréis en el bloque siguiente.</p>
+    <div class="tw"><table>
+      <tr><th>Función</th><th>Community (lo nuestro)</th><th>Enterprise</th></tr>
+      <tr><td>Facturas de cliente y proveedor, rectificativas</td><td>Sí</td><td>Sí</td></tr>
+      <tr><td>Plan contable, impuestos, diarios, posiciones fiscales</td><td>Sí</td><td>Sí</td></tr>
+      <tr><td>Asientos contables y apuntes</td><td>Sí, con el grupo <em>Mostrar funciones contables completas</em></td><td>Sí</td></tr>
+      <tr><td>Pagos y conciliación con extracto bancario</td><td>Sí, importando CSV/OFX manualmente</td><td>Sí, con sincronización bancaria</td></tr>
+      <tr><td>Balance, pérdidas y ganancias, libro mayor, modelos 303/390</td><td>No (se obtienen con SQL o con la vista de tabla dinámica de apuntes)</td><td>Sí</td></tr>
+      <tr><td>Cierre de ejercicio, activos, presupuestos</td><td>No</td><td>Sí</td></tr>
+    </table></div>
+    <div class="note"><span class="eyebrow">Activar el menú Contabilidad</span>Con el modo desarrollador activo, abre tu usuario en <kbd>Ajustes → Usuarios</kbd>, pestaña <em>Otros</em>, y marca <em>Mostrar funciones contables completas</em>. Al recargar, en Facturación aparecen los menús <em>Contabilidad → Asientos contables</em>, <em>Apuntes contables</em> y <em>Plan contable</em>. Sin esto, el alumno solo ve facturas y no puede comprobar nada de lo que sigue.</div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="n">02</span>Plan contable y ejercicio fiscal</h2>
+    <p style="margin-top:12px">Si en la parametrización pusiste país España antes de instalar Ventas, la localización <code>l10n_es</code> ya está cargada. Compruébalo en <kbd>Facturación → Configuración → Ajustes</kbd>, apartado <em>Localización fiscal</em>: debe decir <em>PGC España</em> (o PGC PYMEs). Si está vacío, elige el paquete ahora; solo se puede cambiar mientras no haya asientos.</p>
+    <h3>Plan contable</h3>
+    <p>En <kbd>Contabilidad → Plan contable</kbd> hay unas 600 cuentas del PGC. Las que vas a ver en cada asiento de esta unidad:</p>
+    <div class="tw"><table>
+      <tr><th>Cuenta</th><th>Nombre</th><th>Aparece en</th></tr>
+      <tr><td>430000</td><td>Toda factura de cliente, al debe</td></tr>
+      <tr><td>400000</td><td>Toda factura de proveedor, al haber</td></tr>
+      <tr><td>700000</td><td>Líneas de la factura de cliente</td></tr>
+      <tr><td>705000</td><td>Líneas con producto de tipo servicio</td></tr>
+      <tr><td>600000</td><td>Compras de mercaderías</td><td>Líneas de la factura de proveedor</td></tr>
+      <tr><td>477000</td><td>Impuesto de la factura de cliente</td></tr>
+      <tr><td>472000</td><td>Impuesto de la factura de proveedor</td></tr>
+      <tr><td>572000</td><td>Bancos</td><td>Cobros y pagos</td></tr>
+      <tr><td>570000</td><td>Caja</td><td>Cobros en efectivo</td></tr>
+    </table></div>
+    <p style="margin-top:12px">Las cuentas de ingreso y gasto de cada línea salen del producto (pestaña <em>Contabilidad</em>) o, si está vacío, de su categoría. Cambia la cuenta de ingresos de un producto de tipo servicio a <code>705000</code> y comprueba más adelante que la factura la usa.</p>
+    <h3>Ejercicio fiscal y numeración</h3>
+    <ol class="steps">
+      <li><b>Ajustes → Facturación → Ejercicios fiscales.</b> Deja el cierre a 31 de diciembre. <span class="r">Las secuencias de factura llevan el año: <code>INV/2026/00001</code>. El 1 de enero empezará <code>INV/2027/00001</code> sola.</span></li>
+      <li><b>Fecha de bloqueo.</b> En los mismos ajustes, <em>Fecha de bloqueo para todos los usuarios</em>: ponla a final del mes pasado. <span class="r">Nadie podrá confirmar ni modificar asientos antes de esa fecha. Pruébalo intentando una factura con fecha anterior.</span></li>
+    </ol>
+  </section>
+
+  <section id="s3">
+    <h2><span class="n">03</span>Impuestos y posiciones fiscales</h2>
+    <p style="margin-top:12px"><kbd>Facturación → Configuración → Impuestos</kbd>. La localización trae unos 70. Filtra por <em>Activo</em> y deja activos solo los que use tu empresa; los demás, archivados. Así el desplegable de las líneas de factura es corto.</p>
+    <div class="tw"><table>
+      <tr><th>Impuesto</th><th>Tipo</th><th>Cuenta</th><th>Cuándo</th></tr>
+      <tr><td>IVA 21 % (Bienes) / (Servicios)</td><td>Venta</td><td>477000</td><td>Cliente nacional, tipo general</td></tr>
+      <tr><td>IVA 10 %, IVA 4 %</td><td>Venta</td><td>477000</td><td>Tipos reducido y superreducido</td></tr>
+      <tr><td>21 % IVA soportado (bienes) / (servicios)</td><td>Compra</td><td>472000</td><td>Proveedor nacional</td></tr>
+      <tr><td>IVA 21 % + RE 5,2 %</td><td>Venta</td><td>477000 + 477x</td><td>Cliente minorista en recargo de equivalencia</td></tr>
+      <tr><td>IVA 0 % Intracomunitario (entregas)</td><td>Venta</td><td>—</td><td>Cliente UE con NIF-IVA; la posición fiscal lo pone sola</td></tr>
+      <tr><td>IVA 21 % Intracomunitario (adquisiciones)</td><td>Compra</td><td>472000 y 477000 (autorrepercutido)</td><td>Proveedor UE; genera dos apuntes de IVA que se anulan</td></tr>
+      <tr><td>Retención IRPF 15 % (profesionales)</td><td>Compra</td><td>4751000</td><td>Factura de un autónomo; es un impuesto negativo</td></tr>
+    </table></div>
+    <h3>Posiciones fiscales</h3>
+    <p>Una posición fiscal es una tabla de sustitución: "donde el producto diga IVA 21 %, pon IVA 0 % intracomunitario". Se asigna al cliente o proveedor (pestaña <em>Ventas y compras</em>) y Odoo la aplica a cada línea sin que el usuario elija nada. Las que trae <code>l10n_es</code>: <em>Régimen Nacional</em>, <em>Recargo de Equivalencia</em>, <em>Régimen Intracomunitario</em>, <em>Régimen Extracomunitario</em>, <em>Canarias</em>.</p>
+    <ol class="steps">
+      <li><b>Abre <em>Régimen Intracomunitario</em></b> y mira la pestaña <em>Mapeo de impuestos</em>: cada IVA de venta se sustituye por su versión al 0 %. <span class="r">Marca <em>Detectar automáticamente</em> con país del grupo UE y <em>NIF requerido</em>: así se aplica sola a cualquier cliente europeo con NIF.</span></li>
+      <li><b>Haz un presupuesto al cliente francés</b> de la parametrización y otro a un cliente español con los mismos productos. <span class="r">Mismo subtotal, distinto total. Captura ambos para el informe.</span></li>
+    </ol>
+    <div class="note warn"><span class="eyebrow">No crees impuestos a mano</span>Los de la localización llevan las etiquetas fiscales de las casillas del modelo 303. Un impuesto creado a mano con el mismo porcentaje calcula bien pero no cuadra en ningún modelo. Si falta uno, duplica el más parecido.</div>
+  </section>
+
+  <section id="s4">
+    <h2><span class="n">04</span>Diarios y banco</h2>
+    <p style="margin-top:12px">Un diario es un libro donde se registran asientos del mismo tipo. Cada uno tiene su secuencia de numeración y su cuenta por defecto. <kbd>Facturación → Configuración → Diarios</kbd>.</p>
+    <div class="tw"><table>
+      <tr><th>Diario</th><th>Tipo</th><th>Código</th><th>Qué registra</th></tr>
+      <tr><td>Facturas de cliente</td><td>Venta</td><td>INV</td><td>Facturas y rectificativas de cliente</td></tr>
+      <tr><td>Facturas de proveedor</td><td>Compra</td><td>BILL</td><td>Facturas y rectificativas de proveedor</td></tr>
+      <tr><td>Banco</td><td>Banco</td><td>BNK1</td><td>Cobros, pagos y extractos; cuenta 572000</td></tr>
+      <tr><td>Efectivo</td><td>Efectivo</td><td>CSH1</td><td>Caja; cuenta 570000</td></tr>
+      <tr><td>Operaciones varias</td><td>Varios</td><td>MISC</td><td>Asientos manuales: nóminas, amortizaciones, apertura</td></tr>
+    </table></div>
+    <ol class="steps">
+      <li><b>Renombra el diario Banco</b> con el nombre de tu banco y añade la cuenta bancaria (IBAN) de la empresa en la pestaña <em>Asientos contables</em>. <span class="r">El IBAN sale impreso en el pie de las facturas de cliente para que paguen por transferencia.</span></li>
+      <li><b>Crea un segundo diario de banco</b> si tu empresa tiene dos cuentas, o uno de tipo Banco para la pasarela de pago (TPV, Stripe). <span class="r">Cada diario de banco crea su propia cuenta 572 numerada: 572001, 572002.</span></li>
+      <li><b>En el diario de ventas, pestaña <em>Configuración avanzada</em></b>, pon el impuesto por defecto IVA 21 % y revisa la plantilla de correo con la que se envían las facturas.</li>
+    </ol>
+  </section>
+
+  <section id="s5">
+    <h2><span class="n">05</span>Factura de cliente</h2>
+    <p style="margin-top:12px">Hay dos caminos y llegan al mismo sitio: desde un pedido de venta (lo normal) o directamente en <kbd>Facturación → Clientes → Facturas → Nuevo</kbd> (un servicio sin pedido, un alquiler).</p>
+    <ol class="steps">
+      <li><b>Desde el pedido confirmado en la parametrización, pulsa <em>Crear factura</em>.</b> Elige <em>Factura normal</em>. <span class="r">Solo entran las cantidades facturables según la política del producto: lo entregado en los productos con almacén, lo pedido en los servicios.</span></li>
+      <li><b>Revisa el borrador.</b> Cliente, dirección de factura (la hija de tipo factura, si existe), plazo de pago heredado, fecha de factura, y en cada línea cuenta e impuesto. En la pestaña <em>Apuntes contables</em> ya se ve el asiento que se generará.</li>
+      <li><b>Confirma.</b> Recibe número <code>INV/2026/0000n</code>, estado <em>Publicado</em>, estado de pago <em>No pagado</em>. <span class="r">Desde este momento la factura no se puede borrar, solo anular con una rectificativa. Es el comportamiento legal.</span></li>
+      <li><b>Enviar e imprimir.</b> El PDF lleva logotipo, NIF, IBAN y el desglose de IVA por tipo. Captúralo.</li>
+      <li><b>Factura anticipada.</b> En otro pedido, <em>Crear factura → Anticipo (porcentaje)</em> del 50 %. <span class="r">Genera una línea de anticipo que se descuenta sola en la factura final.</span></li>
+      <li><b>Rectificativa.</b> En la primera factura, <em>Factura rectificativa</em>, motivo "devolución de 1 unidad", y confirma. <span class="r">Se crea <code>RINV/2026/00001</code> con los apuntes invertidos y queda conciliada parcialmente con la original.</span></li>
+    </ol>
+  </section>
+
+  <section id="s6">
+    <h2><span class="n">06</span>Factura de proveedor</h2>
+    <p style="margin-top:12px">El proveedor manda su factura; en Odoo se registra para pagarla y deducir el IVA. <kbd>Facturación → Proveedores → Facturas</kbd>, o desde el pedido de compra con <em>Crear factura</em>.</p>
+    <ol class="steps">
+      <li><b>Desde el pedido de compra recibido en la parametrización, <em>Crear factura</em>.</b> <span class="r">Con control de facturas por cantidades recibidas, solo entra lo que validó el almacén. Si el proveedor factura más, Odoo lo marca.</span></li>
+      <li><b>Rellena lo que el proveedor decide, no tú:</b> su número de factura en <em>Referencia</em>, la fecha de factura, y la fecha de vencimiento. <span class="r">La referencia es obligatoria para el libro de facturas recibidas y evita registrar dos veces la misma: Odoo avisa si se repite.</span></li>
+      <li><b>Confirma.</b> Número <code>BILL/2026/0000n</code>. Asiento: 600 y 472 al debe, 400 al haber.</li>
+      <li><b>Factura de un profesional con retención.</b> Nueva factura de proveedor a un autónomo, un servicio de 1.000 €, impuestos: 21 % IVA soportado y Retención IRPF 15 %. <span class="r">Total a pagar 1.060 €: 1.000 + 210 − 150. La retención va a la cuenta 4751.</span></li>
+      <li><b>Subir el PDF.</b> Adjunta el PDF del proveedor en el chatter. <span class="r">Odoo 19 también crea borradores de factura si subes el PDF al diario de compras desde el panel; no hace OCR en Community, pero deja la factura preparada con el adjunto.</span></li>
+    </ol>
+  </section>
+
+  <section id="s7">
+    <h2><span class="n">07</span>Cobros, pagos y conciliación</h2>
+    <p style="margin-top:12px">Una factura publicada es una deuda abierta en 430 o 400. Se cierra cuando un pago queda conciliado con ella. Hay dos formas de registrarlo.</p>
+    <h3>A · Registrar pago desde la factura</h3>
+    <ol class="steps">
+      <li>En la factura de cliente, <em>Registrar pago</em>: diario Banco, importe (total o parcial), fecha. <span class="r">Crea un <code>account.payment</code> con asiento 572 al debe / 430 al haber, ya conciliado con la factura. Estado de pago: <em>Pagado</em> o <em>Parcialmente pagado</em>.</span></li>
+      <li>Haz lo mismo en una factura de proveedor con diario Efectivo. <span class="r">Asiento 400 al debe / 570 al haber.</span></li>
+    </ol>
+    <h3>B · Importar el extracto bancario y conciliar</h3>
+    <p>Es como trabaja contabilidad en la realidad: el banco manda movimientos y hay que casarlos con facturas.</p>
+    <ol class="steps">
+      <li><b>Prepara un CSV</b> con tres movimientos: un cobro con el importe exacto de una factura de cliente y su número en el concepto, un pago a proveedor, y una comisión bancaria de 6 €.
+<pre><button class="copy" type="button">Copiar</button><code>Fecha,Concepto,Importe
+2026-11-04,Transferencia INV/2026/00002,1452.00
+2026-11-05,Recibo BILL/2026/00001,-847.00
+2026-11-06,Comision mantenimiento,-6.00</code></pre></li>
+      <li><b>Facturación → panel → diario Banco → Importar extracto</b> y mapea las tres columnas. <span class="r">Se crea un extracto con tres líneas sin conciliar.</span></li>
+      <li><b>Conciliar.</b> Para las dos primeras, Odoo propone la factura por importe y referencia; valida. Para la comisión, elige la cuenta 626000 (servicios bancarios) y valida. <span class="r">Las facturas pasan a <em>Pagado</em> sin haber usado <em>Registrar pago</em>.</span></li>
+    </ol>
+    <figure class="ui">
+      <div class="win">
+        <div class="bar">Conciliación <span class="chip">Diario Banco</span><span class="sp">Extracto de noviembre</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>Fecha</th><th>Concepto del extracto</th><th class="n">Importe</th><th>Odoo propone</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>04/11/2026</td><td>Transferencia INV/2026/00002</td><td class="n">1.452,00</td><td>Factura INV/2026/00002</td><td><span class="cta">Validar</span></td></tr>
+            <tr><td>05/11/2026</td><td>Recibo BILL/2026/00001</td><td class="n">−847,00</td><td>Factura de proveedor BILL/2026/00001</td><td><span class="cta">Validar</span></td></tr>
+            <tr><td>06/11/2026</td><td>Comisión mantenimiento</td><td class="n">−6,00</td><td>Sin correspondencia</td><td><span class="cta">Validar</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <figcaption><b>La pantalla de conciliación.</b> Cada fila es un movimiento que mandó el banco. Odoo busca a qué factura corresponde por importe y por referencia: las dos primeras las encuentra solo y basta con validar, y esas facturas pasan a <em>Pagado</em> sin pasar por <em>Registrar pago</em>. La tercera no corresponde a ninguna factura, así que hay que decirle la cuenta: <code>626000</code> Servicios bancarios. Mientras quede una fila sin validar, el saldo del banco en Odoo y el del extracto no coinciden.</figcaption>
+    </figure>
+    <h4>Comprobación</h4>
+    <p>En <kbd>Facturación → Clientes → Facturas</kbd>, filtro <em>No pagadas</em>: solo deben quedar las que no has cobrado. En <kbd>Contabilidad → Apuntes contables</kbd>, filtra por cuenta 430000 y agrupa por cliente: el saldo de cada uno debe coincidir con lo pendiente.</p>
+  </section>
+
+  <section id="s8">
+    <h2><span class="n">08</span>Leer el asiento que hay detrás</h2>
+    <p style="margin-top:12px">Una factura de cliente de 1.200 € más IVA 21 % genera este asiento al confirmarse. Está en <kbd>Contabilidad → Asientos contables</kbd> con el mismo número que la factura, porque en Odoo factura y asiento son el mismo registro.</p>
+    <div class="diag">
+      <svg viewBox="0 0 760 250" role="img" aria-label="Asiento de una factura de cliente: 430 al debe por 1452; 700 por 1200 y 477 por 252 al haber">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker></defs>
+        <text x="24" y="30" font-weight="600">INV/2026/00002 · Factura de cliente · base 1.200,00 € · IVA 21 %</text>
+        <rect class="box" x="24" y="48" width="712" height="150" rx="6"/>
+        <line class="rule" x1="24" y1="76" x2="736" y2="76"/>
+        <line class="rule" x1="380" y1="48" x2="380" y2="198"/>
+        <text class="q" x="40" y="67">DEBE</text><text class="q" x="396" y="67">HABER</text>
+        <rect class="main" x="36" y="88" width="332" height="40" rx="6"/>
+        <text class="m" x="48" y="106">430000 Clientes</text><text class="m" x="356" y="106" text-anchor="end">1.452,00</text>
+        <text class="q" x="48" y="122">lo que nos debe el cliente</text>
+        <rect class="box" x="392" y="88" width="332" height="40" rx="6"/>
+        <text class="m" x="404" y="106">700000 Ventas de mercaderías</text><text class="m" x="712" y="106" text-anchor="end">1.200,00</text>
+        <text class="q" x="404" y="122">ingreso, sin IVA</text>
+        <rect class="box" x="392" y="140" width="332" height="40" rx="6"/>
+        <text class="m" x="404" y="158">477000 HP, IVA repercutido</text><text class="m" x="712" y="158" text-anchor="end">252,00</text>
+        <text class="q" x="404" y="174">lo que debemos a Hacienda</text>
+        <text class="m" x="356" y="188" text-anchor="end" font-weight="600">1.452,00</text>
+        <text class="m" x="712" y="188" text-anchor="end" font-weight="600">1.452,00</text>
+        <text class="q" x="24" y="226">Al cobrar: 572000 Bancos 1.452,00 al debe · 430000 Clientes 1.452,00 al haber → el saldo del cliente queda a cero</text>
+        <path class="edge" d="M200 128V148"/><text class="q" x="210" y="160">el cobro cancela este apunte</text>
+      </svg>
+    </div>
+    <p class="caption">Debe y haber siempre suman lo mismo. Si no, Odoo no deja publicar el asiento.</p>
+    <figure class="ui">
+      <div class="dos">
+        <div class="win">
+          <div class="bar">Factura <span class="chip">INV/2026/00005</span><span class="sp">Publicado</span></div>
+          <div class="scroll"><table>
+            <thead><tr><th>Cuenta</th><th class="n">Debe</th><th class="n">Haber</th></tr></thead>
+            <tbody>
+              <tr><td>430000 Clientes</td><td class="n">1.452,00</td><td class="n">0,00</td></tr>
+              <tr><td>700000 Ventas de mercaderías</td><td class="n">0,00</td><td class="n">1.200,00</td></tr>
+              <tr><td>477000 HP, IVA repercutido</td><td class="n">0,00</td><td class="n">252,00</td></tr>
+              <tr class="tot"><td>Total</td><td class="n">1.452,00</td><td class="n">1.452,00</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <div class="win">
+          <div class="bar">Factura rectificativa <span class="chip">RINV/2026/00001</span><span class="sp">Publicado</span></div>
+          <div class="scroll"><table>
+            <thead><tr><th>Cuenta</th><th class="n">Debe</th><th class="n">Haber</th></tr></thead>
+            <tbody>
+              <tr><td>430000 Clientes</td><td class="n">0,00</td><td class="n">1.452,00</td></tr>
+              <tr><td>700000 Ventas de mercaderías</td><td class="n">1.200,00</td><td class="n">0,00</td></tr>
+              <tr><td>477000 HP, IVA repercutido</td><td class="n">252,00</td><td class="n">0,00</td></tr>
+              <tr class="tot"><td>Total</td><td class="n">1.452,00</td><td class="n">1.452,00</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+      <figcaption><b>Una factura y su rectificativa, apunte a apunte.</b> Las mismas tres cuentas del plan español, con el debe y el haber intercambiados. Por eso el saldo del cliente en la 430 vuelve a cero sin borrar nada: la factura original sigue publicada y numerada, como exige la normativa. Es la pantalla de <kbd>Contabilidad → Asientos contables</kbd>.</figcaption>
+    </figure>
+    <p style="margin-top:12px">La factura de proveedor es el espejo: 600 y 472 al debe, 400 al haber. La rectificativa invierte los apuntes de la factura original. Y la intracomunitaria de compra lleva dos apuntes de IVA, 472 al debe y 477 al haber por el mismo importe, que se anulan: es el IVA autorrepercutido.</p>
+    <h4>Verlo en la base de datos</h4>
+    <p>Lo que en pantalla son tres apuntes, en PostgreSQL son tres filas de <code>account_move_line</code> con el mismo <code>move_id</code>. Es la consulta que haréis en la UD 3 del bloque siguiente:</p>
+<pre><button class="copy" type="button">Copiar</button><code>SELECT m.name, a.code, a.name AS cuenta, l.debit, l.credit
+FROM account_move_line l
+JOIN account_move m ON m.id = l.move_id
+JOIN account_account a ON a.id = l.account_id
+WHERE m.name = 'INV/2026/00002'
+ORDER BY l.debit DESC;</code></pre>
+  </section>
+
+  <section id="s9">
+    <h2><span class="n">09</span>Copias de seguridad y actualización</h2>
+    <p style="margin-top:12px">Con la implantación hecha, lo último es asegurarla. Esto cierra la implantación y es lo primero que te pedirían en una empresa.</p>
+    <h3>Copia de seguridad</h3>
+    <div class="tw"><table>
+      <tr><th>Método</th><th>Qué incluye</th><th>Cómo</th></tr>
+      <tr><td>Gestor de Odoo</td><td>BD + adjuntos (filestore) en un zip</td><td><code>http://localhost:8069/web/database/manager</code> → Backup. Pide la contraseña maestra de <code>odoo.conf</code> (<em>admin_passwd</em>).</td></tr>
+      <tr><td>pg_dump</td><td>Solo la BD</td><td><code>docker exec odoo-db pg_dump -U odoo -Fc empresa &gt; empresa.dump</code></td></tr>
+      <tr><td>Volúmenes Docker</td><td>Todo: BD y filestore, tal cual</td><td><code>docker run --rm -v odoo-db-data:/d -v $PWD:/b alpine tar czf /b/db.tgz /d</code> y lo mismo con <code>odoo-web-data</code></td></tr>
+    </table></div>
+    <ol class="steps">
+      <li><b>Haz la copia con el gestor</b> y restáurala con otro nombre (<em>Restore</em>). Entra en la copia y comprueba que las facturas y sus PDF adjuntos están. <span class="r">Después bórrala desde el gestor; verás que la BD desaparece de pgAdmin.</span></li>
+      <li><b>Programa la copia.</b> En el host, un <code>cron</code> diario que ejecute el <code>pg_dump</code> y guarde siete días. <span class="r">Para el informe basta la línea de crontab y una captura del directorio con dos copias.</span></li>
+    </ol>
+    <h3>Actualización</h3>
+    <p>Con Docker, actualizar Odoo dentro de la misma versión mayor (19.0) es cambiar de imagen. Entre versiones mayores (18 → 19) hace falta migrar la base de datos y no es tema de este curso.</p>
+<pre><button class="copy" type="button">Copiar</button><code>docker compose pull odoo          # baja la última imagen odoo:19
+docker compose up -d odoo         # recrea solo ese contenedor; los datos están en el volumen
+docker exec odoo-web odoo -d empresa -u all --stop-after-init   # actualiza los módulos de la BD</code></pre>
+    <div class="note warn"><span class="eyebrow">Antes de actualizar</span>Copia de seguridad siempre, y prueba la actualización primero sobre la copia restaurada con otro nombre. Es la diferencia entre entorno de pruebas y entorno de explotación que pide el currículo.</div>
+  </section>
+
+  <section id="s10">
+    <h2><span class="n">10</span>Lista de verificación</h2>
+    <p style="margin-top:12px">Marca lo que tengas hecho. Se guarda en este navegador.</p>
+    <div class="check" id="check">
+      <label><input type="checkbox" id="c01"><span>Menú Contabilidad visible en mi usuario</span></label>
+      <label><input type="checkbox" id="c02"><span>Localización PGC España cargada; cuenta 705 asignada al producto de servicio</span></label>
+      <label><input type="checkbox" id="c03"><span>Fecha de bloqueo puesta y probada</span></label>
+      <label><input type="checkbox" id="c04"><span>Impuestos no usados archivados; presupuesto nacional e intracomunitario comparados</span></label>
+      <label><input type="checkbox" id="c05"><span>Diario Banco con nombre e IBAN; IBAN visible en el PDF de factura</span></label>
+      <label><input type="checkbox" id="c06"><span>Factura de cliente desde pedido, confirmada y enviada</span></label>
+      <label><input type="checkbox" id="c07"><span>Factura de anticipo del 50 % y rectificativa</span></label>
+      <label><input type="checkbox" id="c08"><span>Factura de proveedor desde pedido con referencia; factura de profesional con retención</span></label>
+      <label><input type="checkbox" id="c09"><span>Un cobro y un pago con Registrar pago</span></label>
+      <label><input type="checkbox" id="c10"><span>Extracto CSV importado y tres líneas conciliadas</span></label>
+      <label><input type="checkbox" id="c11"><span>Asiento de la factura localizado y explicado; consulta SQL ejecutada</span></label>
+      <label><input type="checkbox" id="c12"><span>Copia con el gestor, restaurada y borrada; cron de pg_dump</span></label>
+      <label><input type="checkbox" id="c13"><span>Actualización de imagen probada sobre la copia</span></label>
+    </div>
+    <p class="progress" id="progress"></p>
+  </section>
+  </main>
+  </div>
+
+  <footer>Material del módulo 0491 (RD 450/2010), bloque 2. Cuentas e impuestos según la localización l10n_es de Odoo 19 Community; los nombres de menú pueden variar ligeramente entre versiones. Terminología de la interfaz verificada con la documentación oficial de Odoo 19 en español (odoo.com/documentation/19.0/es), licencia CC BY-SA 4.0. Curso 2026/2027.</footer>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var code=b.parentNode.querySelector('code'), txt=code.textContent;
+      function ok(){ b.textContent='Copiado'; setTimeout(function(){ b.textContent='Copiar'; },1500); }
+      function fallback(){ var r=document.createRange(); r.selectNodeContents(code); var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='Selecciona y copia'; setTimeout(function(){ b.textContent='Copiar'; },2000); }
+      try{ navigator.clipboard.writeText(txt).then(ok,fallback); }catch(e){ fallback(); }
+    });
+  });
+  var boxes=[].slice.call(document.querySelectorAll('#check input')), prog=document.getElementById('progress'), KEY='sge-conta-check';
+  var saved={}; try{ saved=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){}
+  boxes.forEach(function(b){ b.checked=!!saved[b.id]; b.addEventListener('change',function(){ saved[b.id]=b.checked; try{ localStorage.setItem(KEY,JSON.stringify(saved)); }catch(e){} upd(); }); });
+  function upd(){ var n=boxes.filter(function(b){return b.checked;}).length; prog.textContent=n+' de '+boxes.length+' completados'; }
+  upd();
+  var links=[].slice.call(document.querySelectorAll('nav.toc a')), secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function mark(){ var y=scrollY+120, cur=0; secs.forEach(function(s,i){ if(s.offsetTop<=y) cur=i; }); links.forEach(function(a,i){ a.classList.toggle('on',i===cur); }); }
+  addEventListener('scroll',mark,{passive:true}); mark();
+})();
+</script>
+
+</body></html>
