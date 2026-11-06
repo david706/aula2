@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SGE 2.º DAM · Repaso previo · Empresa, procesos y ERP</title>
+  <style>
+    :root{--tinta:#1f2937;--titulo:#24364b;--acento:#247e74;--claro:#e9f4f1;--crema:#f5f2e9;--borde:#cbd5e1;--amarillo:#fff4c2;--rojo:#b42318}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--crema);color:var(--tinta);font:11pt/1.5 Arial,sans-serif}
+    main{max-width:1050px;margin:24px auto;background:#fff;padding:36px 44px;box-shadow:0 5px 20px #0002}h1,h2,h3{font-family:Montserrat,Arial,sans-serif;color:var(--titulo)}h1{font-size:26px;margin:5px 0}h2{font-size:19px;margin-top:34px;border-bottom:3px solid var(--acento);padding-bottom:6px}h3{font-size:14px;margin-bottom:5px}p{margin:7px 0}
+    header{background:var(--claro);border-left:9px solid var(--acento);padding:19px 23px}.etiqueta{display:inline-block;background:var(--acento);color:#fff;border-radius:18px;padding:4px 10px;font-weight:bold;font-size:9.5pt}.sub{color:#475569}
+    nav{display:flex;flex-wrap:wrap;gap:7px;margin:18px 0}nav a{color:var(--titulo);background:#fff;border:1px solid var(--borde);border-radius:5px;padding:6px 9px;text-decoration:none}nav a:hover{background:var(--claro)}
+    .plan{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.minuto{border:1px solid var(--borde);border-top:5px solid var(--acento);border-radius:6px;padding:11px}.minuto strong{color:var(--acento)}
+    .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.card{border:1px solid var(--borde);border-radius:7px;padding:15px;background:#fff}.card .numero{width:27px;height:27px;display:inline-grid;place-items:center;border-radius:50%;background:var(--acento);color:#fff;font-weight:bold;margin-right:6px}
+    .formula{background:var(--titulo);color:#fff;border-radius:7px;padding:15px;text-align:center;font-weight:bold;font-size:13pt;margin:14px 0}.formula span{color:#86e0d1}.idea{background:var(--claro);border-left:5px solid var(--acento);padding:12px;margin:12px 0}.aviso{background:var(--amarillo);border-left:5px solid #d6a900;padding:12px;margin:12px 0}.error{background:#fff1f0;border-left:5px solid var(--rojo);padding:12px;margin:12px 0}
+    .flujo{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}.flujo div{position:relative;border:1px solid #9bc9c1;background:var(--claro);border-radius:6px;padding:12px 8px;text-align:center;font-weight:bold}.flujo div:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:30%;z-index:2;color:var(--acento);font-size:18px}
+    table{width:100%;border-collapse:collapse;margin:12px 0 18px}th,td{border:1px solid var(--borde);padding:9px;vertical-align:top}th{background:var(--titulo);color:#fff;text-align:left}.si{color:#166534;font-weight:bold}.no{color:var(--rojo);font-weight:bold}
+    details{border:1px solid var(--borde);border-radius:6px;margin:9px 0;background:#fff}summary{cursor:pointer;padding:11px;font-weight:bold;color:var(--titulo)}details div{padding:0 13px 12px}.preguntas li{margin:8px 0}.puente{border:2px solid var(--acento);border-radius:8px;padding:17px;background:var(--claro)}footer{border-top:1px solid var(--borde);margin-top:30px;padding-top:12px;text-align:center;color:#64748b;font-size:9pt}
+    @media(max-width:750px){main{margin:0;padding:22px}.plan,.cards{grid-template-columns:1fr}.flujo{grid-template-columns:1fr 1fr}.flujo div:nth-child(2)::after{display:none}}
+    @media print{body{background:#fff}main{max-width:none;margin:0;padding:12mm;box-shadow:none}nav{display:none}.card,table,.idea,.aviso,.puente{break-inside:avoid}details>div{display:block!important}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="etiqueta">MICROTEMA DE REPASO</span>
+    <h1>De una empresa real a un ERP</h1>
+    <p class="sub">SGE · 2.º DAM · Conceptos necesarios para diseñar el supuesto empresarial</p>
+  </header>
+
+  <nav aria-label="Índice">
+    <a href="#empresa">Empresa</a><a href="#proceso">Procesos</a><a href="#datos">Datos</a><a href="#erp">ERP</a><a href="#usuarios">Usuarios</a><a href="#adaptacion">Adaptación</a><a href="#ejemplo">Ejemplo</a><a href="#comprobacion">Comprobación</a>
+  </nav>
+
+  <section id="empresa">
+    <h2>1. Antes del ERP está la empresa</h2>
+    <p>Un ERP no se instala «porque sí». Primero se analiza qué hace la empresa, quién participa y qué información necesita.</p>
+    <div class="formula"><span>Recursos</span> → actividad → <span>producto o servicio</span> → cliente → ingreso</div>
+    <div class="cards">
+      <article class="card"><h3><span class="numero">1</span>Actividad</h3><p>Qué trabajo realiza la empresa: vender bicicletas, reparar ordenadores, organizar eventos o prestar asesoría.</p></article>
+      <article class="card"><h3><span class="numero">2</span>Cliente</h3><p>Quién recibe el producto o servicio. Puede ser una persona, otra empresa o una administración.</p></article>
+      <article class="card"><h3><span class="numero">3</span>Recursos</h3><p>Personas, productos, materiales, dinero, instalaciones, tiempo e información.</p></article>
+      <article class="card"><h3><span class="numero">4</span>Necesidad</h3><p>Algo que la empresa debe controlar: ventas, clientes, existencias, compras, facturas o incidencias.</p></article>
+    </div>
+    <div class="idea"><strong>Pregunta clave:</strong> ¿qué tendría que registrar la empresa para saber qué ha ocurrido y decidir qué hacer después?</div>
+  </section>
+
+  <section id="proceso">
+    <h2>2. Proceso de negocio y workflow</h2>
+    <p>Un <strong>proceso de negocio</strong> es un conjunto de tareas relacionadas y ordenadas que produce un resultado para un cliente interno o externo.</p>
+    <div class="flujo"><div>Inicio o petición</div><div>Tareas ordenadas</div><div>Datos que cambian</div><div>Resultado verificable</div></div>
+    <p>El <strong>workflow</strong> indica cómo pasan la tarea y la información de una persona o departamento al siguiente.</p>
+    <table>
+      <thead><tr><th>Elemento</th><th>Pregunta que debemos responder</th><th>Ejemplo breve</th></tr></thead>
+      <tbody>
+        <tr><td>Inicio</td><td>¿Qué pone en marcha el proceso?</td><td>Un cliente solicita un presupuesto.</td></tr>
+        <tr><td>Responsable</td><td>¿Quién realiza cada tarea?</td><td>La persona de ventas crea el presupuesto.</td></tr>
+        <tr><td>Dato</td><td>¿Qué información se consulta o modifica?</td><td>Cliente, precio, cantidad y estado del pedido.</td></tr>
+        <tr><td>Resultado</td><td>¿Cómo sabemos que ha terminado?</td><td>Producto entregado y stock actualizado.</td></tr>
+      </tbody>
+    </table>
+    <div class="error"><strong>No basta con escribir:</strong> «se vende el producto». Deben aparecer los pasos, el orden, el responsable y el dato que cambia.</div>
+  </section>
+
+  <section id="datos">
+    <h2>3. Datos e información</h2>
+    <div class="cards">
+      <article class="card"><h3>Dato</h3><p>Valor registrado sin interpretar: <code>stock = 2</code>, <code>precio = 80 €</code> o <code>estado = pendiente</code>.</p></article>
+      <article class="card"><h3>Información</h3><p>Resultado útil obtenido al interpretar datos: «quedan pocas unidades y es necesario comprar».</p></article>
+    </div>
+    <div class="formula"><span>Datos correctos</span> + contexto + tratamiento = <span>información para decidir</span></div>
+    <p>Los distintos departamentos no deberían mantener copias contradictorias de la misma información. El ERP ofrece una base compartida y controla quién puede modificar cada dato.</p>
+  </section>
+
+  <section id="erp">
+    <h2>4. ¿Qué aporta un ERP?</h2>
+    <p>Un ERP integra varias áreas de la empresa en un mismo sistema. Los módulos son partes especializadas que comparten los datos.</p>
+    <table>
+      <thead><tr><th>Necesidad</th><th>Módulo posible</th><th>Datos principales</th><th>Resultado esperado</th></tr></thead>
+      <tbody>
+        <tr><td>Preparar presupuestos y pedidos</td><td>Ventas</td><td>Cliente, producto, cantidad y precio</td><td>Pedido registrado</td></tr>
+        <tr><td>Controlar existencias</td><td>Inventario</td><td>Producto, ubicación y cantidad</td><td>Stock actualizado</td></tr>
+        <tr><td>Seguir oportunidades</td><td>CRM</td><td>Contacto, actividad y estado</td><td>Seguimiento comercial</td></tr>
+        <tr><td>Reponer productos</td><td>Compras</td><td>Proveedor, coste y cantidad</td><td>Pedido al proveedor</td></tr>
+        <tr><td>Registrar el cobro</td><td>Facturación</td><td>Factura, impuesto y pago</td><td>Operación económica registrada</td></tr>
+      </tbody>
+    </table>
+    <div class="idea"><strong>RA2.a:</strong> identificar módulos no consiste en enumerarlos. Hay que relacionar cada módulo con una necesidad y explicar qué dato o proceso gestionará.</div>
+  </section>
+
+  <section id="usuarios">
+    <h2>5. Usuarios, funciones y permisos</h2>
+    <p>Un usuario del ERP representa a una persona que realiza tareas. El rol agrupa permisos asociados a su función.</p>
+    <table>
+      <thead><tr><th>Usuario</th><th>Necesita</th><th>Puede</th><th>No debería poder</th></tr></thead>
+      <tbody>
+        <tr><td>Comercial</td><td>Trabajar con clientes y pedidos</td><td>Crear presupuestos</td><td>Cambiar la configuración del servidor</td></tr>
+        <tr><td>Almacén</td><td>Preparar entradas y salidas</td><td>Confirmar entregas</td><td>Modificar impuestos</td></tr>
+        <tr><td>Administración</td><td>Gestionar facturas y cobros</td><td>Validar una factura</td><td>Borrar productos sin control</td></tr>
+      </tbody>
+    </table>
+    <div class="aviso"><strong>Un permiso debe justificarse:</strong> se concede porque es necesario para una tarea o se restringe para proteger los datos y separar responsabilidades.</div>
+  </section>
+
+  <section id="adaptacion">
+    <h2>6. Necesidad, módulo, configuración y adaptación</h2>
+    <table>
+      <thead><tr><th>Concepto</th><th>Qué significa</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td>Necesidad</td><td>Problema o requisito de la empresa.</td><td>Avisar cuando queda poco stock.</td></tr>
+        <tr><td>Módulo</td><td>Parte del ERP que gestiona esa área.</td><td>Inventario.</td></tr>
+        <tr><td>Configuración</td><td>Ajuste previsto por el sistema sin programar.</td><td>Definir el stock mínimo.</td></tr>
+        <tr><td>Adaptación</td><td>Cambio para cubrir un requisito específico.</td><td>Campo de responsable y aviso personalizado.</td></tr>
+      </tbody>
+    </table>
+    <div class="formula"><span>Entrada</span> → operación o regla → <span>resultado esperado</span></div>
+    <p>Una adaptación medible debe indicar esos tres elementos. Ejemplo: «Si el stock real es menor que el stock mínimo, mostrar el estado <em>Reponer</em>».</p>
+    <div class="idea"><strong>RA4.a:</strong> en esta sesión se identifica una posibilidad de adaptación. La adaptación real se implementará y probará más adelante.</div>
+  </section>
+
+  <section id="ejemplo">
+    <h2>7. Ejemplo guiado: una sola venta</h2>
+    <p><strong>Empresa:</strong> EnlacesBike, tienda de bicicletas y accesorios. El ejemplo muestra el nivel de detalle, pero no resuelve la ficha completa.</p>
+    <table>
+      <thead><tr><th>Orden</th><th>Acción</th><th>Responsable</th><th>Dato que cambia</th><th>Módulo</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Registrar la petición del cliente</td><td>Comercial</td><td>Contacto y oportunidad</td><td>CRM</td></tr>
+        <tr><td>2</td><td>Crear el presupuesto</td><td>Comercial</td><td>Precio, cantidad y estado</td><td>Ventas</td></tr>
+        <tr><td>3</td><td>Confirmar el pedido</td><td>Comercial</td><td>Presupuesto pasa a pedido</td><td>Ventas</td></tr>
+        <tr><td>4</td><td>Entregar el producto</td><td>Almacén</td><td>Disminuye la cantidad disponible</td><td>Inventario</td></tr>
+      </tbody>
+    </table>
+    <details><summary>Pregunta para el grupo: ¿qué podría fallar?</summary><div><p>Posibles respuestas: no hay stock suficiente, el precio es incorrecto, el usuario carece de permiso, el cliente está duplicado o se confirma una cantidad distinta. Lo importante es relacionar la incidencia con el dato afectado y la reacción esperada del ERP.</p></div></details>
+  </section>
+
+  <section id="comprobacion">
+    <h2>8. Comprobación antes de comenzar</h2>
+    <ol class="preguntas">
+      <li>¿Cuál es la diferencia entre una tarea aislada y un proceso de negocio?</li>
+      <li>¿Qué cuatro elementos mínimos utilizaremos para describir un proceso?</li>
+      <li>¿Por qué un dato no siempre es información útil?</li>
+      <li>¿Qué relación existe entre una necesidad empresarial y un módulo?</li>
+      <li>¿Por qué no todos los usuarios deben tener los mismos permisos?</li>
+      <li>¿Qué tres elementos debe contener una propuesta de adaptación verificable?</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>9. Puente hacia la tarea</h2>
+    <div class="puente">
+      <p><strong>Ahora cada equipo debe construir su propio supuesto.</strong> La ficha pedirá:</p>
+      <ul>
+        <li>actividad, clientes, ingresos y necesidad del ERP;</li>
+        <li>al menos tres departamentos y tres usuarios;</li>
+        <li>diez productos con precio y stock;</li>
+        <li>un proceso de venta con responsables y datos;</li>
+        <li>módulos relacionados con necesidades concretas;</li>
+        <li>una adaptación expresada como entrada, operación y resultado.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>SGE · 2.º DAM · U1 ERP y CRM · Repaso previo a la sesión 06</footer>
+</main>
+</body>
+</html>

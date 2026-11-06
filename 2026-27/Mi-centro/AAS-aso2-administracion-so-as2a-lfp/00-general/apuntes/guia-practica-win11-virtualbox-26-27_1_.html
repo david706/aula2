@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guía de práctica · Windows 11 en VirtualBox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5;
+    --cream-panel:#FFFFFF;
+    --navy:#182A45;
+    --navy-2:#24385A;
+    --orange:#E0813C;
+    --orange-dark:#B85F22;
+    --ink:#22282F;
+    --ink-soft:#5B6470;
+    --line:#DDD5C2;
+    --ok:#3E7A52;
+    --warn:#B4472B;
+    --deep:#182A45;
+    --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21;
+      --cream-panel:#20252D;
+      --navy:#EDE7D9;
+      --navy-2:#C9CFDA;
+      --ink:#EDEBE3;
+      --ink-soft:#A9AFB9;
+      --line:#333A44;
+      --orange:#E79458;
+      --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21;
+    --cream-panel:#20252D;
+    --navy:#EDE7D9;
+    --navy-2:#C9CFDA;
+    --ink:#EDEBE3;
+    --ink-soft:#A9AFB9;
+    --line:#333A44;
+    --orange:#E79458;
+    --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 80px;}
+  code, .mono, .cmd-line, table.spec th, .badge{
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    background:var(--deep);
+    color:var(--on-deep);
+    padding:52px 24px 38px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute;
+    right:-70px; top:-70px;
+    width:280px;height:280px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(224,129,60,.30), transparent 70%);
+  }
+  .hero-inner{max-width:960px;margin:0 auto;position:relative;z-index:1;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .pill{
+    border:1px solid rgba(243,239,229,.35);
+    color:var(--on-deep);
+    padding:5px 12px;
+    border-radius:999px;
+    font-size:.78rem;
+    font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.02em;
+  }
+  h1.hero-title{
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+    line-height:1.15;
+    margin:0 0 10px;
+    font-weight:700;
+    max-width:22ch;
+  }
+  .hero-sub{color:var(--on-deep);opacity:.82;font-size:1.02rem;max-width:62ch;margin:0;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:28px;margin-top:26px;}
+  .hero-meta .item .lbl{font-size:.72rem;color:var(--on-deep);opacity:.65;}
+  .hero-meta .val{font-size:1rem;font-weight:600;color:var(--on-deep);}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-size:.85rem;font-weight:600;}
+  h2{font-size:1.35rem;margin:0;font-weight:700;}
+  .lede{color:var(--ink-soft);max-width:74ch;margin:0 0 20px;}
+
+  /* ---------- TABLES ---------- */
+  table.spec{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:.88rem;}
+  table.spec th, table.spec td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.spec thead th{background:var(--deep);color:var(--on-deep);font-size:.72rem;letter-spacing:.02em;font-weight:600;}
+  table.spec tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  table.spec td.param{font-weight:600;}
+
+  /* ---------- STEP LIST ---------- */
+  ol.steps{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;gap:14px;}
+  ol.steps li{display:flex;gap:14px;align-items:flex-start;counter-increment:step;}
+  ol.steps li::before{
+    content:counter(step);
+    flex:0 0 auto;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:var(--deep);
+    color:var(--on-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.8rem;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  ol.steps li span{padding-top:3px;}
+
+  /* ---------- METHOD CARDS ---------- */
+  .method{
+    background:var(--cream-panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px;
+    margin-bottom:20px;
+  }
+  .method-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+  .method-head h3{margin:0;font-size:1.05rem;font-weight:700;}
+  .method-badge{
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.68rem;
+    padding:3px 10px;
+    border-radius:999px;
+    background:rgba(224,129,60,.15);
+    color:var(--orange-dark);
+    white-space:nowrap;
+  }
+  .method-badge.rec{background:rgba(62,122,82,.15);color:var(--ok);}
+
+  /* ---------- TERMINAL ---------- */
+  .terminal{
+    background:#12161C;
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin:12px 0 4px;
+    overflow-x:auto;
+  }
+  .terminal .cmd-line{color:#D7DCE3;font-size:.85rem;white-space:pre;line-height:1.85;}
+  .terminal .cmd-line .prompt{color:#7FD0C1;}
+  .terminal .comment{color:#7B8494;}
+
+  /* ---------- CHECKLIST ---------- */
+  ul.checklist{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  ul.checklist li{
+    display:flex;gap:10px;align-items:flex-start;
+    font-size:.94rem;
+  }
+  ul.checklist li::before{
+    content:"✓";
+    flex:0 0 auto;
+    color:var(--ok);
+    font-weight:700;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  ul.checklist code{color:var(--orange-dark);}
+
+  .callout{
+    background:rgba(224,129,60,.12);
+    border:1px solid rgba(224,129,60,.35);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    font-size:.92rem;
+    color:var(--ink);
+    margin:18px 0;
+  }
+  .callout b{color:var(--orange-dark);}
+
+  /* ---------- RUBRIC ---------- */
+  table.rubric{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px;}
+  table.rubric th, table.rubric td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.rubric thead th{background:var(--deep);color:var(--on-deep);font-weight:600;font-size:.78rem;}
+  table.rubric td.pts{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--orange-dark);white-space:nowrap;}
+  table.rubric tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  table.rubric tfoot td{font-weight:700;border-top:2px solid var(--navy);border-bottom:none;}
+
+  footer{max-width:960px;margin:0 auto;padding:20px 24px 40px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+  .print-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 20px;border-radius:999px;
+    font-family:"Space Grotesk",sans-serif;font-size:.9rem;font-weight:600;
+    cursor:pointer;
+  }
+  @media print{
+    .print-btn{display:none;}
+    header.hero{background:var(--navy) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="pills">
+      <span class="pill">Módulo ISO (0369)</span>
+      <span class="pill">UD1 · RA1 (20%)</span>
+      <span class="pill">Curso 26/27</span>
+    </div>
+    <h1 class="hero-title">Instalación de Windows 11 en VirtualBox</h1>
+    <p class="hero-sub">Despliegue virtualizado de Windows 11, configuración de la máquina virtual, gestión de la fase OOBE con cuenta local y comprobación del tipo de licencia instalada.</p>
+    <div class="hero-meta">
+      <div class="item"><div class="lbl">Módulo</div><div class="val">Implantación de Sistemas Operativos</div></div>
+      <div class="item"><div class="lbl">Curso</div><div class="val">1.º ASIR — 26/27</div></div>
+      <div class="item"><div class="lbl">Unidad</div><div class="val">UD1</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- OBJETIVO -->
+  <section>
+    <div class="sec-head"><h2>Objetivo de la práctica</h2></div>
+    <p class="lede" style="font-size:1rem;">Realizar el despliegue virtualizado de Windows 11 en VirtualBox, sortear la exigencia de registro de cuenta de Microsoft en la fase <b>OOBE</b> (<i>Out-Of-Box Experience</i>) ejecutando comandos de consola, y configurar un usuario local con privilegios administrativos.</p>
+  </section>
+
+  <!-- 1. REQUISITOS VM -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Requisitos y configuración de la máquina virtual</h2></div>
+    <p class="lede">Para garantizar un funcionamiento fluido de Windows 11 en entorno virtualizado, la máquina virtual en VirtualBox debe cumplir con la siguiente especificación de hardware.</p>
+    <table class="spec">
+      <thead>
+        <tr><th>Parámetro de hardware</th><th>Valor mínimo / recomendado</th><th>Notas de configuración en VirtualBox</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="param">Memoria RAM</td><td>4096 MB (4 GB)</td><td>Asignar dentro de la franja verde (mínimo 4 GB).</td></tr>
+        <tr><td class="param">Procesador (vCPU)</td><td>2 vCPUs</td><td>Habilitar PAE/NX en la pestaña Procesador.</td></tr>
+        <tr><td class="param">Disco duro virtual</td><td>64 GB (VDI dinámico)</td><td>Formato VDI con reserva dinámica de espacio.</td></tr>
+        <tr><td class="param">Interfaz de sistema</td><td>EFI habilitado</td><td>Marcar la casilla «Habilitar EFI» en Sistema &gt; Placa base.</td></tr>
+        <tr><td class="param">Módulo TPM</td><td>TPM 2.0 habilitado / passthrough</td><td>VirtualBox 7.0+ incluye emulación TPM 2.0 integrada.</td></tr>
+        <tr><td class="param">Red</td><td>Adaptador en puente / NAT</td><td>Conexión para la fase inicial de la instalación.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 2. INSTALACION BASICA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Proceso de instalación básica de Windows 11</h2></div>
+    <ol class="steps">
+      <li><span>Descargar la imagen ISO oficial de Windows 11 desde la web de Microsoft o el repositorio de recursos del módulo.</span></li>
+      <li><span>Iniciar la MV e insertar la ISO en la unidad óptica virtual.</span></li>
+      <li><span>Seleccionar idioma (Español), formato de hora y distribución de teclado.</span></li>
+      <li><span>Pulsar en <b>«Instalar ahora»</b> y seleccionar <b>«No tengo clave de producto»</b> para continuar con la edición Windows 11 Pro.</span></li>
+      <li><span>Elegir <b>«Instalación personalizada: instalar solo Windows (avanzado)»</b>, seleccionar el espacio sin asignar del disco de 64 GB y proceder.</span></li>
+    </ol>
+  </section>
+
+  <!-- 3. BYPASS OOBE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Procedimiento para omitir la cuenta de Microsoft (bypass OOBE)</h2></div>
+    <p class="lede">Tras el primer reinicio, Windows 11 inicia el asistente OOBE. Al llegar a la pantalla «Conectémonos a una red» o «Inicia sesión con tu cuenta de Microsoft», el sistema bloquea el avance si no hay conexión o no se inicia sesión. A continuación, los 3 métodos para omitir este requisito.</p>
+
+    <div class="method">
+      <div class="method-head"><h3>Método 1 · Comando OOBE\BYPASSNRO</h3><span class="method-badge rec">Recomendado</span></div>
+      <p class="lede" style="margin-bottom:10px;">Este método modifica temporalmente el flujo de instalación para añadir la opción de configuración local sin conexión.</p>
+      <ol class="steps">
+        <li><span>En la pantalla de red u OOBE, pulsa <code>Shift + F10</code> (o <code>Fn + Shift + F10</code>) para abrir la consola de comandos (CMD).</span></li>
+        <li><span>Ejecuta el siguiente comando y pulsa Enter:</span></li>
+      </ol>
+      <div class="terminal"><div class="cmd-line"><span class="prompt">C:\&gt;</span> OOBE\BYPASSNRO</div></div>
+      <ol class="steps" style="counter-reset: step 2;">
+        <li><span>La máquina virtual se reiniciará automáticamente. Al regresar a la pantalla de red, aparecerá la opción adicional <b>«No tengo Internet»</b>.</span></li>
+        <li><span>Haz clic en <b>«No tengo Internet»</b> y luego en <b>«Continuar con la configuración limitada»</b>. Introduce el nombre del usuario local (ej. <code>AlumnoISO</code>) y la contraseña.</span></li>
+      </ol>
+    </div>
+
+    <div class="method">
+      <div class="method-head"><h3>Método 2 · Comando directo (ms-cxh)</h3><span class="method-badge">Alternativo</span></div>
+      <p class="lede" style="margin-bottom:10px;">En versiones recientes de Windows 11, puedes forzar la interfaz de usuario local directamente.</p>
+      <ol class="steps">
+        <li><span>Abre la consola CMD con <code>Shift + F10</code>.</span></li>
+        <li><span>Ejecuta el comando:</span></li>
+      </ol>
+      <div class="terminal"><div class="cmd-line"><span class="prompt">C:\&gt;</span> start ms-cxh:localonly</div></div>
+      <p class="lede" style="margin:10px 0 0;">Se abrirá de inmediato el cuadro de diálogo nativo para ingresar el nombre de la cuenta de usuario local.</p>
+    </div>
+
+    <div class="method">
+      <div class="method-head"><h3>Método 3 · Creación manual del usuario vía consola</h3><span class="method-badge">Si los anteriores fallan</span></div>
+      <p class="lede" style="margin-bottom:10px;">Si los métodos anteriores están bloqueados, se puede crear la cuenta de usuario manualmente antes de finalizar el OOBE.</p>
+      <div class="terminal">
+        <div class="cmd-line"><span class="prompt">C:\&gt;</span> net user "AlumnoISO" "Password123" /add
+<span class="prompt">C:\&gt;</span> net localgroup Administradores "AlumnoISO" /add
+<span class="prompt">C:\&gt;</span> cd oobe
+<span class="prompt">C:\&gt;</span> msoobe.exe &amp;&amp; shutdown -r -t 0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. COMPROBACIONES -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Comprobaciones post-instalación y verificación de licencia</h2></div>
+    <p class="lede">Una vez completada la instalación y dentro del escritorio de Windows 11, el alumnado deberá realizar las siguientes comprobaciones.</p>
+    <ul class="checklist">
+      <li><span><b>Comprobación de usuario local:</b>&nbsp;abrir símbolo del sistema (CMD) y ejecutar <code>whoami</code> y <code>net user AlumnoISO</code> para verificar la pertenencia al grupo de Administradores.</span></li>
+      <li><span><b>Inspección del estado de licencia:</b>&nbsp;ejecutar <code>slmgr.vbs /dli</code> para abrir el cuadro de diálogo de información de la licencia.</span></li>
+      <li><span><b>Identificación del tipo de licencia:</b>&nbsp;anotar en la memoria del laboratorio si la instalación se encuentra en período de gracia de activación, y resumir las diferencias entre licencias OEM, Retail y Volumen (KMS/MAK).</span></li>
+    </ul>
+  </section>
+
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:16px;">Módulo ISO (0369) · Implantación de Sistemas Operativos · 1º ASIR · Curso 26/27</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gestión de paquetes · Linux y Windows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5; --cream-panel:#FFFFFF; --navy:#182A45; --navy-2:#24385A;
+    --orange:#E0813C; --orange-dark:#B85F22; --ink:#22282F; --ink-soft:#5B6470;
+    --line:#DDD5C2; --ok:#3E7A52; --warn:#B4472B; --deep:#182A45; --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21;--cream-panel:#20252D;--navy:#EDE7D9;--navy-2:#C9CFDA;
+      --ink:#EDEBE3;--ink-soft:#A9AFB9;--line:#333A44;--orange:#E79458;--orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21;--cream-panel:#20252D;--navy:#EDE7D9;--navy-2:#C9CFDA;
+    --ink:#EDEBE3;--ink-soft:#A9AFB9;--line:#333A44;--orange:#E79458;--orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;background:var(--cream);color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 24px 80px;}
+  code,.mono,.cmd-line,table.spec th,.badge{
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  header.hero{background:var(--deep);color:var(--on-deep);padding:52px 24px 38px;position:relative;overflow:hidden;}
+  header.hero::after{
+    content:"";position:absolute;right:-70px;top:-70px;width:280px;height:280px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(224,129,60,.30), transparent 70%);
+  }
+  .hero-inner{max-width:980px;margin:0 auto;position:relative;z-index:1;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .pill{
+    border:1px solid rgba(243,239,229,.35);color:var(--on-deep);padding:5px 12px;border-radius:999px;
+    font-size:.78rem;font-family:"IBM Plex Mono",monospace;letter-spacing:.02em;
+  }
+  h1.hero-title{font-size:clamp(1.7rem,3.4vw,2.5rem);line-height:1.15;margin:0 0 10px;font-weight:700;max-width:26ch;}
+  .hero-sub{color:var(--on-deep);opacity:.82;font-size:1.02rem;max-width:66ch;margin:0;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:28px;margin-top:26px;}
+  .hero-meta .item .lbl{font-size:.72rem;color:var(--on-deep);opacity:.65;}
+  .hero-meta .val{font-size:1rem;font-weight:600;color:var(--on-deep);}
+
+  /* OS section badges */
+  .os-strip{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .os-chip{display:flex;align-items:center;gap:8px;background:rgba(243,239,229,.10);border:1px solid rgba(243,239,229,.25);
+    padding:7px 14px;border-radius:999px;font-size:.82rem;color:var(--on-deep);}
+
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-size:.85rem;font-weight:600;}
+  h2{font-size:1.35rem;margin:0;font-weight:700;}
+  h3{font-size:1.05rem;margin:0 0 4px;font-weight:700;}
+  .lede{color:var(--ink-soft);max-width:76ch;margin:0 0 20px;}
+
+  /* OS section wrapper (visually distinguishes Linux/Windows blocks) */
+  .os-section{border-radius:var(--radius);padding:28px 28px 8px;margin-bottom:6px;}
+  .os-section.linux{background:rgba(62,122,82,.07);border:1px solid rgba(62,122,82,.25);}
+  .os-section.windows{background:rgba(24,42,69,.05);border:1px solid rgba(24,42,69,.18);}
+  .os-tag{display:inline-flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:.72rem;
+    padding:4px 10px;border-radius:999px;font-weight:600;letter-spacing:.02em;margin-bottom:10px;}
+  .os-tag.linux{background:rgba(62,122,82,.18);color:var(--ok);}
+  .os-tag.windows{background:rgba(24,42,69,.14);color:var(--navy);}
+
+  table.spec{width:100%;border-collapse:collapse;margin:6px 0 20px;font-size:.88rem;}
+  table.spec th,table.spec td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.spec thead th{background:var(--deep);color:var(--on-deep);font-size:.72rem;letter-spacing:.02em;font-weight:600;}
+  table.spec tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  table.spec td.param{font-weight:600;}
+  table.spec code{color:var(--orange-dark);}
+
+  .terminal{background:#12161C;border-radius:var(--radius);padding:16px 18px;margin:12px 0 20px;overflow-x:auto;}
+  .terminal .cmd-line{color:#D7DCE3;font-size:.85rem;white-space:pre;line-height:1.85;}
+  .terminal .cmd-line .prompt{color:#7FD0C1;}
+  .terminal .cmd-line .prompt-w{color:#8FBBE7;}
+  .terminal .comment{color:#7B8494;}
+  .terminal .out{color:#9AA4B2;}
+
+  .callout{
+    background:rgba(224,129,60,.12);border:1px solid rgba(224,129,60,.35);border-radius:var(--radius);
+    padding:16px 18px;font-size:.92rem;color:var(--ink);margin:18px 0;
+  }
+  .callout b{color:var(--orange-dark);}
+  .callout.info{background:rgba(24,42,69,.08);border-color:rgba(24,42,69,.25);}
+  .callout.info b{color:var(--navy);}
+
+  /* comparativa table */
+  table.compare{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:8px;}
+  table.compare th,table.compare td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.compare thead th{background:var(--deep);color:var(--on-deep);font-weight:600;font-size:.78rem;}
+  table.compare thead th.linux-h{background:var(--ok);}
+  table.compare thead th.win-h{background:var(--navy-2);}
+  table.compare tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  table.compare td.concept{font-weight:600;color:var(--ink-soft);}
+  table.compare code{color:var(--orange-dark);}
+
+  ol.steps{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;gap:12px;}
+  ol.steps li{display:flex;gap:14px;align-items:flex-start;counter-increment:step;}
+  ol.steps li::before{
+    content:counter(step);flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+    background:var(--deep);color:var(--on-deep);display:flex;align-items:center;justify-content:center;
+    font-size:.76rem;font-weight:700;font-family:"IBM Plex Mono",monospace;
+  }
+  ol.steps li span{padding-top:2px;}
+
+  ul.checklist{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  ul.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:.94rem;}
+  ul.checklist li::before{content:"✓";flex:0 0 auto;color:var(--ok);font-weight:700;font-family:"IBM Plex Mono",monospace;}
+  ul.checklist code{color:var(--orange-dark);}
+
+  .catbadge{
+    display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.72rem;font-weight:600;
+    padding:3px 10px;border-radius:999px;background:rgba(224,129,60,.15);color:var(--orange-dark);
+  }
+  .scrollx{overflow-x:auto;}
+
+  .ticket{background:var(--deep);color:var(--on-deep);border-radius:var(--radius);padding:22px 24px;margin-top:10px;}
+  .ticket h3{color:var(--on-deep);margin-top:0;font-size:1.05rem;}
+  .ticket p{color:var(--on-deep);opacity:.9;font-size:.92rem;margin-bottom:0;}
+
+  footer{max-width:980px;margin:0 auto;padding:20px 24px 40px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+  .print-btn{
+    display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 20px;border-radius:999px;font-family:"Space Grotesk",sans-serif;
+    font-size:.9rem;font-weight:600;cursor:pointer;
+  }
+  @media print{
+    .print-btn{display:none;}
+    header.hero{background:var(--navy) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="pills">
+      <span class="pill">Módulo ISO (0369)</span>
+      <span class="pill">UD3 · RA1 / RA2</span>
+      <span class="pill">Curso 26/27</span>
+    </div>
+    <h1 class="hero-title">Gestión de paquetes: instalar y desinstalar software</h1>
+    <p class="hero-sub">Cómo se instala, actualiza y elimina software de forma controlada en Linux y en Windows — desde la línea de comandos y desde la interfaz gráfica.</p>
+    <div class="hero-meta">
+      <div class="item"><div class="lbl">Módulo</div><div class="val">Implantación de Sistemas Operativos</div></div>
+      <div class="item"><div class="lbl">Curso</div><div class="val">1.º ASIR — 26/27</div></div>
+      <div class="item"><div class="lbl">Unidad</div><div class="val">UD3</div></div>
+    </div>
+    <div class="os-strip">
+      <span class="os-chip">🐧 Linux — APT / dpkg</span>
+      <span class="os-chip">🪟 Windows — winget</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 0. QUÉ ES UN GESTOR DE PAQUETES -->
+  <section>
+    <div class="sec-head"><h2>¿Qué es un gestor de paquetes?</h2></div>
+    <p class="lede" style="font-size:1rem;">Un <b>gestor de paquetes</b> es la herramienta que instala, actualiza y elimina software de forma controlada, conectándose a un <b>repositorio</b> (un catálogo de programas verificados) y resolviendo automáticamente las <b>dependencias</b> — las otras piezas de software que un programa necesita para funcionar. Es la alternativa moderna a descargar un instalador suelto de cualquier web: todo el software queda registrado, versionado y se puede actualizar o desinstalar de forma limpia desde un único punto.</p>
+    <ul class="checklist">
+      <li><span><b>Repositorio:</b> el servidor (o conjunto de servidores) donde vive el catálogo de paquetes disponibles para tu sistema.</span></li>
+      <li><span><b>Paquete:</b> el programa empaquetado junto con sus metadatos — versión, dependencias, dónde debe instalarse cada archivo.</span></li>
+      <li><span><b>Dependencia:</b> otro paquete que el programa necesita para funcionar (una librería, un entorno de ejecución, etc.).</span></li>
+      <li><span><b>Resolución de dependencias:</b> el proceso automático de calcular e instalar todo lo necesario para que un paquete funcione, sin que el usuario tenga que buscarlo a mano.</span></li>
+    </ul>
+  </section>
+
+  <!-- 1. LINUX -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Linux — APT y dpkg</h2></div>
+    <div class="os-section linux">
+      <span class="os-tag linux">🐧 UBUNTU / DEBIAN</span>
+      <p class="lede">Ubuntu (como toda distribución basada en Debian) trabaja en dos niveles: <b>dpkg</b>, la herramienta de bajo nivel que instala y consulta archivos <code>.deb</code> individuales sin resolver dependencias; y <b>APT</b> (Advanced Package Tool), la capa superior que sí resuelve dependencias automáticamente y gestiona los repositorios. En la práctica, casi todo se hace con APT — dpkg queda para instalar un <code>.deb</code> suelto o depurar problemas.</p>
+
+      <table class="spec">
+        <thead><tr><th>Herramienta</th><th>Nivel</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td class="param"><code>apt</code></td><td>Alto nivel</td><td>Instala, actualiza y elimina paquetes desde los repositorios configurados, resolviendo dependencias automáticamente.</td></tr>
+          <tr><td class="param"><code>dpkg</code></td><td>Bajo nivel</td><td>Instala o inspecciona un archivo <code>.deb</code> concreto ya descargado, sin tocar repositorios ni resolver dependencias.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Comandos esenciales de APT</h3>
+      <div class="terminal">
+        <div class="cmd-line"><span class="comment"># Actualizar el índice de paquetes disponibles y luego el sistema</span>
+<span class="prompt">$</span> sudo apt update && sudo apt upgrade -y
+
+<span class="comment"># Instalar un paquete</span>
+<span class="prompt">$</span> sudo apt install htop
+
+<span class="comment"># Eliminar un paquete (deja los ficheros de configuración)</span>
+<span class="prompt">$</span> sudo apt remove htop
+
+<span class="comment"># Eliminar un paquete y también su configuración</span>
+<span class="prompt">$</span> sudo apt purge htop
+
+<span class="comment"># Buscar un paquete por nombre o palabra clave</span>
+<span class="prompt">$</span> apt search "servidor ssh"
+
+<span class="comment"># Ver información detallada de un paquete antes de instalarlo</span>
+<span class="prompt">$</span> apt show openssh-server
+
+<span class="comment"># Listar todo lo que hay instalado en el sistema</span>
+<span class="prompt">$</span> apt list --installed
+
+<span class="comment"># Limpiar dependencias huérfanas y caché de descargas</span>
+<span class="prompt">$</span> sudo apt autoremove && sudo apt autoclean</div>
+      </div>
+
+      <p class="lede" style="margin-bottom:8px;">Así se ve una instalación real — APT calcula las dependencias y pide confirmación antes de tocar el sistema:</p>
+      <div class="terminal">
+        <div class="cmd-line"><span class="prompt">$</span> sudo apt install htop
+<span class="out">Leyendo lista de paquetes... Hecho
+Calculando la actualización... Hecho
+Se instalarán los siguientes paquetes NUEVOS:
+  htop
+0 actualizados, 1 nuevos, 0 para eliminar.
+Se necesita descargar 92,0 kB de archivos.
+¿Desea continuar? [S/n] S
+Descargado 92,0 kB en 0s
+Seleccionando el paquete htop previamente no seleccionado.
+Preparando para desempaquetar .../htop_3.3.0-1_amd64.deb ...
+Desempaquetando htop (3.3.0-1) ...
+Configurando htop (3.3.0-1) ...</span></div>
+      </div>
+
+      <h3>Instalar un .deb suelto con dpkg</h3>
+      <div class="terminal">
+        <div class="cmd-line"><span class="comment"># Instalar un paquete .deb descargado manualmente</span>
+<span class="prompt">$</span> sudo dpkg -i programa.deb
+
+<span class="comment"># Si faltan dependencias, dpkg no las resuelve solo — se lo pedimos a APT</span>
+<span class="prompt">$</span> sudo apt install -f
+
+<span class="comment"># Listar todos los paquetes instalados que gestiona dpkg</span>
+<span class="prompt">$</span> dpkg -l | less</div>
+      </div>
+
+      <div class="callout">
+        <b>Nota:</b> en Ubuntu Desktop también encontrarás <code>snap</code> y <code>flatpak</code>, formatos de paquete "universales" que no dependen de APT/dpkg y que instalan cada aplicación con sus propias dependencias aisladas. Se gestionan con sus propios comandos (<code>snap install</code>, <code>flatpak install</code>) — útil para software reciente que aún no está en los repositorios oficiales.
+      </div>
+
+      <h3>Desde la interfaz gráfica (GUI)</h3>
+      <p class="lede">En Ubuntu Desktop, <b>Ubuntu Software</b> (o <i>App Center</i> / GNOME Software, según la versión) permite buscar, instalar y desinstalar paquetes con un catálogo visual, sin escribir un solo comando — usa APT y Snap por debajo. Para un <code>.deb</code> descargado manualmente, hacer doble clic lo abre con el instalador gráfico de paquetes (GDebi o similar), equivalente a <code>dpkg -i</code> con interfaz.</p>
+    </div>
+  </section>
+
+  <!-- 2. WINDOWS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Windows — winget</h2></div>
+    <div class="os-section windows">
+      <span class="os-tag windows">🪟 WINDOWS 10 / 11 / SERVER</span>
+      <p class="lede"><b>winget</b> (Windows Package Manager) es el equivalente de Microsoft a APT: una herramienta de línea de comandos, de código abierto, que instala, actualiza y desinstala software conectándose a un catálogo mantenido por Microsoft y la comunidad — miles de aplicaciones verificadas, desde navegadores hasta herramientas de desarrollo. Viene integrado de serie en Windows 11 y en las versiones modernas de Windows 10 (a través del <i>Instalador de App</i>), así como en Windows Server 2025.</p>
+
+      <h3>Comandos esenciales de winget</h3>
+      <div class="terminal">
+        <div class="cmd-line"><span class="comment"># Buscar una aplicación en el catálogo</span>
+<span class="prompt-w">PS&gt;</span> winget search "7zip"
+
+<span class="comment"># Instalar una aplicación por nombre o por ID exacto</span>
+<span class="prompt-w">PS&gt;</span> winget install 7zip.7zip
+
+<span class="comment"># Ver información detallada antes de instalar</span>
+<span class="prompt-w">PS&gt;</span> winget show 7zip.7zip
+
+<span class="comment"># Listar todo el software instalado en el equipo (lo gestione winget o no)</span>
+<span class="prompt-w">PS&gt;</span> winget list
+
+<span class="comment"># Comprobar y aplicar actualizaciones disponibles</span>
+<span class="prompt-w">PS&gt;</span> winget upgrade --all
+
+<span class="comment"># Desinstalar una aplicación</span>
+<span class="prompt-w">PS&gt;</span> winget uninstall 7zip.7zip</div>
+      </div>
+
+      <p class="lede" style="margin-bottom:8px;">Salida real de una instalación con winget:</p>
+      <div class="terminal">
+        <div class="cmd-line"><span class="prompt-w">PS&gt;</span> winget install 7zip.7zip
+<span class="out">Encontrado 7-Zip [7zip.7zip]
+Este producto viene con el siguiente acuerdo de licencia...
+Descargando https://www.7-zip.org/a/7z2409-x64.exe
+  ██████████████████████████████  1.53 MB / 1.53 MB
+Se ha completado correctamente la instalación</span></div>
+      </div>
+
+      <h3>Clonar la instalación de un equipo a otro</h3>
+      <p class="lede" style="margin-bottom:8px;">Una de las funciones más útiles de winget para un aula o un parque de equipos: exportar la lista de software instalado e importarla en otro equipo.</p>
+      <div class="terminal">
+        <div class="cmd-line"><span class="comment"># En el equipo origen: guarda la lista de programas instalados</span>
+<span class="prompt-w">PS&gt;</span> winget export -o programas.json
+
+<span class="comment"># En el equipo destino: reinstala automáticamente todo lo de la lista</span>
+<span class="prompt-w">PS&gt;</span> winget import -i programas.json</div>
+      </div>
+
+      <div class="callout info">
+        <b>Nota:</b> winget instala paquetes en formato <code>.exe</code>, <code>.msi</code> y <code>.msix</code> (el formato moderno de la Microsoft Store). Cuando desinstales una app instalada desde la Store, winget puede pedir confirmación adicional del contrato de la Store — se evita añadiendo <code>--source winget</code> al comando.
+      </div>
+
+      <h3>Desde la interfaz gráfica (GUI)</h3>
+      <p class="lede">Windows ofrece varias vías gráficas equivalentes: <b>Configuración → Aplicaciones → Aplicaciones instaladas</b> (para desinstalar o modificar), la <b>Microsoft Store</b> (para instalar desde un catálogo con actualizaciones automáticas), y el clásico <b>Panel de control → Programas y características</b> (heredado de versiones anteriores, sigue disponible para instaladores <code>.msi</code> tradicionales).</p>
+    </div>
+  </section>
+
+  <!-- 3. COMPARATIVA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Comparativa: el mismo concepto, dos mundos</h2></div>
+    <p class="lede">La lógica es idéntica en ambos sistemas — repositorio, paquete, dependencias — solo cambia la herramienta y la sintaxis.</p>
+    <div class="scrollx">
+      <table class="compare">
+        <thead>
+          <tr><th>Concepto / acción</th><th class="linux-h">🐧 Linux (APT)</th><th class="win-h">🪟 Windows (winget)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="concept">Actualizar el catálogo</td><td><code>sudo apt update</code></td><td><code>winget source update</code></td></tr>
+          <tr><td class="concept">Buscar un paquete</td><td><code>apt search nombre</code></td><td><code>winget search nombre</code></td></tr>
+          <tr><td class="concept">Instalar</td><td><code>sudo apt install nombre</code></td><td><code>winget install nombre</code></td></tr>
+          <tr><td class="concept">Ver información</td><td><code>apt show nombre</code></td><td><code>winget show nombre</code></td></tr>
+          <tr><td class="concept">Listar instalados</td><td><code>apt list --installed</code></td><td><code>winget list</code></td></tr>
+          <tr><td class="concept">Actualizar todo</td><td><code>sudo apt upgrade</code></td><td><code>winget upgrade --all</code></td></tr>
+          <tr><td class="concept">Desinstalar</td><td><code>sudo apt remove nombre</code></td><td><code>winget uninstall nombre</code></td></tr>
+          <tr><td class="concept">Eliminar + configuración</td><td><code>sudo apt purge nombre</code></td><td><i>(lo hace el propio desinstalador)</i></td></tr>
+          <tr><td class="concept">Instalar paquete suelto</td><td><code>sudo dpkg -i archivo.deb</code></td><td>Ejecutar el <code>.exe</code>/<code>.msi</code> o <code>winget install --manifest</code></td></tr>
+          <tr><td class="concept">Clonar software a otro equipo</td><td><code>apt list --installed &gt; lista.txt</code></td><td><code>winget export</code> / <code>winget import</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. PRACTICA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Mini-práctica: instalar y desinstalar desde ambas vías</h2></div>
+    <p class="lede">Sobre las VMs que ya tenéis instaladas (Ubuntu y Windows), repite esta secuencia primero por línea de comandos y después por interfaz gráfica.</p>
+    <ol class="steps">
+      <li><span>En Ubuntu: instala <code>htop</code> con <code>apt install</code>, compruébalo con <code>apt list --installed | grep htop</code>, y desinstálalo con <code>apt purge</code>.</span></li>
+      <li><span>En Ubuntu: repite la instalación de otro paquete cualquiera, esta vez desde Ubuntu Software (GUI), y compara cuántos clics/comandos ha llevado cada vía.</span></li>
+      <li><span>En Windows: instala una aplicación con <code>winget install</code>, compruébala con <code>winget list</code>, y desinstálala con <code>winget uninstall</code>.</span></li>
+      <li><span>En Windows: repite la instalación desde Configuración → Aplicaciones o la Microsoft Store, y anota las diferencias frente a winget.</span></li>
+    </ol>
+    <div class="callout">
+      <b>Para el informe:</b> incluye una captura de cada instalación (4 en total) y responde: ¿qué vía preferirías para instalar software en 30 equipos de un aula a la vez, y por qué?
+    </div>
+  </section>
+
+  <!-- 5. CHULETA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Chuleta rápida</h2></div>
+    <div class="scrollx">
+      <table class="spec">
+        <thead><tr><th>Sistema</th><th>Comandos</th></tr></thead>
+        <tbody>
+          <tr><td><span class="catbadge">🐧 APT</span></td><td><code>apt update</code> · <code>apt upgrade</code> · <code>apt install</code> · <code>apt remove</code> · <code>apt purge</code> · <code>apt search</code> · <code>apt show</code> · <code>apt list --installed</code> · <code>apt autoremove</code></td></tr>
+          <tr><td><span class="catbadge">🐧 dpkg</span></td><td><code>dpkg -i archivo.deb</code> · <code>dpkg -l</code> · <code>dpkg -L paquete</code> · <code>dpkg -S archivo</code></td></tr>
+          <tr><td><span class="catbadge">🪟 winget</span></td><td><code>winget search</code> · <code>winget install</code> · <code>winget show</code> · <code>winget list</code> · <code>winget upgrade --all</code> · <code>winget uninstall</code> · <code>winget export</code> · <code>winget import</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ticket" style="margin-top:20px;">
+      <h3>Antes de seguir</h3>
+      <p>Este contenido cierra el hueco de UD3 (gestión de paquetes) antes de entrar en UD4 — usuarios y grupos locales, semana 5 del cronograma.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:16px;">Módulo ISO (0369) · Implantación de Sistemas Operativos · 1º ASIR · Curso 26/27</p>
+</footer>
+
+</body>
+</html>

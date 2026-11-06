@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PowerShell · Objetos en vez de texto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5; --cream-panel:#FFFFFF; --navy:#182A45; --navy-2:#24385A;
+    --orange:#E0813C; --orange-dark:#B85F22; --ink:#22282F; --ink-soft:#5B6470;
+    --line:#DDD5C2; --deep:#182A45; --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+      --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+    --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px 70px;}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+  header.hero{background:var(--deep);color:var(--on-deep);padding:50px 24px 32px;position:relative;overflow:hidden;}
+  header.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 70%);opacity:.35;}
+  .hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .pill{border:1px solid rgba(243,239,229,.35);color:var(--on-deep);padding:5px 12px;border-radius:999px;font-size:.78rem;}
+  .pill.solid{background:var(--orange);border-color:var(--orange);color:#241305;font-weight:600;}
+  h1{font-size:clamp(1.7rem,3.6vw,2.4rem);line-height:1.16;margin:0 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .hero-sub{max-width:64ch;color:#D9D2BE;font-size:1rem;margin:0;}
+
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-weight:600;font-size:.9rem;}
+  h2{font-size:1.35rem;margin:0;color:var(--navy);font-weight:700;}
+  h3{font-size:1.05rem;color:var(--navy);margin:22px 0 10px;font-weight:600;}
+  p{color:var(--ink);margin:0 0 13px;}
+  .lede{color:var(--ink-soft);font-size:.97rem;max-width:70ch;}
+
+  .card{background:var(--cream-panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:14px 0;}
+  .term{background:#1B1F27;color:#DCE4E8;border-radius:8px;padding:13px 15px;font-family:"IBM Plex Mono",monospace;
+    font-size:.85rem;overflow-x:auto;white-space:pre;border:1px solid #2C3341;margin:12px 0;}
+  .term .c{color:#8FB99A;} .term .p{color:#E7B97E;} .term .k{color:#7FB0DE;} .term .g{color:#B79CE0;}
+
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);margin:14px 0;}
+  table{width:100%;border-collapse:collapse;background:var(--cream-panel);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;font-size:.86rem;}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;}
+  th:last-child,td:last-child{border-right:none;}
+  thead th{background:var(--deep);color:var(--on-deep);font-size:.72rem;font-weight:600;font-family:"IBM Plex Mono",monospace;letter-spacing:.02em;}
+  tbody tr:last-child td{border-bottom:none;}
+  td code{background:var(--cream);padding:1px 6px;border-radius:4px;font-size:.85em;color:var(--navy);}
+
+  .callout{display:flex;gap:10px;align-items:flex-start;background:#F7E6DC;border:1px solid #E7C4AF;
+    color:#6B3418;border-radius:10px;padding:13px 15px;font-size:.9rem;margin:14px 0;}
+  @media (prefers-color-scheme: dark){.callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}}
+  :root[data-theme="dark"] .callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}
+
+  .catbadge{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;font-weight:600;
+    padding:3px 9px;border-radius:6px;background:#DCE7DE;color:#2A5A3B;margin-bottom:10px;}
+  @media (prefers-color-scheme: dark){.catbadge{background:#243A2C;color:#9FD6AF;}}
+  :root[data-theme="dark"] .catbadge{background:#243A2C;color:#9FD6AF;}
+
+  .vs-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:8px 0;font-size:.88rem;}
+  .vs-row .cmdside{text-align:right;color:var(--ink-soft);}
+  .vs-row .vs{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-weight:700;font-size:.72rem;text-align:center;}
+  .vs-row .psside code{color:var(--navy);font-weight:600;}
+
+  footer{max-width:900px;margin:0 auto;padding:24px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+  .print-btn{display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 18px;border-radius:8px;font-family:"Space Grotesk";font-size:.88rem;font-weight:600;cursor:pointer;}
+  @media print{header.hero::after{display:none;}.print-btn{display:none;}section{break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow-row">
+      <span class="pill solid">Módulo ISO · 0369</span>
+      <span class="pill">1º ASIR</span>
+      <span class="pill">Apoyo a RA2 · Windows</span>
+    </div>
+    <h1>PowerShell · Objetos en vez de texto</h1>
+    <p class="hero-sub">El sucesor de CMD, pensado para administración seria. Antes de la tabla de cmdlets: qué lo hace fundamentalmente distinto.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. QUE ES -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>¿Qué es PowerShell y por qué no es "CMD con más comandos"?</h2></div>
+    <p class="lede">PowerShell es también un intérprete de línea de comandos, pero con una diferencia de fondo: cuando ejecutas un comando en CMD, lo que obtienes es <b>texto</b>. Cuando ejecutas un comando en PowerShell, lo que obtienes son <b>objetos</b> — estructuras de datos reales, con propiedades, tal como los maneja .NET internamente.</p>
+    <div class="card">
+      <p style="margin:0 0 8px;"><b>Ejemplo concreto:</b> en CMD, <code>tasklist</code> te da una tabla de texto que tendrías que "trocear" a mano si quieres filtrar por consumo de memoria. En PowerShell:</p>
+      <div class="term"><span class="k">Get-Process</span> <span class="g">|</span> <span class="k">Sort-Object</span> <span class="p">-Property</span> <span class="c">CPU</span> <span class="p">-Descending</span> <span class="g">|</span> <span class="k">Select-Object</span> <span class="p">-First</span> <span class="c">5</span></div>
+      <p style="margin:8px 0 0;">Esto funciona porque <code>Get-Process</code> no devuelve texto: devuelve <b>objetos proceso</b>, con una propiedad <code>CPU</code> real que se puede ordenar sin parsear nada.</p>
+    </div>
+    <p class="lede">PowerShell no sustituye a CMD de un día para otro: convive con él (de hecho, puedes ejecutar casi cualquier comando de CMD dentro de PowerShell), pero es la herramienta que Microsoft recomienda para <b>automatización y administración seria</b> desde hace más de una década.</p>
+  </section>
+
+  <!-- 2. SINTAXIS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Anatomía de un cmdlet</h2></div>
+    <p class="lede">Los comandos de PowerShell se llaman <b>cmdlets</b> y siguen siempre el mismo patrón: <code>Verbo-Sustantivo</code>. No es casualidad ni libre elección del programador — es una convención obligatoria en todo PowerShell.</p>
+    <div class="term"><span class="k">Verbo-Sustantivo</span> <span class="p">-Parametro</span> <span class="c">Valor</span>
+<span class="k">Get-Service</span> <span class="p">-Name</span> <span class="c">"Spooler"</span>
+<span class="mono" style="color:#8B93A0;">  └─ "obtener" el servicio llamado "Spooler"</span></div>
+    <p class="lede">Los verbos están estandarizados (puedes verlos todos con <code>Get-Verb</code>): <code>Get-</code> obtiene información, <code>Set-</code> modifica, <code>New-</code> crea, <code>Remove-</code> elimina, <code>Start-</code>/<code>Stop-</code> arrancan o paran. Una vez conoces los verbos, puedes <b>adivinar</b> cmdlets que nunca has usado: si existe <code>Get-Service</code>, es razonable pensar que también existe <code>Stop-Service</code> — y existe.</p>
+    <div class="callout">💡 Como en CMD, la ayuda está siempre a mano: <code>Get-Help Get-Service -Examples</code> te da ejemplos reales de uso sin salir de la consola.</div>
+  </section>
+
+  <!-- 3. PIPELINE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>El pipeline: la razón de ser de PowerShell</h2></div>
+    <p class="lede">El operador <code>|</code> (pipe) existe también en CMD, pero en PowerShell cambia de naturaleza: no estás pasando texto de un comando a otro, estás pasando <b>objetos completos</b>, con todas sus propiedades intactas.</p>
+    <div class="term"><span class="k">Get-Process</span> <span class="g">|</span> <span class="k">Where-Object</span> <span class="p">{</span><span class="c">$_.CPU -gt 10</span><span class="p">}</span> <span class="g">|</span> <span class="k">Stop-Process</span></div>
+    <p class="lede">Esta línea encadena tres ideas: obtén todos los procesos → filtra los que consumen más de 10 unidades de CPU → detenlos. Cada cmdlet recibe objetos del anterior y no necesita saber cómo se generaron. Esta filosofía (hacer una cosa bien y encadenarla con otras) viene directamente de la tradición Unix/Linux — no es casualidad que PowerShell hoy también funcione en Linux y macOS.</p>
+  </section>
+
+  <!-- 4. SISTEMA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Sistema y procesos</h2></div>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Cmdlet</th><th>Qué hace</th><th>Equivalente en CMD</th></tr></thead>
+        <tbody>
+          <tr><td><code>Get-ComputerInfo</code></td><td>Información completa del equipo (SO, hardware, BIOS)</td><td><code>systeminfo</code></td></tr>
+          <tr><td><code>Get-Process</code></td><td>Lista los procesos en ejecución, como objetos</td><td><code>tasklist</code></td></tr>
+          <tr><td><code>Stop-Process</code></td><td>Termina un proceso</td><td><code>taskkill</code></td></tr>
+          <tr><td><code>Get-Service</code></td><td>Lista servicios y su estado</td><td>(sin equivalente directo en CMD)</td></tr>
+          <tr><td><code>Restart-Service</code></td><td>Reinicia un servicio</td><td><code>net stop</code> + <code>net start</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">El ejemplo del pipeline de antes, ejecutado de verdad — fijaos en que el resultado ya viene ordenado y recortado, sin necesidad de "leer" texto:</p>
+    <div class="term">PS C:\Usuarios\Alumno&gt; <span class="k">Get-Process</span> <span class="g">|</span> <span class="k">Sort-Object</span> <span class="p">CPU</span> <span class="p">-Descending</span> <span class="g">|</span> <span class="k">Select-Object</span> <span class="p">-First</span> <span class="c">3</span>
+
+<span class="k">NPM(K)    PM(M)      WS(M)     CPU(s)     Id  ProcessName</span>
+------    -----      -----     ------     --  -----------
+    45      210        180      842.30   4116  chrome
+    28      145         95      301.12   2984  Teams
+    19       88         60      120.45   1552  powershell</div>
+
+    <p class="lede">Y comprobar servicios es tan directo como filtrar por su estado — algo tedioso de hacer solo con texto en CMD:</p>
+    <div class="term">PS C:\Usuarios\Alumno&gt; <span class="k">Get-Service</span> <span class="g">|</span> <span class="k">Where-Object</span> <span class="p">{</span><span class="c">$_.Status -eq "Stopped"</span><span class="p">}</span>
+
+<span class="k">Status   Name               DisplayName</span>
+------   ----               -----------
+Stopped  Spooler            Cola de impresión
+Stopped  WSearch            Windows Search</div>
+  </section>
+
+  <!-- 5. RED -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Red</h2></div>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Cmdlet</th><th>Qué hace</th><th>Equivalente en CMD</th></tr></thead>
+        <tbody>
+          <tr><td><code>Get-NetIPConfiguration</code></td><td>Configuración IP de los adaptadores</td><td><code>ipconfig /all</code></td></tr>
+          <tr><td><code>Test-Connection</code></td><td>Comprueba conectividad (como ping, pero devuelve objetos)</td><td><code>ping</code></td></tr>
+          <tr><td><code>Get-NetAdapter</code></td><td>Lista los adaptadores de red y su estado</td><td>(sin equivalente directo)</td></tr>
+          <tr><td><code>Resolve-DnsName</code></td><td>Resuelve un nombre de dominio</td><td><code>nslookup</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">Con <code>Get-NetIPConfiguration</code> veis de un vistazo si la VM salió por NAT (misma IP <code>10.0.2.x</code> que en el ejemplo de CMD) sin el ruido de adaptadores deshabilitados que sí muestra <code>ipconfig /all</code>:</p>
+    <div class="term">PS C:\Usuarios\Alumno&gt; <span class="k">Get-NetIPConfiguration</span>
+
+<span class="k">InterfaceAlias       : </span>Ethernet
+<span class="k">IPv4Address          : </span>10.0.2.15
+<span class="k">IPv4DefaultGateway   : </span>10.0.2.2
+<span class="k">DNSServer            : </span>10.0.2.3</div>
+  </section>
+
+  <!-- 6. USUARIOS (RA2) -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Usuarios y grupos — lo que usaréis en RA2</h2></div>
+    <p class="lede">Esta es la familia de cmdlets que más vais a usar en la próxima sesión: gestión de cuentas locales sin tocar ninguna ventana gráfica.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Cmdlet</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>Get-LocalUser</code></td><td>Lista las cuentas de usuario locales</td><td><code>Get-LocalUser</code></td></tr>
+          <tr><td><code>New-LocalUser</code></td><td>Crea una cuenta de usuario local</td><td><code>New-LocalUser "Alumno" -Password $pass</code></td></tr>
+          <tr><td><code>Set-LocalUser</code></td><td>Modifica una cuenta existente</td><td><code>Set-LocalUser "Alumno" -FullName "Laura Gómez"</code></td></tr>
+          <tr><td><code>Get-LocalGroup</code></td><td>Lista los grupos locales</td><td><code>Get-LocalGroup</code></td></tr>
+          <tr><td><code>Add-LocalGroupMember</code></td><td>Añade un usuario a un grupo</td><td><code>Add-LocalGroupMember -Group "Administradores" -Member "Alumno"</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">Creación y comprobación encadenadas en dos líneas — nótese que <code>-AccountNeverExpires</code> y <code>-PasswordNeverExpires</code> son parámetros propios, ni existen en <code>net user</code>:</p>
+    <div class="term">PS C:\Usuarios\Alumno&gt; <span class="k">$pass</span> <span class="g">=</span> <span class="k">Read-Host</span> <span class="p">-AsSecureString</span>
+PS C:\Usuarios\Alumno&gt; <span class="k">New-LocalUser</span> <span class="p">"Alumno"</span> <span class="p">-Password</span> <span class="c">$pass</span> <span class="p">-FullName</span> <span class="c">"Laura Gómez"</span>
+
+PS C:\Usuarios\Alumno&gt; <span class="k">Get-LocalUser</span>
+
+<span class="k">Name       Enabled  Description</span>
+----       -------  -----------
+Administrador  False
+Alumno         True    Laura Gómez
+Invitado       False</div>
+  </section>
+
+  <!-- 7. SCRIPTS Y SEGURIDAD -->
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Scripts .ps1 y política de ejecución</h2></div>
+    <p class="lede">Igual que CMD tiene sus <code>.bat</code>, PowerShell guarda secuencias de cmdlets en archivos <code>.ps1</code>. Pero por seguridad, Windows <b>no los ejecuta por defecto</b> — es una protección deliberada contra scripts maliciosos descargados sin querer.</p>
+    <div class="term">$ <span class="c">Get-ExecutionPolicy</span>
+Restricted
+
+$ <span class="c">Set-ExecutionPolicy</span> <span class="p">RemoteSigned</span> <span class="p">-Scope</span> <span class="c">CurrentUser</span></div>
+    <div class="callout">⚠️ <b>Concepto de seguridad importante:</b> <code>RemoteSigned</code> permite ejecutar tus propios scripts locales, pero exige que los descargados de Internet estén firmados digitalmente. Nunca uséis <code>Unrestricted</code> en un equipo de producción — es quitar la protección por completo.</div>
+  </section>
+
+  <!-- 8. CMD VS POWERSHELL -->
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>CMD vs PowerShell, cara a cara</h2></div>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Aspecto</th><th>CMD</th><th>PowerShell</th></tr></thead>
+        <tbody>
+          <tr><td>Qué devuelve un comando</td><td>Texto plano</td><td>Objetos (.NET)</td></tr>
+          <tr><td>Convención de nombres</td><td>Libre, heredada de MS-DOS</td><td>Verbo-Sustantivo, estandarizada</td></tr>
+          <tr><td>Modificadores</td><td><code>/modificador</code></td><td><code>-Parametro</code></td></tr>
+          <tr><td>Scripts</td><td><code>.bat</code></td><td><code>.ps1</code></td></tr>
+          <tr><td>Multiplataforma</td><td>Solo Windows</td><td>Windows, Linux y macOS (PowerShell 7+)</td></tr>
+          <tr><td>Uso recomendado hoy</td><td>Compatibilidad, comandos sueltos rápidos</td><td>Automatización y administración seria</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 9. CHULETA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">09</span><h2>Chuleta rápida</h2></div>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Categoría</th><th>Cmdlets</th></tr></thead>
+        <tbody>
+          <tr><td><span class="catbadge">Sistema</span></td><td><code>Get-ComputerInfo</code> · <code>Get-Process</code> · <code>Stop-Process</code> · <code>Get-Service</code></td></tr>
+          <tr><td><span class="catbadge">Red</span></td><td><code>Get-NetIPConfiguration</code> · <code>Test-Connection</code> · <code>Get-NetAdapter</code> · <code>Resolve-DnsName</code></td></tr>
+          <tr><td><span class="catbadge">Usuarios</span></td><td><code>Get-LocalUser</code> · <code>New-LocalUser</code> · <code>Set-LocalUser</code> · <code>Add-LocalGroupMember</code></td></tr>
+          <tr><td><span class="catbadge">Ayuda</span></td><td><code>Get-Help</code> · <code>Get-Verb</code> · <code>Get-Command</code></td></tr>
+          <tr><td><span class="catbadge">Scripts</span></td><td><code>Get-ExecutionPolicy</code> · <code>Set-ExecutionPolicy</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:16px;">Módulo ISO (0369) · 1º ASIR · Ver también: CMD — el intérprete clásico</p>
+</footer>
+
+</body>
+</html>

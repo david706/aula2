@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap');
+:root{--bg:#eef2f4;--fg:#15232b;--muted:#5c6b74;--card:#fff;--line:#d7dee3;--ink:#15232b;--warn:#fff1c2;--warnfg:#5a4300;--mod:#176dbc;--modfg:#fff;--modsoft:#e3f0fb}
+@media (prefers-color-scheme:dark){:root{--bg:#11191f;--fg:#e9eef1;--muted:#98a6af;--card:#1a242b;--line:#2b373f;--warn:#3a3012;--warnfg:#f0d481;--modsoft:#1c2d3a}}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 72px}
+h1,h2,h3,h4,.sig,.tab{font-family:"Bricolage Grotesque",system-ui,sans-serif}
+h1{font-size:clamp(1.9rem,6vw,2.6rem);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:.1em 0 .3em}
+h2{font-size:1.25rem;font-weight:700;margin:0 0 .3em;letter-spacing:-.01em}
+a{color:var(--mod);text-decoration-thickness:1px;text-underline-offset:3px}a:hover{text-decoration-thickness:2px}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--mod);outline-offset:3px;border-radius:4px}
+.kicker{font-size:.95rem;color:var(--muted)}.muted{color:var(--muted);font-size:.9rem}
+/* etiqueta de módulo: la cinta de la rotuladora */
+.sig{display:inline-block;background:var(--mod);color:var(--modfg);font-weight:800;font-size:.8rem;letter-spacing:.06em;padding:3px 8px 2px;border-radius:3px 3px 3px 10px;line-height:1.2}
+.cab{display:flex;align-items:center;gap:12px;margin:18px 0 6px}.cab .sig{font-size:1.1rem;padding:6px 12px 5px;border-radius:4px 4px 4px 14px}.cab .grupo{color:var(--muted)}
+/* portada: filas con pestaña de color (patch panel) */
+.mods{display:flex;flex-direction:column;gap:8px;margin:6px 0 18px}
+.mod{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--mod);border-radius:4px 10px 10px 4px;padding:12px 14px;text-decoration:none;color:inherit}
+.mod:hover{border-color:var(--mod)}.mod b{font-weight:700;font-size:1.05rem;line-height:1.25}.mod .grupo{display:block;color:var(--muted);font-size:.85rem;margin-top:2px}
+.mod .sig{min-width:4.2em;text-align:center}
+h2.anyo{margin-top:22px}h2.anyo a{color:inherit;text-decoration:none}h3.centro{font-size:1.05rem;font-weight:700;margin:26px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--line)}h3.centro a{color:inherit;text-decoration:none}
+h4.curso{font-size:.9rem;font-weight:500;color:var(--muted);margin:14px 0 4px}
+/* módulo: unidades */
+section,details.unidad{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+section.actual{border-left:6px solid var(--mod);border-radius:4px 10px 10px 4px}section.actual h2::after{content:" — ahora";font-weight:500;color:var(--mod);font-size:.85em}
+details.unidad{padding:0}details.unidad summary{display:flex;justify-content:space-between;align-items:center;list-style:none;cursor:pointer;padding:14px 18px}
+details.unidad summary::-webkit-details-marker{display:none}details.unidad summary h2{margin:0;font-size:1.05rem;font-weight:700;color:var(--muted)}
+details.unidad summary .peso{color:var(--muted)}details.unidad summary::after{content:"+";font-family:"Bricolage Grotesque";font-weight:800;color:var(--mod);font-size:1.3rem;margin-left:10px;line-height:1}
+details.unidad[open] summary::after{content:"–"}details.unidad[open] summary h2{color:var(--fg)}details.unidad[open]>*:not(summary){padding:0 18px}details.unidad[open]{padding-bottom:12px}
+h3.grupo{font-size:.9rem;font-weight:700;color:var(--mod);margin:14px 0 2px}
+ul{list-style:none;padding:0;margin:0}li{padding:8px 0;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px}li:first-child{border-top:0}
+.tipo{display:inline-block;min-width:1.5em}.peso{color:var(--muted);font-size:.85rem}
+section.entregas{background:var(--warn);border-color:transparent}section.entregas h3{color:var(--warnfg);margin-top:0}section.entregas li{border-color:rgba(0,0,0,.08)}section.entregas a{color:var(--warnfg)}
+.aviso{background:var(--modsoft);color:var(--fg);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.95rem}
+.emergencia{background:#b42318;color:#fff;border-radius:10px;padding:16px 18px;margin:14px 0;font-size:1.05rem;font-weight:700;font-family:"Bricolage Grotesque",sans-serif}.emergencia .desde{font-size:.85rem;opacity:.85;margin-top:6px;font-weight:400;font-family:inherit}
+.html{overflow-wrap:anywhere}.html img{max-width:100%;height:auto;border-radius:6px}.html iframe{max-width:100%}.label{padding:8px 0}
+nav.migas{font-size:.9rem;margin-bottom:4px;color:var(--muted)}nav.migas a{color:var(--muted)}nav.libro{display:flex;justify-content:space-between;gap:12px;margin-top:18px}
+header.marca{display:flex;align-items:center;gap:16px;margin:4px 0 10px}header.marca img{flex:none;width:54px;height:auto}header.marca h1{margin:0 0 .2em}header.marca .kicker{margin:0}
+section.rubrica table{width:100%;border-collapse:collapse;font-size:.92rem}section.rubrica th,section.rubrica td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}section.rubrica th{color:var(--muted);font-weight:700}section.rubrica td:first-child{color:var(--mod);font-weight:700}
+footer{margin-top:40px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
+@media (prefers-reduced-motion:no-preference){details.unidad summary::after{transition:transform .15s}}

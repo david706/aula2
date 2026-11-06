@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cuentas y permisos: estructura de los archivos y cómo sacar información — ISO UD2</title><style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:12px 14px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;gap:22px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+
+html,body{height:100%}
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 80px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:1.9rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.25rem;color:var(--navy2);margin:.9em 0 .3em}
+.slide p,.slide li{font-size:1.18rem}
+.slide li{margin:.3em 0}
+.slide pre{font-size:1rem}
+.slide table{font-size:1.02rem}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.q{background:#eef3f8;border-left:6px solid var(--navy2);border-radius:12px;padding:14px 18px;margin:14px 0;cursor:pointer}
+.q .ans{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--navy2)}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.big{font-family:Consolas,"Courier New",monospace;font-size:2.2rem;font-weight:700;color:var(--navy);margin:10px 0}
+.notes{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:8px}
+.notes::before{content:"📝 Notas para el profesor · ";font-weight:700}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media(max-width:860px){.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+</style></head><body><div class="deck"><section class="slide on"><div class="cover"><div class="kicker">&gt; module ISO 0369 · UD2 · RA2 · CE a) Cuentas, grupos, perfiles y permisos</div><h1>Cuentas y permisos: estructura de los archivos y cómo sacar información</h1><p>passwd, shadow y group campo a campo; ls, stat, namei, find, cut y awk para sacar la información que necesitas.</p><p style="font-size:1rem;opacity:.8;margin-top:30px">1.º ASIR · Implantación de Sistemas Operativos · I.E.S. Pablo Serrano · Curso 2026/27</p></div>
+<p class="notes">Usa ← → o espacio para avanzar. Tecla <b>D</b> cambia a modo documento (todo seguido, para Aeducar). Las cajas azules se despliegan al hacer clic.</p></section>
+<section class="slide"><div class="kicker">ÍNDICE</div><h2>Qué vamos a ver</h2><ol class="toc"><li>En Linux, las cuentas y los permisos son texto que se puede leer</li><li>/etc/passwd: siete campos separados por «:»</li><li>/etc/shadow (9 campos) y /etc/group (4 campos)</li><li>Del archivo a la respuesta: cut, awk, grep y getent</li><li>Leer los permisos de un archivo: ls, stat y namei</li><li>Cómo decide Linux un acceso (en tres preguntas)</li><li>find: encontrar lo que está mal</li><li>Ejercicios guiados: prepara tu Ubuntu Server</li><li>Lee una línea de /etc/passwd</li><li>Saca solo lo que necesitas con cut</li><li>Personas y cuentas de servicio</li><li>Grupos: principal y secundarios</li><li>/etc/shadow y la caducidad de una contraseña</li><li>Leer permisos y decidir quién puede qué</li><li>Buscar con find lo que está mal</li><li>Con esto, a terminar la Práctica 3</li></ol></section><section class="slide"><div class="kicker">1 · PUNTO DE PARTIDA</div><h2>En Linux, las cuentas y los permisos son texto que se puede leer</h2>
+<p>No hay una «base de datos de usuarios» oculta: las cuentas viven en <b>archivos de texto</b> en <code>/etc</code>. Y los permisos son <b>metadatos de cada archivo</b> que se consultan con una orden. Si sabes <b>leer</b> esos datos y <b>extraer</b> lo que necesitas, administras el sistema; si solo copias comandos, no.</p>
+<table><tr><th>Archivo</th><th>Qué guarda</th><th>Campos</th><th>Lo lee</th></tr>
+<tr><td><code>/etc/passwd</code></td><td>Cuentas</td><td>7</td><td>todos (644)</td></tr>
+<tr><td><code>/etc/shadow</code></td><td>Hashes y caducidad</td><td>9</td><td>root y grupo shadow (640)</td></tr>
+<tr><td><code>/etc/group</code></td><td>Grupos y miembros</td><td>4</td><td>todos (644)</td></tr>
+<tr><td><code>/etc/gshadow</code></td><td>Contraseñas y administradores de grupo</td><td>4</td><td>root (640)</td></tr>
+<tr><td><code>/etc/login.defs</code></td><td>Valores por defecto (UID_MIN, caducidad, HOME_MODE)</td><td>—</td><td>todos</td></tr>
+<tr><td><code>/etc/skel/</code></td><td>Plantilla del home nuevo</td><td>—</td><td>todos</td></tr>
+<tr><td><code>/etc/sudoers</code></td><td>Quién eleva privilegios</td><td>—</td><td>root (440, con <code>visudo</code>)</td></tr></table>
+<div class="info">Regla: <b>no se editan a mano</b> (salvo sudoers con visudo). Se usan <code>useradd</code>, <code>usermod</code>, <code>passwd</code>, <code>chage</code>… que mantienen los cuatro archivos coherentes.</div></section><section class="slide"><div class="kicker">2 · PASSWD</div><h2>/etc/passwd: siete campos separados por «:»</h2>
+<pre>ana:x:1001:1001:Ana Pérez,Contabilidad:/home/ana:/bin/bash
+<i> 1 2  3    4          5                   6          7</i></pre>
+<table><tr><th>#</th><th>Campo</th><th>Ejemplo</th><th>Para qué sirve</th></tr>
+<tr><td>1</td><td>Nombre de usuario</td><td>ana</td><td>Lo que tecleas al entrar</td></tr>
+<tr><td>2</td><td>Contraseña</td><td>x</td><td>«x» = está en /etc/shadow</td></tr>
+<tr><td>3</td><td><b>UID</b></td><td>1001</td><td>Lo que usa de verdad el sistema (0 root · 1–999 servicios · ≥1000 personas)</td></tr>
+<tr><td>4</td><td><b>GID</b> principal</td><td>1001</td><td>Grupo con el que nacen sus archivos</td></tr>
+<tr><td>5</td><td>GECOS</td><td>Ana Pérez,…</td><td>Nombre completo y datos (<code>-c</code> en useradd)</td></tr>
+<tr><td>6</td><td>Home</td><td>/home/ana</td><td>Su carpeta personal (su perfil)</td></tr>
+<tr><td>7</td><td>Shell</td><td>/bin/bash</td><td><code>/usr/sbin/nologin</code> o <code>/bin/false</code> = no puede iniciar sesión</td></tr></table>
+<div class="q">🤔 Veo <code>www-data:x:33:33:…:/usr/sbin/nologin</code>. ¿Es una persona? ¿Puede alguien entrar con esa cuenta? <small>(clic)</small><div class="ans">No es una persona (UID 33 &lt; 1000): es una cuenta de servicio del servidor web. No puede iniciar sesión porque su shell es <code>nologin</code>, pero los procesos de Apache sí se ejecutan con su identidad.</div></div></section><section class="slide"><div class="kicker">3 · SHADOW Y GROUP</div><h2>/etc/shadow (9 campos) y /etc/group (4 campos)</h2>
+<div class="cols"><div>
+<pre>ana:$y$j9T$abc…:20734:0:90:7:14:20900:
+<i> 1     2        3   4  5 6  7    8    9</i></pre>
+<table><tr><th>#</th><th>Campo</th></tr>
+<tr><td>2</td><td>Hash. <code>!</code> o <code>*</code> delante = cuenta bloqueada; vacío = <b>sin contraseña</b> (grave)</td></tr>
+<tr><td>3</td><td>Último cambio, en <b>días desde 1/1/1970</b> (0 = debe cambiarla al entrar)</td></tr>
+<tr><td>4 · 5 · 6</td><td>Mínimo · máximo · aviso (días)</td></tr>
+<tr><td>7</td><td>Inactividad tras caducar</td></tr>
+<tr><td>8</td><td>La <b>cuenta</b> caduca (fecha en días)</td></tr></table>
+<p>Para verlo en cristiano: <code>sudo chage -l ana</code>.</p></div>
+<div>
+<pre>contabilidad:x:1005:ana,luis
+<i>   1        2   3     4</i></pre>
+<table><tr><th>#</th><th>Campo</th></tr>
+<tr><td>1</td><td>Nombre del grupo</td></tr>
+<tr><td>2</td><td>Contraseña de grupo (casi siempre «x»)</td></tr>
+<tr><td>3</td><td><b>GID</b></td></tr>
+<tr><td>4</td><td>Miembros <b>secundarios</b>, separados por comas</td></tr></table>
+<div class="warn"><b>Trampa clásica:</b> el grupo <b>principal</b> de un usuario está en el campo 4 de <code>/etc/passwd</code>, no en la lista de miembros de <code>/etc/group</code>. Por eso <code>getent group ana</code> puede salir sin miembros y ana sigue siendo del grupo ana.</div></div></div></section><section class="slide"><div class="kicker">4 · EXTRAER INFORMACIÓN</div><h2>Del archivo a la respuesta: cut, awk, grep y getent</h2>
+<div class="cols"><div>
+<pre><b># Un campo concreto</b>
+cut -d: -f1 /etc/passwd                 <i># solo nombres</i>
+cut -d: -f1,3,7 /etc/passwd             <i># nombre, UID y shell</i>
+<b># Con condición (awk -F: separa por «:»)</b>
+awk -F: '$3>=1000 &amp;&amp; $3&lt;65534 {print $1, $3}' /etc/passwd
+awk -F: '$7=="/bin/bash" {print $1}' /etc/passwd
+<b># Contar y agrupar</b>
+cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+<b># Buscar una cuenta (mejor que grep)</b>
+getent passwd ana
+getent group contabilidad</pre></div>
+<div>
+<pre><b># Grupos de un usuario / miembros de un grupo</b>
+id ana ; id -nG ana ; groups ana
+getent group sudo | cut -d: -f4
+<b># Cuentas con problemas (shadow: como root)</b>
+sudo awk -F: '$2==""  {print $1}' /etc/shadow      <i># sin contraseña</i>
+sudo awk -F: '$2 ~ /^[!*]/ {print $1}' /etc/shadow  <i># bloqueadas</i>
+<b># ¿Qué fecha es el día 20734?</b>
+date -d @$((20734*86400)) +%F
+<b># Actividad</b>
+who ; w ; last -5 ; lastlog | head</pre></div></div>
+<div class="callout blue" style="background:#e8f1fa;border-left:8px solid #2b6ca3;border-radius:12px;padding:12px 18px"><b>Por qué <code>getent</code> y no <code>grep /etc/passwd</code>:</b> consulta también las cuentas que no están en el archivo local (dominio, LDAP). En la UD de dominios será la única forma correcta.</div></section><section class="slide"><div class="kicker">5 · PERMISOS = METADATOS</div><h2>Leer los permisos de un archivo: ls, stat y namei</h2>
+<pre>$ ls -l informe.txt
+-rw-r-----  1  ana  contabilidad  8192 oct 27 09:10 informe.txt
+ │└┬┘└┬┘└┬┘     │       │
+ │ u  g  o    dueño    grupo
+ └ tipo (- archivo · d directorio · l enlace)</pre>
+<div class="cols"><div>
+<pre><b># Los mismos datos, para usarlos</b>
+stat -c '%A %a %U:%G %n' informe.txt
+<i>-rw-r----- 640 ana:contabilidad informe.txt</i>
+ls -ln                  <i># dueño y grupo como UID/GID</i>
+ls -ld /srv/conta       <i># el directorio, no su contenido</i>
+getfacl /srv/conta      <i># ACL, si hay un «+»</i></pre></div>
+<div>
+<pre><b># ¿Por qué no puedo abrir esto?</b>
+namei -l /srv/contabilidad/2026/informe.txt
+<i>f: /srv/contabilidad/2026/informe.txt
+drwxr-xr-x root root /
+drwxr-xr-x root root srv
+drwxrws--- root contabilidad contabilidad
+drwxr-xr-x ana contabilidad 2026
+-rw-r----- ana contabilidad informe.txt</i></pre></div></div>
+<div class="info"><code>namei -l</code> muestra <b>cada directorio del camino</b>: para llegar a un archivo hace falta <b>x en todos</b> los directorios anteriores. La mayoría de «Permiso denegado» misteriosos se resuelven aquí.</div></section><section class="slide"><div class="kicker">6 · QUIÉN PUEDE QUÉ</div><h2>Cómo decide Linux un acceso (en tres preguntas)</h2>
+<ol style="font-size:1.2rem"><li><b>¿Eres root?</b> (UID 0) → <b>pasas</b>. Se acabó.</li>
+<li><b>¿Eres el dueño?</b> → se aplica <b>solo</b> el trío <b>u</b>, aunque g u o fueran más generosos.</li>
+<li><b>¿Estás en el grupo del archivo?</b> (principal <b>o</b> secundario) → se aplica el trío <b>g</b>. Si no → el trío <b>o</b>.</li></ol>
+<div class="cols"><div class="box"><h3>Ejemplo resuelto</h3><pre>-rw-r----- ana contabilidad informe.txt
+id luis → groups=…,1005(contabilidad)
+id marta → groups=1002(direccion)</pre>
+<ul><li><b>ana</b>: dueño → <code>rw-</code> lee y escribe.</li><li><b>luis</b>: grupo → <code>r--</code> solo lee.</li><li><b>marta</b>: otros → <code>---</code> nada.</li></ul></div>
+<div class="box"><h3>Y en un directorio</h3><ul><li><b>r</b> listar · <b>x</b> entrar · <b>w</b> crear/borrar/renombrar dentro.</li><li>Borrar un archivo depende del <b>directorio</b>, no del archivo.</li><li>Sticky (<code>t</code>): solo borra el dueño de cada archivo.</li></ul></div></div>
+<div class="warn">El fallo número uno al probar: usar <code>sudo</code> o root. Prueba siempre <b>como el usuario afectado</b> (<code>sudo -u luis cat informe.txt</code> o <code>su - luis</code>).</div></section><section class="slide"><div class="kicker">7 · BUSCAR POR PERMISOS</div><h2>find: encontrar lo que está mal</h2>
+<pre><b># Por dueño, grupo o ausencia de dueño</b>
+find /srv -user ana
+find /srv -group contabilidad
+sudo find / -xdev -nouser -o -nogroup 2&gt;/dev/null     <i># archivos huérfanos</i>
+<b># Por permisos (– = «al menos estos bits»)</b>
+find /srv -perm -o+w                 <i># escribibles por cualquiera</i>
+find / -xdev -perm -4000 -type f 2&gt;/dev/null          <i># SUID: auditoría</i>
+find /srv -type d ! -perm -g+x       <i># directorios a los que el grupo no puede entrar</i>
+<b># Qué se creó o cambió hoy</b>
+find /srv -mtime -1 -ls</pre>
+<table><tr><th>Quiero…</th><th>Uso</th></tr><tr><td>Una cuenta o un grupo</td><td><code>getent</code>, <code>id</code></td></tr><tr><td>Un campo o un filtro de un archivo de cuentas</td><td><code>cut</code>, <code>awk -F:</code></td></tr><tr><td>Los permisos de uno</td><td><code>ls -l</code>, <code>stat</code>, <code>namei -l</code></td></tr><tr><td>Todos los archivos que cumplan algo</td><td><code>find</code></td></tr></table></section><section class="slide"><div class="kicker">8 · EJERCICIOS · PREPARACIÓN</div><h2>Ejercicios guiados: prepara tu Ubuntu Server</h2>
+<p>A partir de aquí practicas lo visto, <b>paso a paso</b>, en tu <b>Ubuntu Server</b>. Cada ejercicio tiene un enunciado, una <b>pista</b> y, al final, una <b>solución</b> para que compares (inténtalo antes de abrirla). Si ya hiciste la Práctica 3 tienes todo creado; si no, copia y pega este bloque <b>una vez</b> (si algún comando dice que algo «ya existe», es normal):</p>
+<pre>sudo groupadd contabilidad ; sudo groupadd direccion
+sudo useradd -m -s /bin/bash -G contabilidad ana
+sudo useradd -m -s /bin/bash -G contabilidad luis
+sudo useradd -m -s /bin/bash -G direccion marta
+sudo mkdir -p /srv/contabilidad
+sudo chgrp contabilidad /srv/contabilidad ; sudo chmod 2770 /srv/contabilidad
+echo "Nominas octubre" | sudo tee /srv/contabilidad/informe.txt
+sudo chown ana:contabilidad /srv/contabilidad/informe.txt ; sudo chmod 640 /srv/contabilidad/informe.txt</pre>
+<table><tr><th>Usuario</th><th>Grupo principal</th><th>Grupo secundario</th></tr><tr><td><code>ana</code></td><td>ana</td><td>contabilidad</td></tr><tr><td><code>luis</code></td><td>luis</td><td>contabilidad</td></tr><tr><td><code>marta</code></td><td>marta</td><td>direccion</td></tr></table>
+<div class="warn">Las <b>pruebas de permisos</b> se hacen <b>como el usuario</b> (<code>sudo -u luis …</code>), nunca como root: root se salta todos los permisos y la prueba no vale.</div></section><section class="slide"><div class="kicker">9 · EJERCICIO 1</div><h2>Lee una línea de /etc/passwd</h2>
+<p>Saca la línea de <code>ana</code> y <b>explica sus 7 campos</b>. ¿Es una persona o una cuenta de servicio? ¿Cómo lo sabes?</p>
+<pre>grep '^ana:' /etc/passwd</pre>
+<details><summary><b>Pista</b></summary><p>Los campos van separados por <code>:</code>. El 3.º es el UID (≥ 1000 = persona). Un campo vacío (como el 5.º) significa que no hay datos.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans"><code>ana:x:1001:1001::/home/ana:/bin/bash</code> → usuario <b>ana</b> · contraseña <b>x</b> (está en shadow) · UID <b>1001</b> · GID principal <b>1001</b> · GECOS vacío · home <b>/home/ana</b> · shell <b>/bin/bash</b>. Es una <b>persona</b> porque su UID es ≥ 1000 y tiene shell que permite entrar.</div></div></section><section class="slide"><div class="kicker">10 · EJERCICIO 2</div><h2>Saca solo lo que necesitas con cut</h2>
+<p>Muestra (a) solo los <b>nombres</b> de todas las cuentas, (b) <b>nombre, UID y shell</b>, (c) <b>cuántas cuentas</b> hay y (d) cuántas usan <code>/bin/bash</code>.</p>
+<details><summary><b>Pista</b></summary><p><code>-d:</code> = «el separador es dos puntos»; <code>-f</code> = número de campo. Contar líneas: <code>wc -l</code>. Contar coincidencias: <code>grep -c</code>.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans"><pre style="margin:0">cut -d: -f1 /etc/passwd
+cut -d: -f1,3,7 /etc/passwd
+wc -l /etc/passwd
+grep -c '/bin/bash' /etc/passwd</pre>La cantidad de cuentas varía de un sistema a otro; lo importante es que sepas sacar cada dato.</div></div></section><section class="slide"><div class="kicker">11 · EJERCICIO 3</div><h2>Personas y cuentas de servicio</h2>
+<p>Este comando lista las <b>personas</b> (UID ≥ 1000). Ejecútalo y <b>cámbialo</b> para listar y contar las cuentas de <b>servicio</b> (UID &lt; 1000). Elige una (<code>www-data</code> o <code>sshd</code>) y explica por qué nadie puede iniciar sesión con ella.</p>
+<pre>awk -F: '$3&gt;=1000 &amp;&amp; $3&lt;65534 {print $1, $3}' /etc/passwd</pre>
+<details><summary><b>Pista</b></summary><p><code>awk -F:</code> separa por «:» y <code>$3</code> es el UID. El 65534 es <code>nobody</code>. Mira la shell con <code>getent passwd www-data</code>.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans"><pre style="margin:0">awk -F: '$3&lt;1000 {print $1}' /etc/passwd | wc -l
+getent passwd www-data</pre>La shell es <code>/usr/sbin/nologin</code>: la cuenta existe para que los procesos del servicio se ejecuten con su identidad, pero no abre sesión de usuario.</div></div></section><section class="slide"><div class="kicker">12 · EJERCICIO 4</div><h2>Grupos: principal y secundarios</h2>
+<p>(a) ¿Quiénes son miembros de <code>contabilidad</code>? (b) ¿Cuál es el grupo <b>principal</b> de <code>luis</code> y de qué otros es miembro? (c) Ejecuta <code>getent group luis</code>: el grupo existe pero <b>no tiene miembros</b>. ¿Por qué?</p>
+<details><summary><b>Pista</b></summary><p><code>getent group contabilidad</code> (4.º campo = miembros) · <code>id luis</code> (<code>gid=</code> es el principal; <code>groups=</code> lista todos) · <code>id -gn luis</code>. ¿En qué archivo está el grupo principal?</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans">(a) <code>contabilidad:x:…:ana,luis</code>. (b) Principal: <b>luis</b>; secundario: <b>contabilidad</b>. (c) El <b>grupo principal</b> se guarda en el <b>campo 4 de /etc/passwd</b>, no en la lista de miembros de /etc/group; por eso <code>luis:x:1002:</code> sale vacío y luis sigue siendo de ese grupo.</div></div></section><section class="slide"><div class="kicker">13 · EJERCICIO 5</div><h2>/etc/shadow y la caducidad de una contraseña</h2>
+<p>Como administrador: (a) enseña la línea de <code>ana</code> en shadow <b>sin el hash</b>; (b) muestra <code>chage -l ana</code>; (c) convierte el campo 3 en fecha; (d) con <code>chage -M 90 ana</code> fija 90 días y comprueba <b>qué campo cambió</b>; (e) compara los permisos de <code>/etc/passwd</code> y <code>/etc/shadow</code> y explica por qué son distintos.</p>
+<details><summary><b>Pista</b></summary><p><code>sudo grep '^ana:' /etc/shadow | cut -d: -f1,3-</code> quita el hash (campo 2). Fecha: <code>date -d @$((DÍAS*86400)) +%F</code>.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans"><pre style="margin:0">sudo grep '^ana:' /etc/shadow | cut -d: -f1,3-
+sudo chage -l ana
+date -d @$((20733*86400)) +%F       # tu número, no el 20733
+sudo chage -M 90 ana                # cambia el campo 5 a 90
+ls -l /etc/passwd /etc/shadow</pre>passwd es <b>644</b>: muchos programas necesitan traducir UID → nombre. shadow es <b>640 root:shadow</b>: contiene los hashes; si todos lo leyeran, podrían intentar descifrarlos.</div></div></section><section class="slide"><div class="kicker">14 · EJERCICIO 6</div><h2>Leer permisos y decidir quién puede qué</h2>
+<p>Examina <code>/srv/contabilidad</code> y <code>informe.txt</code> con <code>stat</code> y <code>namei -l</code>. Rellena para <b>ana, luis y marta</b>: ¿puede <b>leer</b>? ¿puede <b>escribir</b>? Razona con «dueño / grupo / otros» y <b>compruébalo como cada usuario</b>. ¿En qué punto del camino falla marta?</p>
+<details><summary><b>Pista</b></summary><p><code>stat -c '%A %a %U:%G %n' /srv/contabilidad /srv/contabilidad/informe.txt</code> · <code>namei -l /srv/contabilidad/informe.txt</code> · <code>sudo -u luis cat /srv/contabilidad/informe.txt</code> · <code>sudo -u luis sh -c 'echo x &gt;&gt; /srv/contabilidad/informe.txt'</code>. Se aplica <b>un solo trío</b>, y para llegar a un archivo hace falta <b>x en cada directorio del camino</b>.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans"><table style="margin:0"><tr><th>Usuario</th><th>Trío</th><th>Leer</th><th>Escribir</th></tr><tr><td>ana</td><td>dueño <code>rw-</code></td><td>sí</td><td>sí</td></tr><tr><td>luis</td><td>grupo <code>r--</code></td><td>sí</td><td>no</td></tr><tr><td>marta</td><td>otros <code>---</code></td><td>no</td><td>no</td></tr></table>Marta falla en <b>/srv/contabilidad</b>: el directorio es <code>drwxrws---</code> y «otros» no tiene <b>x</b>, ni siquiera puede entrar. Mensaje: <i>Permission denied</i>.</div></div></section><section class="slide"><div class="kicker">15 · EJERCICIO 7</div><h2>Buscar con find lo que está mal</h2>
+<p>(a) Busca en <code>/srv</code> todo lo que pueda <b>escribir cualquier usuario</b> (si no sale nada, es buena señal: crea un archivo de prueba, dale <code>chmod o+w</code>, busca de nuevo y arréglalo). (b) Busca lo que sea de <code>ana</code> en <code>/srv</code>. (c) Lista los 10 primeros programas con <b>SUID</b> y explica qué significa la <code>s</code> de <code>/usr/bin/passwd</code>.</p>
+<details><summary><b>Pista</b></summary><p><code>find /srv -perm -o+w</code> · <code>find /srv -user ana</code> · <code>find / -xdev -perm -4000 -type f 2&gt;/dev/null | head -10</code> · <code>ls -l /usr/bin/passwd</code>.</p></details>
+<div class="q">✔ Solución <small>(clic)</small><div class="ans">La <code>s</code> de <code>-rwsr-xr-x root</code> hace que <code>passwd</code> se ejecute con los permisos de su <b>dueño (root)</b>, aunque lo lance un usuario normal. Así puede escribir en <code>/etc/shadow</code> (solo root escribe) para cambiar tu clave. Por eso los SUID se auditan: un SUID mal puesto es una escalada de privilegios.</div></div></section><section class="slide"><div class="kicker">16 · AHORA</div><h2>Con esto, a terminar la Práctica 3</h2>
+<p>La Práctica 3 pide exactamente esto: <b>leer antes de tocar</b>, crear estructuras con el <b>mínimo privilegio</b> y <b>comprobar como el usuario afectado</b> con <code>id</code>, <code>stat</code>, <code>namei</code>, <code>getfacl</code> y <code>find</code>.</p>
+<div class="cols"><div class="box g"><h3>Cómo trabajar</h3><ul><li>Cada misión: hazla, <b>compruébala como el usuario</b>, pega la salida real.</li><li>Si algo da «Permiso denegado»: <code>namei -l</code> sobre la ruta.</li><li>Antes de dar un 7 a «otros»: ¿de verdad lo necesita?</li></ul></div>
+<div class="box o"><h3>Qué se evalúa (RA2)</h3><ul><li><b>CE a)</b> cuentas, grupos, perfiles y permisos locales.</li><li><b>CE b)</b> mínimo privilegio: auditoría de SUID.</li><li><b>CE g/h)</b> máquinas virtuales y documentación.</li></ul></div></div>
+<div class="info">El examen parcial incluirá preguntas como estos ejercicios: leer una línea de <code>passwd</code>/<code>shadow</code>/<code>group</code>, interpretar un <code>ls -l</code> y decidir quién puede qué.</div></section></div>
+<div class="nav"><button class="sec" onclick="go(-1)">← Anterior</button><button onclick="go(1)">Siguiente →</button><div class="pb"><span id="pb"></span></div><span class="n" id="n"></span><button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+document.querySelectorAll('.q').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+</script></body></html>

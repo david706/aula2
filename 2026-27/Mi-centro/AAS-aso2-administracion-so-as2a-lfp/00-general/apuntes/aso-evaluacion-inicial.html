@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Evaluación inicial · ASO</title>
+<style>
+  :root{
+    --paper:#F5F6F8; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --indigo:#4338CA; --indigo-soft:#EEF2FF; --verde:#0F766E; --verde-soft:#F0FDFA;
+    --ambar:#B45309; --ambar-soft:#FEF3C7; --rojo:#DC2626; --rojo-soft:#FEF2F2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+      --indigo-soft:#1E1B4B; --verde-soft:#042F2E; --ambar-soft:#451A03; --rojo-soft:#450A0A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+    --indigo-soft:#1E1B4B; --verde-soft:#042F2E; --ambar-soft:#451A03; --rojo-soft:#450A0A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15.5px;line-height:1.55}
+  .wrap{max-width:780px;margin:0 auto;padding:40px 20px 90px}
+  button,input,select,textarea{font-family:inherit}
+  button{cursor:pointer}
+
+  .eyebrow{font-size:13px;color:var(--indigo);font-weight:600;margin-bottom:6px}
+  h1{font-size:30px;margin:0 0 8px;letter-spacing:-.01em}
+  .sub{color:var(--soft);font-size:14.5px;margin:0 0 10px}
+  .avisoinicial{background:var(--indigo-soft);border-left:4px solid var(--indigo);border-radius:10px;padding:14px 16px;font-size:13.5px;margin:18px 0 36px}
+  .avisoinicial b{color:var(--indigo)}
+
+  h2{font-size:19px;margin:0 0 4px;letter-spacing:-.01em}
+  .bloque{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 22px 6px;margin-bottom:22px}
+  .bloque .h2sub{color:var(--soft);font-size:13.5px;margin:0 0 18px}
+
+  label.campo{display:block;margin-bottom:18px}
+  label.campo>span.et{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+  input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14.5px;background:var(--paper);color:var(--ink);resize:vertical}
+  textarea{min-height:64px}
+
+  .escala{display:flex;gap:6px;flex-wrap:wrap}
+  .escala label{flex:1;min-width:64px;text-align:center;border:1px solid var(--line);border-radius:10px;padding:9px 6px;font-size:13px;cursor:pointer;color:var(--soft)}
+  .escala input{display:none}
+  .escala input:checked+span{color:var(--indigo);font-weight:700}
+  .escala label:has(input:checked){border-color:var(--indigo);background:var(--indigo-soft)}
+
+  .opciones{display:flex;flex-direction:column;gap:8px}
+  .opcion{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:14px}
+  .opcion:has(input:checked){border-color:var(--indigo);background:var(--indigo-soft)}
+  .opcion input{margin-top:3px}
+
+  .pregunta{border-top:1px solid var(--line);padding:18px 0}
+  .pregunta:first-of-type{border-top:none;padding-top:4px}
+  .pregunta .qn{font-size:12px;color:var(--soft);font-weight:700;margin-bottom:4px}
+  .pregunta .qt{font-size:15px;font-weight:600;margin-bottom:10px}
+
+  .avisoerror{background:var(--rojo-soft);border-left:4px solid var(--rojo);border-radius:10px;padding:12px 14px;font-size:13.5px;margin:0 0 18px;color:var(--rojo);display:none}
+  .avisoerror.on{display:block}
+
+  .btnenviar{width:100%;background:var(--indigo);color:#fff;border:none;border-radius:12px;padding:15px;font-size:15.5px;font-weight:700;margin:6px 0 40px}
+
+  /* RESULTADO */
+  .oculto{display:none !important}
+  .resumen-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:18px 0}
+  .resumen-cards div{background:var(--card);padding:16px 14px}
+  .resumen-cards .dato{font-size:24px;font-weight:800;color:var(--indigo)}
+  .resumen-cards .campo{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  td.ok{color:var(--verde);font-weight:700;white-space:nowrap}
+  td.mal{color:var(--rojo);font-weight:700;white-space:nowrap}
+  .scroll-x{overflow-x:auto}
+
+  .cita{background:var(--paper);border-radius:10px;padding:10px 13px;font-size:13.5px;margin:6px 0;font-style:italic;color:var(--ink)}
+  .cita.vacia{color:var(--soft);font-style:normal}
+
+  .accionesfinal{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 10px}
+  .chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:9px 16px;font-size:13.5px}
+
+  .pie{text-align:center;color:var(--soft);font-size:12.5px;margin-top:50px;padding-top:18px;border-top:1px solid var(--line)}
+
+  @media print{
+    body *{visibility:hidden}
+    #resultado, #resultado *{visibility:visible}
+    #resultado{position:absolute;left:0;top:0;width:100%;padding:0}
+    #resultado button{display:none !important}
+    body{background:#fff}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">ASO · 0374 · 2º ASIR</p>
+  <h1>Evaluación inicial</h1>
+  <p class="sub">Antes de empezar el módulo, queremos saber de dónde partís.</p>
+  <div class="avisoinicial">
+    <b>Esto no cuenta para tu nota.</b> Es solo para que el profesor sepa qué nivel trae el grupo y pueda ajustar el ritmo. Contesta con sinceridad — "no lo sé" es una respuesta perfectamente válida y útil.
+  </div>
+
+  <form id="formulario">
+
+    <div class="bloque">
+      <h2>Tus datos</h2>
+      <p class="h2sub">Necesario para poder entregar el informe.</p>
+      <label class="campo">
+        <span class="et">Nombre y apellidos</span>
+        <input type="text" id="nombre" placeholder="Escribe tu nombre completo" required>
+      </label>
+    </div>
+
+    <div class="bloque">
+      <h2>Antes de empezar, cuéntanos</h2>
+      <p class="h2sub">No hay respuestas correctas aquí — es para conocerte.</p>
+
+      <label class="campo">
+        <span class="et">¿Has usado Linux antes de este curso, fuera de clase?</span>
+        <div class="opciones" data-grupo="linux">
+          <label class="opcion"><input type="radio" name="linux" value="No, nunca"><span>No, nunca</span></label>
+          <label class="opcion"><input type="radio" name="linux" value="Un poco, curioseando"><span>Un poco, curioseando</span></label>
+          <label class="opcion"><input type="radio" name="linux" value="Sí, con cierta soltura"><span>Sí, con cierta soltura</span></label>
+        </div>
+      </label>
+
+      <label class="campo">
+        <span class="et">¿Cómo de cómodo/a te sientes trabajando en una terminal (sin ratón, solo texto)?</span>
+        <div class="escala" data-grupo="comodidad">
+          <label><input type="radio" name="comodidad" value="1"><span>1 · nada</span></label>
+          <label><input type="radio" name="comodidad" value="2"><span>2</span></label>
+          <label><input type="radio" name="comodidad" value="3"><span>3</span></label>
+          <label><input type="radio" name="comodidad" value="4"><span>4</span></label>
+          <label><input type="radio" name="comodidad" value="5"><span>5 · mucho</span></label>
+        </div>
+      </label>
+
+      <label class="campo">
+        <span class="et">¿Has programado algo antes, en cualquier lenguaje (aunque sea Scratch, Python básico, etc.)?</span>
+        <div class="opciones" data-grupo="programacion">
+          <label class="opcion"><input type="radio" name="programacion" value="No, nunca"><span>No, nunca</span></label>
+          <label class="opcion"><input type="radio" name="programacion" value="Sí, un poco"><span>Sí, un poco</span></label>
+          <label class="opcion"><input type="radio" name="programacion" value="Sí, bastante"><span>Sí, bastante</span></label>
+        </div>
+      </label>
+
+      <label class="campo">
+        <span class="et">¿Qué esperas aprender en ASO este curso?</span>
+        <textarea id="expectativas" placeholder="Escribe lo que te venga a la cabeza, no hace falta que sea largo"></textarea>
+      </label>
+
+      <label class="campo">
+        <span class="et">¿Hay algo de la asignatura que ya te preocupe o te parezca difícil de entrada?</span>
+        <textarea id="preocupacion" placeholder="Opcional"></textarea>
+      </label>
+    </div>
+
+    <div class="bloque">
+      <h2>Cuestionario de conocimientos</h2>
+      <p class="h2sub">18 preguntas sobre lo que deberías traer de 1º. Sin pistas: responde lo que sepas ahora mismo, no busques la respuesta.</p>
+      <div id="preguntas"></div>
+    </div>
+
+    <div class="avisoerror" id="avisoError">Falta tu nombre o alguna pregunta del cuestionario sin responder. Revisa antes de enviar.</div>
+    <button type="submit" class="btnenviar">Enviar evaluación</button>
+  </form>
+
+  <div id="resultado" class="oculto">
+    <div class="bloque" style="padding-bottom:22px">
+      <h2>Informe de evaluación inicial</h2>
+      <p class="h2sub" id="resFecha"></p>
+
+      <div class="resumen-cards">
+        <div><div class="dato" id="resNombre" style="font-size:16px">—</div><div class="campo">Alumno/a</div></div>
+        <div><div class="dato" id="resPuntuacion">—</div><div class="campo">Aciertos</div></div>
+        <div><div class="dato" id="resPct">—</div><div class="campo">% de acierto</div></div>
+      </div>
+
+      <h3 style="font-size:15px;margin:22px 0 6px">Experiencia previa</h3>
+      <table>
+        <tr><td>Uso previo de Linux</td><td id="resLinux">—</td></tr>
+        <tr><td>Comodidad en terminal (1-5)</td><td id="resComodidad">—</td></tr>
+        <tr><td>Experiencia programando</td><td id="resProgramacion">—</td></tr>
+      </table>
+      <p style="font-size:13px;color:var(--soft);margin:10px 0 2px">Expectativas del curso:</p>
+      <div class="cita" id="resExpectativas"></div>
+      <p style="font-size:13px;color:var(--soft);margin:10px 0 2px">Preocupaciones de entrada:</p>
+      <div class="cita" id="resPreocupacion"></div>
+
+      <h3 style="font-size:15px;margin:24px 0 6px">Detalle del cuestionario</h3>
+      <div class="scroll-x">
+      <table>
+        <tr><th>#</th><th>Tu respuesta</th><th>Correcta</th><th></th></tr>
+        <tbody id="resTablaPreguntas"></tbody>
+      </table>
+      </div>
+
+      <div class="accionesfinal">
+        <button class="chip" id="btnDescargarPDF">Descargar como PDF</button>
+        <button class="chip" id="btnRehacer">Rehacer evaluación</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="pie">ASO · Administración de Sistemas Operativos (0374) · 2º ASIR · Evaluación inicial de curso</p>
+</div>
+
+<script>
+const PREGUNTAS=[
+ {q:"¿Qué comando muestra el directorio de trabajo actual?",o:["ls","cd","pwd","dir"],r:2},
+ {q:"¿Qué hace ls -la?",o:["Borra los archivos ocultos","Lista todos los archivos, incluidos los ocultos, con detalle","Cambia los permisos del directorio","Copia el directorio entero"],r:1},
+ {q:"En unos permisos rwxr-xr--, ¿qué puede hacer el grupo \"otros\" (los tres últimos caracteres)?",o:["Leer, escribir y ejecutar","Solo leer","Leer y ejecutar","Nada de nada"],r:1},
+ {q:"¿Qué usuario tiene, por convención, control total del sistema en Linux?",o:["admin","root","superuser","system"],r:1},
+ {q:"¿Qué hace el comando sudo?",o:["Cambia de directorio","Ejecuta una orden con privilegios de administrador","Actualiza el sistema operativo","Reinicia el equipo"],r:1},
+ {q:"Un proceso es...",o:["Un archivo guardado en disco","Un programa en ejecución","Una carpeta del sistema","Un usuario conectado"],r:1},
+ {q:"¿Cuál de estos comandos te enseña los procesos que están en marcha?",o:["ps aux","mkdir procesos","ping -c 4","ls /home"],r:0},
+ {q:"¿Para qué sirve chmod?",o:["Cambiar el propietario de un archivo","Cambiar los permisos de un archivo","Comprimir un archivo","Buscar un archivo por nombre"],r:1},
+ {q:"¿Qué carpeta del sistema Linux suele contener los archivos de configuración?",o:["/home","/etc","/tmp","/bin"],r:1},
+ {q:"Una dirección IP privada típica en una red local empieza por...",o:["8.8.8.8","192.168.x.x","200.10.x.x","404.1.x.x"],r:1},
+ {q:"¿Qué hace el comando ping?",o:["Instala un paquete","Comprueba si un equipo responde en la red","Cambia la dirección IP","Apaga el equipo remoto"],r:1},
+ {q:"En programación, una variable es...",o:["Un tipo de bucle","Un espacio con nombre que guarda un valor","Un error del programa","Un comando de terminal"],r:1},
+ {q:"¿Qué hace un bucle (for / while) en un programa?",o:["Muestra un mensaje una sola vez","Repite una serie de instrucciones varias veces","Borra todas las variables","Detiene el programa"],r:1},
+ {q:"Si una condición if resulta falsa, ¿qué ocurre?",o:["El programa se detiene siempre","Se ejecuta igualmente el bloque del if","Se salta ese bloque (y se ejecuta el else, si lo hay)","Da un error de sintaxis"],r:2},
+ {q:"A grandes rasgos, ¿qué es una tarea programada?",o:["Un examen del módulo","Una acción que el sistema ejecuta solo, en un momento fijado de antemano","Un tipo de permiso de archivo","Un proceso que nunca puede terminar"],r:1},
+ {q:"¿Qué es un servidor, en términos generales?",o:["Un ordenador o programa que ofrece un servicio a quien lo solicita","Un tipo de cable de red","Un antivirus","Un usuario con privilegios especiales"],r:0},
+ {q:"¿Qué significa que dos ordenadores estén \"en red\"?",o:["Que comparten el mismo teclado","Que están conectados y pueden intercambiar información","Que tienen el mismo sistema operativo instalado","Que están apagados a la vez"],r:1},
+ {q:"Al crear un archivo nuevo en Linux sin indicar nada especial, ¿quién es su propietario por defecto?",o:["Siempre root","El usuario que lo crea","Nadie, hasta que se asigna a mano","El administrador de la red"],r:1}
+];
+
+const $=id=>document.getElementById(id);
+function esc(s){return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+const KEY="aso:evaluacion-inicial";
+const store={
+  async get(){ try{ if(window.storage){const r=await window.storage.get(KEY);return r&&r.value} return localStorage.getItem(KEY);}catch(e){return null} },
+  async set(v){ try{ if(window.storage){await window.storage.set(KEY,v);return} localStorage.setItem(KEY,v);}catch(e){} }
+};
+
+function pintarPreguntas(){
+  $("preguntas").innerHTML=PREGUNTAS.map((p,i)=>`
+    <div class="pregunta">
+      <div class="qn">Pregunta ${i+1} de ${PREGUNTAS.length}</div>
+      <div class="qt">${esc(p.q)}</div>
+      <div class="opciones" data-grupo="p${i}">
+        ${p.o.map((o,j)=>`<label class="opcion"><input type="radio" name="p${i}" value="${j}"><span>${esc(o)}</span></label>`).join("")}
+      </div>
+    </div>`).join("");
+}
+pintarPreguntas();
+
+function letraOpcion(j){ return ["A","B","C","D"][j]||"?"; }
+
+function pintarResultado(datos){
+  $("resFecha").textContent="Completada el "+new Date(datos.fecha).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+  $("resNombre").textContent=datos.nombre;
+  $("resPuntuacion").textContent=datos.aciertos+" / "+PREGUNTAS.length;
+  $("resPct").textContent=Math.round(100*datos.aciertos/PREGUNTAS.length)+"%";
+  $("resLinux").textContent=datos.linux||"—";
+  $("resComodidad").textContent=datos.comodidad?datos.comodidad+" / 5":"—";
+  $("resProgramacion").textContent=datos.programacion||"—";
+  $("resExpectativas").innerHTML = datos.expectativas ? esc(datos.expectativas) : '<span class="vacia">No respondió</span>';
+  $("resExpectativas").className = "cita"+(datos.expectativas?"":" vacia");
+  $("resPreocupacion").innerHTML = datos.preocupacion ? esc(datos.preocupacion) : '<span class="vacia">No respondió</span>';
+  $("resPreocupacion").className = "cita"+(datos.preocupacion?"":" vacia");
+
+  $("resTablaPreguntas").innerHTML = PREGUNTAS.map((p,i)=>{
+    const dada=datos.respuestas[i];
+    const bien=dada===p.r;
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${letraOpcion(dada)}) ${esc(p.o[dada])}</td>
+      <td>${letraOpcion(p.r)}) ${esc(p.o[p.r])}</td>
+      <td class="${bien?"ok":"mal"}">${bien?"✓":"✗"}</td>
+    </tr>`;
+  }).join("");
+
+  $("formulario").classList.add("oculto");
+  $("resultado").classList.remove("oculto");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+$("formulario").addEventListener("submit", e=>{
+  e.preventDefault();
+  const nombre=$("nombre").value.trim();
+  const respuestas=PREGUNTAS.map((p,i)=>{
+    const marcado=document.querySelector(`input[name="p${i}"]:checked`);
+    return marcado?+marcado.value:null;
+  });
+  const faltaAlguna = respuestas.some(r=>r===null);
+  if(!nombre || faltaAlguna){
+    $("avisoError").classList.add("on");
+    window.scrollTo({top:0,behavior:"smooth"});
+    return;
+  }
+  $("avisoError").classList.remove("on");
+
+  const linux=(document.querySelector('input[name="linux"]:checked')||{}).value||"";
+  const comodidad=(document.querySelector('input[name="comodidad"]:checked')||{}).value||"";
+  const programacion=(document.querySelector('input[name="programacion"]:checked')||{}).value||"";
+  const expectativas=$("expectativas").value.trim();
+  const preocupacion=$("preocupacion").value.trim();
+  const aciertos=respuestas.filter((r,i)=>r===PREGUNTAS[i].r).length;
+
+  const datos={nombre,linux,comodidad,programacion,expectativas,preocupacion,respuestas,aciertos,fecha:new Date().toISOString(),enviado:true};
+  store.set(JSON.stringify(datos)).catch(()=>{});
+  pintarResultado(datos);
+});
+
+$("btnDescargarPDF").onclick=()=>window.print();
+$("btnRehacer").onclick=()=>{
+  if(!confirm("Esto borra tus respuestas guardadas y vuelve a mostrar el formulario en blanco. ¿Seguro?"))return;
+  store.set("").catch(()=>{});
+  document.querySelectorAll('#formulario input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('#formulario input[type=text], #formulario textarea').forEach(i=>i.value="");
+  $("resultado").classList.add("oculto");
+  $("formulario").classList.remove("oculto");
+  window.scrollTo({top:0,behavior:"smooth"});
+};
+
+/* arranque: si ya había una evaluación enviada guardada en este navegador, mostrarla directamente */
+store.get().then(v=>{
+  if(!v) return;
+  try{
+    const datos=JSON.parse(v);
+    if(datos&&datos.enviado) pintarResultado(datos);
+  }catch(e){}
+}).catch(()=>{});
+</script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Guion UD4 Servicio de directorio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna de lectura, cuaderno de repaso con margen lateral de notas en pantallas anchas */
+:root {
+  --bg: #fbf9f4;
+  --paper: #ffffff;
+  --fg: #1f2a33;
+  --muted: #5d6b76;
+  --line: #d9d4c7;
+  --accent: #1f5f8b;
+  --accent-soft: #e4eef6;
+  --mark: #c7781f;
+  --mark-soft: #fbefdf;
+  --code-bg: #f1efe8;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171c21; --paper: #1f262d; --fg: #e8e6df; --muted: #a2adb6; --line: #39434c;
+    --accent: #7fb3dc; --accent-soft: #23323f; --mark: #e2a054; --mark-soft: #3a2d1c; --code-bg: #262e36;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171c21; --paper: #1f262d; --fg: #e8e6df; --muted: #a2adb6; --line: #39434c;
+  --accent: #7fb3dc; --accent-soft: #23323f; --mark: #e2a054; --mark-soft: #3a2d1c; --code-bg: #262e36;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.6;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+header { border-bottom: 2px solid var(--accent); padding-bottom: 20px; margin-bottom: 36px; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin: 0 0 8px; }
+h1 { font-family: var(--display); font-size: clamp(30px, 5vw, 42px); line-height: 1.1; margin: 0 0 12px; text-wrap: balance; font-weight: 700; }
+.lead { font-size: 18px; color: var(--muted); margin: 0; max-width: 60ch; }
+h2 { font-family: var(--display); font-size: 26px; margin: 48px 0 12px; line-height: 1.2; text-wrap: balance; }
+h3 { font-size: 17px; margin: 28px 0 8px; font-weight: 600; }
+p { margin: 0 0 14px; max-width: 68ch; }
+ul, ol { margin: 0 0 14px; padding-left: 24px; }
+li { margin-bottom: 6px; }
+code { font-family: var(--mono); font-size: .9em; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+pre { font-family: var(--mono); font-size: 14px; line-height: 1.5; background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto; margin: 0 0 16px; }
+pre code { background: none; padding: 0; }
+.term { display: grid; grid-template-columns: 1fr; gap: 16px; margin: 0 0 20px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; min-width: 0; }
+.card h3 { margin: 0 0 6px; font-size: 18px; color: var(--accent); }
+.card .def { font-weight: 500; margin-bottom: 8px; }
+.card .ej { color: var(--muted); font-size: 15px; margin: 0; }
+.card .ej strong { color: var(--fg); font-weight: 600; }
+.note { border-left: 4px solid var(--mark); background: var(--mark-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 20px 0; }
+.note strong { color: var(--mark); }
+.idea { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 20px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 15px; margin: 0 0 20px; }
+.tablewrap { overflow-x: auto; margin: 0 0 20px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.steps li { margin-bottom: 10px; }
+.check { list-style: none; padding: 0; }
+.check li { padding-left: 28px; position: relative; }
+.check li::before { content: "☐"; position: absolute; left: 4px; color: var(--accent); }
+.tree { font-family: var(--mono); font-size: 14px; }
+details { border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin: 0 0 10px; background: var(--paper); }
+summary { cursor: pointer; font-weight: 600; }
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details p { margin: 10px 0 0; }
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+@media (min-width: 600px) { .term { grid-template-columns: 1fr 1fr; } }
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">ASO · 2º ASIR · UD4 Servicio de directorio · Sesión 1 · RA1.a</p>
+  <h1>Guion de repaso: el servicio de directorio</h1>
+  <p class="lead">Todos los términos que vas a usar en esta unidad, explicados desde cero y con ejemplos. Léelo antes de la práctica y vuelve a él cuando no sepas qué significa algo.</p>
+</header>
+
+<h2>1. El problema que resuelve</h2>
+<p>En la unidad anterior creaste cuentas de usuario en cada equipo para poder entrar por RDP o SSH. Funciona con dos o tres máquinas. Ahora imagina un aula con 30 equipos y 25 alumnos.</p>
+<ul>
+  <li>Cada alumno necesita una cuenta en <strong>cada</strong> equipo donde vaya a sentarse: cientos de cuentas.</li>
+  <li>Si alguien cambia su contraseña, tiene que cambiarla en todos los equipos, uno por uno.</li>
+  <li>Si alguien deja el centro, hay que borrar su cuenta de todos los equipos. Si se olvida una, sigue pudiendo entrar.</li>
+  <li>Si quieres que nadie pueda instalar programas, tienes que configurarlo equipo por equipo.</li>
+</ul>
+<div class="idea"><strong>La idea central:</strong> en lugar de que cada equipo tenga su propia lista de usuarios, hay <strong>una sola lista en un servidor</strong> y todos los equipos consultan esa lista. Eso es un servicio de directorio.</div>
+
+<h2>2. Qué es un servicio de directorio</h2>
+<p>Un <strong>servicio de directorio</strong> es una base de datos central de la red que guarda <em>quién</em> hay (usuarios), <em>qué</em> hay (equipos, impresoras, carpetas compartidas) y <em>qué puede hacer cada uno</em> (permisos y políticas). Todos los equipos de la red le preguntan a él cuando alguien quiere iniciar sesión.</p>
+<p>Es como la secretaría de un instituto: tiene la ficha de cada alumno y de cada aula. Un profesor nuevo no lleva su propia lista; consulta la de secretaría.</p>
+<h3>Qué hace por ti</h3>
+<ul>
+  <li><strong>Centraliza usuarios:</strong> una persona, una cuenta, una contraseña, válida en todos los equipos.</li>
+  <li><strong>Centraliza recursos:</strong> sabe qué equipos e impresoras hay y dónde están.</li>
+  <li><strong>Centraliza políticas:</strong> una regla (fondo de escritorio, contraseña mínima, bloquear el panel de control) se aplica a cientos de equipos de golpe.</li>
+  <li><strong>Autentica:</strong> comprueba que la contraseña es correcta cuando alguien inicia sesión.</li>
+</ul>
+<h3>Nombres que vas a oír</h3>
+<div class="tablewrap"><table>
+  <tr><th>Nombre</th><th>Qué es</th></tr>
+  <tr><td><strong>Active Directory (AD DS)</strong></td><td>El servicio de directorio de Microsoft. Es un <em>rol</em> que se instala en Windows Server. Es el que usaremos en esta unidad.</td></tr>
+  <tr><td><strong>LDAP</strong></td><td>El protocolo (el idioma) con el que se consulta un directorio. Active Directory lo habla, y por eso un equipo Linux también puede consultarlo.</td></tr>
+  <tr><td><strong>Kerberos</strong></td><td>El sistema con el que Active Directory comprueba contraseñas sin enviarlas por la red.</td></tr>
+  <tr><td><strong>Controlador de dominio (DC)</strong></td><td>El servidor donde está instalado AD DS. Es quien guarda la base de datos y responde a los inicios de sesión. Lo instalarás en la sesión 2.</td></tr>
+  <tr><td><strong>DNS</strong></td><td>El servicio que traduce nombres a direcciones IP. Active Directory no funciona sin él: los equipos encuentran al controlador preguntando al DNS.</td></tr>
+</table></div>
+
+<h2>3. Los elementos, uno a uno</h2>
+<p>Primero, las piezas pequeñas: lo que se guarda dentro del directorio.</p>
+<div class="term">
+  <div class="card"><h3>Objeto</h3><p class="def">Cada cosa que está guardada en el directorio.</p><p class="ej">Como una ficha de secretaría. <strong>Ejemplos:</strong> el usuario <code>ana</code>, el equipo <code>PC07</code>, el grupo <code>Alumnos2ASIR</code>, una impresora.</p></div>
+  <div class="card"><h3>Atributo</h3><p class="def">Cada dato que describe un objeto.</p><p class="ej">Lo que pone en cada casilla de la ficha. <strong>Ejemplos:</strong> el nombre, el correo, el departamento y la contraseña del usuario <code>ana</code>.</p></div>
+  <div class="card"><h3>Clase de objeto</h3><p class="def">El tipo de objeto: usuario, equipo, grupo…</p><p class="ej">Cada clase tiene sus propios atributos. Un equipo no tiene "correo"; un usuario no tiene "sistema operativo".</p></div>
+  <div class="card"><h3>Esquema</h3><p class="def">La lista de reglas que dice qué clases existen y qué atributos puede tener cada una.</p><p class="ej">Es el modelo oficial de ficha. <strong>Ejemplo:</strong> "todo usuario debe tener un nombre de inicio de sesión". El esquema es único para todo el bosque.</p></div>
+</div>
+
+<h3>Los objetos más habituales</h3>
+<div class="tablewrap"><table>
+  <tr><th>Objeto</th><th>Para qué sirve</th><th>Ejemplo</th></tr>
+  <tr><td>Usuario</td><td>Una persona que inicia sesión</td><td><code>ana</code>, con nombre de inicio de sesión <code>ana@aula.local</code></td></tr>
+  <tr><td>Equipo</td><td>Un ordenador unido al dominio</td><td><code>PC07</code>, <code>DC01</code></td></tr>
+  <tr><td>Grupo</td><td>Un conjunto de usuarios al que se dan permisos de una vez</td><td><code>Alumnos</code>, <code>Profesores</code></td></tr>
+  <tr><td>Unidad organizativa</td><td>Una carpeta para ordenar los demás objetos</td><td><code>Equipos_Aula1</code></td></tr>
+</table></div>
+
+<h2>4. Las estructuras lógicas: cómo se organiza todo</h2>
+<p>Ahora las piezas grandes: cómo se agrupan los objetos. Van de lo más pequeño a lo más grande.</p>
+<div class="term">
+  <div class="card"><h3>Unidad organizativa (OU)</h3><p class="def">Una carpeta dentro del dominio para ordenar usuarios, equipos y grupos.</p><p class="ej">Como los departamentos de un instituto. <strong>Para qué sirve:</strong> tener las cosas ordenadas, dar permisos de administración sobre una parte (por ejemplo, que un profesor gestione solo "Alumnos") y aplicar políticas solo a esa carpeta.</p></div>
+  <div class="card"><h3>Dominio</h3><p class="def">Un conjunto de usuarios, equipos y recursos que se administran juntos y comparten una misma base de datos y unas mismas reglas de contraseña.</p><p class="ej">Como un instituto. Tiene un nombre de tipo DNS: <code>aula.local</code>. Es la unidad básica: casi todo se hace dentro de un dominio.</p></div>
+  <div class="card"><h3>Árbol</h3><p class="def">Un dominio junto con sus subdominios, que comparten el mismo "apellido" DNS.</p><p class="ej">Como un instituto con sedes. <strong>Ejemplo:</strong> <code>aula.local</code> con los hijos <code>madrid.aula.local</code> y <code>sevilla.aula.local</code>. Los tres forman un árbol.</p></div>
+  <div class="card"><h3>Bosque</h3><p class="def">El conjunto completo: uno o varios árboles que confían entre sí y comparten el mismo esquema.</p><p class="ej">Como la consejería con todos sus institutos. Es el límite exterior: lo que está fuera del bosque es otra organización. El primer dominio que se crea es la <strong>raíz del bosque</strong> y le da el nombre.</p></div>
+</div>
+
+<pre class="tree"><code>BOSQUE  aula.local                 ← todo el conjunto
+└── ÁRBOL  aula.local              ← dominios con el mismo apellido
+    ├── DOMINIO  aula.local        ← raíz del bosque
+    │   ├── OU  Alumnos
+    │   │   └── usuario ana        ← objeto, con sus atributos
+    │   ├── OU  Profesores
+    │   └── OU  Equipos
+    │       └── equipo PC07
+    └── DOMINIO  madrid.aula.local ← dominio hijo (subdominio)</code></pre>
+
+<div class="note"><strong>Lo normal en una empresa pequeña:</strong> un bosque con un solo árbol y un solo dominio. Los tres se llaman igual (<code>aula.local</code>) y la organización se hace con OU. En la sesión 2 crearás exactamente eso.</div>
+
+<h3>Dos confusiones típicas</h3>
+<details><summary>¿Dominio o OU? ¿Cuándo uso cada cosa?</summary><p>Un dominio <strong>separa</strong>: otra base de datos, otros administradores, otras reglas de contraseña. Una OU solo <strong>ordena</strong> dentro del mismo dominio. Si tu empresa tiene tres oficinas y un único departamento de informática, lo correcto es un dominio con una OU por oficina. Crear un dominio por oficina es complicarse sin necesidad.</p></details>
+<details><summary>¿Árbol o bosque? ¿No es lo mismo?</summary><p>El árbol lo marca el <strong>nombre</strong>: <code>es.empresa.com</code> y <code>pt.empresa.com</code> cuelgan de <code>empresa.com</code>, así que son el mismo árbol. Si la empresa compra <code>tienda.net</code> y lo mete en el mismo bosque, es <strong>otro árbol</strong> (otro nombre) <strong>dentro del mismo bosque</strong>. Un bosque puede tener un árbol o varios; un árbol siempre está dentro de un bosque.</p></details>
+<details><summary>Las carpetas <code>Users</code> y <code>Computers</code>, ¿son OU?</summary><p>No. Son <strong>contenedores</strong> que Windows crea solos. Se parecen a las OU, pero no se les pueden aplicar políticas (GPO). Por eso en las prácticas crearás tus propias OU en lugar de usar <code>Users</code>.</p></details>
+
+<h2>5. Cómo se escribe la ruta de un objeto</h2>
+<p>Cada objeto tiene una dirección única dentro del directorio, llamada <strong>nombre distintivo</strong> o <strong>DN</strong> (<em>Distinguished Name</em>). Se lee <strong>de derecha a izquierda</strong>: de lo más grande a lo más pequeño, como una dirección postal al revés.</p>
+<pre><code>CN=ana,OU=Alumnos,DC=aula,DC=local</code></pre>
+<div class="tablewrap"><table>
+  <tr><th>Trozo</th><th>Significa</th><th>Aquí</th></tr>
+  <tr><td><code>DC=</code></td><td><em>Domain Component</em>: cada parte del nombre del dominio</td><td><code>DC=aula,DC=local</code> → el dominio <code>aula.local</code></td></tr>
+  <tr><td><code>OU=</code></td><td><em>Organizational Unit</em>: una unidad organizativa</td><td><code>OU=Alumnos</code> → la carpeta Alumnos</td></tr>
+  <tr><td><code>CN=</code></td><td><em>Common Name</em>: el nombre del objeto</td><td><code>CN=ana</code> → el usuario ana</td></tr>
+</table></div>
+<p>Si hay OU dentro de OU, aparecen encadenadas, la más interna a la izquierda: <code>CN=PC07,OU=Portatiles,OU=Equipos,DC=aula,DC=local</code> es el equipo PC07, dentro de Portátiles, que está dentro de Equipos, en el dominio aula.local.</p>
+
+<h2>6. Un caso real para situarte</h2>
+<p>Grupo Iberia (empresa inventada) tiene sede en España y Portugal, una tienda online con marca propia y acaba de comprar Nordicpart, que ya tenía su propio directorio.</p>
+<pre class="tree"><code>BOSQUE 1  grupoiberia.com
+├── ÁRBOL  grupoiberia.com
+│   ├── DOMINIO  grupoiberia.com       sede central (raíz del bosque)
+│   ├── DOMINIO  es.grupoiberia.com    España
+│   └── DOMINIO  pt.grupoiberia.com    Portugal
+└── ÁRBOL  tiendaonline.net
+    └── DOMINIO  tiendaonline.net      tienda (otro nombre, mismo bosque)
+
+BOSQUE 2  nordicpart.org
+└── DOMINIO  nordicpart.org            empresa comprada, todavía separada</code></pre>
+<ul>
+  <li><strong>2 bosques</strong>, <strong>3 árboles</strong> y <strong>5 dominios</strong>.</li>
+  <li><code>es</code> y <code>pt</code> están en el mismo árbol porque comparten el apellido <code>grupoiberia.com</code>.</li>
+  <li><code>tiendaonline.net</code> es otro árbol porque tiene otro nombre, pero está en el mismo bosque: comparte esquema y los usuarios de un lado pueden usar recursos del otro.</li>
+  <li><code>nordicpart.org</code> es otro bosque: era otra organización. Para que sus usuarios entren en recursos de Grupo Iberia hay que crear a mano una <strong>relación de confianza</strong> entre bosques.</li>
+</ul>
+
+<h2>7. Lo que vas a hacer en la práctica de hoy</h2>
+<p>Todavía no hay ningún dominio. Trabajas en tu propio Windows Server para ver el "antes" y dejarlo listo para instalar AD DS en la próxima sesión.</p>
+<ol class="steps">
+  <li><strong>Ver las cuentas locales.</strong> <code>Windows + R</code> → <code>lusrmgr.msc</code>. Crea un usuario <code>prueba</code>. Fíjate: solo existe en este servidor.</li>
+  <li><strong>Comprobar que no hay dominio.</strong> <code>Windows + R</code> → <code>sysdm.cpl</code>. Verás <em>Grupo de trabajo: WORKGROUP</em>.</li>
+  <li><strong>Localizar el rol.</strong> Administrador del servidor → Agregar roles y características → busca <em>Servicios de dominio de Active Directory</em>. Lee la descripción y <strong>cancela</strong>.</li>
+  <li><strong>Preparar el servidor.</strong> Nombre <code>DC-TuApellido</code>, IP fija y DNS apuntando a su propia IP. Reinicia.</li>
+  <li><strong>Leer dos rutas DN</strong> en papel y decir qué objeto, qué OU y qué dominio.</li>
+</ol>
+
+<h2>7b. Un poco de scripting (opcional, 10 min)</h2>
+<p>Con lo que ya sabes de PowerShell de la UD2 puedes ver el "antes" del directorio en tres comandos. Nada de Active Directory todavía: solo cuentas locales y el estado del equipo.</p>
+<pre><code># ¿Qué cuentas hay en ESTE servidor? (solo existen aquí)
+Get-LocalUser | Select-Object Name, Enabled
+
+# ¿Está el equipo en un dominio o en un grupo de trabajo?
+Get-ComputerInfo | Select-Object CsName, CsDomain, CsPartOfDomain
+
+# ¿Qué roles de servidor tiene instalados? (AD DS aún no aparece)
+Get-WindowsFeature | Where-Object Installed | Select-Object Name</code></pre>
+<p>Guárdalos en <code>antes.ps1</code> y ejecútalo. Repite el mismo script después de la sesión 2: <code>CsPartOfDomain</code> pasará a <code>True</code>, <code>CsDomain</code> tendrá tu dominio y aparecerá el rol <code>AD-Domain-Services</code>. Ese "antes y después" es tu evidencia.</p>
+<p>Si te sobra tiempo, añade al script un usuario local con <code>New-LocalUser -Name prueba2 -NoPassword</code> y vuelve a listar las cuentas. Es lo mismo que hiciste en <code>lusrmgr.msc</code>, pero por comandos.</p>
+
+<h2>8. Comprueba que lo tienes claro</h2>
+<p>Si puedes responder a esto sin mirar arriba, estás listo para la sesión 2.</p>
+<ul class="check">
+  <li>¿Por qué es mejor un directorio que crear cuentas en cada equipo?</li>
+  <li>¿Qué diferencia hay entre un objeto y un atributo?</li>
+  <li>¿Qué es un dominio?</li>
+  <li>¿Qué diferencia hay entre un árbol y un bosque?</li>
+  <li>¿Para qué sirve una OU y en qué se diferencia de un dominio?</li>
+  <li>¿Qué objeto es <code>CN=luis,OU=Profesores,DC=aula,DC=local</code> y dónde está?</li>
+  <li>¿Qué es un controlador de dominio y por qué necesita DNS?</li>
+</ul>
+
+<h2>9. Chuleta de términos</h2>
+<div class="tablewrap"><table>
+  <tr><th>Término</th><th>En una frase</th></tr>
+  <tr><td>Servicio de directorio</td><td>Base de datos central de usuarios, equipos y políticas de la red.</td></tr>
+  <tr><td>Active Directory (AD DS)</td><td>El servicio de directorio de Microsoft; un rol de Windows Server.</td></tr>
+  <tr><td>Controlador de dominio</td><td>Servidor que tiene instalado AD DS.</td></tr>
+  <tr><td>Objeto</td><td>Cada elemento guardado: usuario, equipo, grupo, OU.</td></tr>
+  <tr><td>Atributo</td><td>Cada dato de un objeto.</td></tr>
+  <tr><td>Esquema</td><td>Reglas que definen qué objetos y atributos existen; uno por bosque.</td></tr>
+  <tr><td>OU</td><td>Carpeta para ordenar objetos dentro de un dominio.</td></tr>
+  <tr><td>Dominio</td><td>Conjunto administrado junto, con nombre DNS (<code>aula.local</code>).</td></tr>
+  <tr><td>Árbol</td><td>Dominio con sus subdominios, mismo apellido DNS.</td></tr>
+  <tr><td>Bosque</td><td>Conjunto completo de árboles que comparten esquema y confianza.</td></tr>
+  <tr><td>DN</td><td>Ruta única de un objeto: <code>CN=…,OU=…,DC=…,DC=…</code>.</td></tr>
+  <tr><td>LDAP</td><td>Protocolo para consultar el directorio.</td></tr>
+  <tr><td>Kerberos</td><td>Sistema de autenticación de Active Directory.</td></tr>
+  <tr><td>GPO</td><td>Directiva de grupo: regla que se aplica a un dominio o una OU (sesión 6).</td></tr>
+</table></div>
+
+<footer>Módulo 0374 Administración de Sistemas Operativos · IES Pablo Serrano · UD4 sesión 1 de 8 · Próxima sesión: instalación de AD DS en Windows Server 2022.</footer>
+</div>
+
+</body></html>

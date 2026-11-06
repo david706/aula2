@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux Survival para ISO · Curso 26/27</title>
+<style>
+  :root{
+    --paper:#F4F7FB; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --azul:#2563EB; --naranja:#EA580C; --verde:#059669; --morado:#7C3AED; --rojo:#DC2626;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px 16px 70px}
+  button,input,select{font-family:inherit}
+  button{cursor:pointer}
+
+  header{text-align:center;margin-bottom:18px}
+  header h1{margin:0;font-size:29px;letter-spacing:-.02em}
+  header p{margin:5px 0 0;color:var(--soft);font-size:13.5px}
+
+  .fases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:16px}
+  .fase{border-radius:var(--r);padding:14px 16px;color:#fff;text-align:left;border:none;position:relative;overflow:hidden}
+  .fase.f1{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+  .fase.f2{background:linear-gradient(135deg,#F97316,#EA580C)}
+  .fase.f3{background:linear-gradient(135deg,#10B981,#059669)}
+  .fase.gen{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .fase .n{font-size:11px;opacity:.85;letter-spacing:.08em;text-transform:uppercase}
+  .fase h2{margin:2px 0 8px;font-size:17px}
+  .fase small{opacity:.9;font-size:12px;display:block;margin-bottom:9px}
+  .barra{height:8px;border-radius:5px;background:rgba(255,255,255,.28);overflow:hidden}
+  .barra i{display:block;height:100%;background:#fff;border-radius:5px;transition:width .3s}
+  .fase.gen .barra{background:#E2E8F0}
+  .fase.gen .barra i{background:linear-gradient(90deg,#10B981,#2563EB)}
+  .pct{font-size:26px;font-weight:800;letter-spacing:-.03em}
+
+  nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:16px;overflow-x:auto}
+  nav button{flex:1;min-width:120px;border:none;background:none;padding:9px 12px;border-radius:9px;font-size:14px;color:var(--soft);white-space:nowrap}
+  nav button.on{background:var(--azul);color:#fff;font-weight:600}
+
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  @media (min-width:901px){.term-panel{position:sticky;top:14px}}
+  @media (max-width:900px){.cols{grid-template-columns:1fr}.lateral{order:-1}}
+  @media (min-width:1300px){.cols{grid-template-columns:1fr 420px}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .panel h3{margin:0 0 3px;font-size:17px}
+  .panel .sub{color:var(--soft);font-size:13px;margin-bottom:14px}
+
+  .buscador{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .buscador input{flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 13px;font-size:12.5px;color:var(--soft)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .bloque{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:#fff}
+  .bloque>.cab{display:flex;align-items:center;gap:11px;padding:12px 14px;width:100%;border:none;background:none;text-align:left}
+  .bloque>.cab:hover{background:#F8FAFC}
+  .bloque.abierto{border-color:#BFDBFE;background:#F8FBFF}
+  .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex:none;background:#EFF6FF}
+  .cab b{font-size:14.5px}
+  .cab span{color:var(--soft);font-size:12.5px}
+  .cab .estado{margin-left:auto;font-size:11.5px;color:var(--soft);white-space:nowrap}
+  .cmds{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px;padding:0 14px 14px}
+
+  .cmd{border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;position:relative}
+  .cmd.ok{border-color:#A7F3D0;background:#F0FDF9}
+  .cmd code.t{display:block;background:var(--ink);color:#A5F3FC;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:9px;overflow-x:auto}
+  .lin{display:flex;gap:7px;font-size:12.5px;margin-bottom:5px;align-items:flex-start}
+  .lin b{flex:none;font-size:11px;padding:1px 6px;border-radius:5px}
+  .b1{background:#DBEAFE;color:#1D4ED8}
+  .b2{background:#DCFCE7;color:#15803D}
+  .b3{background:#EDE9FE;color:#6D28D9}
+  .lin code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11.5px}
+  .lin code.ej{cursor:pointer;border-bottom:1px dashed var(--soft)}
+  .lin code.ej:hover{background:#E2E8F0}
+  .chk-resp{margin-top:9px}
+  .in-resp{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;transition:border-color .15s,background .15s}
+  .in-resp.acierto{border-color:#86EFAC;background:#F0FDF9}
+
+  .lateral{display:flex;flex-direction:column;gap:14px}
+  .acciones{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .acciones button{border:none;border-radius:11px;padding:13px 11px;color:#fff;font-size:13.5px;font-weight:600;text-align:left}
+  .a1{background:var(--azul)} .a2{background:var(--naranja)} .a3{background:var(--verde)}
+  .a4{background:var(--morado)} .a5{background:var(--rojo)} .a6{background:#0F766E}
+
+  .ra{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .ra .anillo{position:relative;width:100%;aspect-ratio:1;max-width:62px;margin:0 auto}
+  .ra small{display:block;font-size:10px;color:var(--soft);margin-top:4px;line-height:1.25}
+
+  /* terminal */
+  .term{background:#0B1220;border-radius:12px;padding:0;overflow:hidden;border:1px solid #1E293B}
+  .term .barra-t{background:#111C30;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1E293B}
+  .punto{width:10px;height:10px;border-radius:50%}
+  .term .tit{color:#94A3B8;font-size:12px;margin-left:6px}
+  .term .out{height:420px;overflow-y:auto;overflow-x:hidden;padding:12px 14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#E2E8F0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.45}
+  .term .out .pr{color:#4ADE80}
+  .term .out .err{color:#FCA5A5}
+  .term .out .inf{color:#93C5FD}
+  .entrada{display:flex;align-items:center;gap:8px;border-top:1px solid #1E293B;padding:9px 12px;background:#0F172A}
+  .entrada span{color:#4ADE80;font-family:ui-monospace,monospace;font-size:13px;white-space:nowrap}
+  .entrada input{flex:1;background:none;border:none;color:#E2E8F0;font-family:ui-monospace,monospace;font-size:13px;outline:none}
+
+  .reto{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;background:#fff;display:flex;gap:12px;align-items:flex-start}
+  .reto.hecho{border-color:#A7F3D0;background:#F0FDF9}
+  .reto .num{width:28px;height:28px;border-radius:8px;background:#FEF3C7;color:#B45309;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+  .reto.hecho .num{background:var(--verde);color:#fff}
+  .reto b{display:block;font-size:14.5px}
+  .reto p{margin:3px 0 8px;font-size:13px;color:var(--soft)}
+  .reto button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px}
+
+  .preg{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff}
+  .preg .q{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .op{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;margin-bottom:6px;font-size:13.5px}
+  .op:hover{border-color:#94A3B8}
+  .op.bien{background:#DCFCE7;border-color:#86EFAC;font-weight:600}
+  .op.mal{background:#FEE2E2;border-color:#FCA5A5}
+  .expl{font-size:12.5px;color:var(--soft);margin-top:7px;padding-left:2px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  td code{font-family:ui-monospace,monospace;background:#F1F5F9;padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+  .oculto{display:none !important}
+  .nota{font-size:12.5px;color:var(--soft)}
+  .pie{text-align:center;color:var(--soft);font-size:13px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+  @media print{nav,.fases,.lateral,.acciones,.entrada,button{display:none !important}body{background:#fff}}
+
+  button:focus-visible,input:focus-visible,.chip:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+
+  .toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:999;max-width:280px}
+  .toast{background:var(--ink);color:#fff;padding:11px 15px;border-radius:10px;font-size:13px;line-height:1.4;
+    box-shadow:0 10px 24px rgba(15,23,42,.25);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s}
+  .toast.in{opacity:1;transform:translateY(0)}
+  .toast.ok{background:var(--verde)}
+  .pts{font-size:24px;font-weight:800;color:var(--azul);margin-bottom:4px;letter-spacing:-.02em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Linux Survival para ISO</h1>
+  <p>Curso 26/27 · Implantación de Sistemas Operativos · Terminal, archivos, permisos, paquetes, red y diagnóstico</p>
+</header>
+
+<div class="fases" id="fases"></div>
+
+<nav>
+  <button data-tab="aprender" class="on">Centro de aprendizaje</button>
+  <button data-tab="retos">Mini retos</button>
+  <button data-tab="test">Autoevaluación</button>
+  <button data-tab="chuleta">Chuleta</button>
+  <button data-tab="ayuda">Ayuda</button>
+</nav>
+
+<div class="cols">
+  <div>
+    <!-- APRENDER -->
+    <section id="tab-aprender" class="panel">
+      <h3>Centro de aprendizaje</h3>
+      <p class="sub">Despliega un bloque, lee la ficha y prueba el comando en la terminal (siempre visible al lado). En cuanto lo ejecutes bien —o respondas bien, si la ficha tiene pregunta— se registra solo, sin que tengas que hacer nada más.</p>
+      <div class="buscador">
+        <input id="busca" placeholder="Buscar comando: permisos, ip, chmod…">
+        <button class="chip on" data-cat="">Todos</button>
+        <button class="chip" data-cat="terminal">Terminal</button>
+        <button class="chip" data-cat="archivos">Archivos</button>
+        <button class="chip" data-cat="permisos">Permisos</button>
+        <button class="chip" data-cat="red">Red</button>
+        <button class="chip" data-cat="logs">Procesos y logs</button>
+      </div>
+      <div id="bloques"></div>
+    </section>
+
+    <!-- RETOS -->
+    <section id="tab-retos" class="panel oculto">
+      <h3>Mini retos</h3>
+      <p class="sub">Hazlos en la terminal de prácticas: se comprueban solos en cuanto el sistema simulado cumple la condición, no hace falta pulsar nada. Suman puntos.</p>
+      <div id="retos"></div>
+    </section>
+
+    <!-- TEST -->
+    <section id="tab-test" class="panel oculto">
+      <h3>Autoevaluación</h3>
+      <p class="sub" id="subTest">Doce preguntas. Responde y te digo al momento por qué.</p>
+      <div id="test"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="chip" id="testReset">Empezar de nuevo</button>
+      </div>
+    </section>
+
+    <!-- CHULETA -->
+    <section id="tab-chuleta" class="panel oculto">
+      <h3>Chuleta</h3>
+      <p class="sub">Todos los comandos del curso en una tabla. Imprímela y llévala en la carpeta.</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="chip" onclick="window.print()">Imprimir</button>
+        <button class="chip" id="copiarChuleta">Copiar como texto</button>
+      </div>
+      <div id="chuleta"></div>
+      <textarea id="cajaChuleta" class="oculto" style="width:100%;min-height:140px;margin-top:10px"></textarea>
+    </section>
+
+    <!-- AYUDA -->
+    <section id="tab-ayuda" class="panel oculto">
+      <h3>Ayuda</h3>
+      <p class="sub">Cómo sacarle partido a esto.</p>
+      <div id="ayuda"></div>
+    </section>
+  </div>
+
+  <aside class="lateral">
+    <div class="panel term-panel" id="panelTerminal">
+      <h3 style="font-size:15px">Terminal de prácticas</h3>
+      <p class="sub" style="margin-bottom:10px">Sistema de archivos simulado, no toca tu equipo. <code>ayuda</code> lista los comandos, <code>reiniciar</code> lo deja como al empezar.</p>
+      <div class="term">
+        <div class="barra-t">
+          <i class="punto" style="background:#EF4444"></i><i class="punto" style="background:#F59E0B"></i><i class="punto" style="background:#22C55E"></i>
+          <span class="tit">alumno@iso — bash</span>
+        </div>
+        <div class="out" id="out"></div>
+        <div class="entrada"><span id="prompt">alumno@iso:~$</span><input id="cmd" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <p class="nota" style="margin-top:8px">↑ ↓ repiten comandos. Si vienes de una ficha, el comando aparece como pista en el campo: escríbelo tú.</p>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Acciones rápidas</h3>
+      <p class="sub" style="margin-bottom:11px">Lo que más vas a usar.</p>
+      <div class="acciones">
+        <button class="a1" data-ir="chuleta">Abrir chuleta</button>
+        <button class="a2" id="btnTerminal">Ir a la terminal</button>
+        <button class="a3" data-ir="retos">Mini retos</button>
+        <button class="a4" data-ir="test">Autoevaluación</button>
+        <button class="a5" id="btnSiguiente">Siguiente paso</button>
+        <button class="a6" id="btnReiniciar">Reiniciar progreso</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Resultados de aprendizaje</h3>
+      <p class="sub" style="margin-bottom:11px">Tu avance en cada RA del módulo.</p>
+      <div class="ra" id="ra"></div>
+    </div>
+
+    <div class="panel">
+      <h3 style="font-size:15px">Racha y actividad</h3>
+      <p class="sub" style="margin-bottom:8px">Lo que llevas hecho.</p>
+      <div id="stats" class="nota"></div>
+    </div>
+  </aside>
+</div>
+
+<p class="pie">Objetivo: entrar en ISO con soltura en la terminal y sin miedo a Linux.</p>
+</div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ============ CONTENIDO ============ */
+const BLOQUES=[
+ {id:0,fase:1,tit:"Boot y terminal",sub:"Arranque, terminal y shell",ico:"▶",ra:["RA1"],cmds:[
+  {c:"whoami",cat:"terminal",q:"Muestra con qué usuario has iniciado sesión.",e:"whoami",p:"¿Eres root o un usuario normal?"},
+  {c:"uname -a",cat:"terminal",q:"Información del núcleo y la versión del sistema.",e:"uname -a",p:"Averigua la versión del kernel."},
+  {c:"echo $SHELL",cat:"terminal",q:"Dice qué intérprete de órdenes estás usando.",e:"echo $SHELL",p:"Comprueba si estás en bash."},
+  {c:"history",cat:"terminal",q:"Lista los últimos comandos que has escrito.",e:"history",p:"Repite un comando anterior con la flecha arriba."},
+  {c:"clear",cat:"terminal",q:"Limpia la pantalla, no el historial.",e:"clear",p:"Deja la terminal despejada."},
+  {c:"man",cat:"terminal",q:"Abre el manual de un comando. La primera parada ante la duda.",e:"man ls",p:"Mira el manual de cd."}]},
+
+ {id:1,fase:1,tit:"Navegación",sub:"Rutas, pwd, ls y cd",ico:"📁",ra:["RA1"],cmds:[
+  {c:"pwd",cat:"terminal",q:"Muestra la ruta del directorio actual.",e:"pwd",p:"¿En qué directorio estás ahora?"},
+  {c:"ls -la",cat:"archivos",q:"Lista el contenido con detalle, incluidos los ocultos.",e:"ls -la",p:"¿Cuántos archivos ocultos hay en tu home?"},
+  {c:"cd",cat:"terminal",q:"Cambia de directorio. Sin argumentos vuelve a tu home.",e:"cd /etc",p:"Ve a /tmp y vuelve a tu home."},
+  {c:"cd ..",cat:"terminal",q:"Sube un nivel en el árbol de directorios.",e:"cd ..",p:"Desde /var/log, sube dos niveles."},
+  {c:"file",cat:"archivos",q:"Dice de qué tipo es un archivo sin fiarse de la extensión.",e:"file notas.txt",p:"Comprueba qué es /etc/passwd."}]},
+
+ {id:2,fase:1,tit:"Archivos y directorios",sub:"Crear, copiar, mover y borrar",ico:"📄",ra:["RA1","RA2"],cmds:[
+  {c:"mkdir",cat:"archivos",q:"Crea directorios. Con -p crea también los padres.",e:"mkdir -p practicas/dia1",p:"Crea practicas/dia1 de una sola vez."},
+  {c:"touch",cat:"archivos",q:"Crea un archivo vacío o actualiza su fecha.",e:"touch notas.txt",p:"Crea tres archivos de golpe."},
+  {c:"cp",cat:"archivos",q:"Copia archivos. Con -r copia directorios enteros.",e:"cp notas.txt copia.txt",p:"Copia tu home a /tmp."},
+  {c:"mv",cat:"archivos",q:"Mueve o renombra. Es la misma orden para las dos cosas.",e:"mv copia.txt practicas/",p:"Renombra notas.txt a apuntes.txt."},
+  {c:"rm -r",cat:"archivos",q:"Borra. Con -r, directorios y su contenido. No hay papelera.",e:"rm -r practicas",p:"Borra un directorio que hayas creado."},
+  {c:"cat",cat:"archivos",q:"Muestra el contenido de un archivo por pantalla.",e:"cat notas.txt",p:"Lee /etc/hostname."},
+  {c:"grep",cat:"logs",q:"Busca un texto dentro de archivos.",e:"grep alumno /etc/passwd",p:"Busca 'root' en /etc/passwd."},
+  {c:"find",cat:"archivos",q:"Busca archivos por nombre recorriendo directorios.",e:"find /home -name '*.txt'",p:"Encuentra todos los .conf de /etc."}]},
+
+ {id:3,fase:2,tit:"Usuarios y sudo",sub:"Usuarios, grupos y privilegios",ico:"👥",ra:["RA2","RA3"],cmds:[
+  {c:"id",cat:"permisos",q:"Muestra tu UID, GID y los grupos a los que perteneces.",e:"id",p:"¿Estás en el grupo sudo?"},
+  {c:"sudo",cat:"permisos",q:"Ejecuta una orden con privilegios de administrador.",e:"sudo ls /root",p:"Intenta leer /root con y sin sudo."},
+  {c:"adduser",cat:"permisos",q:"Crea un usuario nuevo con su home y su grupo.",e:"sudo adduser pruebas",p:"Crea el usuario 'pruebas'."},
+  {c:"groups",cat:"permisos",q:"Lista los grupos de un usuario.",e:"groups",p:"Mira los grupos de root."},
+  {c:"su",cat:"permisos",q:"Cambia de usuario dentro de la misma sesión.",e:"su - pruebas",p:"Entra como otro usuario y vuelve con exit."}]},
+
+ {id:4,fase:2,tit:"Permisos",sub:"chmod, chown y lectura de rwx",ico:"🛡",ra:["RA3"],cmds:[
+  {c:"ls -l",cat:"permisos",q:"La primera columna son los permisos: tipo, dueño, grupo y otros.",e:"ls -l notas.txt",p:"Lee los permisos de tu home."},
+  {c:"chmod",cat:"permisos",q:"Cambia permisos. En octal: 4 leer, 2 escribir, 1 ejecutar.",e:"chmod 640 notas.txt",p:"Deja un archivo solo legible por su dueño."},
+  {c:"chmod +x",cat:"permisos",q:"Forma simbólica: añade permiso de ejecución.",e:"chmod +x script.sh",p:"Haz ejecutable un script."},
+  {c:"chown",cat:"permisos",q:"Cambia el propietario y el grupo de un archivo.",e:"sudo chown root notas.txt",p:"Cambia el dueño de un archivo a root."},
+  {c:"umask",cat:"permisos",q:"Permisos que se quitan por defecto al crear archivos.",e:"umask",p:"¿Con qué permisos nacen tus archivos?"}]},
+
+ {id:5,fase:2,tit:"Paquetes y servicios",sub:"apt y systemctl",ico:"📦",ra:["RA2"],cmds:[
+  {c:"apt update",cat:"terminal",q:"Actualiza la lista de paquetes disponibles. No instala nada.",e:"sudo apt update",p:"Actualiza los índices."},
+  {c:"apt install",cat:"terminal",q:"Instala un paquete y sus dependencias.",e:"sudo apt install htop",p:"Instala htop."},
+  {c:"apt list --installed",cat:"terminal",q:"Muestra lo que hay instalado.",e:"apt list --installed",p:"Comprueba si está instalado ssh."},
+  {c:"systemctl status",cat:"logs",q:"Estado de un servicio: activo, parado o fallando.",e:"systemctl status ssh",p:"Mira el estado del servicio ssh."},
+  {c:"systemctl start",cat:"logs",q:"Arranca un servicio. Con enable, además al inicio.",e:"sudo systemctl start ssh",p:"Arranca ssh y comprueba el estado."}]},
+
+ {id:6,fase:3,tit:"Red",sub:"Direcciones, conectividad y puertos",ico:"🌐",ra:["RA6"],cmds:[
+  {c:"ip a",cat:"red",q:"Muestra las interfaces de red y sus direcciones IP.",e:"ip a",p:"¿Cuál es tu IP privada?"},
+  {c:"ping",cat:"red",q:"Comprueba si un host responde y con cuánta latencia.",e:"ping -c 4 8.8.8.8",p:"Prueba contra 8.8.8.8 y contra un nombre."},
+  {c:"ss -tuln",cat:"red",q:"Lista los puertos en escucha. Sustituye al antiguo netstat.",e:"ss -tuln",p:"¿Qué puertos tienes abiertos?"},
+  {c:"hostname -I",cat:"red",q:"Devuelve solo las IP del equipo, sin ruido.",e:"hostname -I",p:"Saca la IP en una línea."},
+  {c:"curl",cat:"red",q:"Hace peticiones web desde la terminal.",e:"curl -I https://example.com",p:"Pide las cabeceras de una web."}]},
+
+ {id:7,fase:3,tit:"Procesos y logs",sub:"ps, top, kill y journalctl",ico:"📊",ra:["RA6"],cmds:[
+  {c:"ps aux",cat:"logs",q:"Fotografía de todos los procesos en ejecución.",e:"ps aux",p:"Busca el proceso de bash."},
+  {c:"top",cat:"logs",q:"Monitor en tiempo real de CPU y memoria.",e:"top",p:"¿Qué proceso consume más CPU?"},
+  {c:"kill",cat:"logs",q:"Envía una señal a un proceso para terminarlo.",e:"kill 1234",p:"Termina un proceso por su PID."},
+  {c:"journalctl -xe",cat:"logs",q:"Los últimos mensajes del sistema, con los errores al final.",e:"journalctl -xe",p:"Busca el último error registrado."},
+  {c:"dmesg",cat:"logs",q:"Mensajes del núcleo, útiles para hardware y arranque.",e:"dmesg | tail",p:"Mira qué dijo el kernel al arrancar."}]},
+
+ {id:8,fase:3,tit:"Copias y espacio",sub:"df, du, tar y respaldo",ico:"💾",ra:["RA6","RA2"],cmds:[
+  {c:"df -h",cat:"logs",q:"Espacio libre y ocupado por cada sistema de archivos.",e:"df -h",p:"¿Cuánto espacio te queda?"},
+  {c:"du -sh",cat:"logs",q:"Tamaño total de un directorio.",e:"du -sh /home/alumno",p:"Mira cuánto ocupa tu home."},
+  {c:"tar -czf",cat:"archivos",q:"Empaqueta y comprime un directorio en un .tar.gz.",e:"tar -czf copia.tar.gz practicas",p:"Haz una copia comprimida de un directorio."},
+  {c:"tar -xzf",cat:"archivos",q:"Extrae un archivo comprimido.",e:"tar -xzf copia.tar.gz",p:"Descomprime la copia que hiciste."},
+  {c:"free -h",cat:"logs",q:"Memoria RAM y swap disponibles.",e:"free -h",p:"¿Cuánta RAM libre tienes?"}]}
+];
+
+const RETOS=[
+ {id:"r1",t:"Crea tu zona de trabajo",d:"Crea el directorio practicas/dia1 dentro de tu home y colócate dentro.",
+  ok:()=>existe("/home/alumno/practicas/dia1")&&cwd==="/home/alumno/practicas/dia1"},
+ {id:"r2",t:"Un archivo con contenido",d:"Dentro de practicas/dia1, crea un archivo notas.txt que contenga la palabra hola.",
+  ok:()=>{const n=nodo("/home/alumno/practicas/dia1/notas.txt");return !!n&&n.tipo==="f"&&/hola/i.test(n.txt||"")}},
+ {id:"r3",t:"Copia de seguridad",d:"Copia notas.txt a /tmp con el nombre respaldo.txt.",
+  ok:()=>!!nodo("/tmp/respaldo.txt")},
+ {id:"r4",t:"Permisos cerrados",d:"Deja notas.txt con permisos 640: dueño lee y escribe, grupo lee, otros nada.",
+  ok:()=>{const n=nodo("/home/alumno/practicas/dia1/notas.txt");return !!n&&n.perm==="rw-r-----"}},
+ {id:"r5",t:"Hazlo ejecutable",d:"Crea un archivo script.sh en tu home y dale permiso de ejecución.",
+  ok:()=>{const n=nodo("/home/alumno/script.sh");return !!n&&n.perm.indexOf("x")>-1}},
+ {id:"r6",t:"Busca dentro de un archivo",d:"Usa grep para encontrar la palabra root dentro de /etc/passwd.",
+  ok:()=>hecho.grep_root},
+ {id:"r7",t:"Comprueba la red",d:"Averigua tu dirección IP y haz ping a 8.8.8.8.",
+  ok:()=>hecho.ip&&hecho.ping},
+ {id:"r8",t:"Diagnostica el sistema",d:"Mira el espacio libre en disco y los procesos en marcha.",
+  ok:()=>hecho.df&&hecho.ps}
+];
+
+const TEST=[
+ {q:"¿Qué comando te dice en qué directorio estás?",o:["pwd","cd","ls","whoami"],r:0,e:"pwd viene de print working directory."},
+ {q:"Quieres crear practicas/dia1 cuando practicas no existe todavía. ¿Cómo?",o:["mkdir practicas/dia1","mkdir -p practicas/dia1","touch practicas/dia1","cd practicas/dia1"],r:1,e:"La opción -p crea también los directorios padre que falten."},
+ {q:"En ls -l ves -rw-r--r--. ¿Qué puede hacer el grupo?",o:["Leer y escribir","Solo leer","Nada","Leer y ejecutar"],r:1,e:"Los permisos van de tres en tres: dueño rw-, grupo r--, otros r--."},
+ {q:"¿Qué permiso octal equivale a rw-r-----?",o:["644","640","600","755"],r:1,e:"rw- es 6, r-- es 4 y --- es 0."},
+ {q:"¿Cuál actualiza la lista de paquetes sin instalar nada?",o:["apt upgrade","apt install","apt update","apt list"],r:2,e:"update refresca los índices; upgrade es el que actualiza los paquetes."},
+ {q:"¿Con qué comprobarías qué puertos tiene abiertos el equipo?",o:["ip a","ss -tuln","ping","curl"],r:1,e:"ss -tuln lista los sockets TCP y UDP en escucha, en formato numérico."},
+ {q:"El servicio ssh no responde. ¿Por dónde empiezas?",o:["Reinstalar el sistema","systemctl status ssh","rm -r /etc/ssh","ping ssh"],r:1,e:"Primero se mira el estado del servicio y sus últimos mensajes."},
+ {q:"¿Qué hace rm -r practicas?",o:["Renombra el directorio","Lo mueve a la papelera","Borra el directorio y todo su contenido","Comprime el directorio"],r:2,e:"No hay papelera en la terminal: lo borrado, borrado queda."},
+ {q:"¿Cuál te dice cuánto espacio libre queda en disco?",o:["du -sh","df -h","free -h","ls -l"],r:1,e:"df es del sistema de archivos; du mide lo que ocupa un directorio."},
+ {q:"Quieres ver los últimos errores del sistema. ¿Qué usas?",o:["journalctl -xe","history","cat /etc/passwd","uname -a"],r:0,e:"journalctl consulta el registro de systemd; -xe muestra el final con contexto."},
+ {q:"¿Qué diferencia hay entre mv y cp?",o:["Ninguna","mv mueve o renombra, cp duplica","mv solo funciona con directorios","cp borra el original"],r:1,e:"Tras un mv el original ya no está; tras un cp, sí."},
+ {q:"Necesitas ejecutar una orden como administrador. ¿Cómo?",o:["Poniendo sudo delante","Escribiéndola en mayúsculas","Con chmod 777","Reiniciando"],r:0,e:"sudo eleva privilegios para esa orden, si tu usuario está autorizado."}
+];
+
+const AYUDA=[
+ ["¿Por dónde empiezo?","Haz los bloques en orden. Cada ficha tiene qué hace el comando, un ejemplo y algo para probar tú. En cuanto lo ejecutes bien en la terminal (o aciertes la pregunta, si la tiene), se registra solo."],
+ ["¿La terminal es de verdad?","No, es una simulación con su propio sistema de archivos. Puedes borrar lo que quieras sin romper nada. Se comporta como Linux en lo esencial, pero no acepta todo."],
+ ["¿Se guarda mi progreso?","Sí, en este navegador y en este equipo. Si abres la página en otro ordenador empezarás de cero."],
+ ["¿Y los mini retos?","Se comprueban solos, automáticamente, cada vez que ejecutas un comando: se mira el estado real del sistema simulado, no lo que hayas escrito. En cuanto lo consigues aparece un aviso y suman puntos. Si el reto pide un archivo con cierto contenido, tiene que existir de verdad."],
+ ["¿Se puede encadenar comandos?","El simulador admite tuberías sencillas: puedes escribir, por ejemplo, dmesg | tail, ps aux | grep bash o ls -la | wc. Solo entiende grep, tail, head, wc, sort y uniq después del |."],
+ ["Me he perdido","Pulsa Siguiente paso: te lleva al primer comando que te queda por dominar."],
+ ["¿Puedo responder la pregunta de \"Prueba tú\"?","En algunas fichas sí: aparece un cuadro para escribir la respuesta y se comprueba sola contra el estado real de tu terminal (tu directorio actual, el contenido de un archivo, etc.). En las que son una acción más que una pregunta con respuesta corta, se registra al ejecutar el comando correcto."]
+];
+
+/* ============ RESPUESTAS COMPROBABLES DE "PRUEBA TÚ" ============ */
+/* Solo para las fichas donde la pregunta tiene una respuesta corta y verificable contra
+   el estado real del sistema simulado (no todas las fichas piden una respuesta: muchas
+   piden hacer una acción, y esas se dan por dominadas al ejecutar el comando correcto). */
+const norm=s=>String(s||"").trim().toLowerCase();
+const RESPUESTAS={
+  "0|whoami": t=>/alumno|normal/.test(norm(t)),
+  "0|uname -a": t=>norm(t).replace(/\s+/g,"").includes("6.8.0-45"),
+  "0|echo $SHELL": t=>/bash|^s[ií]/.test(norm(t)),
+  "1|pwd": t=>{
+    const n=norm(t).replace(/\/+$/,"")||"/";
+    const actual=cwd.toLowerCase().replace(/\/+$/,"")||"/";
+    if(n===actual) return true;
+    return cwd==="/home/alumno" && (n==="~"||n==="home/alumno");
+  },
+  "1|ls -la": t=>{
+    const n=nodo("/home/alumno");
+    if(!n) return false;
+    const cnt=Object.keys(n.hijos).filter(x=>x.startsWith(".")).length;
+    return parseInt(norm(t),10)===cnt;
+  },
+  "1|file": t=>/ascii|texto/.test(norm(t)),
+  "2|cat": t=>norm(t).includes("iso-aula"),
+  "3|id": t=>/^s[ií]/.test(norm(t))||norm(t).includes("sudo"),
+  "3|groups": t=>norm(t).replace(/[^a-z]/g,"")==="root",
+  "4|ls -l": t=>norm(t).replace(/\s+/g,"")==="rwxr-xr-x",
+  "6|ip a": t=>norm(t).replace(/\s+/g,"").includes("10.0.2.15"),
+  "6|hostname -I": t=>norm(t).replace(/\s+/g,"").includes("10.0.2.15"),
+  "7|ps aux": t=>norm(t).includes("bash")||norm(t).includes("812"),
+  "7|top": t=>norm(t).includes("firefox"),
+  "8|du -sh": t=>norm(t).replace(/\s+/g,"").includes("184k")
+};
+
+/* ============ PUNTUACIÓN ============ */
+const PUNTOS_DOMINADO=2, PUNTOS_RETO=15, PUNTOS_TEST=5;
+function puntos(){
+  const d=Object.keys(prog.dominados).length;
+  const r=Object.keys(prog.retos).length;
+  const t=TEST.filter((p,i)=>prog.test[i]===p.r).length;
+  return d*PUNTOS_DOMINADO + r*PUNTOS_RETO + t*PUNTOS_TEST;
+}
+function toast(msg,tipo){
+  const cont=document.getElementById("toasts");
+  if(!cont) return;
+  const t=document.createElement("div");
+  t.className="toast"+(tipo?" "+tipo:"");
+  t.textContent=msg;
+  cont.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add("in"));
+  setTimeout(()=>{ t.classList.remove("in"); setTimeout(()=>t.remove(),300); },3200);
+}
+
+/* ============ ESCAPADO (evita HTML/JS inyectado desde nombres o contenido escritos por el alumno) ============ */
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const stripTags=s=>String(s).replace(/<[^>]*>/g,"");
+
+/* ============ SISTEMA DE ARCHIVOS SIMULADO ============ */
+let fs, cwd, hecho, hist=[], hi=0;
+function nuevoFS(){
+  const d=(perm="rwxr-xr-x",dueno="root")=>({tipo:"d",perm,dueno,hijos:{}});
+  const f=(txt="",perm="rw-r--r--",dueno="root")=>({tipo:"f",perm,dueno,txt});
+  fs=d();
+  fs.hijos.home=d(); fs.hijos.home.hijos.alumno=d("rwxr-xr-x","alumno");
+  const h=fs.hijos.home.hijos.alumno.hijos;
+  h["notas.txt"]=f("Apuntes de ISO\nLinux no muerde.\n","rw-r--r--","alumno");
+  h[".bashrc"]=f("# configuración del shell\n","rw-r--r--","alumno");
+  h["Descargas"]=d("rwxr-xr-x","alumno");
+  fs.hijos.etc=d();
+  fs.hijos.etc.hijos["passwd"]=f("root:x:0:0:root:/root:/bin/bash\nalumno:x:1000:1000:Alumno ISO:/home/alumno:/bin/bash\n");
+  fs.hijos.etc.hijos["hostname"]=f("iso-aula\n");
+  fs.hijos.etc.hijos["hosts"]=f("127.0.0.1 localhost\n127.0.1.1 iso-aula\n");
+  fs.hijos.tmp=d("rwxrwxrwx");
+  fs.hijos.var=d(); fs.hijos.var.hijos.log=d();
+  fs.hijos.var.hijos.log.hijos["syslog"]=f("sep 15 08:30:01 iso-aula systemd[1]: Started Session 3 of user alumno.\n");
+  fs.hijos.root=d("rwx------");
+  cwd="/home/alumno";
+  hecho={};
+}
+function partes(ruta){
+  let base = ruta.startsWith("/") ? [] : cwd.split("/").filter(Boolean);
+  if(ruta.startsWith("~")) { base=["home","alumno"]; ruta=ruta.slice(1); }
+  ruta.split("/").forEach(p=>{
+    if(!p||p===".") return;
+    if(p==="..") base.pop(); else base.push(p);
+  });
+  return base;
+}
+function nodo(ruta){
+  let n=fs;
+  for(const p of partes(ruta)){
+    if(!n||n.tipo!=="d"||!n.hijos[p]) return null;
+    n=n.hijos[p];
+  }
+  return n;
+}
+const existe=r=>{const n=nodo(r);return !!n&&n.tipo==="d"};
+function padre(ruta){
+  const p=partes(ruta); const nom=p.pop();
+  let n=fs;
+  for(const x of p){ if(!n.hijos[x]||n.hijos[x].tipo!=="d") return [null,nom]; n=n.hijos[x]; }
+  return [n,nom];
+}
+const abs=r=>"/"+partes(r).join("");
+function rutaCwd(){return "/"+partes(".").join("/")}
+
+/* ============ INTÉRPRETE ============ */
+let ultimosSegmentos=[];
+const esErrorTotal=html=>/^<span class="err">[\s\S]*<\/span>$/.test(String(html).trim());
+function ejec(linea){
+  const raw=linea.trim();
+  ultimosSegmentos=[];
+  if(!raw) return "";
+  hist.push(raw); hi=hist.length;
+  const secuencia=raw.split(/\s*&&\s*/).filter(Boolean);
+  const salidas=[];
+  for(let i=0;i<secuencia.length;i++){
+    const segmentos=secuencia[i].split("|").map(s=>s.trim()).filter(Boolean);
+    let salida=ejecUno(segmentos[0]);
+    for(let j=1;j<segmentos.length;j++) salida=aplicarFiltro(salida,segmentos[j]);
+    ultimosSegmentos.push({comando:segmentos[0],salida});
+    salidas.push(salida);
+    if(esErrorTotal(salida)&&i<secuencia.length-1) break; // como en bash: && no sigue si algo falla
+  }
+  return salidas.filter(s=>s!=="").join("\n");
+}
+/* Filtros de tubería muy simples que operan sobre líneas ya generadas (y ya escapadas) */
+function aplicarFiltro(html,filtro){
+  const partes=filtro.split(/\s+/);
+  const nombre=partes[0], fargs=partes.slice(1);
+  const lineas=String(html).split("\n");
+  const numArg=()=>{
+    const i=fargs.indexOf("-n");
+    if(i>-1) return +fargs[i+1]||10;
+    if(fargs[0]&&/^-?\d+$/.test(fargs[0])) return Math.abs(+fargs[0]);
+    return 10;
+  };
+  switch(nombre){
+    case "grep":{
+      const pat=(fargs.find(x=>!x.startsWith("-"))||"").toLowerCase();
+      if(pat==="root") hecho.grep_root=true;
+      return lineas.filter(l=>stripTags(l).toLowerCase().includes(pat)).join("\n");
+    }
+    case "tail": return lineas.slice(-numArg()).join("\n");
+    case "head": return lineas.slice(0,numArg()).join("\n");
+    case "wc": return String(lineas.filter(l=>stripTags(l).trim()!=="").length);
+    case "sort": return lineas.slice().sort((a,b)=>stripTags(a).localeCompare(stripTags(b))).join("\n");
+    case "uniq": return lineas.filter((l,i)=>l!==lineas[i-1]).join("\n");
+    default: return html+`\n<span class="err">${esc(nombre)}: esa orden no está soportada tras una tubería (prueba grep, tail, head, wc, sort o uniq)</span>`;
+  }
+}
+/* Tokeniza respetando comillas: "hola mundo" o 'hola mundo' se quedan como un solo argumento */
+function tokenizar(raw){
+  const tokens=[]; let actual="", comilla=null;
+  for(const ch of raw){
+    if(comilla){ if(ch===comilla) comilla=null; else actual+=ch; }
+    else if(ch==='"'||ch==="'") comilla=ch;
+    else if(/\s/.test(ch)){ if(actual!==""){ tokens.push(actual); actual=""; } }
+    else actual+=ch;
+  }
+  if(actual!=="") tokens.push(actual);
+  return tokens;
+}
+function ejecUno(raw){
+  let t=tokenizar(raw);
+  let sudo=false;
+  if(t[0]==="sudo"){sudo=true;t=t.slice(1);}
+  const c=t[0], a=t.slice(1), arg=a.filter(x=>!x.startsWith("-")), op=a.filter(x=>x.startsWith("-")).join("");
+  const err=m=>`<span class="err">${m}</span>`;
+  switch(c){
+    case "ayuda": case "help":
+      return `<span class="inf">Comandos soportados:</span>\npwd ls cd mkdir touch cat echo cp mv rm chmod chown find grep file\nwhoami id groups su adduser sudo umask uname history clear\napt systemctl ip ping ss hostname curl ps top kill journalctl dmesg\ndf du free tar man reiniciar\nAdemás, puedes encadenar con | grep, | tail, | head, | wc, | sort o | uniq.`;
+    case "pwd": return esc(cwd);
+    case "clear": $("out").innerHTML=""; return "";
+    case "reiniciar": nuevoFS(); pintarRetos(); return "<span class='inf'>Sistema simulado reiniciado.</span>";
+    case "whoami": return sudo?"root":"alumno";
+    case "id": return "uid=1000(alumno) gid=1000(alumno) grupos=1000(alumno),27(sudo)";
+    case "groups": return arg[0]==="root"?"root":"alumno sudo";
+    case "uname": return op.includes("a")?"Linux iso-aula 6.8.0-45-generic #45-Ubuntu SMP x86_64 GNU/Linux":"Linux";
+    case "history": return hist.map((h,i)=>String(i+1).padStart(4)+"  "+esc(h)).join("\n");
+    case "umask": return "0022";
+    case "echo":{
+      const iApp=a.indexOf(">>"), iOv=a.indexOf(">");
+      const anexa=iApp>-1, i=anexa?iApp:iOv;
+      let txt=a.join(" ").replace("$SHELL","/bin/bash").replace("$HOME","/home/alumno").replace("$USER","alumno");
+      if(i>-1){
+        const dest=a[i+1]; txt=a.slice(0,i).join(" ");
+        const [p,nom]=padre(dest);
+        if(!p) return err("echo: no existe el directorio");
+        const previo=(anexa&&p.hijos[nom]&&p.hijos[nom].tipo==="f")?(p.hijos[nom].txt||""):"";
+        p.hijos[nom]={tipo:"f",perm:"rw-r--r--",dueno:"alumno",txt:previo+txt+"\n"};
+        return "";
+      }
+      return esc(txt);
+    }
+    case "ls":{
+      const r=arg[0]||".", n=nodo(r);
+      if(!n) return err("ls: no se puede acceder a '"+esc(r)+"': No existe el fichero o el directorio");
+      if(n.tipo==="f") return esc(r);
+      let items=Object.keys(n.hijos);
+      if(!op.includes("a")) items=items.filter(x=>!x.startsWith("."));
+      items.sort();
+      if(!op.includes("l")) return items.map(esc).join("  ")||"";
+      const lineas=items.map(x=>{
+        const h=n.hijos[x];
+        return (h.tipo==="d"?"d":"-")+h.perm+"  1 "+esc(h.dueno).padEnd(7)+esc(h.dueno).padEnd(7)+
+               String(h.tipo==="d"?4096:(h.txt||"").length).padStart(6)+" sep 15 09:12 "+esc(x);
+      });
+      return "total "+items.length+"\n"+lineas.join("\n");
+    }
+    case "cd":{
+      const r=arg[0]||"~", n=nodo(r);
+      if(!n) return err("cd: "+esc(r)+": No existe el fichero o el directorio");
+      if(n.tipo!=="d") return err("cd: "+esc(r)+": No es un directorio");
+      cwd="/"+partes(r).join("/"); if(cwd==="/"+"") cwd="/";
+      return "";
+    }
+    case "mkdir":{
+      if(!arg.length) return err("mkdir: falta un operando");
+      for(const r of arg){
+        if(op.includes("p")){
+          let n=fs, acum=[];
+          for(const p of partes(r)){
+            acum.push(p);
+            if(!n.hijos[p]) n.hijos[p]={tipo:"d",perm:"rwxr-xr-x",dueno:"alumno",hijos:{}};
+            n=n.hijos[p];
+          }
+        } else {
+          const [p,nom]=padre(r);
+          if(!p) return err("mkdir: no se puede crear el directorio '"+esc(r)+"': No existe el fichero o el directorio");
+          if(p.hijos[nom]) return err("mkdir: no se puede crear el directorio '"+esc(r)+"': El fichero ya existe");
+          p.hijos[nom]={tipo:"d",perm:"rwxr-xr-x",dueno:"alumno",hijos:{}};
+        }
+      }
+      return "";
+    }
+    case "touch":{
+      for(const r of arg){
+        const [p,nom]=padre(r);
+        if(!p) return err("touch: no se puede efectuar `touch' sobre '"+esc(r)+"'");
+        if(!p.hijos[nom]) p.hijos[nom]={tipo:"f",perm:"rw-r--r--",dueno:"alumno",txt:""};
+      }
+      return "";
+    }
+    case "cat":{
+      if(!arg.length) return err("cat: falta un operando");
+      const n=nodo(arg[0]);
+      if(!n) return err("cat: "+esc(arg[0])+": No existe el fichero o el directorio");
+      if(n.tipo==="d") return err("cat: "+esc(arg[0])+": Es un directorio");
+      if(arg[0].indexOf("/root")===0&&!sudo) return err("cat: Permiso denegado");
+      return esc(n.txt||"");
+    }
+    case "cp":{
+      if(arg.length<2) return err("cp: falta el fichero de destino");
+      const o=nodo(arg[0]);
+      if(!o) return err("cp: no se puede efectuar stat sobre '"+esc(arg[0])+"'");
+      if(o.tipo==="d"&&!op.includes("r")) return err("cp: se omite el directorio '"+esc(arg[0])+"' (falta -r)");
+      let [p,nom]=padre(arg[1]);
+      const destino=nodo(arg[1]);
+      if(destino&&destino.tipo==="d"){ p=destino; nom=partes(arg[0]).pop(); }
+      if(!p) return err("cp: no existe el destino");
+      p.hijos[nom]=JSON.parse(JSON.stringify(o));
+      return "";
+    }
+    case "mv":{
+      if(arg.length<2) return err("mv: falta el fichero de destino");
+      const o=nodo(arg[0]);
+      if(!o) return err("mv: no se puede efectuar stat sobre '"+esc(arg[0])+"'");
+      let [p,nom]=padre(arg[1]);
+      const destino=nodo(arg[1]);
+      if(destino&&destino.tipo==="d"){ p=destino; nom=partes(arg[0]).pop(); }
+      if(!p) return err("mv: no existe el destino");
+      p.hijos[nom]=o;
+      const [po,no]=padre(arg[0]); delete po.hijos[no];
+      return "";
+    }
+    case "rm":{
+      if(!arg.length) return err("rm: falta un operando");
+      for(const r of arg){
+        const n=nodo(r);
+        if(!n) return err("rm: no se puede borrar '"+esc(r)+"': No existe el fichero o el directorio");
+        if(n.tipo==="d"&&!op.includes("r")) return err("rm: no se puede borrar '"+esc(r)+"': Es un directorio");
+        const [p,nom]=padre(r); delete p.hijos[nom];
+      }
+      return "";
+    }
+    case "chmod":{
+      if(arg.length<2) return err("chmod: falta un operando");
+      const n=nodo(arg[1]);
+      if(!n) return err("chmod: no se puede acceder a '"+esc(arg[1])+"'");
+      const m=arg[0];
+      if(/^[0-7]{3}$/.test(m)){
+        const tabla=["---","--x","-w-","-wx","r--","r-x","rw-","rwx"];
+        n.perm=m.split("").map(d=>tabla[+d]).join("");
+      } else if(/^([ugoa]*[+\-=][rwx]*)(,[ugoa]*[+\-=][rwx]*)*$/.test(m)){
+        let p=n.perm.split("");
+        m.split(",").forEach(clausula=>{
+          const mm=clausula.match(/^([ugoa]*)([+\-=])([rwx]*)$/);
+          if(!mm) return;
+          const clases=mm[1]||"a", op=mm[2], letras=mm[3];
+          const offsets=[];
+          if(clases.includes("u")||clases.includes("a")) offsets.push(0);
+          if(clases.includes("g")||clases.includes("a")) offsets.push(3);
+          if(clases.includes("o")||clases.includes("a")) offsets.push(6);
+          offsets.forEach(off=>{
+            ["r","w","x"].forEach((l,idx)=>{
+              if(op==="=") p[off+idx]=letras.includes(l)?l:"-";
+              else if(op==="+"&&letras.includes(l)) p[off+idx]=l;
+              else if(op==="-"&&letras.includes(l)) p[off+idx]="-";
+            });
+          });
+        });
+        n.perm=p.join("");
+      } else return err("chmod: modo incorrecto: '"+esc(m)+"'");
+      return "";
+    }
+    case "chown":{
+      if(arg.length<2) return err("chown: falta un operando");
+      if(!sudo) return err("chown: cambiando el propietario de '"+esc(arg[1])+"': Operación no permitida");
+      const n=nodo(arg[1]); if(!n) return err("chown: no se puede acceder a '"+esc(arg[1])+"'");
+      n.dueno=arg[0]; return "";
+    }
+    case "file":{
+      const n=nodo(arg[0]||"");
+      if(!n) return err("file: no se puede abrir '"+esc(arg[0]||"")+"'");
+      return esc(arg[0])+": "+(n.tipo==="d"?"directory":"ASCII text");
+    }
+    case "grep":{
+      if(arg.length<2) return err("grep: falta un patrón o un fichero");
+      const n=nodo(arg[1]);
+      if(!n||n.tipo!=="f") return err("grep: "+esc(arg[1])+": No existe el fichero o el directorio");
+      const l=(n.txt||"").split("\n").filter(x=>x.toLowerCase().includes(arg[0].toLowerCase()));
+      if(arg[0].toLowerCase()==="root"&&arg[1].includes("passwd")) hecho.grep_root=true;
+      return esc(l.join("\n"));
+    }
+    case "find":{
+      const base=arg[0]||".", pat=(a.includes("-name")?a[a.indexOf("-name")+1]:"*").replace(/['"]/g,"");
+      const re=new RegExp("^"+pat.replace(/\./g,"\\.").replace(/\*/g,".*")+"$");
+      const res=[];
+      (function rec(n,ruta){
+        if(!n) return;
+        Object.keys(n.hijos||{}).forEach(k=>{
+          const r=ruta+"/"+k;
+          if(re.test(k)) res.push(r);
+          if(n.hijos[k].tipo==="d") rec(n.hijos[k],r);
+        });
+      })(nodo(base),abs(base)==="/"?"":abs(base));
+      return esc(res.join("\n"))||"";
+    }
+    case "man": return arg[0]?`<span class="inf">${esc(arg[0])}(1)</span>\nAquí saldría el manual completo de ${esc(arg[0])}.\nEn un equipo real: pulsa q para salir, / para buscar.`:"¿Qué manual quieres?";
+    case "su": return "<span class='inf'>En este simulador no hay cambio de sesión real: antepón sudo a cada orden que lo necesite.</span>";
+    case "exit": return "<span class='inf'>De vuelta como alumno.</span>";
+    case "adduser": return sudo?`Añadiendo el usuario '${esc(arg[0]||"nuevo")}' ...\nAñadiendo el nuevo grupo '${esc(arg[0]||"nuevo")}' (1001) ...\nCreando el directorio personal '/home/${esc(arg[0]||"nuevo")}' ...\nhecho.`:err("adduser: Sólo root puede añadir usuarios");
+    case "apt":{
+      if(!sudo&&["update","install","upgrade","remove"].includes(arg[0])) return err("E: No se pudo abrir el fichero de bloqueo: Permiso denegado (¿te falta sudo?)");
+      if(arg[0]==="update") return "Obj:1 http://archive.ubuntu.com/ubuntu noble InRelease\nDes:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]\nDescargados 126 kB en 1s\nLeyendo lista de paquetes... Hecho";
+      if(arg[0]==="install") return `Leyendo lista de paquetes... Hecho\nSe instalarán los siguientes paquetes NUEVOS:\n  ${esc(arg[1]||"paquete")}\nDesempaquetando ${esc(arg[1]||"paquete")} ...\nConfigurando ${esc(arg[1]||"paquete")} ...`;
+      if(arg[0]==="list") return "bash/noble,now 5.2.21 amd64 [instalado]\nopenssh-server/noble,now 9.6 amd64 [instalado]\ncoreutils/noble,now 9.4 amd64 [instalado]";
+      return "Uso: apt update | apt install <paquete> | apt list --installed";
+    }
+    case "systemctl":{
+      const s=arg[1]||"ssh";
+      if(arg[0]==="status") return `<span class="inf">● ${esc(s)}.service - OpenBSD Secure Shell server</span>\n   Loaded: loaded (/lib/systemd/system/${esc(s)}.service; enabled)\n   Active: <span class="pr">active (running)</span> since Tue 2026-09-15 08:30:02; 42min ago\n Main PID: 812 (${esc(s)})\n    Tasks: 1 (limit: 4657)`;
+      if(arg[0]==="start"||arg[0]==="restart"||arg[0]==="enable") return sudo?"":err("Failed to start "+esc(s)+".service: Access denied (¿te falta sudo?)");
+      return "Uso: systemctl status|start|enable <servicio>";
+    }
+    case "ip": hecho.ip=true; return "1: lo: <LOOPBACK,UP> mtu 65536\n    inet 127.0.0.1/8 scope host lo\n2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500\n    inet <span class='pr'>10.0.2.15/24</span> brd 10.0.2.255 scope global dynamic enp0s3";
+    case "hostname": hecho.ip=true; return op.includes("I")?"10.0.2.15":"iso-aula";
+    case "ping":{
+      hecho.ping=true;
+      const d=esc(arg[0]||"8.8.8.8");
+      return `PING ${d} 56(84) bytes of data.\n64 bytes from ${d}: icmp_seq=1 ttl=115 time=12.4 ms\n64 bytes from ${d}: icmp_seq=2 ttl=115 time=11.9 ms\n64 bytes from ${d}: icmp_seq=3 ttl=115 time=12.8 ms\n64 bytes from ${d}: icmp_seq=4 ttl=115 time=12.1 ms\n\n--- ${d} estadísticas del ping ---\n4 paquetes transmitidos, 4 recibidos, <span class="pr">0% perdidos</span>, tiempo 3005ms`;
+    }
+    case "ss": return "Netid  State   Recv-Q  Send-Q   Local Address:Port    Peer Address:Port\ntcp    LISTEN  0       128            0.0.0.0:22           0.0.0.0:*\ntcp    LISTEN  0       511          127.0.0.1:631          0.0.0.0:*\nudp    UNCONN  0       0        127.0.0.53%lo:53           0.0.0.0:*";
+    case "curl": return "HTTP/2 200\ncontent-type: text/html; charset=UTF-8\ndate: Tue, 15 Sep 2026 09:12:44 GMT\nserver: nginx";
+    case "ps": hecho.ps=true; return "USER   PID %CPU %MEM    VSZ   RSS TTY   STAT START   TIME COMMAND\nroot     1  0.0  0.4 168404 11928 ?     Ss   08:30   0:02 /sbin/init\nalumno 812  0.0  0.1   9128  5120 pts/0 Ss   08:31   0:00 bash\nalumno 998  0.2  0.6 812344 52180 ?     Sl   08:45   0:11 firefox";
+    case "top": hecho.ps=true; return "top - 09:12:33 up 42 min,  1 user,  load average: 0,18 0,22 0,20\nTareas: 142 total,   1 ejecutar, 141 hibernar\n%Cpu(s):  2,3 us,  0,7 sy, 97,0 id\nMiB Mem :   3931,2 total,   1820,4 free,   1102,8 used\n\n  PID USUARIO   %CPU  %MEM   ORDEN\n  998 alumno     2,0   1,3   firefox\n  812 alumno     0,3   0,1   bash";
+    case "kill": return arg[0]?"":err("kill: falta un PID");
+    case "journalctl": return "sep 15 08:30:01 iso-aula systemd[1]: Started Session 3 of user alumno.\nsep 15 08:45:12 iso-aula kernel: usb 1-1: new high-speed USB device\n<span class='err'>sep 15 09:02:44 iso-aula sshd[912]: Failed password for invalid user test from 10.0.2.99</span>";
+    case "dmesg": return "[    0.000000] Linux version 6.8.0-45-generic\n[    1.204331] ACPI: Power Button [PWRF]\n[    2.882014] e1000: enp0s3 NIC Link is Up 1000 Mbps Full Duplex";
+    case "df": hecho.df=true; return "S.ficheros     Tamaño Usados  Disp Uso% Montado en\n/dev/sda1         24G   9,8G   13G  44% /\ntmpfs            2,0G      0  2,0G   0% /dev/shm\n/dev/sda2        118G    41G   71G  37% /home";
+    case "du":{
+      hecho.df=true;
+      const base=arg[0]||cwd, n=nodo(base);
+      if(op.includes("s")||!n||n.tipo!=="d") return "184K\t"+esc(base);
+      const subs=Object.keys(n.hijos).filter(k=>n.hijos[k].tipo==="d");
+      const lineas=subs.map(k=>"8,0K\t"+esc((base==="."?"":base.replace(/\/$/,"")+"/")+k));
+      lineas.push("184K\t"+esc(base));
+      return lineas.join("\n");
+    }
+    case "free": return "               total        usado       libre     compartido  búfer/caché\nMem:           3,8Gi       1,1Gi       1,8Gi        112Mi       1,0Gi\nSwap:          2,0Gi          0B       2,0Gi";
+    case "tar":{
+      if(op.includes("c")){
+        const dest=arg[0]||"copia.tar.gz";
+        const [p,nom]=padre(dest);
+        if(p) p.hijos[nom]={tipo:"f",perm:"rw-r--r--",dueno:"alumno",txt:"(archivo comprimido simulado)"};
+        return "";
+      }
+      if(op.includes("x")) return "";
+      return err("tar: hay que indicar una de las opciones -c o -x");
+    }
+    default:
+      return err(esc(c)+": orden no encontrada. Escribe ayuda para ver la lista.");
+  }
+}
+
+/* ============ ESTADO Y GUARDADO ============ */
+const KEY="iso-linux:progreso";
+let prog={dominados:{},retos:{},test:{},visitas:0};
+const $=id=>document.getElementById(id);
+const store={
+  async get(){ if(window.storage){const r=await window.storage.get(KEY);return r&&r.value} return localStorage.getItem(KEY) },
+  async set(v){ if(window.storage){await window.storage.set(KEY,v);return} localStorage.setItem(KEY,v) }
+};
+let tg=null;
+function guardar(){clearTimeout(tg);tg=setTimeout(()=>store.set(JSON.stringify(prog)).catch(()=>{}),300)}
+async function cargar(){
+  try{const v=await store.get(); if(v) prog=Object.assign(prog,JSON.parse(v));}catch(e){}
+  prog.visitas=(prog.visitas||0)+1;
+}
+
+/* ============ PINTAR ============ */
+const TODOS=()=>BLOQUES.flatMap(b=>b.cmds.map(c=>({...c,bloque:b.id,fase:b.fase,ra:b.ra})));
+const idc=c=>c.bloque+"|"+c.c;
+function pctFase(f){
+  const l=TODOS().filter(c=>!f||c.fase===f);
+  return Math.round(100*l.filter(c=>prog.dominados[idc(c)]).length/(l.length||1));
+}
+function pintarFases(){
+  const info=[[1,"Entorno y navegación","Bloques 0, 1 y 2 · primeros pasos"],
+              [2,"Administración básica","Bloques 3, 4 y 5 · control del sistema"],
+              [3,"Red, diagnóstico y seguridad","Bloques 6, 7 y 8 · resolver incidencias"]];
+  let h=info.map(([n,t,s])=>`<button class="fase f${n}" data-fase="${n}">
+      <span class="n">${n}ª fase</span><h2>${t}</h2><small>${s}</small>
+      <div class="barra"><i style="width:${pctFase(n)}%"></i></div>
+      <small style="margin:6px 0 0">${pctFase(n)}% completado</small></button>`).join("");
+  const g=pctFase(null);
+  h+=`<div class="fase gen"><span class="n" style="color:var(--soft)">Tu progreso general</span>
+      <div style="display:flex;align-items:baseline;gap:8px"><span class="pct">${g}%</span>
+      <span class="nota">${TODOS().filter(c=>prog.dominados[idc(c)]).length} de ${TODOS().length} comandos</span></div>
+      <div class="barra" style="margin-top:8px"><i style="width:${g}%"></i></div>
+      <small style="margin-top:7px;color:var(--soft)">${g===0?"Empieza por el bloque 0.":g<40?"Vas arrancando, sigue así.":g<80?"Ya te defiendes en la terminal.":"Esto ya lo tienes."}</small></div>`;
+  $("fases").innerHTML=h;
+  $("fases").querySelectorAll("[data-fase]").forEach(b=>b.onclick=()=>{
+    filtroFase=filtroFase===+b.dataset.fase?null:+b.dataset.fase; ir("aprender"); pintarBloques();
+  });
+}
+let filtroFase=null, filtroCat="", abiertos={1:true};
+function pintarBloques(){
+  const q=$("busca").value.toLowerCase().trim();
+  $("bloques").innerHTML=BLOQUES.filter(b=>!filtroFase||b.fase===filtroFase).map(b=>{
+    const cs=b.cmds.filter(c=>(!filtroCat||c.cat===filtroCat)&&(!q||(c.c+" "+c.q+" "+c.e).toLowerCase().includes(q)));
+    if(!cs.length&&(q||filtroCat)) return "";
+    const dom=b.cmds.filter(c=>prog.dominados[b.id+"|"+c.c]).length;
+    const ab=abiertos[b.id]||q;
+    return `<div class="bloque ${ab?"abierto":""}">
+      <button class="cab" data-b="${b.id}"><span class="ico">${b.ico}</span>
+        <span><b>Bloque ${b.id} · ${b.tit}</b><br><span>${b.sub}</span></span>
+        <span class="estado">${dom}/${b.cmds.length} ${ab?"▲":"▼"}</span></button>
+      ${ab?`<div class="cmds">${cs.map(c=>ficha(b,c)).join("")}</div>`:""}
+    </div>`;
+  }).join("")||'<p class="nota">Ningún comando encaja con la búsqueda.</p>';
+  $("bloques").querySelectorAll("[data-b]").forEach(x=>x.onclick=()=>{
+    const i=+x.dataset.b; abiertos[i]=!abiertos[i]; pintarBloques();
+  });
+  $("bloques").querySelectorAll("[data-probar]").forEach(x=>x.onclick=()=>{
+    irTerminal(x.dataset.probar);
+  });
+  $("bloques").querySelectorAll(".in-resp").forEach(inp=>{
+    inp.addEventListener("input",()=>{
+      const k=inp.dataset.k, validador=RESPUESTAS[k];
+      if(!validador) return;
+      let bien=false;
+      try{ bien=validador(inp.value); }catch(e){ bien=false; }
+      inp.classList.toggle("acierto",bien);
+      if(bien&&!prog.dominados[k]){
+        const c=TODOS().find(x=>idc(x)===k);
+        prog.dominados[k]=1;
+        toast("¡Respuesta correcta"+(c?" de "+c.c:"")+"! · +"+PUNTOS_DOMINADO+" pts","ok");
+        guardar(); pintarFases(); pintarRA(); pintarStats(); pintarBloques();
+      }
+    });
+  });
+}
+function ficha(b,c){
+  const k=b.id+"|"+c.c, ok=!!prog.dominados[k];
+  const tieneResp=!!RESPUESTAS[k];
+  return `<div class="cmd ${ok?"ok":""}">
+    <code class="t">${c.c}</code>
+    <div class="lin"><b class="b1">Qué hace</b><span>${c.q}</span></div>
+    <div class="lin"><b class="b2">Ejemplo</b><code class="ej" data-probar="${c.e}" title="Ir a la terminal con este comando como pista">${c.e}</code></div>
+    <div class="lin"><b class="b3">Prueba tú</b><span>${c.p}</span></div>
+    ${(!ok&&tieneResp)?`<div class="chk-resp">
+      <input type="text" class="in-resp" data-k="${k}" placeholder="Escribe tu respuesta…" autocomplete="off">
+    </div>`:""}
+    </div>`;
+}
+function pintarRA(){
+  const RAS=[["RA1","Instalación de sistemas operativos"],["RA2","Configuración de software de base"],
+             ["RA3","Aseguramiento de la información"],["RA6","Monitorización del rendimiento"]];
+  $("ra").innerHTML=RAS.map(([r,t])=>{
+    const l=TODOS().filter(c=>c.ra.includes(r));
+    const p=Math.round(100*l.filter(c=>prog.dominados[idc(c)]).length/(l.length||1));
+    const col=p>=70?"#059669":p>=35?"#EA580C":"#2563EB";
+    const C=2*Math.PI*22;
+    return `<div><div class="anillo"><svg viewBox="0 0 56 56" width="100%">
+      <circle cx="28" cy="28" r="22" fill="none" stroke="#E2E8F0" stroke-width="6"/>
+      <circle cx="28" cy="28" r="22" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round"
+        stroke-dasharray="${(C*p/100).toFixed(1)} ${C}" transform="rotate(-90 28 28)"/>
+      <text x="28" y="32" text-anchor="middle" font-size="13" font-weight="700" fill="#0F172A">${p}%</text>
+    </svg></div><small><b>${r}</b><br>${t}</small></div>`;
+  }).join("");
+}
+function pintarStats(){
+  const d=Object.keys(prog.dominados).length, r=Object.keys(prog.retos).length;
+  const th=TEST.filter((p,i)=>prog.test[i]!==undefined).length;
+  const ta=TEST.filter((p,i)=>prog.test[i]===p.r).length;
+  const testTxt=th?ta+" de "+TEST.length+(th<TEST.length?" (en curso)":""):"sin hacer";
+  $("stats").innerHTML=`<div class="pts">${puntos()} pts</div>
+    Comandos vistos: <b>${d}</b> de ${TODOS().length}<br>
+    Retos superados: <b>${r}</b> de ${RETOS.length}<br>
+    Autoevaluación: <b>${testTxt}</b><br>
+    Sesiones abiertas: <b>${prog.visitas}</b>`;
+}
+/* Se llama tras cada comando de la terminal: si algún reto ya se cumple, se marca solo */
+/* Se llama tras cada comando: si lo que has escrito coincide con un comando del temario
+   y NO ha dado error, se marca solo como dominado (registra que "lo has hecho bien" de verdad,
+   no solo que has pulsado un botón) */
+function marcarUsoAuto(escrito,resultado){
+  let t=escrito.trim().split(/\s+/);
+  if(!t[0]) return;
+  if(t[0].toLowerCase()==="sudo") t=t.slice(1);
+  if(!t.length) return;
+  const tokens=t.map(x=>x.toLowerCase());
+  const esFallo=esErrorTotal(resultado);
+  if(esFallo) return;
+  const candidatos=[];
+  TODOS().forEach(c=>{
+    const k=idc(c);
+    if(prog.dominados[k]) return;
+    const tokensExp=c.c.toLowerCase().split(/\s+/);
+    if(tokensExp[0]!==tokens[0]) return;
+    if(!tokensExp.every(tok=>tokens.includes(tok))) return;
+    candidatos.push({c,k,esp:tokensExp.length});
+  });
+  // si hay varias fichas para el mismo verbo (p.ej. "chmod" y "chmod +x"),
+  // solo se marca la más específica que realmente coincide con lo escrito
+  const maxEsp=candidatos.length?Math.max(...candidatos.map(x=>x.esp)):0;
+  let huboNuevo=false;
+  candidatos.filter(x=>x.esp===maxEsp).forEach(({c,k})=>{
+    prog.dominados[k]=1; huboNuevo=true;
+    toast("¡Bien! "+c.c+" · +"+PUNTOS_DOMINADO+" pts","ok");
+  });
+  if(huboNuevo){
+    guardar(); pintarFases(); pintarRA(); pintarStats();
+    if(!$("tab-aprender").classList.contains("oculto")) pintarBloques();
+  }
+}
+function comprobarRetosAuto(){
+  let huboNuevo=false;
+  RETOS.forEach(r=>{
+    if(prog.retos[r.id]) return;
+    let bien=false;
+    try{ bien=r.ok(); }catch(e){ bien=false; }
+    if(bien){
+      prog.retos[r.id]=1; huboNuevo=true;
+      toast("Reto superado: "+r.t+" · +"+PUNTOS_RETO+" pts","ok");
+    }
+  });
+  if(huboNuevo){
+    guardar(); pintarStats();
+    if(!$("tab-retos").classList.contains("oculto")) pintarRetos();
+  }
+}
+function pintarRetos(){
+  $("retos").innerHTML=RETOS.map((r,i)=>`<div class="reto ${prog.retos[r.id]?"hecho":""}">
+    <span class="num">${prog.retos[r.id]?"✓":i+1}</span>
+    <div style="flex:1"><b>${r.t}</b><p>${r.d}</p>
+    ${prog.retos[r.id]
+      ?`<span class="nota" style="color:var(--verde);font-weight:600">Superado automáticamente · +${PUNTOS_RETO} pts</span>`
+      :`<button data-irterm>Ir a la terminal</button><span class="nota" style="margin-left:9px">Se marca solo al conseguirlo, no hace falta pulsar nada más.</span>`}
+    </div></div>`).join("");
+  $("retos").querySelectorAll("[data-irterm]").forEach(b=>b.onclick=()=>irTerminal());
+}
+function pintarTest(){
+  $("test").innerHTML=TEST.map((p,i)=>{
+    const dada=prog.test[i];
+    return `<div class="preg"><div class="q">${i+1}. ${p.q}</div>
+      ${p.o.map((o,j)=>{
+        let cl="";
+        if(dada!==undefined) cl = j===p.r?"bien":(j===dada?"mal":"");
+        return `<button class="op ${cl}" data-p="${i}" data-o="${j}" ${dada!==undefined?"disabled":""}>${o}</button>`;
+      }).join("")}
+      ${dada!==undefined?`<div class="expl">${dada===p.r?"Correcto. ":"La buena era: "+p.o[p.r]+". "}${p.e}
+        <button class="chip" data-retry="${i}" style="margin-left:8px;padding:3px 10px;font-size:11.5px">Volver a intentar</button></div>`:""}</div>`;
+  }).join("");
+  const hechas=TEST.filter((p,i)=>prog.test[i]!==undefined).length;
+  const acierto=TEST.filter((p,i)=>prog.test[i]===p.r).length;
+  $("subTest").textContent=hechas?`Llevas ${hechas} de ${TEST.length} respondidas y ${acierto} aciertos.`:"Doce preguntas. Responde y te digo al momento por qué. Puedes volver a intentar cualquiera.";
+  if(hechas===TEST.length&&prog.test.nota!==acierto){
+    const antes=prog.test.nota;
+    prog.test.nota=acierto; guardar();
+    toast(antes===undefined?("Autoevaluación completada: "+acierto+" de "+TEST.length):("Autoevaluación actualizada: "+acierto+" de "+TEST.length),"ok");
+  }
+  $("test").querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{
+    prog.test[+b.dataset.p]=+b.dataset.o; guardar(); pintarTest(); pintarStats();
+  });
+  $("test").querySelectorAll("[data-retry]").forEach(b=>b.onclick=()=>{
+    delete prog.test[+b.dataset.retry]; guardar(); pintarTest(); pintarStats();
+  });
+}
+function pintarChuleta(){
+  $("chuleta").innerHTML=BLOQUES.map(b=>`<h4 style="margin:16px 0 6px;font-size:14px">Bloque ${b.id} · ${b.tit}</h4>
+    <table><tr><th style="width:26%">Comando</th><th>Qué hace</th><th style="width:28%">Ejemplo</th></tr>
+    ${b.cmds.map(c=>`<tr><td><code>${c.c}</code></td><td>${c.q}</td><td><code>${c.e}</code></td></tr>`).join("")}
+    </table>`).join("");
+}
+function pintarAyuda(){
+  $("ayuda").innerHTML=AYUDA.map(([t,d])=>`<div style="margin-bottom:13px"><b style="font-size:14px">${t}</b>
+    <p class="nota" style="margin:3px 0 0">${d}</p></div>`).join("");
+}
+
+/* ============ TERMINAL ============ */
+function escribir(html,eco){
+  const o=$("out");
+  if(eco!==undefined) o.innerHTML+=`<span class="pr">${esc(prompt_())}</span> ${esc(eco)}\n`;
+  if(html) o.innerHTML+=html+"\n";
+  o.scrollTop=o.scrollHeight;
+}
+function prompt_(){
+  const c=cwd==="/home/alumno"?"~":cwd.replace("/home/alumno","~");
+  return "alumno@iso:"+c+"$";
+}
+function refrescarPrompt(){$("prompt").textContent=prompt_()}
+$("cmd").addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    const v=$("cmd").value;
+    const r=ejec(v);
+    if(v.trim()==="clear") escribir(r); else escribir(r,v);
+    $("cmd").value=""; refrescarPrompt();
+    ultimosSegmentos.forEach(s=>marcarUsoAuto(s.comando,s.salida));
+    comprobarRetosAuto();
+  }
+  if(e.key==="ArrowUp"){ if(hi>0){hi--;$("cmd").value=hist[hi]||""} e.preventDefault(); }
+  if(e.key==="ArrowDown"){ if(hi<hist.length-1){hi++;$("cmd").value=hist[hi]||""}else{hi=hist.length;$("cmd").value=""} e.preventDefault(); }
+});
+
+/* ============ NAVEGACIÓN ============ */
+function ir(t){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  ["aprender","retos","test","chuleta","ayuda"].forEach(x=>$("tab-"+x).classList.toggle("oculto",x!==t));
+  if(t==="retos") pintarRetos();
+  if(t==="test") pintarTest();
+  if(t==="chuleta") pintarChuleta();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function irTerminal(pista){
+  if(pista!==undefined){ $("cmd").value=""; $("cmd").placeholder="Escribe: "+pista; }
+  $("panelTerminal").scrollIntoView({behavior:"smooth",block:"center"});
+  setTimeout(()=>$("cmd").focus(),350);
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ir(b.dataset.tab));
+document.querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>ir(b.dataset.ir));
+$("btnTerminal").onclick=()=>irTerminal();
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{
+  filtroCat=b.dataset.cat;
+  document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("on",x===b));
+  pintarBloques();
+});
+$("busca").oninput=pintarBloques;
+$("btnSiguiente").onclick=()=>{
+  const p=TODOS().find(c=>!prog.dominados[idc(c)]);
+  if(!p){alert("Ya los has visto todos. Pásate por los mini retos.");return}
+  filtroFase=null; filtroCat=""; $("busca").value="";
+  document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("on",x.dataset.cat===""));
+  abiertos={}; abiertos[p.bloque]=true;
+  ir("aprender"); pintarBloques();
+  setTimeout(()=>{const el=document.querySelector(".bloque.abierto");if(el)el.scrollIntoView({behavior:"smooth",block:"center"})},100);
+};
+$("btnReiniciar").onclick=()=>{
+  if(!confirm("Esto borra tu progreso, los retos y la autoevaluación. ¿Seguro?"))return;
+  prog={dominados:{},retos:{},test:{},visitas:1};
+  nuevoFS(); guardar();
+  pintarFases();pintarBloques();pintarRA();pintarStats();pintarRetos();pintarTest();
+  $("out").innerHTML=""; escribir('<span class="inf">Todo reiniciado.</span>');
+};
+$("testReset").onclick=()=>{prog.test={};guardar();pintarTest();pintarStats()};
+$("copiarChuleta").onclick=async()=>{
+  const txt=BLOQUES.map(b=>`== Bloque ${b.id}: ${b.tit} ==\n`+b.cmds.map(c=>`${c.c}\t${c.q}\tEjemplo: ${c.e}`).join("\n")).join("\n\n");
+  const ta=$("cajaChuleta"); ta.classList.remove("oculto"); ta.value=txt; ta.select();
+  try{await navigator.clipboard.writeText(txt)}catch(e){}
+};
+
+/* ============ ARRANQUE ============ */
+nuevoFS();
+cargar().then(()=>{
+  pintarFases();pintarBloques();pintarRA();pintarStats();pintarRetos();pintarTest();pintarChuleta();pintarAyuda();
+  escribir('<span class="inf">Terminal de prácticas de ISO. Escribe <b>ayuda</b> para ver los comandos disponibles.</span>\nSistema simulado: nada de lo que hagas aquí afecta a tu equipo.');
+  refrescarPrompt();
+});
+</script>
+</body>
+</html>

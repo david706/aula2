@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de sesión: perfiles y políticas de contraseñas en Windows — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+html{scroll-padding-top:56px}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+td code,li code,p code,.info code{overflow-wrap:anywhere}
+kbd{font-family:inherit;font-size:.85em;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5;max-width:100%}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step > div{min-width:0;flex:1}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+details{margin:.5em 0}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+.total td,.total th{font-weight:700}
+del{color:var(--muted);text-decoration-thickness:2px}
+.nuevo{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:0 8px;font-size:.78rem;font-weight:700;margin-right:4px}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}th,td{padding:6px 7px}td code{word-break:break-all}pre{font-size:.82rem;padding:10px 12px}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}.step input{display:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="k">&gt; module ISO 0369 · UD2 · RA2</div>
+  <h1>Perfiles de usuario y políticas de contraseñas en Windows</h1>
+  <p>Guía de la sesión: qué hacer, en qué orden, cómo comprobar que lo has hecho bien y qué entregar.</p>
+  <div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">Una sesión + remate en casa</span><span class="pill">Windows 11 + Windows Server</span><span class="pill">Entrega en PDF</span></div>
+</div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+<div class="wrap">
+
+<div class="card">
+  <h2>Qué vas a aprender</h2>
+  <ul>
+    <li>Qué es un <b>perfil de usuario</b>, dónde está y cuándo se crea.</li>
+    <li>Cómo preparar lo que recibirán los <b>usuarios nuevos</b> y cómo dar de baja un perfil sin dejar restos.</li>
+    <li>Cómo configurar las <b>directivas de contraseña y de cuenta</b> de un equipo Windows y <b>comprobar</b> que funcionan.</li>
+  </ul>
+  <h3>Antes de empezar</h3>
+  <ul>
+    <li>Tus VM <b>Windows 11</b> y <b>Windows Server</b> arrancan y tienes una cuenta de administrador en cada una.</li>
+    <li><del>Haz una instantánea de cada VM en VirtualBox.</del><br><span class="nuevo">Cambio</span><b>Ya no hace falta hacer instantáneas.</b> En su lugar, antes de la Parte 3 harás una copia de las directivas con <code>secedit</code> para poder volver atrás si algo sale mal.</li>
+    <li>Pon a cada VM un nombre con tu apellido. Así aparecerá en todas tus capturas de la entrega. En <b>PowerShell como administrador</b>:<pre>Rename-Computer -NewName W11-APELLIDO -Restart   <i># en el Windows 11</i>
+Rename-Computer -NewName SRV-APELLIDO -Restart   <i># en el Windows Server</i></pre><span class="muted">Máximo 15 caracteres. Si tu apellido es largo, acórtalo.</span></li>
+    <li>Abre <b>CMD como administrador</b> (clic derecho → Ejecutar como administrador).</li>
+  </ul>
+  <div class="warn"><b>Crea las cuentas con <code>net user</code>.</b> Los comandos <code>New-LocalUser</code> y similares solo funcionan en <i>Windows PowerShell 5.1</i> (el icono azul), no en PowerShell 7. <code>net user</code> funciona en todas partes.</div>
+</div>
+
+<div class="card">
+  <h2>Parte 1 · Cuentas y grupos <span class="time">15 min</span></h2>
+  <p>Necesitas las cuentas <b>ana, luis, marta y pedro</b> y los grupos <b>Contabilidad, Direccion, Almacen y Becarios</b>. Si ya los tienes, compruébalos; si no, créalos ahora (en las dos VM).</p>
+  <div class="step"><input type="checkbox"><div>Crea los grupos y las cuentas, y añade cada usuario a su grupo:<pre>net localgroup Contabilidad /add
+net localgroup Direccion /add
+net localgroup Almacen /add
+net localgroup Becarios /add
+net user ana Asir2026. /add
+net user luis Asir2026. /add
+net user marta Asir2026. /add
+net user pedro Asir2026. /add
+net localgroup Contabilidad ana /add
+net localgroup Becarios luis /add</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Abre <code>lusrmgr.msc</code> (<kbd>Win</kbd>+<kbd>R</kbd>) y comprueba que aparecen las cuentas y los grupos.</div></div>
+  <div class="step"><input type="checkbox"><div>Compruébalo también por comandos:<pre>whoami
+net user
+net localgroup Contabilidad
+net localgroup Becarios</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Qué diferencia hay entre una <b>cuenta</b> y un <b>perfil</b>? <small>(clic para ver la respuesta)</small><div class="ans">La cuenta es la identidad (nombre, contraseña, SID, grupos). El perfil es lo que se carga cuando esa cuenta inicia sesión: escritorio, documentos, configuración. Se enlazan por el <b>SID</b>.</div></div>
+</div>
+
+<div class="card">
+  <h2>Parte 2 · Perfiles locales <span class="time">30 min</span></h2>
+  <h3>Lo esencial</h3>
+  <ul>
+    <li>El perfil <b>no existe</b> hasta que la cuenta inicia sesión por primera vez: Windows copia <code>C:\Users\Default</code> a <code>C:\Users\usuario</code> y anota la ruta en el registro, asociada al <b>SID</b>.</li>
+    <li>Dentro: <code>Desktop</code>, <code>Documents</code>, <code>Downloads</code>, <code>NTUSER.DAT</code> (tus preferencias del registro) y la carpeta oculta <code>AppData</code> (<code>Roaming</code> = configuración que viaja; <code>Local</code> = caché y datos del equipo).</li>
+    <li>Borrar la <b>cuenta</b> no borra el <b>perfil</b>.</li>
+  </ul>
+  <table><tr><th>Variable</th><th>Qué es</th></tr><tr><td><code>%USERPROFILE%</code></td><td>C:\Users\usuario</td></tr><tr><td><code>%APPDATA%</code></td><td>…\AppData\Roaming</td></tr><tr><td><code>%LOCALAPPDATA%</code></td><td>…\AppData\Local</td></tr></table>
+
+  <h3>Misión A · Anatomía de un perfil</h3>
+  <div class="step"><input type="checkbox"><div>Antes de iniciar sesión con nadie, mira qué hay en <code>C:\Users</code>:<pre>dir /a C:\Users</pre>¿Existe ya la carpeta de ana?</div></div>
+  <div class="step"><input type="checkbox"><div>Inicia sesión una vez con <code>ana</code> y con <code>luis</code> (Cambiar de usuario) y vuelve a tu administrador. Repite el <code>dir</code> y compara.</div></div>
+  <div class="step"><input type="checkbox"><div>Mira los datos de tu usuario:<pre>echo %USERPROFILE%  %APPDATA%  %LOCALAPPDATA%
+whoami /user</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Localiza en el registro la entrada de cada perfil y relaciona el <b>SID</b> con su carpeta:<pre>reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" /s | findstr /i "S-1-5-21 ProfileImagePath"</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué la carpeta de ana no estaba hasta que inició sesión? <small>(clic)</small><div class="ans">Porque en Windows el perfil se crea en el <b>primer inicio de sesión</b>, copiando <code>C:\Users\Default</code>. Crear la cuenta con <code>net user</code> no crea la carpeta.</div></div>
+
+  <h3>Misión B · El perfil por defecto</h3>
+  <p>La empresa quiere que <b>todo usuario nuevo</b> tenga en el escritorio un archivo <code>Normas-Empresa.txt</code>.</p>
+  <div class="step"><input type="checkbox"><div>Colócalo en la plantilla (CMD de administrador):<pre>echo Normas de la empresa &gt; C:\Users\Default\Desktop\Normas-Empresa.txt</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Crea un usuario nuevo y obliga a cambiar la clave en su primer inicio:<pre>net user prueba1 Asir2026. /add
+net user prueba1 /logonpasswordchg:yes</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Inicia sesión con <code>prueba1</code> y comprueba que el archivo está en su escritorio. Después comprueba que <b>ana no lo tiene</b>:<pre>dir C:\Users\prueba1\Desktop
+dir C:\Users\ana\Desktop</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué ana no tiene el archivo? <small>(clic)</small><div class="ans">Porque su perfil ya se creó antes, copiando <code>Default</code> tal como estaba entonces. Los cambios en <code>Default</code> solo afectan a los perfiles que se creen <b>después</b>.</div></div>
+
+  <details><summary>Remate en casa · Misión C y D</summary>
+    <div class="step"><input type="checkbox"><div><b>C · Baja de un usuario (y por qué hay que hacerla bien):</b>
+      <ol>
+        <li>Crea <code>prueba2</code>, inicia sesión una vez con ella y ciérrala.</li>
+        <li>Borra <b>solo la cuenta</b> y demuestra que la carpeta y la entrada del registro siguen ahí:<pre>net user prueba2 /delete
+dir C:\Users
+reg query "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" /s | findstr /i "prueba2"</pre></li>
+        <li>Elimina el perfil huérfano por la vía correcta. En <b>PowerShell como administrador</b>:<pre>Get-CimInstance Win32_UserProfile | Where-Object LocalPath -like '*\prueba2' | Remove-CimInstance</pre><span class="muted">También puedes usar <code>sysdm.cpl</code> → Opciones avanzadas → Perfiles de usuario → Configuración → Eliminar.</span></li>
+        <li>Repite el <code>dir</code> y el <code>reg query</code>: ya no debe quedar rastro.</li>
+      </ol>
+      <span class="muted">No borres la carpeta a mano: la entrada del registro se quedaría y Windows podría cargar un perfil temporal.</span></div></div>
+    <div class="step"><input type="checkbox"><div><b>D · Inventario:</b> lista los perfiles del equipo e indica cuáles son del sistema y cuáles de personas:<pre>Get-CimInstance Win32_UserProfile | Select-Object LocalPath,Special,Loaded,LastUseTime</pre>Razona qué subcarpeta de <code>AppData</code> viajaría en un perfil de red y por qué <code>Local</code> no.</div></div>
+  </details>
+</div>
+
+<div class="card">
+  <h2>Parte 3 · Directivas de contraseña y de cuenta <span class="time">30 min</span></h2>
+  <p>Ahora en el <b>Windows Server</b> (sin dominio). Las directivas locales se aplican a <b>todas las cuentas del equipo</b>. Para tener una política distinta por grupo hace falta Active Directory, que verás más adelante.</p>
+  <div class="info"><b>Copia de seguridad antes de tocar nada.</b> Guarda las directivas actuales en un archivo (CMD de administrador):<pre>secedit /export /cfg C:\directivas-originales.inf</pre>Si algo sale mal, las restauras con:<pre>secedit /configure /db %windir%\security\local.sdb /cfg C:\directivas-originales.inf /areas SECURITYPOLICY</pre></div>
+  <h3>Misión E · Configurar con secpol.msc</h3>
+  <div class="step"><input type="checkbox"><div>Abre <code>secpol.msc</code> → <b>Directivas de cuenta</b> → <b>Directiva de contraseñas</b> y configura:
+  <table>
+    <tr><th>Directiva</th><th>Valor</th></tr>
+    <tr><td>Exigir historial de contraseñas</td><td>5</td></tr>
+    <tr><td>Vigencia máxima de la contraseña</td><td>90 días</td></tr>
+    <tr><td>Vigencia mínima de la contraseña</td><td>1 día</td></tr>
+    <tr><td>Longitud mínima de la contraseña</td><td>10 caracteres</td></tr>
+    <tr><td>La contraseña debe cumplir los requisitos de complejidad</td><td>Habilitada</td></tr>
+  </table></div></div>
+  <div class="step"><input type="checkbox"><div>En <b>Directiva de bloqueo de cuenta</b>: umbral de bloqueo <b>5</b> intentos, duración del bloqueo <b>15 minutos</b> y restablecer el contador tras <b>15 minutos</b>.</div></div>
+  <div class="step"><input type="checkbox"><div>Comprueba lo configurado:<pre>net accounts</pre>Debes ver longitud mínima 10, vigencia máxima 90 y mínima 1, umbral de bloqueo 5 y duración 15.</div></div>
+
+  <h3>Misión F · Comprobarlo como el usuario</h3>
+  <div class="step"><input type="checkbox"><div>Inicia sesión como <code>ana</code> y cambia su contraseña a <code>hola</code> con <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Supr</kbd> → Cambiar una contraseña. Debe <b>rechazarla</b>. Anota el mensaje.</div></div>
+  <div class="warn"><b>Prueba siempre como el usuario afectado.</b> Si cambias la clave desde el administrador (<code>net user ana hola</code>), Windows no aplica todas las directivas igual: por ejemplo, se salta la vigencia mínima.</div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué falla <code>hola</code>? <small>(clic)</small><div class="ans">Porque tiene 4 caracteres (mínimo 10) y no cumple la complejidad (al menos 3 tipos de carácter: mayúsculas, minúsculas, números o símbolos). La directiva rechaza la contraseña antes de guardarla.</div></div>
+
+  <details><summary>Remate en casa · Misión G · Bloqueo y cuentas concretas</summary>
+    <div class="step"><input type="checkbox"><div><b>1 · Cuentas concretas.</b> <code>luis</code> es becario: su cuenta caduca el 30/06/2027 y solo puede entrar de lunes a viernes de 8:00 a 18:00. <code>pedro</code> debe cambiar la contraseña en su próximo inicio:<pre>net user luis /expires:30/06/2027 /times:L-V,8:00-18:00
+net user pedro /logonpasswordchg:yes
+net user luis
+net user pedro</pre></div></div>
+    <div class="step"><input type="checkbox"><div><b>2 · Provocar y quitar el bloqueo.</b> Falla 5 veces la contraseña de <code>marta</code> en la pantalla de inicio. Comprueba que queda bloqueada aunque después escribas la buena. Localízalo y desbloquéala:<pre>net user marta            <i># "Cuenta activa: Bloqueada"</i>
+net user marta /active:yes</pre><span class="muted">También puedes desbloquearla en <code>lusrmgr.msc</code> → marta → Propiedades → desmarcar «La cuenta está bloqueada».</span></div></div>
+  </details>
+</div>
+
+<div class="card">
+  <h2>Comprueba antes de terminar <span class="time">20 min</span></h2>
+  <p>Enseña estos resultados en tu pantalla. Si uno no sale, repasa esa misión.</p>
+  <table>
+    <tr><th>Comprobación</th><th>Debe verse</th></tr>
+    <tr><td><code>dir /a C:\Users</code> y <code>whoami /user</code></td><td>Carpetas de ana, luis y prueba1; tu SID</td></tr>
+    <tr><td><code>dir C:\Users\prueba1\Desktop</code></td><td><code>Normas-Empresa.txt</code></td></tr>
+    <tr><td><code>net accounts</code></td><td>Longitud mínima 10 · vigencia 90 / 1 · bloqueo 5 intentos · 15 min</td></tr>
+    <tr><td>Como ana: cambiar la clave a <code>hola</code></td><td>Error: no cumple los requisitos de la directiva</td></tr>
+  </table>
+  <h3>Ideas clave para recordar</h3>
+  <ol>
+    <li>Cuenta y perfil son cosas distintas: se unen por el <b>SID</b>.</li>
+    <li>El perfil se crea en el <b>primer inicio de sesión</b> a partir de <code>C:\Users\Default</code>.</li>
+    <li>Al dar de baja a alguien hay que eliminar también su <b>perfil</b>, por la vía correcta.</li>
+    <li>Una directiva local de contraseñas afecta a <b>todo el equipo</b>.</li>
+    <li>Las políticas se prueban <b>como el usuario</b>, no como administrador.</li>
+  </ol>
+  <div class="info">Cuando lo tengas todo, prepara el PDF siguiendo el apartado <a href="#entrega"><b>Entrega</b></a>.</div>
+</div>
+
+<div class="card" id="entrega">
+  <h2>Entrega · PDF</h2>
+  <div class="info"><b>Qué entregas:</b> un único PDF llamado <code>ISO_UD2_Windows_Apellido_Nombre.pdf</code>, en la tarea de Aeducar, en la fecha que indique el profesor.<br><b>Usa la plantilla</b> <code>ISO_UD2_Windows_plantilla_entrega.docx</code> que tienes en Aeducar: ya trae un recuadro para cada captura, su pie y cada respuesta. Rellénala en Word o LibreOffice y expórtala a PDF.</div>
+
+  <h3>Formato</h3>
+  <ul>
+    <li><b>Portada:</b> nombre y apellidos, curso, módulo (ISO 0369), título de la práctica y fecha.</li>
+    <li>Un apartado por misión, con su título (<i>Misión A · Anatomía de un perfil</i>, etc.).</li>
+    <li>Cada captura con un <b>pie</b> que diga qué demuestra. Una captura sin explicar no cuenta.</li>
+    <li>Al abrir cada CMD o PowerShell, ejecuta primero <code>whoami</code>: debe verse <code>w11-apellido\usuario</code> o <code>srv-apellido\usuario</code> en tus capturas. En las capturas de ventanas (secpol, lusrmgr, mensajes de error), que se vea también el nombre del equipo o la terminal con <code>whoami</code> al lado.</li>
+    <li>Las respuestas a las preguntas, <b>con tus palabras</b>. Puede que tengas que defenderlas en clase.</li>
+  </ul>
+
+  <h3>Qué debe aparecer</h3>
+  <table>
+    <tr><th>Misión</th><th>Capturas</th><th>Pregunta que debes responder</th></tr>
+    <tr><td>Parte 1 · Cuentas y grupos</td><td><code>whoami</code>, <code>net user</code> y <code>net localgroup Contabilidad</code></td><td>¿Qué diferencia hay entre una cuenta y un perfil? ¿Qué los une?</td></tr>
+    <tr><td>A · Anatomía</td><td><code>dir /a C:\Users</code> antes y después del primer inicio de ana, y el <code>reg query</code> de ProfileList</td><td>¿Cuándo se crea el perfil en Windows? ¿Qué relación hay entre el SID y la carpeta?</td></tr>
+    <tr><td>B · Plantilla</td><td><code>dir</code> del Escritorio de prueba1 y del de ana</td><td>¿Por qué prueba1 tiene el archivo y ana no?</td></tr>
+    <tr><td>C · Baja de un usuario <span class="muted">(casa)</span></td><td>Carpeta y registro de prueba2 tras borrar la cuenta, y los mismos comandos tras eliminar el perfil</td><td>¿Por qué no basta con borrar la cuenta? ¿Por qué no se debe borrar la carpeta a mano?</td></tr>
+    <tr><td>D · Inventario <span class="muted">(casa)</span></td><td>La salida de <code>Get-CimInstance Win32_UserProfile</code></td><td>¿Qué perfiles son del sistema? ¿Qué viajaría en un perfil de red, <code>Roaming</code> o <code>Local</code>, y por qué?</td></tr>
+    <tr><td>E · Directivas</td><td><code>secpol.msc</code> con la directiva de contraseñas y la de bloqueo, y <code>net accounts</code></td><td>¿Para qué sirven la vigencia mínima y el historial de contraseñas?</td></tr>
+    <tr><td>F · Prueba como usuario</td><td>El mensaje de error al cambiar la clave de ana a <code>hola</code></td><td>¿Por qué hay que probar la directiva como el usuario y no como administrador?</td></tr>
+    <tr><td>G · Bloqueo y cuentas <span class="muted">(casa)</span></td><td><code>net user luis</code>, <code>net user pedro</code> y <code>net user marta</code> con la cuenta bloqueada</td><td>¿Qué pasaría en un servidor real si no hubiera bloqueo de cuenta?</td></tr>
+    <tr><td>Conclusión</td><td>—</td><td>En 5 o 6 líneas: qué directivas has configurado y cómo mejora la seguridad cada una.</td></tr>
+  </table>
+
+  <h3>Cómo se califica</h3>
+  <table>
+    <tr><th>Bloque</th><th>CE (RA2)</th><th>Puntos</th></tr>
+    <tr><td>Cuentas, grupos y perfiles (Parte 1 y misiones A a D)</td><td>a) Cuentas, grupos, perfiles y políticas locales</td><td>5</td></tr>
+    <tr><td>Directivas de contraseña y de cuenta (misiones E a G)</td><td>b) Directivas de cuenta y de contraseñas</td><td>3</td></tr>
+    <tr><td>Trabajo en las VM: nombre del equipo en las capturas y copia de las directivas antes de cambiarlas</td><td>g) Máquinas virtuales</td><td>1</td></tr>
+    <tr><td>Calidad del documento: orden, pies de captura, respuestas y conclusión</td><td>h) Documentación</td><td>1</td></tr>
+    <tr class="total"><th colspan="2">Total</th><th>10</th></tr>
+  </table>
+  <p class="muted">Las misiones de casa (C, D y G) forman parte de la nota. Una misión sin captura, o con una captura en la que no se ve tu equipo, cuenta como no hecha.</p>
+  <div class="step"><input type="checkbox"><div>He revisado que el PDF tiene portada, todas las misiones, capturas con mi equipo y las respuestas, y lo he subido a Aeducar.</div></div>
+</div>
+
+<div class="card">
+  <h2>Dudas frecuentes</h2>
+  <details><summary>«No encuentro lusrmgr.msc»</summary><p>No existe en Windows Home. Usa <code>net user</code> y <code>net localgroup</code> desde CMD de administrador, o Administración de equipos (<code>compmgmt.msc</code>).</p></details>
+  <details><summary>«New-LocalUser no se reconoce como comando»</summary><p>Estás en PowerShell 7. Usa <code>net user</code> en CMD, o abre <i>Windows PowerShell</i> (icono azul) como administrador.</p></details>
+  <details><summary>«No puedo ver C:\Users\Default»</summary><p>Es una carpeta oculta. Usa <code>dir /a C:\Users</code> o activa «Elementos ocultos» en el Explorador.</p></details>
+  <details><summary>«Rename-Computer me da error»</summary><p>Abre PowerShell <b>como administrador</b> y comprueba que el nombre no pasa de 15 caracteres ni lleva espacios ni tildes. También puedes cambiarlo en Configuración → Sistema → Información → Cambiar el nombre de este equipo.</p></details>
+  <details><summary>«No me deja eliminar un perfil porque está en uso»</summary><p>Cierra la sesión de ese usuario y vuelve a intentarlo desde tu administrador. Si sigue sin dejarte, reinicia la VM.</p></details>
+  <details><summary>«Al cambiar la clave de ana me deja poner cualquier cosa»</summary><p>Comprueba que lo haces <b>como ana</b>, no como administrador, y que la directiva de complejidad está habilitada. <code>net accounts</code> no muestra la complejidad: míralo en <code>secpol.msc</code>.</p></details>
+  <details><summary>«Me dice que no puedo cambiar la contraseña todavía»</summary><p>Es la vigencia mínima de 1 día: ya has cambiado esa clave hoy. Para seguir probando, pon la vigencia mínima a 0 en <code>secpol.msc</code> y vuelve a ponerla a 1 al terminar.</p></details>
+</div>
+
+</div>
+<script>
+(function(){
+ var KEY='iso_guia_perfiles_politicas',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+ window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.setAttribute('data-was',d.open?'1':'0');d.open=true})});
+ window.addEventListener('afterprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=d.getAttribute('data-was')==='1'})});
+})();
+</script>
+</body>
+</html>

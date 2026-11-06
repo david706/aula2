@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procesos del sistema · ASO</title>
+<style>
+  :root{
+    --paper:#F5F6F8; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --indigo:#4338CA; --indigo-soft:#EEF2FF; --ambar:#B45309; --ambar-soft:#FEF3C7;
+    --verde:#0F766E; --verde-soft:#F0FDFA; --rojo:#DC2626; --rojo-soft:#FEF2F2;
+    --code-bg:#0B1220; --code-ink:#A5F3FC;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+      --indigo-soft:#1E1B4B; --ambar-soft:#451A03; --verde-soft:#042F2E; --rojo-soft:#450A0A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+    --indigo-soft:#1E1B4B; --ambar-soft:#451A03; --verde-soft:#042F2E; --rojo-soft:#450A0A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Iowan Old Style",Charter,"Georgia",serif;font-size:17px;line-height:1.65}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 22px 90px}
+
+  .eyebrow{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;color:var(--indigo);font-weight:600;margin-bottom:8px}
+  h1{font-size:36px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--soft);font-size:14.5px;margin:0 0 40px}
+
+  h2{font-size:23px;margin:48px 0 14px;letter-spacing:-.01em;border-bottom:2px solid var(--line);padding-bottom:8px}
+  h2 .num{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--soft);font-weight:600;font-size:14px;margin-right:8px}
+  h3{font-size:18.5px;margin:26px 0 8px}
+  p{margin:0 0 16px}
+  ul,ol{margin:0 0 16px;padding-left:24px}
+  li{margin-bottom:6px}
+  strong{color:var(--indigo)}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--indigo-soft);padding:1px 6px;border-radius:5px;font-size:14.5px;color:var(--ink)}
+
+  .callout{border-radius:12px;padding:16px 18px;margin:22px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14.5px}
+  .callout p:last-child{margin-bottom:0}
+  .callout b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .def{background:var(--indigo-soft);border-left:4px solid var(--indigo)}
+  .def b{color:var(--indigo)}
+  .ejemplo{background:var(--verde-soft);border-left:4px solid var(--verde)}
+  .ejemplo b{color:var(--verde)}
+  .cuidado{background:var(--rojo-soft);border-left:4px solid var(--rojo)}
+  .cuidado b{color:var(--rojo)}
+
+  .diagrama{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:22px 0;text-align:center}
+  .diagrama svg{max-width:100%;height:auto}
+  .diagrama p.pie{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--soft);font-size:13px;margin:12px 0 0}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--line)}
+  .scroll-x{overflow-x:auto}
+
+  .pcb{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13.5px;margin:20px 0}
+  .pcb div{background:var(--card);padding:10px 12px}
+  .pcb .campo{color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+
+  .resumen{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:50px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14.5px}
+  .resumen h3{margin-top:0;font-family:inherit;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--soft)}
+  .resumen ul{padding-left:20px;margin-bottom:0}
+
+  .pie-pagina{text-align:center;color:var(--soft);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:12.5px;margin-top:60px;padding-top:20px;border-top:1px solid var(--line)}
+  @media print{body{background:#fff;color:#000}.diagrama,.callout,.pcb,.resumen{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">ASO · 0374 · RA2</p>
+  <h1>Procesos del sistema</h1>
+  <p class="sub">Administración de Sistemas Operativos · 2º ASIR · Curso 26/27</p>
+
+  <p>Cuando enciendes un ordenador, en cuestión de segundos hay cientos de programas corriendo a la vez: el propio sistema operativo, el navegador, el reproductor de música, los servicios en segundo plano. Con una sola CPU física, no pueden estar todos ejecutándose literalmente al mismo tiempo. Lo que hace un sistema operativo es repartir el tiempo de esa CPU entre todos ellos tan rápido que da la sensación de simultaneidad. La unidad que el sistema reparte, controla y vigila para conseguir esto es el <strong>proceso</strong>.</p>
+
+  <h2><span class="num">1</span>Qué es un proceso</h2>
+
+  <div class="callout def">
+    <b>Definición</b>
+    <p>Un <strong>proceso</strong> es un programa en ejecución: no el código guardado en disco, sino ese código cargado en memoria, con sus propios datos, su propio espacio de direcciones y el estado exacto en el que se encuentra en un instante dado (qué instrucción toca ahora, qué valores tienen sus variables, qué archivos tiene abiertos).</p>
+  </div>
+
+  <p>Es fácil confundir programa y proceso, pero conviene separarlos: el programa es estático, es un archivo. El proceso es dinámico, existe mientras se ejecuta y desaparece cuando termina. Puedes tener el mismo programa (por ejemplo, <code>firefox</code>) dando lugar a varios procesos distintos al mismo tiempo, cada uno con su propio PID y su propio estado.</p>
+
+  <div class="callout ejemplo">
+    <b>En la terminal</b>
+    <p><code>ps aux</code> te enseña la fotografía de todos los procesos vivos ahora mismo. <code>top</code> te la enseña en directo, actualizándose sola.</p>
+  </div>
+
+  <h3>Proceso, hilo y trabajo: tres conceptos que se confunden</h3>
+  <div class="scroll-x">
+  <table>
+    <tr><th>Concepto</th><th>Qué es</th><th>Ejemplo</th></tr>
+    <tr><td><strong>Proceso</strong></td><td>Un programa en ejecución con su propio espacio de memoria, aislado del resto.</td><td>Abrir dos ventanas de un editor de texto: dos procesos independientes.</td></tr>
+    <tr><td><strong>Hilo</strong> (thread)</td><td>Una línea de ejecución dentro de un proceso. Los hilos de un mismo proceso comparten memoria y recursos entre ellos.</td><td>Un navegador con un hilo para pintar la interfaz y otro para descargar un archivo, dentro del mismo proceso.</td></tr>
+    <tr><td><strong>Trabajo</strong> (job)</td><td>Desde el punto de vista de la shell, un comando o tubería de comandos que has lanzado, esté en primer o segundo plano.</td><td>Lanzar <code>tar -czf copia.tar.gz datos &amp;</code> crea un job en segundo plano.</td></tr>
+  </table>
+  </div>
+
+  <h2><span class="num">2</span>Estados y ciclo de vida</h2>
+
+  <p>Un proceso no está siempre "ejecutándose". Pasa la mayor parte de su vida esperando: esperando su turno de CPU, esperando que termine una lectura de disco, esperando datos de la red. El sistema operativo modela esto con un conjunto pequeño de <strong>estados</strong> y las transiciones permitidas entre ellos.</p>
+
+  <div class="diagrama">
+    <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="flecha" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="currentColor"/></marker>
+      </defs>
+      <g font-family="-apple-system,Segoe UI,sans-serif" font-size="13">
+        <rect x="20" y="120" width="110" height="56" rx="10" fill="var(--indigo-soft)" stroke="var(--indigo)" stroke-width="1.5"/>
+        <text x="75" y="153" text-anchor="middle" fill="var(--indigo)" font-weight="600">Nuevo</text>
+
+        <rect x="185" y="120" width="120" height="56" rx="10" fill="var(--ambar-soft)" stroke="var(--ambar)" stroke-width="1.5"/>
+        <text x="245" y="153" text-anchor="middle" fill="var(--ambar)" font-weight="600">Listo</text>
+
+        <rect x="360" y="30" width="140" height="56" rx="10" fill="var(--verde-soft)" stroke="var(--verde)" stroke-width="1.5"/>
+        <text x="430" y="63" text-anchor="middle" fill="var(--verde)" font-weight="600">Ejecutando</text>
+
+        <rect x="360" y="210" width="140" height="56" rx="10" fill="var(--rojo-soft)" stroke="var(--rojo)" stroke-width="1.5"/>
+        <text x="430" y="243" text-anchor="middle" fill="var(--rojo)" font-weight="600">Bloqueado</text>
+
+        <rect x="545" y="120" width="80" height="56" rx="10" fill="var(--paper)" stroke="var(--soft)" stroke-width="1.5"/>
+        <text x="585" y="153" text-anchor="middle" fill="var(--soft)" font-weight="600">Fin</text>
+
+        <g stroke="var(--ink)" stroke-width="1.4" fill="none" opacity=".55">
+          <path d="M130,148 L185,148" marker-end="url(#flecha)"/>
+          <path d="M280,120 C310,90 330,75 360,63" marker-end="url(#flecha)"/>
+          <path d="M400,86 C340,105 300,120 285,128" marker-end="url(#flecha)"/>
+          <path d="M430,86 L430,210" marker-end="url(#flecha)"/>
+          <path d="M400,210 C340,190 300,170 285,158" marker-end="url(#flecha)"/>
+          <path d="M500,58 C560,80 585,100 585,120" marker-end="url(#flecha)"/>
+        </g>
+        <g font-size="11" fill="var(--soft)">
+          <text x="150" y="140">admitido</text>
+          <text x="300" y="95">planificado</text>
+          <text x="300" y="152">interrumpido</text>
+          <text x="440" y="148">E/S, espera</text>
+          <text x="300" y="185">evento listo</text>
+          <text x="540" y="95">termina</text>
+        </g>
+      </g>
+    </svg>
+    <p class="pie">Diagrama de estados de un proceso. El único camino hacia Ejecutando pasa siempre por Listo: nunca se planifica directamente un proceso Bloqueado.</p>
+  </div>
+
+  <ul>
+    <li><strong>Nuevo:</strong> el proceso se está creando, todavía no compite por la CPU.</li>
+    <li><strong>Listo:</strong> tiene todo lo que necesita para ejecutarse y solo espera que el planificador le asigne la CPU.</li>
+    <li><strong>Ejecutando:</strong> sus instrucciones se están procesando ahora mismo en la CPU. Con un solo núcleo, solo un proceso puede estar aquí en cada instante.</li>
+    <li><strong>Bloqueado (en espera):</strong> no puede avanzar porque necesita algo externo — un dato de disco, una respuesta de red, que otro proceso libere un recurso. Aunque hubiera CPU libre, no serviría de nada dársela.</li>
+    <li><strong>Terminado:</strong> ha acabado (bien o mal) y el sistema conserva su código de salida hasta que el proceso padre lo recoge.</li>
+  </ul>
+
+  <div class="callout cuidado">
+    <b>Error común</b>
+    <p>Pensar que "bloqueado" y "listo" son lo mismo. No lo son: un proceso Listo compite ahora mismo por CPU en cuanto le toque turno; uno Bloqueado no la va a usar aunque se la den, porque está esperando algo que no depende del planificador.</p>
+  </div>
+
+  <h2><span class="num">3</span>El PCB: cómo el sistema no pierde de vista a un proceso</h2>
+
+  <p>Para poder pausar un proceso, guardar exactamente dónde se quedó, atender a otro, y luego devolverle la CPU al primero como si nada hubiera pasado, el sistema necesita una ficha por proceso donde guardar todo su estado. Esa ficha es el <strong>PCB</strong> (Process Control Block, bloque de control de proceso).</p>
+
+  <div class="pcb">
+    <div><span class="campo">PID</span><br>Identificador único del proceso</div>
+    <div><span class="campo">Estado</span><br>Nuevo / Listo / Ejecutando / Bloqueado / Terminado</div>
+    <div><span class="campo">Contador de programa</span><br>Qué instrucción toca ejecutar a continuación</div>
+    <div><span class="campo">Registros de CPU</span><br>Valores exactos en el momento de la pausa</div>
+    <div><span class="campo">Prioridad</span><br>Cuánta preferencia tiene al repartir CPU</div>
+    <div><span class="campo">Memoria asignada</span><br>Qué páginas o segmentos usa</div>
+    <div><span class="campo">Archivos abiertos</span><br>Descriptores de fichero en uso</div>
+    <div><span class="campo">Proceso padre</span><br>Quién lo creó (PPID)</div>
+  </div>
+
+  <p>Cuando el planificador decide quitarle la CPU a un proceso para dársela a otro (un <strong>cambio de contexto</strong>), guarda todo esto en el PCB del que sale y carga el PCB del que entra. Ese cambio no es gratis: tiene un coste real en tiempo, así que un sistema con demasiados cambios de contexto pierde eficiencia aunque cada proceso individual sea rápido.</p>
+
+  <h2><span class="num">4</span>Interrupciones y excepciones</h2>
+
+  <p>¿Cómo sabe la CPU que tiene que dejar de ejecutar un proceso y atender a otra cosa? A través de dos mecanismos que conviene no confundir:</p>
+
+  <table>
+    <tr><th></th><th>Origen</th><th>Ejemplo</th></tr>
+    <tr><td><strong>Interrupción</strong></td><td>Externa al proceso que se está ejecutando: viene del hardware.</td><td>Ha llegado un paquete de red; se ha pulsado una tecla; el temporizador avisa de que toca cambiar de proceso.</td></tr>
+    <tr><td><strong>Excepción</strong></td><td>Interna, provocada por la propia ejecución del proceso.</td><td>Una división por cero; un acceso a una dirección de memoria no válida; una llamada al sistema pidiendo abrir un archivo.</td></tr>
+  </table>
+
+  <p>En ambos casos ocurre lo mismo a alto nivel: la CPU detiene lo que estaba haciendo, guarda el contexto actual, salta a una rutina fija que sabe qué hacer con ese tipo de evento (el <strong>manejador</strong>), y al terminar decide si vuelve al mismo proceso o si le toca el turno a otro.</p>
+
+  <h2><span class="num">5</span>La secuencia de arranque, vista como procesos</h2>
+
+  <p>El arranque de un sistema Linux moderno es, en el fondo, una cadena de procesos naciendo unos de otros:</p>
+  <ol>
+    <li>El firmware (BIOS/UEFI) carga el gestor de arranque (GRUB), que carga el kernel.</li>
+    <li>El kernel arranca el primer proceso en espacio de usuario, con <strong>PID 1</strong>: en la mayoría de distribuciones actuales es <code>systemd</code>.</li>
+    <li>PID 1 es el proceso padre, directo o indirecto, de todos los demás: arranca los servicios del sistema (red, journal, login) según sus unidades y dependencias.</li>
+    <li>Cuando abres una sesión, se crea tu shell como proceso hijo de un proceso de sesión, y cada comando que lanzas es a su vez hijo de tu shell.</li>
+  </ol>
+
+  <div class="callout ejemplo">
+    <b>En la terminal</b>
+    <p><code>ps aux | grep systemd</code> confirma que PID 1 sigue vivo. <code>systemctl status</code> te enseña el árbol de dependencias de un servicio concreto y si arrancó bien.</p>
+  </div>
+
+  <h2><span class="num">6</span>Seguridad: procesos que no deberían estar ahí</h2>
+
+  <p>Como administrador, parte del trabajo con procesos es de vigilancia. Un proceso no identificado — un nombre raro, un usuario que no debería estar lanzando nada, un consumo de CPU o red anómalo y constante — es a menudo la primera señal visible de un compromiso del sistema, mucho antes de que aparezca cualquier otro síntoma.</p>
+  <ul>
+    <li>Antes de matarlo, identifícalo: qué usuario lo lanzó, desde qué proceso padre, qué archivo ejecutable es realmente (no te fíes solo del nombre que muestra <code>ps</code>).</li>
+    <li>Un <code>kill -9</code> apresurado puede destruir la evidencia que necesitas para entender qué pasó.</li>
+    <li>Documenta lo que encuentres: fecha, PID, comando exacto, qué hiciste. Es la diferencia entre un incidente resuelto y uno que se repite sin que nadie sepa por qué.</li>
+  </ul>
+
+  <div class="resumen">
+    <h3>Para quedarte con esto</h3>
+    <ul>
+      <li>Un proceso es un programa en ejecución con estado propio; un hilo comparte memoria con otros hilos de su mismo proceso.</li>
+      <li>Todo proceso viaja por los mismos cinco estados, y siempre pasa por Listo antes de Ejecutando.</li>
+      <li>El PCB es la ficha que permite al sistema pausar y reanudar un proceso sin perder ni un dato.</li>
+      <li>Las interrupciones vienen de fuera (hardware); las excepciones las provoca el propio proceso.</li>
+      <li>PID 1 (systemd en la mayoría de distribuciones) es el origen de todo el árbol de procesos del sistema.</li>
+      <li>Detectar un proceso sospechoso es tan importante como saber administrar los legítimos.</li>
+    </ul>
+  </div>
+
+  <p class="pie-pagina">ASO · Administración de Sistemas Operativos · RA2 · Práctica relacionada: bloque "Procesos del sistema" en ASO Survival</p>
+</div>
+</body>
+</html>

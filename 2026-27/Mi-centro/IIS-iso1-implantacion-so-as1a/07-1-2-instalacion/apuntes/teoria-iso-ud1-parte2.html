@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO · UD1 (2ª parte) · Versiones, instalación, actualización, arranque y registro</title>
+<style>
+  :root{
+    --paper:#f5f2ea;
+    --grid:#e2ddcd;
+    --ink:#1c2430;
+    --ink-soft:#4a5568;
+    --navy:#1b3a56;
+    --navy-2:#2f5878;
+    --rule:#c9c2ab;
+    --card:#fbfaf5;
+    --term-bg:#151c26;
+    --term-fg:#d7dce3;
+    --term-accent:#7fd0c1;
+    --amber:#c8823f;
+    --ok:#3f8f82;
+  }
+  *{box-sizing:border-box;}
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    font-family:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    color:var(--ink);
+    padding:32px 16px 70px;
+    line-height:1.6;
+  }
+  .sheet{
+    max-width:920px;
+    margin:0 auto;
+    background:var(--card);
+    border:1px solid var(--rule);
+    position:relative;
+  }
+  .sheet::before,.sheet::after{
+    content:"";
+    position:absolute;
+    width:22px;height:22px;
+    border-color:var(--navy);
+    border-style:solid;
+    border-width:0;
+  }
+  .sheet::before{ top:-1px; left:-1px; border-top-width:2px; border-left-width:2px; }
+  .sheet::after{ top:-1px; right:-1px; border-top-width:2px; border-right-width:2px; }
+
+  header{
+    padding:34px 44px 26px;
+    border-bottom:1px solid var(--rule);
+  }
+  .kicker{
+    font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+    font-size:11.5px;
+    color:var(--navy-2);
+    margin:0 0 10px;
+  }
+  h1{
+    font-size:clamp(26px,3.6vw,36px);
+    margin:0 0 12px;
+    color:var(--navy);
+    font-weight:700;
+    line-height:1.15;
+  }
+  .lede{
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:70ch;
+    margin:0;
+  }
+
+  nav.toc{
+    padding:22px 44px;
+    border-bottom:1px solid var(--rule);
+    background:#f0ede2;
+  }
+  nav.toc p{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11px;
+    color:var(--navy-2);
+    margin:0 0 10px;
+  }
+  nav.toc ol{
+    columns:2;
+    margin:0; padding-left:20px;
+    font-size:13.5px;
+  }
+  nav.toc li{ margin-bottom:6px; }
+  nav.toc a{ color:var(--ink); text-decoration:none; border-bottom:1px solid transparent; }
+  nav.toc a:hover{ border-bottom-color:var(--navy-2); }
+
+  main{ padding:6px 44px 10px; }
+  section{ padding:32px 0; border-bottom:1px solid var(--rule); }
+  section:last-child{ border-bottom:none; }
+
+  .sec-num{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:12px;
+    color:#8a8371;
+    margin:0 0 6px;
+  }
+  h2{
+    font-size:21px;
+    color:var(--navy);
+    margin:0 0 14px;
+  }
+  h3{
+    font-size:15.5px;
+    color:var(--navy-2);
+    margin:22px 0 8px;
+  }
+  p{ font-size:14.5px; color:var(--ink); margin:0 0 12px; max-width:72ch; }
+  ul, ol.plain{ margin:0 0 14px; padding-left:22px; font-size:14.5px; }
+  li{ margin-bottom:5px; }
+
+  code.inline{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    background:#eee9db;
+    border:1px solid var(--rule);
+    padding:1px 5px;
+    font-size:13px;
+    color:var(--navy);
+  }
+
+  .term{
+    background:var(--term-bg);
+    color:var(--term-fg);
+    border:1px solid #0c1119;
+    font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+    font-size:13px;
+    padding:16px 18px;
+    margin:14px 0 18px;
+    overflow-x:auto;
+  }
+  .term .bar{
+    display:flex; gap:6px; margin-bottom:12px;
+  }
+  .term .bar span{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .term .bar span:nth-child(1){ background:#c8823f; }
+  .term .bar span:nth-child(2){ background:#c8b83f; }
+  .term .bar span:nth-child(3){ background:#3f8f82; }
+  .term .line{ white-space:pre; margin-bottom:2px; }
+  .term .prompt{ color:var(--term-accent); }
+  .term .comment{ color:#6b7684; }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:16px 0 20px;
+    font-size:13.5px;
+  }
+  th, td{
+    border:1px solid var(--rule);
+    padding:9px 12px;
+    text-align:left;
+    vertical-align:top;
+  }
+  th{
+    background:var(--navy);
+    color:#fff;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:11.5px;
+    font-weight:600;
+  }
+  tr:nth-child(even) td{ background:#f2efe4; }
+  td code{
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:12.5px;
+    color:var(--navy);
+  }
+
+  .callout{
+    display:flex; gap:14px;
+    border:1px solid var(--rule);
+    padding:16px 18px;
+    margin:16px 0;
+    font-size:13.5px;
+  }
+  .callout.note{ background:#eef2f6; border-color:#b9c8d9; }
+  .callout.warn{ background:#f7eee2; border-color:#dbb98a; }
+  .callout.ok{ background:#eef2ec; border-color:#b9c9b6; }
+  .callout svg{ width:20px; height:20px; flex-shrink:0; margin-top:1px; }
+  .callout.note svg{ color:var(--navy-2); }
+  .callout.warn svg{ color:var(--amber); }
+  .callout.ok svg{ color:var(--ok); }
+  .callout div p{ margin:0; }
+  .callout b{ display:block; margin-bottom:3px; }
+
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    margin:16px 0 6px;
+  }
+  .box{
+    border:1px solid var(--rule);
+    background:#fff;
+    padding:16px 18px;
+  }
+  .box h4{
+    margin:0 0 8px;
+    font-size:13px;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    color:var(--navy);
+  }
+  .box p{ font-size:13px; margin:0; }
+
+  footer{
+    padding:20px 44px 30px;
+    display:flex;
+    justify-content:space-between;
+    font-family:"IBM Plex Mono",ui-monospace,monospace;
+    font-size:10.5px;
+    color:#8a8371;
+  }
+
+  @media (max-width:680px){
+    header, nav.toc, main, footer{ padding-left:20px; padding-right:20px; }
+    nav.toc ol{ columns:1; }
+    .grid2{ grid-template-columns:1fr; }
+  }
+</style>
+<style>
+  details.box{ margin:14px 0; } details.box summary{ cursor:pointer; font-size:13.5px; }
+  details.box p{ margin-top:8px; }
+  table td:first-child{ white-space:normal; }
+  @media print{ nav.toc{ display:none; } section{ break-inside:avoid-page; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header>
+    <p class="kicker">IES PABLO SERRANO · MÓDULO 0369 ASIR · UD1 · LOS SISTEMAS OPERATIVOS · RA1 (20%)</p>
+    <h1>UD1 · Segunda parte: versiones, instalación, actualización, arranque y registro</h1>
+    
+  </header>
+
+  <nav class="toc">
+    <p>ÍNDICE</p>
+    <ol start="0">
+      
+      <li><a href="#s1">Comparar sistemas operativos en 2026 (CE c)</a></li>
+      <li><a href="#s2">Antes de instalar: firmware, particiones y requisitos (CE d)</a></li>
+      <li><a href="#s3">Proceso de instalación y verificación (CE d)</a></li>
+      <li><a href="#s4">Actualizar el sistema y las aplicaciones (CE e)</a></li>
+      <li><a href="#s5">Recuperar el sistema (CE e)</a></li>
+      <li><a href="#s6">El arranque y sus incidencias (CE f)</a></li>
+      <li><a href="#s7">Ficheros de inicio y registro del sistema (CE f, g)</a></li>
+      <li><a href="#s8">Software instalado, su origen y controladores (CE g)</a></li>
+      <li><a href="#s9">Documentar instalaciones e incidencias (CE h)</a></li>
+      <li><a href="#s10">Fuentes</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+    <section id="s1">
+      <p class="sec-num">01</p>
+      <h2>Comparar sistemas operativos en 2026</h2>
+      <p>Elegir un sistema no es cuestión de gustos: se decide por <b>requisitos de hardware</b>, <b>ciclo de soporte</b>, <b>licencia</b> y <b>campo de aplicación</b>. Estos son los datos actuales de los sistemas que usamos en el ciclo.</p>
+      <table>
+        <thead><tr><th>Sistema</th><th>Requisitos mínimos</th><th>Soporte</th><th>Licencia</th></tr></thead>
+        <tbody>
+          <tr><td><b>Windows 11</b> (25H2)</td><td>CPU 64 bits de 1 GHz y 2 núcleos, 4 GB RAM, 64 GB, UEFI con Secure Boot y TPM 2.0. Desde 24H2 la CPU debe soportar SSE4.2 y POPCNT.</td><td>Actualización de características anual; cada versión con 24 meses (Home/Pro) o 36 (Enterprise/Education).</td><td>Propietaria (OEM, Retail, Volumen)</td></tr>
+          <tr><td><b>Windows 10</b> (22H2)</td><td>—</td><td>Fin de soporte: 14/10/2025. Solo parches de seguridad con el programa ESU.</td><td>Propietaria</td></tr>
+          <tr><td><b>Windows Server 2025</b></td><td>UEFI y TPM 2.0 solo para algunas funciones</td><td>Canal de servicio a largo plazo (LTSC)</td><td>Propietaria (por núcleos + CAL)</td></tr>
+          <tr><td><b>Ubuntu 26.04 LTS</b> «Resolute Raccoon»</td><td>Escritorio: CPU de 2 núcleos a 2 GHz, 6 GB RAM, 25 GB. Servidor: desde 1,5 GB RAM y 4 GB de disco.</td><td>5 años (hasta abril de 2031); 10 con Ubuntu Pro (ESM).</td><td>Libre (GPL y otras) + controladores privativos opcionales</td></tr>
+          <tr><td><b>Debian 13</b> «trixie»</td><td>Muy ligeros; depende del escritorio</td><td>≈ 3 años + LTS comunitario</td><td>Libre (DFSG)</td></tr>
+          <tr><td><b>Vitalinux</b></td><td>Pensado para equipos de centros</td><td>Gobierno de Aragón</td><td>Libre (basada en Ubuntu)</td></tr>
+        </tbody>
+      </table>
+      <div class="callout warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10.3 3.9 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <div><b>Windows 10 en octubre de 2026</b><p>El programa ESU para particulares se anunció hasta el <b>13/10/2026</b>; algunas fuentes indican una ampliación a 2027 para equipos ya inscritos. Es un buen ejercicio: que el alumnado lo compruebe en la página oficial de Microsoft y justifique qué haría con un equipo del aula que no cumple los requisitos de Windows 11.</p></div>
+      </div>
+      <h3>Ciclo de vida: por qué importa</h3>
+      <ul>
+        <li><b>LTS / LTSC</b> (Long Term Support): versiones pensadas para servidores y empresas. Cambian poco y reciben parches muchos años.</li>
+        <li><b>Versiones intermedias</b> (Ubuntu 25.10, por ejemplo): novedades antes, pero soporte corto (9 meses en Ubuntu).</li>
+        <li><b>Fin de soporte</b> no significa que el sistema deje de funcionar, sino que deja de recibir parches: un equipo conectado a la red se vuelve cada vez más vulnerable.</li>
+      </ul>
+      <h3>Licencias que hay que distinguir</h3>
+      <table>
+        <thead><tr><th>Tipo</th><th>Qué permite</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td>OEM</td><td>Va ligada al equipo con el que se compró; no se traslada a otro.</td><td>Windows preinstalado en un portátil</td></tr>
+          <tr><td>Retail (caja / FPP)</td><td>Se puede mover a otro equipo (desinstalándola del anterior).</td><td>Windows comprado en tienda</td></tr>
+          <tr><td>Volumen (MAK / KMS)</td><td>Activación de muchos equipos de una organización, a veces contra un servidor propio.</td><td>Centros educativos, empresas</td></tr>
+          <tr><td>Software libre (copyleft)</td><td>Usar, estudiar, modificar y redistribuir; las obras derivadas mantienen la misma licencia.</td><td>GPL (núcleo Linux)</td></tr>
+          <tr><td>Software libre (permisiva)</td><td>Igual, pero las obras derivadas pueden cerrarse.</td><td>MIT, BSD, Apache 2.0</td></tr>
+          <tr><td>Freeware</td><td>Gratis, pero sin acceso ni derecho a modificar el código.</td><td>Muchas utilidades gratuitas</td></tr>
+        </tbody>
+      </table>
+      <h3>Campos de aplicación</h3>
+      <p>Escritorio (Windows 11, Ubuntu, Vitalinux) · servidor (Windows Server, Ubuntu Server, Debian) · móvil (Android, iOS) · embebido e IoT (Linux embebido, Raspberry Pi OS) · tiempo real (RTOS en industria y automoción) · nube (imágenes mínimas de Linux).</p>
+      <details class="box"><summary><b>Actividad (30 min):</b> elige SO para tres casos</summary>
+        <p>Justifica qué sistema instalarías: (1) aula con PCs de 2017 sin TPM 2.0; (2) servidor de ficheros del departamento para 5 años; (3) Raspberry Pi para monitorizar la red del Reto. Criterios: requisitos, soporte hasta qué fecha, licencia y coste.</p>
+      </details>
+    </section>
+
+    <section id="s2">
+      <p class="sec-num">02</p>
+      <h2>Antes de instalar: firmware, particiones y requisitos</h2>
+      <div class="grid2">
+        <div class="box"><h4>BIOS (legacy)</h4><p>Firmware antiguo de 16 bits. Arranca leyendo el <b>MBR</b> (primer sector del disco). Sin Secure Boot.</p></div>
+        <div class="box"><h4>UEFI</h4><p>Firmware moderno. Arranca un programa <code class="inline">.efi</code> desde la <b>partición ESP</b>. Permite Secure Boot, discos GPT grandes y arranque más rápido. Obligatorio para Windows 11.</p></div>
+      </div>
+      <table>
+        <thead><tr><th></th><th>MBR</th><th>GPT</th></tr></thead>
+        <tbody>
+          <tr><td>Particiones</td><td>4 primarias (o 3 + extendida con lógicas)</td><td>128 en Windows, sin extendidas</td></tr>
+          <tr><td>Tamaño máximo de disco</td><td>2 TiB</td><td>Prácticamente ilimitado</td></tr>
+          <tr><td>Redundancia</td><td>No</td><td>Copia de la tabla al final del disco + CRC</td></tr>
+          <tr><td>Firmware habitual</td><td>BIOS</td><td>UEFI</td></tr>
+        </tbody>
+      </table>
+      <h3>Esquema típico de particiones en UEFI + GPT</h3>
+      <div class="grid2">
+        <div class="box"><h4>WINDOWS</h4><p><b>ESP</b> (FAT32, ~100–260 MB) · <b>MSR</b> (16 MB, reservada) · <b>C:</b> NTFS · <b>Recuperación</b> (WinRE, ~1 GB).</p></div>
+        <div class="box"><h4>LINUX</h4><p><b>ESP</b> montada en <code class="inline">/boot/efi</code> · <b>/</b> ext4 · <b>/home</b> opcional · swap (partición o fichero).</p></div>
+      </div>
+      <div class="callout note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+        <div><b>Arranque dual</b><p>Instala primero Windows y después Linux: el instalador de Linux detecta Windows y lo añade a GRUB. Al revés, Windows suele tomar el control del arranque.</p></div>
+      </div>
+      <h3>Lista de comprobación previa</h3>
+      <ul>
+        <li>Requisitos de hardware y compatibilidad (PC Health Check en Windows; hoja de requisitos de la distribución).</li>
+        <li>Modo de firmware (UEFI/Legacy), Secure Boot y TPM activados si hacen falta.</li>
+        <li>Copia de seguridad de los datos y esquema de particiones decidido.</li>
+        <li>Medio de instalación verificado: la suma SHA256 de la ISO coincide con la oficial.</li>
+        <li>Licencia o clave disponible; controladores de red y almacenamiento a mano.</li>
+      </ul>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line comment"># Comprobar la integridad de una ISO</div>
+        <div class="line"><span class="prompt">$</span> sha256sum ubuntu-26.04-desktop-amd64.iso</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-FileHash .\Win11_25H2.iso -Algorithm SHA256</div>
+        <div class="line comment"># ¿El equipo arrancó en UEFI?</div>
+        <div class="line"><span class="prompt">$</span> [ -d /sys/firmware/efi ] &amp;&amp; echo UEFI || echo BIOS</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Confirm-SecureBootUEFI      <span class="comment"># True si Secure Boot está activo</span></div>
+      </div>
+    </section>
+
+    <section id="s3">
+      <p class="sec-num">03</p>
+      <h2>Proceso de instalación y verificación</h2>
+      <h3>Fases comunes</h3>
+      <ol class="plain">
+        <li>Arrancar desde el medio (USB creado con Rufus/Ventoy, o ISO montada en la máquina virtual).</li>
+        <li>Idioma, teclado y tipo de instalación (limpia o actualización).</li>
+        <li>Particionado: automático o manual según el esquema del apartado anterior.</li>
+        <li>Copia de ficheros e instalación del gestor de arranque.</li>
+        <li>Usuario inicial, nombre del equipo, red y zona horaria.</li>
+        <li>Primer arranque, controladores y actualizaciones.</li>
+      </ol>
+      <h3>En VirtualBox (prácticas del aula)</h3>
+      <ul>
+        <li>Windows 11: activar <b>EFI</b>, <b>TPM 2.0</b> y <b>Secure Boot</b> en la configuración de la VM; mínimo 4 GB RAM y 64 GB de disco.</li>
+        <li>Ubuntu: 6 GB RAM recomendados para escritorio; con menos, usar una variante ligera (Lubuntu, Xubuntu) o la versión servidor.</li>
+        <li>Instalar las <b>Guest Additions</b> después, para tener portapapeles compartido, resolución automática y carpetas compartidas.</li>
+      </ul>
+      <h3>Verificar que la instalación es correcta</h3>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">$</span> hostnamectl              <span class="comment"># SO, núcleo, arquitectura, virtualización</span></div>
+        <div class="line"><span class="prompt">$</span> cat /etc/os-release</div>
+        <div class="line"><span class="prompt">$</span> lsblk -f                 <span class="comment"># particiones y sistemas de archivos</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> winver                  <span class="comment"># versión y compilación de Windows</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-ComputerInfo | Select-Object OsName, OsVersion, BiosFirmwareType</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-Disk | Select-Object Number, PartitionStyle, Size</div>
+      </div>
+    </section>
+
+    <section id="s4">
+      <p class="sec-num">04</p>
+      <h2>Actualizar el sistema y las aplicaciones</h2>
+      <div class="grid2">
+        <div class="box"><h4>WINDOWS</h4><p><b>Actualizaciones de calidad</b>: acumulativas, cada mes (el segundo martes, «Patch Tuesday»). <b>Actualizaciones de características</b>: una al año (25H2, 26H2…). En empresa se controlan con WSUS, Intune o directivas.</p></div>
+        <div class="box"><h4>UBUNTU / DEBIAN</h4><p>Repositorios + APT. Parches de seguridad continuos; <code class="inline">unattended-upgrades</code> los instala solos. Cambio de versión con <code class="inline">do-release-upgrade</code>.</p></div>
+      </div>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">$</span> sudo apt update            <span class="comment"># refresca la lista de paquetes</span></div>
+        <div class="line"><span class="prompt">$</span> apt list --upgradable</div>
+        <div class="line"><span class="prompt">$</span> sudo apt upgrade           <span class="comment"># actualiza sin eliminar paquetes</span></div>
+        <div class="line"><span class="prompt">$</span> sudo apt full-upgrade      <span class="comment"># permite quitar/añadir para resolver dependencias</span></div>
+        <div class="line"><span class="prompt">$</span> sudo snap refresh</div>
+        <div class="line"><span class="prompt">PS&gt;</span> winget upgrade            <span class="comment"># aplicaciones con actualización pendiente</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> winget upgrade --all</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5</div>
+      </div>
+      <div class="callout warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10.3 3.9 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <div><b>Buena práctica de administrador</b><p>Antes de una actualización grande: copia de seguridad o punto de restauración, probar primero en una máquina de pruebas y anotarlo en el registro de cambios.</p></div>
+      </div>
+    </section>
+
+    <section id="s5">
+      <p class="sec-num">05</p>
+      <h2>Recuperar el sistema</h2>
+      <table>
+        <thead><tr><th>Herramienta</th><th>Sistema</th><th>Para qué sirve</th></tr></thead>
+        <tbody>
+          <tr><td>Puntos de restauración</td><td>Windows</td><td>Devuelven sistema y registro a un estado anterior sin tocar los documentos.</td></tr>
+          <tr><td>WinRE (Entorno de recuperación)</td><td>Windows</td><td>Reparación de inicio, desinstalar actualizaciones, símbolo del sistema, restablecer el equipo.</td></tr>
+          <tr><td><code>sfc</code> y <code>DISM</code></td><td>Windows</td><td>Comprobar y reparar ficheros del sistema dañados.</td></tr>
+          <tr><td>Timeshift</td><td>Linux</td><td>Instantáneas del sistema (rsync o Btrfs) para volver atrás.</td></tr>
+          <tr><td>Núcleo anterior / modo recuperación</td><td>Linux</td><td>Desde el menú de GRUB, arrancar un kernel anterior o una consola de mantenimiento.</td></tr>
+          <tr><td>Imagen del disco</td><td>Ambos</td><td>Restaurar el equipo completo (Clonezilla, copia de imagen del sistema).</td></tr>
+        </tbody>
+      </table>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> Checkpoint-Computer -Description "Antes de instalar drivers"   <span class="comment"># como administrador</span></div>
+        <div class="line"><span class="prompt">C:\&gt;</span> sfc /scannow</div>
+        <div class="line"><span class="prompt">C:\&gt;</span> DISM /Online /Cleanup-Image /RestoreHealth</div>
+        <div class="line"><span class="prompt">$</span> sudo timeshift --create --comments "antes de actualizar"</div>
+        <div class="line"><span class="prompt">$</span> sudo timeshift --list</div>
+      </div>
+    </section>
+
+    <section id="s6">
+      <p class="sec-num">06</p>
+      <h2>El arranque y sus incidencias</h2>
+      <p><b>Secuencia:</b> encendido → <b>POST</b> (autocomprobación del hardware) → firmware (UEFI/BIOS) → <b>gestor de arranque</b> → núcleo → primer proceso (<code class="inline">systemd</code> en Linux; en Windows, <code class="inline">smss.exe</code>, <code class="inline">wininit.exe</code> y servicios) → inicio de sesión.</p>
+      <div class="grid2">
+        <div class="box"><h4>WINDOWS BOOT MANAGER</h4><p>Lee la configuración del almacén <b>BCD</b> en la ESP. Se consulta y edita con <code class="inline">bcdedit</code>; se regenera con <code class="inline">bcdboot</code>.</p></div>
+        <div class="box"><h4>GRUB 2</h4><p>Gestor habitual en Linux. Se configura en <code class="inline">/etc/default/grub</code> y <code class="inline">/etc/grub.d/</code>; tras cambiar algo hay que regenerar <code class="inline">/boot/grub/grub.cfg</code>.</p></div>
+      </div>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">C:\&gt;</span> bcdedit /enum                  <span class="comment"># entradas de arranque</span></div>
+        <div class="line"><span class="prompt">C:\&gt;</span> bcdboot C:\Windows /f UEFI     <span class="comment"># recrea los ficheros de arranque en la ESP</span></div>
+        <div class="line"><span class="prompt">X:\&gt;</span> bootrec /rebuildbcd            <span class="comment"># desde WinRE</span></div>
+        <div class="line"><span class="prompt">$</span> sudo efibootmgr -v              <span class="comment"># entradas UEFI y orden de arranque</span></div>
+        <div class="line"><span class="prompt">$</span> sudo nano /etc/default/grub     <span class="comment"># GRUB_TIMEOUT, GRUB_DEFAULT…</span></div>
+        <div class="line"><span class="prompt">$</span> sudo update-grub               <span class="comment"># Debian/Ubuntu; en otras: grub-mkconfig -o /boot/grub/grub.cfg</span></div>
+        <div class="line"><span class="prompt">$</span> systemd-analyze blame          <span class="comment"># qué servicios retrasan el arranque</span></div>
+        <div class="line"><span class="prompt">$</span> journalctl -b -p err           <span class="comment"># errores del arranque actual</span></div>
+        <div class="line"><span class="prompt">$</span> journalctl --list-boots</div>
+      </div>
+      <h3>Incidencias típicas</h3>
+      <table>
+        <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+        <tbody>
+          <tr><td>«No bootable device»</td><td>Orden de arranque incorrecto o ESP dañada</td><td>Revisar el orden en UEFI; <code>bcdboot</code> o reinstalar GRUB</td></tr>
+          <tr><td>Tras instalar Windows desaparece Linux</td><td>Windows ha puesto su gestor el primero</td><td>Cambiar el orden con <code>efibootmgr</code> o desde UEFI</td></tr>
+          <tr><td>Arranca en consola <code>grub&gt;</code></td><td>GRUB no encuentra su configuración</td><td>Arrancar un live, montar y ejecutar <code>grub-install</code> + <code>update-grub</code></td></tr>
+          <tr><td>Pantalla azul al arrancar tras un driver</td><td>Controlador incompatible</td><td>WinRE → Modo seguro → desinstalar el controlador o volver a un punto de restauración</td></tr>
+          <tr><td>Linux entra en «emergency mode»</td><td>Error en <code>/etc/fstab</code> (UUID o disco inexistente)</td><td>Corregir <code>/etc/fstab</code>; comprobar UUIDs con <code>blkid</code></td></tr>
+          <tr><td>La VM de Windows 11 no instala</td><td>Falta EFI, TPM o Secure Boot en la VM</td><td>Activarlos en la configuración de VirtualBox</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="s7">
+      <p class="sec-num">07</p>
+      <h2>Ficheros de inicio y registro del sistema</h2>
+      <h3>Qué se ejecuta al arrancar</h3>
+      <div class="grid2">
+        <div class="box"><h4>WINDOWS</h4><p>Servicios (<code class="inline">services.msc</code>), claves <code class="inline">Run</code> del registro, carpeta <code class="inline">shell:startup</code>, Programador de tareas y la pestaña Inicio del Administrador de tareas.</p></div>
+        <div class="box"><h4>LINUX</h4><p>Unidades de <code class="inline">systemd</code> (<code class="inline">/etc/systemd/system</code>), <code class="inline">/etc/fstab</code> (montajes), tareas <code class="inline">@reboot</code> de cron y <code class="inline">~/.config/autostart</code> en el escritorio.</p></div>
+      </div>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">$</span> systemctl list-unit-files --state=enabled</div>
+        <div class="line"><span class="prompt">$</span> systemctl status ssh</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-Service | Where-Object StartType -eq Automatic</div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-CimInstance Win32_StartupCommand | Select-Object Name, Command, Location</div>
+      </div>
+      <h3>El registro de Windows</h3>
+      <p>Base de datos jerárquica donde Windows y las aplicaciones guardan su configuración. Está formado por <b>claves</b> (como carpetas) y <b>valores</b> (nombre, tipo y dato).</p>
+      <table>
+        <thead><tr><th>Clave raíz</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><code>HKEY_LOCAL_MACHINE</code> (HKLM)</td><td>Configuración del equipo: hardware, software, servicios, seguridad.</td></tr>
+          <tr><td><code>HKEY_CURRENT_USER</code> (HKCU)</td><td>Configuración del usuario que ha iniciado sesión.</td></tr>
+          <tr><td><code>HKEY_USERS</code> (HKU)</td><td>Perfiles de todos los usuarios cargados.</td></tr>
+          <tr><td><code>HKEY_CLASSES_ROOT</code> (HKCR)</td><td>Asociaciones de archivos y objetos COM.</td></tr>
+          <tr><td><code>HKEY_CURRENT_CONFIG</code> (HKCC)</td><td>Perfil de hardware actual.</td></tr>
+        </tbody>
+      </table>
+      <p>Físicamente se guarda en ficheros llamados <b>hives</b>: <code class="inline">SYSTEM</code>, <code class="inline">SOFTWARE</code>, <code class="inline">SAM</code>, <code class="inline">SECURITY</code> en <code class="inline">C:\Windows\System32\config</code>, y <code class="inline">NTUSER.DAT</code> en el perfil de cada usuario.</p>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">C:\&gt;</span> reg query HKLM\Software\Microsoft\Windows\CurrentVersion\Run</div>
+        <div class="line"><span class="prompt">C:\&gt;</span> reg export HKCU\Software\MiApp copia_miapp.reg      <span class="comment"># copia antes de tocar</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" | Select-Object ProductName, DisplayVersion, CurrentBuild</div>
+      </div>
+      <div class="callout warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01M10.3 3.9 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        <div><b>Regla de oro con el registro</b><p>Exportar la clave antes de modificarla y trabajar siempre en una máquina virtual durante las prácticas. Un cambio erróneo en HKLM puede impedir el arranque.</p></div>
+      </div>
+      <p>En Linux no existe un registro central: la configuración está en <b>ficheros de texto</b> (en <code class="inline">/etc</code> para todo el sistema y ficheros ocultos en <code class="inline">~</code> para cada usuario). Por eso es fácil de versionar y copiar.</p>
+    </section>
+
+    <section id="s8">
+      <p class="sec-num">08</p>
+      <h2>Software instalado, su origen y controladores</h2>
+      <p>El CE g) pide saber <b>qué hay instalado y de dónde viene</b>: repositorio oficial, tienda, paquete descargado a mano… Es la base del inventario y de la seguridad.</p>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line comment"># Linux</div>
+        <div class="line"><span class="prompt">$</span> apt list --installed | wc -l</div>
+        <div class="line"><span class="prompt">$</span> apt-cache policy openssh-server   <span class="comment"># versión y repositorio de origen</span></div>
+        <div class="line"><span class="prompt">$</span> dpkg -S /usr/bin/ssh              <span class="comment"># a qué paquete pertenece un fichero</span></div>
+        <div class="line"><span class="prompt">$</span> snap list ; flatpak list</div>
+        <div class="line comment"># Windows</div>
+        <div class="line"><span class="prompt">PS&gt;</span> winget list                       <span class="comment"># incluye la columna «Origen» (winget, msstore)</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Select-Object DisplayName, DisplayVersion, Publisher</div>
+      </div>
+      <h3>Controladores de dispositivos</h3>
+      <div class="term">
+        <div class="bar"><span></span><span></span><span></span></div>
+        <div class="line"><span class="prompt">$</span> lspci -k        <span class="comment"># dispositivos PCI y el módulo (driver) que usan</span></div>
+        <div class="line"><span class="prompt">$</span> lsusb ; lsmod ; sudo dmesg | tail</div>
+        <div class="line"><span class="prompt">$</span> sudo ubuntu-drivers list        <span class="comment"># controladores privativos recomendados</span></div>
+        <div class="line"><span class="prompt">C:\&gt;</span> driverquery /v</div>
+        <div class="line"><span class="prompt">C:\&gt;</span> pnputil /enum-drivers          <span class="comment"># paquetes de controladores del almacén</span></div>
+        <div class="line"><span class="prompt">PS&gt;</span> Get-PnpDevice -Status Error   <span class="comment"># dispositivos con problemas</span></div>
+      </div>
+      <p>En el Administrador de dispositivos (<code class="inline">devmgmt.msc</code>), la opción <b>Revertir controlador</b> vuelve a la versión anterior si una actualización da problemas.</p>
+    </section>
+
+    <section id="s9">
+      <p class="sec-num">09</p>
+      <h2>Documentar instalaciones e incidencias</h2>
+      <p> Una ficha mínima para cada instalación y cada incidencia:</p>
+      <div class="grid2">
+        <div class="box"><h4>FICHA DE INSTALACIÓN</h4><p>Equipo o VM y su hardware · SO, edición y versión (compilación) · licencia · firmware y esquema de particiones · usuarios creados · controladores y software instalados · actualizaciones aplicadas · comprobaciones realizadas · fecha y técnico.</p></div>
+        <div class="box"><h4>PARTE DE INCIDENCIA</h4><p>Fecha y equipo · síntoma observado (mensaje exacto o captura) · diagnóstico y comandos usados · causa · solución aplicada · verificación · tiempo empleado · cómo evitar que se repita.</p></div>
+      </div>
+      <div class="callout ok">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6 9 17l-5-5"/></svg>
+        <div><b>Enlace con el resto del curso</b><p>Estas fichas son el mismo formato que se pide en la UD8 (partes de incidencias, ITIL) y en el documento técnico del Reto intermodular: conviene acostumbrarse desde ahora.</p></div>
+      </div>
+    </section>
+
+    <section id="s10">
+      <p class="sec-num">10</p>
+      <h2>Fuentes</h2>
+      <ul>
+        <li>Microsoft Learn — Requisitos de Windows 11: <code class="inline">learn.microsoft.com/windows/whats-new/windows-11-requirements</code></li>
+        <li>Microsoft — Programa ESU de Windows 10: <code class="inline">microsoft.com/windows/extended-security-updates</code></li>
+        <li>Ubuntu — Notas de la versión 26.04 LTS: <code class="inline">documentation.ubuntu.com/release-notes/26.04</code></li>
+        <li>Programación didáctica 0369 ISO, IES Pablo Serrano (RA1 y contenidos).</li>
+      </ul>
+      <p style="font-size:12.5px;color:var(--ink-soft);">Versiones y fechas de soporte comprobadas en septiembre de 2026. Cambian con frecuencia: revísalas antes de usarlas en un examen.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>ISO · MÓDULO 0369 · ASIR · UD1 (2ª parte)</span>
+    <span>TEORÍA </span>
+  </footer>
+</div>
+</body>
+</html>

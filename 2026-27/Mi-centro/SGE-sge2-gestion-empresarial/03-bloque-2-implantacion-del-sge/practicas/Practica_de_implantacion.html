@@ -1,0 +1,168 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Práctica de implantación</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: enunciado de práctica evaluable. Cabecera con datos de entrega, tareas numeradas con evidencias,
+   rúbrica por criterios y prueba objetiva de muestra. Misma identidad que el resto de páginas de SGE. */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4; --code:#f1eee6;
+  --ok:#2d7a4f; --warn:#95590e;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:960px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700}
+h2{font-size:1.4rem;font-weight:600;margin-top:44px;padding-top:18px;border-top:2px solid var(--line)}
+h3{font-size:1.05rem;font-weight:600;margin-top:18px}
+p{margin:0;max-width:70ch}
+p+p,ul,ol{margin-top:10px}
+ul,ol{padding-left:22px;max-width:70ch}
+li+li{margin-top:5px}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.08rem;color:var(--muted);margin-top:10px;max-width:72ch}
+code{font-family:var(--fm);font-size:.86em;background:var(--soft);padding:1px 6px;border-radius:4px}
+.datos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.datos>div{background:var(--paper);border:1px solid var(--line);padding:12px 14px;min-width:0}
+.datos .eyebrow{display:block;margin-bottom:4px}
+.datos b{font-family:var(--fd);font-weight:600;font-size:1.05rem}
+@media (max-width:700px){.datos{grid-template-columns:1fr 1fr}}
+.tw{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.82rem;background:var(--soft)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tarea{background:var(--paper);border:1px solid var(--line);padding:16px 20px;margin-top:14px;min-width:0}
+.tarea .head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.tarea h3{margin:0}
+.tarea .pts{font-family:var(--fm);font-size:.8rem;color:var(--accent)}
+.tarea .ev{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:.92rem}
+.tarea .ev .eyebrow{display:block;margin-bottom:4px;color:var(--accent)}
+.note{border-left:3px solid var(--accent);background:var(--paper);padding:12px 16px;margin-top:14px;max-width:72ch}
+.note.warn{border-left-color:var(--warn)}
+.note .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.note.warn .eyebrow{color:var(--warn)}
+details{background:var(--paper);border:1px solid var(--line);padding:10px 16px;margin-top:10px}
+summary{cursor:pointer;font-weight:600;font-family:var(--fd)}
+details p{margin-top:8px;font-size:.95rem}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM · Bloque 2 · Implantación</p>
+  <h1 style="margin-top:6px">Práctica evaluable: implantación documentada</h1>
+  <p class="lead">Implantas Odoo 19 para la empresa ficticia que diseñaste en el Bloque 1, de cero a funcionando, y lo documentas como lo entregarías a un cliente. Es la parte práctica de la nota de implantación y cierra la primera evaluación junto con el examen. Según los criterios del departamento, en cada criterio de evaluación el examen pesa el 75 % y la práctica el 25 %; por eso el examen es práctico y se hace sobre tu propia instalación.</p>
+  <div class="datos">
+    <div><span class="eyebrow">Peso</span><b>20,5 % del módulo</b></div>
+    <div><span class="eyebrow">Reparto</span><b>Examen 75 % · Práctica 25 %</b></div>
+    <div><span class="eyebrow">Modalidad</span><b>Individual</b></div>
+    <div><span class="eyebrow">Entrega</span><b>Moodle, fecha fijada en clase</b></div>
+  </div>
+
+  <h2>Qué se entrega</h2>
+  <ol>
+    <li><strong>Memoria de implantación</strong> en PDF, máximo 20 páginas, con la estructura de abajo. Capturas con tu nombre de usuario visible en la esquina de Odoo.</li>
+    <li><strong>Copia de seguridad</strong> de la base de datos hecha con el gestor de Odoo (zip con filestore). Nombre: <code>apellido_nombre_empresa.zip</code>.</li>
+    <li><strong>El <code>docker-compose.yml</code></strong> que usas, tal cual.</li>
+  </ol>
+  <div class="note warn"><span class="eyebrow">Se corrige restaurando tu copia</span>La memoria se contrasta con la base de datos restaurada. Si en la memoria hay algo que no está en la copia, no cuenta. Si en la copia hay algo que no está en la memoria, tampoco.</div>
+
+  <h2>Tareas</h2>
+
+  <div class="tarea">
+    <div class="head"><h3>1. Entorno y arquitectura</h3><span class="pts">1,5 puntos</span></div>
+    <p>Describe la instalación: versiones de Odoo y PostgreSQL, puertos, volúmenes, dónde están los datos. Explica la arquitectura de tres capas con tu propio esquema, no el de los apuntes.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Salida de <code>docker compose ps</code> y <code>docker compose logs db | tail</code>. Esquema propio. Tabla de puertos y para qué sirve cada uno.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>2. Empresa, usuarios y permisos</h3><span class="pts">1,5 puntos</span></div>
+    <p>Datos completos de la empresa con logotipo. Al menos cuatro usuarios con roles distintos. Solo el tuyo tiene Ajustes.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Tabla usuario → grupos. Captura entrando como el comercial: qué menús ve y cuáles no. Una operación que un usuario no puede hacer y el mensaje de error que recibe.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>3. Módulos instalados y justificados</h3><span class="pts">1 punto</span></div>
+    <p>Lista de aplicaciones instaladas con una línea por cada una explicando qué necesidad de tu empresa cubre. Si instalaste algo que no está en la guía (Proyecto, TPV, Fabricación), justifícalo con el supuesto.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Captura de Aplicaciones filtrada por Instaladas. Consulta <code>SELECT name FROM ir_module_module WHERE state='installed'</code> ejecutada en pgAdmin o psql.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>4. Datos maestros</h3><span class="pts">1 punto</span></div>
+    <p>Mínimo 10 productos de los tres tipos, uno con variantes, con categorías propias; 5 clientes y 3 proveedores, uno intracomunitario, con plazos de pago distintos.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Vista lista de productos agrupada por categoría. Ficha del cliente intracomunitario con su posición fiscal. Si importaste por CSV, el fichero y la captura del resultado.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>5. Parametrización de los cuatro módulos</h3><span class="pts">2 puntos</span></div>
+    <p>Por cada módulo (Ventas, Compras, Inventario, CRM): qué ajustes activaste y por qué, con la tabla de la guía como referencia. Dos tarifas, reglas de reabastecimiento, lotes, etapas de CRM propias.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Capturas de la pantalla de Ajustes de cada módulo con lo activado marcado. Tabla de reglas de reabastecimiento. Kanban de CRM con tus etapas.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>6. Contabilidad</h3><span class="pts">1,5 puntos</span></div>
+    <p>Localización española, impuestos activos depurados, diario de banco con IBAN. Una factura de cliente y una de proveedor confirmadas, un cobro y un pago registrados, y el asiento de la factura de cliente explicado apunte por apunte.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>PDF de la factura. Captura del asiento en Contabilidad → Asientos. La consulta SQL sobre <code>account_move_line</code> con su resultado.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>7. Flujo completo de verificación</h3><span class="pts">1 punto</span></div>
+    <p>El recorrido de siete pasos de la guía de parametrización, de la oportunidad en CRM al pago de la factura de proveedor que generó el reabastecimiento, sin tocar ningún ajuste por el camino.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Una captura por paso con el número de documento visible (S000xx, WH/OUT/000xx, INV/2026/000xx…). Una tabla con esos números en orden.</div>
+  </div>
+
+  <div class="tarea">
+    <div class="head"><h3>8. Copia de seguridad y actualización</h3><span class="pts">0,5 puntos</span></div>
+    <p>Copia con el gestor, restaurada con otro nombre y comprobada. Línea de cron para el <code>pg_dump</code> diario. Actualización de la imagen probada sobre la copia.</p>
+    <div class="ev"><span class="eyebrow">Evidencias</span>Gestor de bases de datos con las dos BD. Crontab. Salida de <code>docker compose pull odoo</code>.</div>
+  </div>
+
+  <h2>Rúbrica</h2>
+  <div class="tw"><table>
+    <tr><th>Criterio</th><th>Insuficiente (0–4)</th><th>Suficiente (5–6)</th><th>Bien (7–8)</th><th>Excelente (9–10)</th></tr>
+    <tr><td><strong>Funciona</strong><br><small>la copia restaurada hace lo que dice la memoria</small></td><td>La copia no restaura o faltan módulos</td><td>Restaura; el flujo completo falla en algún paso</td><td>El flujo completo funciona</td><td>Funciona y además hay algo propio del supuesto que no estaba en la guía</td></tr>
+    <tr><td><strong>Decisiones justificadas</strong><br><small>cada ajuste tiene un porqué ligado a la empresa</small></td><td>Lista de ajustes sin explicación</td><td>Explicaciones genéricas copiadas de la guía</td><td>Cada ajuste se relaciona con el supuesto</td><td>Se descartan opciones y se explica por qué no</td></tr>
+    <tr><td><strong>Evidencias</strong><br><small>capturas y consultas verificables</small></td><td>Capturas sin usuario visible o sin números de documento</td><td>Capturas correctas pero incompletas</td><td>Todas las evidencias pedidas</td><td>Evidencias pedidas más comprobaciones en SQL por iniciativa propia</td></tr>
+    <tr><td><strong>Documentación técnica</strong><br><small>alguien podría repetir la implantación con la memoria</small></td><td>No se puede seguir</td><td>Se sigue con dificultad; faltan versiones o rutas</td><td>Se puede repetir paso a paso</td><td>Incluye incidencias encontradas y cómo se resolvieron</td></tr>
+  </table></div>
+  <p style="margin-top:12px">La nota de la práctica es la media ponderada de las ocho tareas (10 puntos), corregida al alza o a la baja hasta un punto según la rúbrica de documentación. Una memoria que supere las 20 páginas o sin copia de seguridad no se corrige.</p>
+
+  <h2>Examen de la 1ª evaluación (75 %)</h2>
+  <p>Sin apuntes, sobre Odoo arrancado. Una parte teórica breve y una parte práctica más larga que se hace sobre tu propia instalación delante del profesor. Preguntas de este estilo:</p>
+  <details><summary>Ejemplos de preguntas teóricas</summary>
+    <p>1. ¿Qué diferencia hay entre un usuario de Odoo y un usuario de PostgreSQL? ¿Dónde se guarda cada uno?</p>
+    <p>2. Instalas Ventas y aparece Facturación sin pedirla. ¿Por qué? ¿Qué pasa si intentas desinstalar Facturación?</p>
+    <p>3. ¿Qué decide que un producto genere albarán al confirmarse un pedido?</p>
+    <p>4. Una posición fiscal: qué es, dónde se asigna y qué hace con los impuestos de una factura.</p>
+    <p>5. Explica la línea <code>host all all all scram-sha-256</code> de <code>pg_hba.conf</code>.</p>
+  </details>
+  <details><summary>Ejemplos de preguntas prácticas</summary>
+    <p>6. Crea un usuario que solo pueda ver sus propios presupuestos y demuéstralo.</p>
+    <p>7. Haz que un producto deje de generar albarán y confirma un pedido con él.</p>
+    <p>8. Localiza en pgAdmin la tabla donde está el presupuesto S00003 y muestra su estado.</p>
+    <p>9. Cambia el plazo de pago de un cliente y crea una factura que lo refleje.</p>
+    <p>10. Haz una copia con pg_dump desde fuera del contenedor y muestra el fichero.</p>
+  </details>
+
+  <h2>Estructura de la memoria</h2>
+  <ol>
+    <li>Portada: nombre, empresa ficticia, fecha, versión de Odoo.</li>
+    <li>Resumen de la empresa y qué necesita del ERP (media página; viene del Bloque 1).</li>
+    <li>Tareas 1 a 8 en ese orden, cada una con su texto y sus evidencias.</li>
+    <li>Incidencias: qué falló durante la implantación y cómo lo resolviste. Es obligatoria aunque sea corta; una implantación sin incidencias no es creíble.</li>
+    <li>Anexo: consultas SQL usadas y <code>docker-compose.yml</code>.</li>
+  </ol>
+  <div class="note"><span class="eyebrow">Originalidad</span>La empresa es tuya y los datos deben ser coherentes con ella: una tienda de bicicletas no vende horas de consultoría ni compra a un mayorista de alimentación. Dos memorias con los mismos productos y clientes se corrigen como una sola y se reparte la nota.</div>
+
+  <footer>Práctica del módulo 0491 (RD 450/2010). Criterios de evaluación del título: tipos de licencia, módulos que componen el ERP-CRM, instalaciones cliente/servidor, configuración de módulos, verificación del funcionamiento, documentación de operaciones e incidencias. Curso 2026/2027.</footer>
+</div>
+
+</body></html>
