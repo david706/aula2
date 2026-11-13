@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Procesos y servicios — ISO UD2</title><style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:12px 14px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;gap:22px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+
+html,body{height:100%}
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 80px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:1.9rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.25rem;color:var(--navy2);margin:.9em 0 .3em}
+.slide p,.slide li{font-size:1.18rem}
+.slide li{margin:.3em 0}
+.slide pre{font-size:1rem}
+.slide table{font-size:1.02rem}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.q{background:#eef3f8;border-left:6px solid var(--navy2);border-radius:12px;padding:14px 18px;margin:14px 0;cursor:pointer}
+.q .ans{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--navy2)}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.big{font-family:Consolas,"Courier New",monospace;font-size:2.2rem;font-weight:700;color:var(--navy);margin:10px 0}
+.notes{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:8px}
+.notes::before{content:"📝 Notas para el profesor · ";font-weight:700}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media(max-width:860px){.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+</style></head><body><div class="deck"><section class="slide on"><div class="cover"><div class="kicker">&gt; module ISO 0369 · UD2 · RA2 · CE c) Actuar sobre servicios y procesos</div><h1>Procesos y servicios</h1><p>Ver qué corre, pararlo, arrancarlo, priorizarlo y hacer que sobreviva a un reinicio. Linux (ps, kill, systemd) y Windows (tasklist, sc, services.msc).</p><p style="font-size:1rem;opacity:.8;margin-top:30px">1.º ASIR · Implantación de Sistemas Operativos · I.E.S. Pablo Serrano · Curso 2026/27</p></div>
+<p class="notes">Usa ← → o espacio para avanzar. Tecla <b>D</b> cambia a modo documento (todo seguido, para Aeducar). Las cajas azules se despliegan al hacer clic.</p></section>
+<section class="slide"><div class="kicker">ÍNDICE</div><h2>Qué vamos a ver</h2><ol class="toc"><li>Proceso, servicio, demonio</li><li>Ver procesos: ps, top, htop, pstree</li><li>Señales, prioridad, primer y segundo plano</li><li>Servicios: systemctl</li><li>Crear tu propio servicio</li><li>Administrador de tareas, tasklist, PowerShell</li><li>services.msc, sc, Get-Service</li><li>Linux ↔ Windows</li><li>Para llevarse a casa</li></ol></section><section class="slide"><div class="kicker">1 · CONCEPTOS</div><h2>Proceso, servicio, demonio</h2>
+<div class="cols"><div class="box"><h3>Proceso</h3><p>Un programa en ejecución: tiene <b>PID</b>, un padre (PPID), un usuario dueño, memoria y CPU asignadas y un estado (ejecutando, durmiendo, parado, zombi).</p><p>Todo proceso desciende de <b>PID 1</b>: <code>systemd</code> en Linux; en Windows, <code>System</code> (PID 4) y <code>wininit</code>/<code>services.exe</code>.</p></div>
+<div class="box"><h3>Servicio / demonio</h3><p>Un proceso que arranca <b>sin usuario</b>, suele vivir todo el tiempo que el sistema está encendido y ofrece algo (SSH, web, impresión, hora). En Linux se llaman demonios (<code>sshd</code>, <code>cron</code>); en Windows, servicios (<code>Spooler</code>, <code>W32Time</code>).</p><p>Lo gestiona un <b>administrador de servicios</b>: <code>systemd</code> / Service Control Manager.</p></div></div>
+<p>El CE c) de RA2: <b>actuar sobre servicios y procesos en función de las necesidades del sistema</b>: ver qué corre, parar lo que sobra, arrancar lo que falta y que sobreviva a un reinicio.</p></section><section class="slide"><div class="kicker">2 · LINUX · VER</div><h2>Ver procesos: ps, top, htop, pstree</h2>
+<pre>ps aux                       <i># todos los procesos, formato BSD</i>
+ps -ef                       <i># todos, formato System V (muestra PPID)</i>
+ps -u ana                    <i># los de un usuario</i>
+ps aux --sort=-%mem | head   <i># los que más memoria usan</i>
+pgrep -a sshd                <i># PID por nombre</i>
+pstree -p                    <i># árbol</i>
+top                          <i># en vivo: P ordena por CPU, M por memoria, k mata, q sale</i>
+htop                         <i># top con colores (apt install htop)</i></pre>
+<table><tr><th>Columna</th><th>Qué es</th></tr><tr><td>USER / PID / PPID</td><td>dueño, identificador, padre</td></tr><tr><td>%CPU / %MEM</td><td>uso instantáneo</td></tr><tr><td>VSZ / RSS</td><td>memoria virtual / residente (KB)</td></tr><tr><td>STAT</td><td>R ejecutando, S durmiendo, D espera E/S, T parado, Z zombi, + en primer plano</td></tr><tr><td>TIME</td><td>CPU acumulada</td></tr><tr><td>COMMAND</td><td>comando; entre [ ] = hilo del kernel</td></tr></table></section><section class="slide"><div class="kicker">3 · LINUX · ACTUAR</div><h2>Señales, prioridad, primer y segundo plano</h2>
+<pre><b># señales</b>
+kill PID            <i># SIGTERM (15): "termina cuando puedas"</i>
+kill -9 PID         <i># SIGKILL: el kernel lo elimina; último recurso (no cierra archivos)</i>
+kill -STOP PID / kill -CONT PID   <i># pausar / continuar</i>
+killall nombre      <i># todos los procesos con ese nombre</i>
+pkill -u pedro      <i># todos los de un usuario</i>
+<b># prioridad (nice: -20 máxima … 19 mínima; solo root baja)</b>
+nice -n 10 ./backup.sh
+renice -n 5 -p PID
+<b># trabajos de la shell</b>
+comando &amp;           <i># en segundo plano</i>
+Ctrl+Z → bg / fg    <i># parar, mandar atrás, traer</i>
+jobs
+nohup comando &amp;    <i># sobrevive al cierre de la terminal</i></pre>
+<div class="q">🤔 ¿Por qué no usar siempre kill -9? <small>(clic)</small><div class="ans">Porque el proceso no recibe la señal: no cierra archivos, no borra temporales, no avisa a sus hijos. Primero 15; si en unos segundos no muere, 9.</div></div></section><section class="slide"><div class="kicker">4 · LINUX · SYSTEMD</div><h2>Servicios: systemctl</h2>
+<pre>systemctl status ssh            <i># estado, PID, últimas líneas de log</i>
+sudo systemctl start|stop|restart|reload ssh
+sudo systemctl enable ssh       <i># arranca al iniciar el sistema</i>
+sudo systemctl disable ssh
+sudo systemctl enable --now ssh <i># enable + start</i>
+systemctl is-active ssh ; systemctl is-enabled ssh
+systemctl list-units --type=service            <i># cargados</i>
+systemctl list-unit-files --type=service       <i># todos, con enabled/disabled</i>
+systemctl --failed                             <i># los que han fallado</i>
+sudo systemctl mask cups        <i># imposibilitar arrancarlo (enlace a /dev/null)</i></pre>
+<div class="warn"><b>start ≠ enable.</b> <code>start</code> arranca ahora; <code>enable</code> lo deja programado para el próximo arranque. Un servicio "started" pero "disabled" desaparece al reiniciar. En el examen y en la práctica se comprueba <b>reiniciando</b>.</div>
+<p>Las unidades viven en <code>/lib/systemd/system/*.service</code> (del paquete) y <code>/etc/systemd/system/</code> (tuyas o modificadas). Tras editar: <code>sudo systemctl daemon-reload</code>.</p></section><section class="slide"><div class="kicker">5 · LINUX · UNIDAD</div><h2>Crear tu propio servicio</h2>
+<pre># /etc/systemd/system/monitor-conta.service
+[Unit]
+Description=Vigila /srv/contabilidad y registra cambios
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/monitor-conta.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target</pre>
+<pre>sudo chmod 755 /usr/local/bin/monitor-conta.sh
+sudo systemctl daemon-reload
+sudo systemctl enable --now monitor-conta
+systemctl status monitor-conta
+journalctl -u monitor-conta -f</pre>
+<p><b>journalctl</b>: <code>-u unidad</code>, <code>-b</code> (desde el arranque), <code>-f</code> (seguir), <code>--since "1 hour ago"</code>, <code>-p err</code> (solo errores).</p><p class="notes">Es el mismo script de la práctica: un bucle con sleep que escribe en un log. Insistir en Restart=on-failure y en que User= es quién ejecuta el servicio (mínimo privilegio).</p></section><section class="slide"><div class="kicker">6 · WINDOWS · PROCESOS</div><h2>Administrador de tareas, tasklist, PowerShell</h2>
+<div class="cols"><div><h3>Gráfico</h3><ul><li><b>Administrador de tareas</b> (Ctrl+Mayús+Esc): Procesos, Rendimiento, Usuarios, Detalles (PID, prioridad, finalizar árbol), Servicios.</li><li><b>Monitor de recursos</b> (<code>resmon</code>): CPU, disco, red por proceso.</li></ul>
+<h3>CMD</h3><pre>tasklist
+tasklist /FI "USERNAME eq ana"
+tasklist /SVC            :: qué servicios lleva cada svchost
+taskkill /PID 1234
+taskkill /IM notepad.exe /F /T   :: por nombre, forzado, con hijos
+start /LOW programa.exe  :: prioridad</pre></div>
+<div><h3>PowerShell</h3><pre>Get-Process
+Get-Process | Sort-Object CPU -Descending | Select -First 5
+Get-Process -Name notepad | Stop-Process
+Stop-Process -Id 1234 -Force
+(Get-Process notepad).PriorityClass = "BelowNormal"
+Get-Process | Where-Object {$_.WorkingSet -gt 200MB}</pre>
+<p class="muted">Windows no tiene "señales": <code>Stop-Process</code>/<code>taskkill</code> sin <code>/F</code> pide cerrar; con <code>/F</code> es el kill -9.</p></div></div></section><section class="slide"><div class="kicker">7 · WINDOWS · SERVICIOS</div><h2>services.msc, sc, Get-Service</h2>
+<pre>:: CMD
+sc.exe query spooler
+sc.exe start spooler / sc.exe stop spooler
+sc.exe config spooler start= disabled      :: OJO al espacio tras "start="
+sc.exe config spooler start= auto | demand | delayed-auto
+sc.exe qc spooler                          :: configuración (binario, cuenta, tipo de inicio)
+net start / net stop spooler
+<b># PowerShell</b>
+Get-Service | Where Status -eq Running
+Get-Service -Name Spooler | Select Name,Status,StartType
+Restart-Service Spooler
+Set-Service Spooler -StartupType Disabled
+Get-Service | Where {$_.StartType -eq 'Automatic' -and $_.Status -ne 'Running'}  <i># deberían estar y no están</i></pre>
+<p><b>services.msc</b>: tipo de inicio (Automático, Automático-retrasado, Manual, Deshabilitado), cuenta con la que corre (Sistema local, Servicio de red, Servicio local, una cuenta de usuario), pestaña Recuperación (qué hacer si falla: reiniciar el servicio, ejecutar un programa) y Dependencias.</p>
+<p>Registro: <b>Visor de eventos → Sistema</b>, origen <i>Service Control Manager</i>, IDs 7036 (cambió de estado), 7000/7001 (no pudo arrancar).</p></section><section class="slide"><div class="kicker">8 · EQUIVALENCIAS</div><h2>Linux ↔ Windows</h2>
+<table><tr><th>Tarea</th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Listar procesos</td><td>ps aux, top</td><td>tasklist, Get-Process, Administrador de tareas</td></tr>
+<tr><td>Terminar proceso</td><td>kill PID / kill -9</td><td>taskkill /PID / /F; Stop-Process</td></tr>
+<tr><td>Prioridad</td><td>nice / renice</td><td>start /LOW; PriorityClass; Administrador → Detalles</td></tr>
+<tr><td>Estado de servicio</td><td>systemctl status</td><td>sc.exe query, Get-Service</td></tr>
+<tr><td>Arrancar/parar</td><td>systemctl start/stop</td><td>sc.exe start/stop, Start-Service</td></tr>
+<tr><td>Al arranque sí/no</td><td>systemctl enable/disable</td><td>sc.exe config start= auto/disabled; Set-Service -StartupType</td></tr>
+<tr><td>Logs</td><td>journalctl -u</td><td>Visor de eventos → Sistema</td></tr>
+<tr><td>Definir servicio</td><td>unidad .service</td><td>sc create / New-Service</td></tr>
+<tr><td>PID 1</td><td>systemd</td><td>System (4) / services.exe</td></tr></table></section><section class="slide"><div class="kicker">9 · RESUMEN</div><h2>Para llevarse a casa</h2>
+<ol><li>Proceso = programa en ejecución con PID y dueño; servicio = proceso sin usuario gestionado por systemd / SCM.</li><li>Primero <code>kill</code> (15), luego <code>-9</code>. En Windows, <code>/F</code> es el -9.</li><li><b>start</b> no es <b>enable</b>: comprueba reiniciando.</li><li>Un servicio debe correr con la cuenta de <b>mínimo privilegio</b> que necesite.</li><li>Cuando algo no arranca: <code>systemctl status</code> + <code>journalctl -u</code> / Visor de eventos 7000.</li><li>Desactivar lo que no se usa reduce superficie de ataque y consumo (portátiles: lo retomamos en la S25).</li></ol>
+<div class="info"><b>Ahora:</b> Práctica 6 · Procesos y servicios (2 sesiones).</div></section></div>
+<div class="nav"><button class="sec" onclick="go(-1)">← Anterior</button><button onclick="go(1)">Siguiente →</button><div class="pb"><span id="pb"></span></div><span class="n" id="n"></span><button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+document.querySelectorAll('.q').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+</script></body></html>

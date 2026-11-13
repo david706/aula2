@@ -1,0 +1,179 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Procesos y servicios</title>
+<style>
+  :root{
+    --bg:#f3f1e8; --paper:#ffffff; --ink:#1d2017; --ink-soft:#575c4e; --rule:#d7d6c4;
+    --win:#1f5fa8; --win-soft:#eaf1fb; --lin:#3a7a4e; --lin-soft:#e9f3ec; --accent:#3a7a4e;
+    --code-bg:#1b2018; --code-fg:#eaf0e4;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#14160f; --paper:#1d2017; --ink:#eaeadc; --ink-soft:#aeb49c; --rule:#363a2b;
+      --win:#7badec; --win-soft:#1c2b3e; --lin:#7fcf98; --lin-soft:#1b3022; --accent:#7fcf98;
+      --code-bg:#0e0f0a; --code-fg:#e4ead8; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#14160f; --paper:#1d2017; --ink:#eaeadc; --ink-soft:#aeb49c; --rule:#363a2b;
+    --win:#7badec; --win-soft:#1c2b3e; --lin:#7fcf98; --lin-soft:#1b3022; --accent:#7fcf98;
+    --code-bg:#0e0f0a; --code-fg:#e4ead8; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:48px 80px;
+  }
+  h1,h2,h3,.eyebrow,code,pre,th{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:760px;margin:0 auto}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 10px}
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(28px,5vw,38px); line-height:1.15; margin:0 0 10px; text-wrap:balance}
+  .sub{color:var(--ink-soft); font-size:16px; line-height:1.5; max-width:62ch; margin:0 0 10px}
+  .source{font-size:12.5px; color:var(--ink-soft); border-left:2px solid var(--rule); padding-left:10px; line-height:1.5; margin-bottom:36px}
+  .source b{color:var(--ink)}
+  section{margin-bottom:46px}
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:6px}
+  .section-num{color:var(--ink-soft); font-size:13px}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:23px; margin:0}
+  .section-intro{color:var(--ink-soft); font-size:14.5px; line-height:1.6; max-width:64ch; margin:10px 0 20px}
+  .pair{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  @media (max-width:640px){.pair{grid-template-columns:1fr}}
+  .panel{background:var(--paper); border:1px solid var(--rule); border-radius:3px; padding:18px 20px; min-width:0}
+  .panel.win{border-top:3px solid var(--win)} .panel.lin{border-top:3px solid var(--lin)}
+  .panel h3{display:flex; align-items:center; gap:8px; font-family:"Source Serif 4",Georgia,serif; font-size:17px; margin:0 0 10px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .panel.win .dot{background:var(--win)} .panel.lin .dot{background:var(--lin)}
+  .panel p{font-size:14px; line-height:1.6; margin:0 0 8px}
+  .panel ul{margin:0 0 8px; padding-left:18px}
+  .panel li{font-size:14px; line-height:1.55; margin-bottom:4px}
+  code{background:var(--win-soft); padding:1px 5px; border-radius:3px; font-size:0.86em; word-break:break-word}
+  .panel.lin code{background:var(--lin-soft)}
+  pre{background:var(--code-bg); color:var(--code-fg); padding:12px 14px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.55; margin:8px 0}
+  pre code{background:none; color:inherit; padding:0}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:6px 0}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--rule); vertical-align:top}
+  th{color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em}
+  .tbl-wrap{overflow-x:auto}
+  .note{border:1px dashed var(--rule); border-radius:3px; padding:12px 14px; font-size:13.5px; line-height:1.55; color:var(--ink-soft); margin-top:14px}
+  .note b{color:var(--ink)}
+  .lab{background:var(--paper); border:1px solid var(--rule); border-radius:3px; padding:4px 0}
+  .lab-row{display:grid; grid-template-columns:40px 1fr; gap:14px; padding:16px 20px; border-bottom:1px solid var(--rule)}
+  .lab-row:last-child{border-bottom:none}
+  .lab-row.lin{background:var(--lin-soft)} .lab-row.win{background:var(--win-soft)}
+  .lab-num{font-family:"Fira Code",monospace; font-size:13px; color:var(--ink-soft); padding-top:2px}
+  .lab-row h4{font-family:"Source Serif 4",Georgia,serif; font-size:15.5px; margin:0 0 5px}
+  .lab-row p{font-size:14px; line-height:1.55; margin:0 0 6px; color:var(--ink)}
+  footer{margin-top:50px; padding-top:18px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">ISO · 1º ASIR · 2.4 Procesos y servicios</p>
+  <h1>Procesos y servicios</h1>
+  <p class="sub">Un <b>proceso</b> es un programa en ejecución en un momento dado; un <b>servicio</b> (o <i>demonio</i> en Linux) es un programa pensado para funcionar siempre en segundo plano, sin interfaz, arrancando normalmente con el sistema — un servidor web, el antivirus, el servicio de impresión. Hoy vemos cómo verlos, pararlos y arrancarlos en los dos sistemas.</p>
+  <p class="source">Fuente de los comandos de procesos: Fernández Fidalgo, F. — <i>Implantación de sistemas operativos</i> (Síntesis), cap. 5, apdo. 5.4.4–5.4.5 (pp. 176-180). Los comandos de servicios (<code>services.msc</code>, <code>systemctl</code>, <code>journalctl</code>) son conocimiento estándar de referencia, no aparecen literalmente en ese capítulo del libro.</p>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>Procesos: verlos y terminarlos</h2></div>
+    <p class="section-intro">En ambos sistemas puedes hacerlo desde una aplicación gráfica o desde la terminal. La CLI es la que de verdad necesitarás en un servidor, que normalmente no tiene escritorio.</p>
+    <div class="pair">
+      <div class="panel win">
+        <h3><span class="dot"></span>Windows</h3>
+        <p><b>GUI:</b> Administrador de tareas (<code>Ctrl+Alt+Supr</code> o <code>taskmgr</code>).</p>
+        <p><b>CLI</b> — <code>tasklist</code> lista procesos, <code>taskkill</code> los mata:</p>
+        <pre><code>tasklist
+taskkill /PID 1234
+taskkill /IM notepad.exe</code></pre>
+        <p>También existe <code>wmic process</code> (más potente, pero en desuso desde Windows 10 en favor de PowerShell/CIM):</p>
+        <pre><code>wmic process list brief
+wmic process where name="notepad.exe" delete</code></pre>
+      </div>
+      <div class="panel lin">
+        <h3><span class="dot"></span>Linux</h3>
+        <p><code>top</code> (o <code>htop</code>, más cómodo) muestra los procesos en vivo, ordenados por uso de CPU. <code>ps</code> da una foto fija:</p>
+        <pre><code>ps aux
+ps -ef</code></pre>
+        <p>Para terminarlos — <code>kill</code> por PID, <code>pkill</code>/<code>killall</code> por nombre:</p>
+        <pre><code>kill PID
+kill -9 PID        · terminación forzosa
+pkill nombre
+killall nombre</code></pre>
+        <p><code>renice N PID</code> cambia la prioridad de un proceso (-20 = máxima, 20 = mínima).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Servicios: qué son y cómo se gestionan</h2></div>
+    <p class="section-intro">Un servicio no "se ejecuta y ya está": tiene un estado (iniciado, detenido, pausado) y una configuración de arranque (automático, manual, deshabilitado). Gestionarlo es decidir cuándo arranca y poder pararlo sin apagar el equipo entero.</p>
+    <div class="pair">
+      <div class="panel win">
+        <h3><span class="dot"></span>Windows — services.msc</h3>
+        <p>Se abre con ⊞ Win + R → <code>services.msc</code>. Lista todos los servicios con su estado y tipo de inicio; doble clic en uno para cambiarlo.</p>
+        <p>Por línea de comandos, el comando es <code>sc</code> (Service Control):</p>
+        <pre><code>sc query nombre_servicio
+sc start nombre_servicio
+sc stop nombre_servicio
+sc config nombre_servicio start= auto</code></pre>
+        <p>También puedes usar PowerShell, más moderno:</p>
+        <pre><code>Get-Service
+Start-Service nombre
+Stop-Service nombre</code></pre>
+      </div>
+      <div class="panel lin">
+        <h3><span class="dot"></span>Linux — systemctl</h3>
+        <p>La mayoría de distribuciones actuales (incluida Ubuntu) usan <b>systemd</b> como gestor de servicios. El comando es <code>systemctl</code>:</p>
+        <pre><code>systemctl status nombre
+systemctl start nombre
+systemctl stop nombre
+systemctl restart nombre
+systemctl enable nombre   · arranca con el sistema
+systemctl disable nombre</code></pre>
+        <p>Para ver los registros (logs) de un servicio gestionado por systemd, se usa <code>journalctl</code>:</p>
+        <pre><code>journalctl -u nombre
+journalctl -u nombre -f   · en vivo, como tail -f</code></pre>
+      </div>
+    </div>
+    <div class="note"><b>Relación con lo que ya viste en UD2:</b> el libro trata el registro de eventos del sistema en general (Visor de eventos en Windows, <code>/var/log</code> en Linux) — <code>journalctl</code> es la versión moderna de eso mismo pero específica de servicios systemd, y sustituye en buena parte a mirar archivos sueltos en <code>/var/log</code>.</div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>Para practicar</h2></div>
+    <div class="lab">
+      <div class="lab-row win">
+        <div class="lab-num">01</div>
+        <div>
+          <h4>Mata un proceso de dos formas en Windows</h4>
+          <p>Abre el Bloc de notas. Localiza su PID con <code>tasklist | find "notepad"</code> y mátalo con <code>taskkill /PID</code>. Repite el ejercicio abriendo otra instancia y usando <code>taskkill /IM notepad.exe</code> directamente.</p>
+        </div>
+      </div>
+      <div class="lab-row win">
+        <div class="lab-num">02</div>
+        <div>
+          <h4>Cambia el arranque de un servicio</h4>
+          <p>Con <code>services.msc</code>, localiza el servicio "Fax" o "Impresora en cola" y cambia su tipo de inicio a Manual. Verifícalo desde <code>cmd</code> con <code>sc qc nombre_servicio</code>.</p>
+        </div>
+      </div>
+      <div class="lab-row lin">
+        <div class="lab-num">03</div>
+        <div>
+          <h4>Gestiona un servicio con systemctl</h4>
+          <p>Instala y arranca un servicio sencillo, por ejemplo <code>sudo apt install apache2</code>. Comprueba su estado con <code>systemctl status apache2</code>, detenlo, vuelve a arrancarlo y comprueba con <code>systemctl is-enabled apache2</code> si arrancará solo al reiniciar.</p>
+        </div>
+      </div>
+      <div class="lab-row lin">
+        <div class="lab-num">04</div>
+        <div>
+          <h4>Revisa los logs con journalctl</h4>
+          <p>Con el servicio del ejercicio anterior, párate y vuelve a arrancarlo mientras tienes abierto <code>journalctl -u apache2 -f</code> en otra terminal. Observa qué líneas aparecen en cada acción.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Ficha de repaso — ISO, 2.4 Procesos y servicios · Procesos según Fernández Fidalgo, <i>Implantación de sistemas operativos</i>, Ed. Síntesis, cap. 5. Servicios según documentación estándar de Windows/systemd.</footer>
+</div>
+
+</body></html>

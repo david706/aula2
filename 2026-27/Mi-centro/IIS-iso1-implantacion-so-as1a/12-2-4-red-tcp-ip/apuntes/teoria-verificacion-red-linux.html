@@ -1,0 +1,259 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #1f4e79; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Teoría · Linux</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Verificar y diagnosticar la red en un cliente Linux</h2>
+</div>
+
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Objetivo:</strong> comprobar que la configuración TCP/IP del cliente funciona de verdad: que llega a la puerta de enlace, a los equipos de la red y a Internet, que resuelve nombres y que puede usar servicios como una web. Y, si algo falla, saber localizar dónde.</p>
+</div>
+
+<!-- 1 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">1. Configurar no es lo mismo que funcionar</h3>
+<p>Que el archivo de Netplan esté bien escrito no garantiza que el equipo tenga red. Puede fallar el cable (en VirtualBox, el adaptador), el otro equipo, el router, el DNS o el servicio al que queremos acceder. Por eso se comprueba <strong>por capas, de dentro hacia fuera</strong>. El primer peldaño que falla indica dónde está el problema.</p>
+
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 6%;">#</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Pregunta</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Si falla, revisa…</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">1</td><td style="padding: 8px; border: 1px solid #ccc;">¿Mi interfaz está activa y tiene IP?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip -br a</code> · <code>nmcli device show</code></td><td style="padding: 8px; border: 1px solid #ccc;">Netplan, adaptador en VirtualBox</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">2</td><td style="padding: 8px; border: 1px solid #ccc;">¿Funciona la pila TCP/IP?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 2 127.0.0.1</code></td><td style="padding: 8px; border: 1px solid #ccc;">El sistema (muy raro que falle)</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">3</td><td style="padding: 8px; border: 1px solid #ccc;">¿Llego a un vecino de mi red?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP, máscara, red interna, el otro equipo</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">4</td><td style="padding: 8px; border: 1px solid #ccc;">¿Llego a la puerta de enlace?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip route</code> y <code>ping</code> a esa IP</td><td style="padding: 8px; border: 1px solid #ccc;">Ruta por defecto, adaptador NAT</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">5</td><td style="padding: 8px; border: 1px solid #ccc;">¿Salgo a Internet?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace, router, proveedor</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">6</td><td style="padding: 8px; border: 1px solid #ccc;">¿Resuelvo nombres?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code></td><td style="padding: 8px; border: 1px solid #ccc;">Servidores DNS</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">7</td><td style="padding: 8px; border: 1px solid #ccc;">¿Responde el servicio que quiero usar?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>curl -I http://192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;">El servicio en el servidor, el puerto, el cortafuegos</td></tr>
+</table>
+
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Idea clave:</strong> <code>ping</code> comprueba que un <strong>equipo</strong> responde. <code>curl</code> comprueba que un <strong>servicio</strong> de ese equipo responde. Un servidor puede contestar al ping y tener la web apagada.</p>
+</div>
+
+<!-- 2 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">2. Revisar la configuración aplicada</h3>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">2.1 Lo que pedimos y lo que el sistema tiene</h4>
+<p style="margin-top: 4px;">El archivo de Netplan es lo que <em>pedimos</em>. Lo que el sistema tiene <em>de verdad</em> se ve con estos comandos. Si no coinciden, falta aplicar o hay un error.</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">sudo cat /etc/netplan/01-netcfg.yaml     <span style="color: #6a9955;"># lo que pedimos</span>
+sudo netplan get                         <span style="color: #6a9955;"># lo que Netplan entiende (todos los archivos unidos)</span>
+ip -br a                                 <span style="color: #6a9955;"># lo que hay aplicado</span></pre>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">2.2 <code>nmcli device show</code>: los cuatro datos de un vistazo</h4>
+<p style="margin-top: 4px;">En Ubuntu Desktop la red la gestiona <strong>NetworkManager</strong>. Su herramienta de terminal, <code>nmcli</code>, enseña en un solo listado IP, máscara, puerta de enlace y DNS de cada interfaz:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">nmcli device status          <span style="color: #6a9955;"># resumen: interfaz, tipo, estado, conexión</span>
+nmcli device show enp0s8     <span style="color: #6a9955;"># detalle de una interfaz</span></pre>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">GENERAL.DEVICE:          enp0s8
+GENERAL.TYPE:            ethernet
+GENERAL.HWADDR:          08:00:27:xx:xx:xx        <span style="color: #9cdcfe;">← MAC</span>
+GENERAL.STATE:           100 (conectado)          <span style="color: #9cdcfe;">← 100 = funcionando</span>
+GENERAL.CONNECTION:      netplan-enp0s8           <span style="color: #9cdcfe;">← creada desde tu archivo Netplan</span>
+IP4.ADDRESS[1]:          192.168.100.50/24        <span style="color: #9cdcfe;">← IP + máscara</span>
+IP4.GATEWAY:             --                       <span style="color: #9cdcfe;">← sin puerta de enlace (correcto)</span>
+IP4.DNS[1]:              8.8.8.8
+IP4.DNS[2]:              8.8.4.4</pre>
+<p>Si lo haces con <code>enp0s3</code> (el NAT) verás <code>IP4.GATEWAY: 10.0.2.2</code> y <code>IP4.DNS[1]: 10.0.2.3</code>: son la puerta de enlace y el DNS que VirtualBox entrega por DHCP.</p>
+<p style="font-size: 13px; color: #555;">El texto del estado sale en el idioma del sistema: «conectado» o «connected».</p>
+
+<!-- 3 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">3. <code>ping</code>: leer bien la respuesta</h3>
+<p><code>ping</code> envía paquetes <strong>ICMP</strong> de eco y espera respuesta. No usa puertos: comprueba solo que el equipo es alcanzable.</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">$ ping -c 4 192.168.100.10
+64 bytes from 192.168.100.10: icmp_seq=1 ttl=64 time=0.48 ms
+...
+--- 192.168.100.10 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3050ms</pre>
+<ul>
+  <li><strong>ttl</strong>: «vida» del paquete; baja 1 en cada router. Con 64 sabemos que no ha pasado por ningún router (es un vecino Linux).</li>
+  <li><strong>time</strong>: lo que tarda en ir y volver. En la red local, menos de 1 ms.</li>
+  <li><strong>packet loss</strong>: el dato importante. <code>0%</code> = bien. <code>100%</code> = no hay respuesta.</li>
+</ul>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">3.1 Mensajes de error de <code>ping</code> y qué significan</h4>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 40%;">Mensaje</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qué está pasando</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>Destination Host Unreachable</code></td><td style="padding: 8px; border: 1px solid #ccc;">El destino está en mi red pero nadie contesta a esa IP: equipo apagado, IP equivocada o red interna distinta en VirtualBox.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>Network is unreachable</code></td><td style="padding: 8px; border: 1px solid #ccc;">No tengo ninguna ruta hacia ese destino: falta la puerta de enlace o la interfaz está caída.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>100% packet loss</code> sin más mensajes</td><td style="padding: 8px; border: 1px solid #ccc;">El paquete sale pero no vuelve: cortafuegos que bloquea ICMP, router que no reenvía, o el paquete sale por la interfaz equivocada.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>Temporary failure in name resolution</code><br><code>Name or service not known</code></td><td style="padding: 8px; border: 1px solid #ccc;">No se ha podido traducir el nombre a IP: problema de <strong>DNS</strong> (o nombre mal escrito). La red puede estar bien.</td></tr>
+</table>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">3.2 ¿Por qué interfaz sale un paquete?</h4>
+<p style="margin-top: 4px;">Muy útil cuando un ping falla sin explicación:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">$ ip route get 192.168.100.10
+192.168.100.10 dev enp0s8 src 192.168.100.50     <span style="color: #9cdcfe;">← correcto: sale por la red interna</span>
+$ ip route get 8.8.8.8
+8.8.8.8 via 10.0.2.2 dev enp0s3 src 10.0.2.15     <span style="color: #9cdcfe;">← correcto: sale por el NAT</span></pre>
+<p>Si <code>192.168.100.10</code> sale por <code>enp0s3</code>, tu IP o tu máscara de <code>enp0s8</code> están mal: el sistema no cree que el servidor sea un vecino.</p>
+
+<!-- 4 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">4. La puerta de enlace: encontrarla y probarla</h3>
+<p>No hace falta saberla de memoria: la tabla de rutas la dice.</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">$ ip route | grep default
+default via 10.0.2.2 dev enp0s3 proto dhcp metric 100
+$ ping -c 4 10.0.2.2</pre>
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>En nuestro laboratorio</strong> la puerta de enlace es <code>10.0.2.2</code> (el NAT de VirtualBox). La red interna <code>192.168.100.0/24</code> no tiene router, así que <code>ping 192.168.100.1</code> <strong>no responderá</strong>, y es lo esperado. En una oficina real con un router en <code>192.168.100.1</code>, sí sería ese.</p>
+</div>
+<p>Para ver por dónde pasan los paquetes hasta un destino de Internet:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px;">tracepath -n 8.8.8.8          <span style="color: #6a9955;"># viene instalado; traceroute hay que instalarlo</span></pre>
+<p style="font-size: 13px; color: #555;">Detrás del NAT de VirtualBox es normal que muchos saltos aparezcan como <code>no reply</code>.</p>
+
+<!-- 5 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">5. <code>nslookup</code>: comprobar el DNS</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">$ nslookup google.com
+Server:         127.0.0.53            <span style="color: #9cdcfe;">← intermediario local (systemd-resolved)</span>
+Address:        127.0.0.53#53         <span style="color: #9cdcfe;">← #53 = puerto del DNS</span>
+
+Non-authoritative answer:            <span style="color: #9cdcfe;">← responde un DNS que no es el dueño del dominio: normal</span>
+Name:   google.com
+Address: 142.250.184.14               <span style="color: #9cdcfe;">← la respuesta</span></pre>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">5.1 Preguntar a un servidor DNS concreto</h4>
+<p style="margin-top: 4px;">Si la resolución falla, pregunta directamente a un DNS público. Así separas «mi configuración DNS está mal» de «no hay salida a Internet»:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">nslookup google.com 8.8.8.8      <span style="color: #6a9955;"># pregunta a Google</span>
+nslookup google.com 1.1.1.1      <span style="color: #6a9955;"># pregunta a Cloudflare</span>
+resolvectl dns                   <span style="color: #6a9955;"># qué DNS usa cada interfaz</span></pre>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 32%;"><code>nslookup google.com</code></th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 32%;"><code>nslookup google.com 8.8.8.8</code></th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Conclusión</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Responde</td><td style="padding: 8px; border: 1px solid #ccc;">Responde</td><td style="padding: 8px; border: 1px solid #ccc;">Todo bien.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Falla</td><td style="padding: 8px; border: 1px solid #ccc;">Responde</td><td style="padding: 8px; border: 1px solid #ccc;">La salida funciona; los DNS configurados están mal.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Falla</td><td style="padding: 8px; border: 1px solid #ccc;">Falla (<code>timed out</code>)</td><td style="padding: 8px; border: 1px solid #ccc;">No hay salida a Internet: vuelve al peldaño 4 y 5.</td></tr>
+</table>
+<p>Respuestas de error habituales: <code>;; connection timed out; no servers could be reached</code> (el DNS no contesta) y <code>** server can't find googel.com: NXDOMAIN</code> (el DNS contesta, pero ese nombre no existe: revisa cómo lo has escrito).</p>
+
+<!-- 6 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">6. <code>curl</code>: comprobar que un servicio web responde</h3>
+<p><code>curl</code> hace una petición a una URL igual que un navegador, pero desde la terminal. Usa <strong>TCP</strong> y un <strong>puerto</strong>: 80 para <code>http://</code> y 443 para <code>https://</code>.</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">sudo apt install curl                    <span style="color: #6a9955;"># Ubuntu Desktop no lo trae de serie</span>
+curl http://192.168.100.10               <span style="color: #6a9955;"># descarga la página (sale el HTML entero)</span>
+curl -I http://192.168.100.10            <span style="color: #6a9955;"># solo la cabecera de la respuesta</span>
+curl -I https://www.google.com
+curl -sS -o /dev/null -w "%{http_code}\n" https://www.google.com   <span style="color: #6a9955;"># solo el código</span></pre>
+<p>La primera línea de <code>curl -I</code> dice si el servidor ha atendido la petición:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)           <span style="color: #9cdcfe;">← qué servidor web contesta</span>
+Content-Type: text/html</pre>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">6.1 Códigos de respuesta HTTP</h4>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 7px; border: 1px solid #ccc; text-align: left; width: 22%;">Código</th>
+    <th style="padding: 7px; border: 1px solid #ccc; text-align: left;">Significado</th>
+  </tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc;"><strong>200</strong> OK</td><td style="padding: 7px; border: 1px solid #ccc;">Todo bien: el servicio funciona y ha entregado la página.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc;"><strong>301 / 302</strong></td><td style="padding: 7px; border: 1px solid #ccc;">Redirección a otra dirección (por ejemplo, de <code>google.com</code> a <code>www.google.com</code>). El servidor responde: la red funciona. Con <code>curl -L</code> sigue la redirección.</td></tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc;"><strong>403</strong></td><td style="padding: 7px; border: 1px solid #ccc;">Prohibido: el servidor responde pero no deja ver ese recurso (permisos).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc;"><strong>404</strong></td><td style="padding: 7px; border: 1px solid #ccc;">No encontrado: el servidor responde, pero esa página no existe.</td></tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc;"><strong>500</strong></td><td style="padding: 7px; border: 1px solid #ccc;">Error interno del servidor web.</td></tr>
+</table>
+<p>Recuerda: <strong>cualquier código</strong>, aunque sea 404, demuestra que la red y el servicio funcionan. Los problemas de red se ven en los <strong>errores de <code>curl</code></strong>:</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">6.2 Errores de <code>curl</code> y dónde está el fallo</h4>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 42%;">Error</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Diagnóstico</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (6) Could not resolve host: srv-ubuntu</code></td><td style="padding: 8px; border: 1px solid #ccc;"><strong>DNS</strong>: no se sabe qué IP tiene ese nombre.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (7) Failed to connect to 192.168.100.10 port 80 … Connection refused</code></td><td style="padding: 8px; border: 1px solid #ccc;">La <strong>red funciona</strong> (el servidor contesta), pero <strong>no hay ningún servicio</strong> escuchando en ese puerto: la web no está instalada o está parada.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (28) Connection timed out</code> / <code>Failed to connect … Timeout</code></td><td style="padding: 8px; border: 1px solid #ccc;">Nadie contesta: equipo inalcanzable o <strong>cortafuegos</strong> que descarta los paquetes del puerto.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (7) … No route to host</code></td><td style="padding: 8px; border: 1px solid #ccc;">No hay ruta o el cortafuegos rechaza activamente la conexión.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (60) SSL certificate problem</code></td><td style="padding: 8px; border: 1px solid #ccc;">La conexión llega, pero el certificado HTTPS no es de confianza (o la hora del equipo está mal).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>orden no encontrada</code> / <code>command not found</code></td><td style="padding: 8px; border: 1px solid #ccc;">No está instalado: <code>sudo apt install curl</code>.</td></tr>
+</table>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">6.3 ¿Por qué <code>curl http://srv-ubuntu</code> no funciona?</h4>
+<p style="margin-top: 4px;">Porque <code>srv-ubuntu</code> es un nombre que <strong>solo existe dentro de la ferretería</strong>: ningún DNS de Internet (como 8.8.8.8) lo conoce. Con la IP sí funciona: <code>curl http://192.168.100.10</code>. Para que el cliente traduzca nombres internos hace falta el archivo <code>/etc/hosts</code> o un servidor DNS propio, que se trabaja en el tema de resolución de nombres.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">6.4 Sin <code>curl</code>: ¿está abierto el puerto?</h4>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">nc -zv 192.168.100.10 80          <span style="color: #6a9955;"># "succeeded" = puerto abierto; "refused" = sin servicio</span>
+wget -S --spider http://192.168.100.10   <span style="color: #6a9955;"># alternativa a curl, viene instalada</span></pre>
+
+<!-- 7 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">7. En otras distribuciones</h3>
+<p>Los comandos de comprobación (<code>ip</code>, <code>ping</code>, <code>nslookup</code>, <code>curl</code>) son los mismos en todas. Cambia el paquete donde vienen y la herramienta que muestra la configuración:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Distribución</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Instalar <code>curl</code> y <code>nslookup</code></th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Ver la configuración aplicada</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ubuntu / Debian</td><td style="padding: 8px; border: 1px solid #ccc;"><code>sudo apt install curl bind9-dnsutils</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli device show</code> (Desktop) · <code>networkctl status</code> (Server)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Fedora / RHEL</td><td style="padding: 8px; border: 1px solid #ccc;"><code>sudo dnf install curl bind-utils</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli device show</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Arch Linux</td><td style="padding: 8px; border: 1px solid #ccc;"><code>sudo pacman -S curl bind</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>networkctl status</code> o <code>nmcli device show</code>, según el gestor que hayas activado</td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">En todas, <code>resolvectl status</code> muestra los DNS si se usa systemd-resolved.</p>
+
+<!-- 8 -->
+<h3 style="color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 4px;">8. Errores típicos al verificar</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #c0392b; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 34%;">Lo que ves</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Causa</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Qué hacer</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.1</code> sin respuesta</td><td style="padding: 8px; border: 1px solid #ccc;">En la red interna no hay router. No es un fallo.</td><td style="padding: 8px; border: 1px solid #ccc;">Busca la puerta de enlace real con <code>ip route</code> (<code>10.0.2.2</code>).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.10</code>: <code>Destination Host Unreachable</code></td><td style="padding: 8px; border: 1px solid #ccc;">Servidor apagado, sin IP, o en otra red interna (nombre distinto de <code>ferreteria</code>).</td><td style="padding: 8px; border: 1px solid #ccc;">Comprueba el servidor y el nombre de la red interna en VirtualBox.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ping al servidor falla e <code>ip route get</code> dice <code>dev enp0s3</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP o máscara mal en <code>enp0s8</code> (otra red).</td><td style="padding: 8px; border: 1px solid #ccc;">Corrige Netplan y aplica.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli</code> muestra <code>GENERAL.STATE: 20 (no disponible)</code> o <code>30 (desconectado)</code></td><td style="padding: 8px; border: 1px solid #ccc;">Adaptador deshabilitado o sin «cable» en VirtualBox, o interfaz bajada a mano.</td><td style="padding: 8px; border: 1px solid #ccc;">Revisa VirtualBox; <code>sudo netplan apply</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli</code> enseña una IP distinta de la del archivo</td><td style="padding: 8px; border: 1px solid #ccc;">No se aplicó, o otra conexión de NetworkManager manda sobre la misma tarjeta.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>sudo netplan apply</code>; <code>nmcli connection show</code> para ver conexiones duplicadas.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 8.8.8.8</code> bien, <code>ping google.com</code> mal</td><td style="padding: 8px; border: 1px solid #ccc;">DNS.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com 8.8.8.8</code> y <code>resolvectl dns</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: Could not resolve host: srv-ubuntu</code></td><td style="padding: 8px; border: 1px solid #ccc;">Nombre interno que ningún DNS conoce.</td><td style="padding: 8px; border: 1px solid #ccc;">Usa la IP. (Se resuelve con <code>/etc/hosts</code> o DNS propio.)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl http://192.168.100.10</code>: <code>Connection refused</code>, pero el ping va bien</td><td style="padding: 8px; border: 1px solid #ccc;">El servidor no tiene la web en marcha.</td><td style="padding: 8px; border: 1px solid #ccc;">En el servidor: <code>systemctl status apache2</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl</code> al servidor se queda colgado y acaba en <code>timed out</code></td><td style="padding: 8px; border: 1px solid #ccc;">Cortafuegos del servidor bloquea el puerto 80.</td><td style="padding: 8px; border: 1px solid #ccc;">En el servidor: <code>sudo ufw status</code> y <code>sudo ufw allow 80/tcp</code>.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl https://www.google.com</code> llena la pantalla de texto</td><td style="padding: 8px; border: 1px solid #ccc;">No es un error: es el HTML de la página.</td><td style="padding: 8px; border: 1px solid #ccc;">Usa <code>curl -I</code> para ver solo la cabecera.</td></tr>
+</table>
+
+<!-- 9 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">9. Comprueba lo que has aprendido</h3>
+<p>Intenta responder antes de abrir cada pregunta para ver la solución.</p>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">1. ¿Qué diferencia hay entre comprobar con <code>ping</code> y con <code>curl</code>?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>ping</code> (ICMP) comprueba que el equipo es alcanzable. <code>curl</code> (TCP, puerto 80/443) comprueba que un servicio web de ese equipo responde.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">2. ¿Por qué en nuestro laboratorio <code>ping 192.168.100.1</code> no responde? ¿Cuál es la puerta de enlace?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> En la red interna no hay ningún router. La puerta de enlace es la del NAT, <code>10.0.2.2</code>, como muestra <code>ip route</code>.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">3. En <code>nmcli device show enp0s8</code> aparece <code>IP4.GATEWAY: --</code>. ¿Está bien?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Sí. La red interna no lleva puerta de enlace; la única está en <code>enp0s3</code> (NAT).</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">4. <code>nslookup google.com</code> falla, pero <code>nslookup google.com 8.8.8.8</code> funciona. ¿Qué concluyes?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Hay salida a Internet, pero los DNS configurados en el equipo están mal o no responden.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">5. <code>ping 192.168.100.10</code> funciona y <code>curl http://192.168.100.10</code> da <code>Connection refused</code>. ¿Dónde está el problema?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> En el servidor: la red funciona, pero no hay ningún servicio web escuchando en el puerto 80 (Apache no instalado o parado).</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">6. <code>curl -I https://google.com</code> devuelve <code>HTTP/2 301</code>. ¿Hay algún problema?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> No. 301 es una redirección: el servidor ha respondido, así que red, DNS y servicio funcionan.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">7. ¿Por qué <code>curl http://srv-ubuntu</code> da <code>Could not resolve host</code> y con la IP funciona?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Porque es un nombre interno que no conoce ningún DNS de Internet. Hace falta <code>/etc/hosts</code> o un DNS propio.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">8. ¿Qué comando te dice por qué interfaz saldrá un paquete hacia una IP?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>ip route get &lt;IP&gt;</code>, por ejemplo <code>ip route get 192.168.100.10</code>.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">9. ¿Cómo instalarías <code>nslookup</code> en Fedora y en Arch?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Fedora: <code>sudo dnf install bind-utils</code>. Arch: <code>sudo pacman -S bind</code>.</div>
+</details>
+
+</div>

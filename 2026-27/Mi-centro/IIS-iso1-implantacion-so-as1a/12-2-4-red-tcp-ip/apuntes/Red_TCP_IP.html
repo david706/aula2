@@ -1,0 +1,206 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Red TCP/IP</title>
+<style>
+  :root{
+    --bg:#edf1f3; --paper:#ffffff; --ink:#15202a; --ink-soft:#4d5e6b; --rule:#cfdbe2;
+    --win:#1f5fa8; --win-soft:#e3edf7; --lin:#1b7a6b; --lin-soft:#e3f3ef; --accent:#1b7a6b;
+    --code-bg:#0f1b22; --code-fg:#dcecef;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0f1519; --paper:#17212a; --ink:#e3ecf1; --ink-soft:#9fb0bb; --rule:#2a3943;
+      --win:#7badec; --win-soft:#1c2b3e; --lin:#5fcbb5; --lin-soft:#143027; --accent:#5fcbb5;
+      --code-bg:#0a1216; --code-fg:#d4e6e2; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1519; --paper:#17212a; --ink:#e3ecf1; --ink-soft:#9fb0bb; --rule:#2a3943;
+    --win:#7badec; --win-soft:#1c2b3e; --lin:#5fcbb5; --lin-soft:#143027; --accent:#5fcbb5;
+    --code-bg:#0a1216; --code-fg:#d4e6e2; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:48px 80px;
+  }
+  h1,h2,h3,.eyebrow,code,pre,th{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:760px;margin:0 auto}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 10px}
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(28px,5vw,38px); line-height:1.15; margin:0 0 10px; text-wrap:balance}
+  .sub{color:var(--ink-soft); font-size:16px; line-height:1.5; max-width:62ch; margin:0 0 10px}
+  .source{font-size:12.5px; color:var(--ink-soft); border-left:2px solid var(--rule); padding-left:10px; line-height:1.5; margin-bottom:36px}
+  .source b{color:var(--ink)}
+  section{margin-bottom:46px}
+  .section-head{display:flex; align-items:baseline; gap:12px; margin-bottom:6px}
+  .section-num{color:var(--ink-soft); font-size:13px}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:23px; margin:0}
+  .section-intro{color:var(--ink-soft); font-size:14.5px; line-height:1.6; max-width:64ch; margin:10px 0 20px}
+  .layers{display:flex; flex-direction:column; gap:6px; margin:0 0 14px}
+  .layer{
+    background:var(--paper); border:1px solid var(--rule); border-left:4px solid var(--accent);
+    border-radius:3px; padding:10px 14px; display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;
+  }
+  .layer b{font-family:"Source Serif 4",Georgia,serif; font-size:14.5px}
+  .layer span{font-size:12px; color:var(--ink-soft)}
+  .pair{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  @media (max-width:640px){.pair{grid-template-columns:1fr}}
+  .panel{background:var(--paper); border:1px solid var(--rule); border-radius:3px; padding:18px 20px; min-width:0}
+  .panel.win{border-top:3px solid var(--win)} .panel.lin{border-top:3px solid var(--lin)}
+  .panel h3{display:flex; align-items:center; gap:8px; font-family:"Source Serif 4",Georgia,serif; font-size:17px; margin:0 0 10px}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .panel.win .dot{background:var(--win)} .panel.lin .dot{background:var(--lin)}
+  .panel p{font-size:14px; line-height:1.6; margin:0 0 8px}
+  .panel ul{margin:0 0 8px; padding-left:18px}
+  .panel li{font-size:14px; line-height:1.55; margin-bottom:4px}
+  code{background:var(--win-soft); padding:1px 5px; border-radius:3px; font-size:0.86em; word-break:break-word}
+  .panel.lin code{background:var(--lin-soft)}
+  pre{background:var(--code-bg); color:var(--code-fg); padding:12px 14px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.55; margin:8px 0}
+  pre code{background:none; color:inherit; padding:0}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin:6px 0}
+  th,td{text-align:left; padding:7px 8px; border-bottom:1px solid var(--rule); vertical-align:top}
+  th{color:var(--ink-soft); font-weight:600; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em}
+  .tbl-wrap{overflow-x:auto}
+  .note{border:1px dashed var(--rule); border-radius:3px; padding:12px 14px; font-size:13.5px; line-height:1.55; color:var(--ink-soft); margin-top:14px}
+  .note b{color:var(--ink)}
+  .lab{background:var(--paper); border:1px solid var(--rule); border-radius:3px; padding:4px 0}
+  .lab-row{display:grid; grid-template-columns:40px 1fr; gap:14px; padding:16px 20px; border-bottom:1px solid var(--rule)}
+  .lab-row:last-child{border-bottom:none}
+  .lab-row.lin{background:var(--lin-soft)} .lab-row.win{background:var(--win-soft)}
+  .lab-num{font-family:"Fira Code",monospace; font-size:13px; color:var(--ink-soft); padding-top:2px}
+  .lab-row h4{font-family:"Source Serif 4",Georgia,serif; font-size:15.5px; margin:0 0 5px}
+  .lab-row p{font-size:14px; line-height:1.55; margin:0 0 6px; color:var(--ink)}
+  footer{margin-top:50px; padding-top:18px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">ISO · 1º ASIR · 2.5 Red TCP-IP</p>
+  <h1>Configuración de red TCP/IP</h1>
+  <p class="sub">Configurar, comprobar y resolver nombres en una red TCP/IP, en Windows y en Linux — el último tramo de UD2 antes del examen de RA1+RA2.</p>
+  <p class="source">Fuente: Fernández Fidalgo, F. — <i>Implantación de sistemas operativos</i> (Síntesis), capítulo 4 — "Operaciones básicas: administración de software base", apartado 4.2.3 "Configuración de red" (pp. 136-142).</p>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>El modelo TCP/IP: 4 capas</h2></div>
+    <p class="section-intro">TCP/IP (Transmission Control Protocol / Internet Protocol) es el conjunto de protocolos que hace posible Internet. Se organiza en 4 capas, cada una con una función concreta.</p>
+    <div class="layers">
+      <div class="layer"><b>Aplicación</b><span>SSH, DNS, SMTP, HTTP — interfaz de usuario</span></div>
+      <div class="layer"><b>Transporte</b><span>TCP, UDP, ICMP — comunicación punto a punto</span></div>
+      <div class="layer"><b>Internet</b><span>IP, IPSEC, ICMP, IGMP — transmisión lógica de datos</span></div>
+      <div class="layer"><b>Interfaz de red</b><span>ARP, NDP, L2TP, Ethernet — transmisión física</span></div>
+    </div>
+    <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin:0">Es una simplificación del modelo OSI de 7 capas: Aplicación agrupa Aplicación+Presentación+Sesión de OSI, Transporte e Internet se corresponden 1:1 con Transporte y Red de OSI, e Interfaz de red agrupa Enlace de datos+Física.</p>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>Configurar la IP</h2></div>
+    <p class="section-intro">En ambos sistemas puedes dejar que un servidor DHCP asigne la IP automáticamente, o fijarla tú a mano (IP estática) junto con máscara de subred, puerta de enlace y DNS.</p>
+    <div class="pair">
+      <div class="panel win">
+        <h3><span class="dot"></span>Windows</h3>
+        <p><b>GUI:</b> Conexiones de red → clic derecho en el adaptador → Propiedades → Protocolo TCP/IP → Propiedades. Ahí eliges "Obtener una IP automáticamente" (DHCP) o "Usar la siguiente dirección IP" y rellenas IP, máscara, puerta de enlace y DNS.</p>
+        <p><b>CLI:</b> para consultar la configuración actual, se usa <code>ipconfig</code>:</p>
+        <pre><code>ipconfig           · resumen
+ipconfig /all      · detalle completo</code></pre>
+      </div>
+      <div class="panel lin">
+        <h3><span class="dot"></span>Linux</h3>
+        <p>La configuración se guarda en un fichero de texto: <code>/etc/network/interfaces</code> o <code>/etc/network/interfaces.d/setup</code>, según la distribución.</p>
+        <p><b>Por DHCP</b> (automática):</p>
+        <pre><code>auto eth0
+iface eth0 inet dhcp</code></pre>
+        <p><b>Estática</b> (a mano):</p>
+        <pre><code>auto eth0
+iface eth0 inet static
+    address 192.168.0.2
+    netmask 255.255.255.0
+    network 192.168.0.0
+    broadcast 192.168.0.255
+    gateway 192.168.0.1</code></pre>
+      </div>
+    </div>
+    <div class="note"><b>Los nombres de interfaz en Linux no son aleatorios:</b> <code>lo</code> (loopback), <code>eth0</code>/<code>eth1</code> (Ethernet), <code>wlan0</code> (Wi-Fi), <code>ppp0</code> (módem), <code>hci0</code> (Bluetooth).</div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>Resolución de nombres</h2></div>
+    <p class="section-intro">Los recursos de red se reconocen por su nombre (p. ej. <code>servidor1</code>), pero para conectarse hace falta su dirección IP. A eso se le llama resolución de nombres.</p>
+    <div class="pair">
+      <div class="panel win">
+        <h3><span class="dot"></span>Windows</h3>
+        <p>Orden habitual de resolución de un nombre de host:</p>
+        <ol style="padding-left:18px; margin:0 0 8px; font-size:14px; line-height:1.6">
+          <li>¿Es un recurso propio?</li>
+          <li>Archivo <code>hosts</code> local</li>
+          <li>Consulta DNS</li>
+          <li>Resolución de nombres NetBIOS (último recurso)</li>
+        </ol>
+        <p>El archivo <code>hosts</code> está en: <code>C:\Windows\System32\drivers\etc\hosts</code></p>
+      </div>
+      <div class="panel lin">
+        <h3><span class="dot"></span>Linux</h3>
+        <p>El orden de búsqueda lo define <code>/etc/nsswitch.conf</code> (normalmente <code>hosts: files dns</code>, es decir: primero el archivo, luego DNS).</p>
+        <p>Si no hay servidor DNS local, se puede resolver a mano en: <code>/etc/hosts</code></p>
+        <pre><code>127.0.0.1    localhost
+::1          localhost ip6-localhost</code></pre>
+        <p>El servidor DNS a consultar se indica en <code>/etc/resolv.conf</code>.</p>
+      </div>
+    </div>
+    <div class="note"><b>Para qué sirve editar <code>hosts</code> a mano:</b> además de resolver nombres sin DNS, sirve para bloquear direcciones maliciosas apuntándolas a <code>127.0.0.1</code> (tu propia máquina, donde no hay nada que servir).</div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>Comprobar que funciona</h2></div>
+    <p class="section-intro">Comandos de referencia para verificar la configuración una vez aplicada (de uso estándar en ambos sistemas, no literal del libro):</p>
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>Comando</th><th>Sistema</th><th>Para qué sirve</th></tr>
+        <tr><td><code>ping IP/host</code></td><td>Ambos</td><td>Comprobar si hay conectividad con otro equipo.</td></tr>
+        <tr><td><code>ipconfig /all</code></td><td>Windows</td><td>Ver la configuración IP completa de todos los adaptadores.</td></tr>
+        <tr><td><code>ip addr</code></td><td>Linux</td><td>Ver direcciones IP asignadas a cada interfaz (sustituye al antiguo <code>ifconfig</code>).</td></tr>
+        <tr><td><code>ss -tulpn</code></td><td>Linux</td><td>Ver qué puertos están escuchando y qué proceso los usa (sustituye a <code>netstat</code>).</td></tr>
+        <tr><td><code>nslookup</code> / <code>dig</code></td><td>Ambos / Linux</td><td>Comprobar manualmente la resolución DNS de un nombre.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">05</span><h2>Para practicar</h2></div>
+    <div class="lab">
+      <div class="lab-row win">
+        <div class="lab-num">01</div>
+        <div>
+          <h4>Lee tu configuración actual en Windows</h4>
+          <p>Ejecuta <code>ipconfig /all</code> y localiza: tu IP, máscara de subred, puerta de enlace y los dos servidores DNS. Anótalos.</p>
+        </div>
+      </div>
+      <div class="lab-row win">
+        <div class="lab-num">02</div>
+        <div>
+          <h4>Bloquea un dominio con el archivo hosts</h4>
+          <p>Edita (como administrador) <code>C:\Windows\System32\drivers\etc\hosts</code> y añade una línea que apunte un dominio inventado a <code>127.0.0.1</code>. Comprueba con <code>ping</code> que resuelve a esa IP.</p>
+        </div>
+      </div>
+      <div class="lab-row lin">
+        <div class="lab-num">03</div>
+        <div>
+          <h4>Configura una IP estática en Linux</h4>
+          <p>En una máquina virtual de prueba, edita <code>/etc/network/interfaces.d/setup</code> (o el fichero equivalente de tu distribución) y configura <code>eth0</code> en modo <code>static</code> con una IP de tu elección en la misma red que el host.</p>
+        </div>
+      </div>
+      <div class="lab-row lin">
+        <div class="lab-num">04</div>
+        <div>
+          <h4>Verifica puertos abiertos</h4>
+          <p>Ejecuta <code>ss -tulpn</code> y localiza qué proceso tiene abierto el puerto 22 (SSH) si lo tienes instalado. Compara con <code>ip addr</code> para confirmar en qué interfaz escucha.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Ficha de repaso — ISO, 2.5 Red TCP-IP · Modelo TCP/IP y configuración según Fernández Fidalgo, <i>Implantación de sistemas operativos</i>, Ed. Síntesis, cap. 4. Comandos de verificación según referencia estándar.</footer>
+</div>
+
+</body></html>

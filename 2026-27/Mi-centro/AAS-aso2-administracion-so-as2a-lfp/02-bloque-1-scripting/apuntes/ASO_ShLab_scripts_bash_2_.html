@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SH Lab · Scripts Bash · ASO</title>
+<style>
+  :root{
+    --paper:#F4F7FB; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --azul:#2563EB; --naranja:#EA580C; --verde:#059669; --morado:#7C3AED; --rojo:#DC2626;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5}
+  .wrap{max-width:1200px;margin:0 auto;padding:20px 16px 70px}
+  button,input,select{font-family:inherit}
+  button{cursor:pointer}
+
+  header{text-align:center;margin-bottom:18px}
+  header h1{margin:0;font-size:29px;letter-spacing:-.02em}
+  header p{margin:5px 0 0;color:var(--soft);font-size:13.5px}
+
+  .fases{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:16px}
+  .fase{border-radius:var(--r);padding:14px 16px;color:#fff;text-align:left;border:none;position:relative;overflow:hidden}
+  .fase.f1{background:linear-gradient(135deg,#2563EB,#1D4ED8)}
+  .fase.f2{background:linear-gradient(135deg,#F97316,#EA580C)}
+  .fase.f3{background:linear-gradient(135deg,#10B981,#059669)}
+  .fase.gen{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  .fase .n{font-size:11px;opacity:.85;letter-spacing:.08em;text-transform:uppercase}
+  .fase h2{margin:2px 0 8px;font-size:17px}
+  .fase small{opacity:.9;font-size:12px;display:block;margin-bottom:9px}
+  .barra{height:8px;border-radius:5px;background:rgba(255,255,255,.28);overflow:hidden}
+  .barra i{display:block;height:100%;background:#fff;border-radius:5px;transition:width .3s}
+  .fase.gen .barra{background:#E2E8F0}
+  .fase.gen .barra i{background:linear-gradient(90deg,#10B981,#2563EB)}
+  .pct{font-size:26px;font-weight:800;letter-spacing:-.03em}
+
+  nav{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:5px;margin-bottom:16px;overflow-x:auto}
+  nav button{flex:1;min-width:120px;border:none;background:none;padding:9px 12px;border-radius:9px;font-size:14px;color:var(--soft);white-space:nowrap}
+  nav button.on{background:var(--azul);color:#fff;font-weight:600}
+
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  @media (min-width:901px){.term-panel{position:sticky;top:14px}}
+  @media (max-width:900px){.cols{grid-template-columns:1fr}.lateral{order:-1}}
+  @media (min-width:1300px){.cols{grid-template-columns:1fr 420px}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+  .panel h3{margin:0 0 3px;font-size:17px}
+  .panel .sub{color:var(--soft);font-size:13px;margin-bottom:14px}
+
+  .buscador{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .buscador input{flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 13px;font-size:12.5px;color:var(--soft)}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .bloque{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:#fff}
+  .bloque>.cab{display:flex;align-items:center;gap:11px;padding:12px 14px;width:100%;border:none;background:none;text-align:left}
+  .bloque>.cab:hover{background:#F8FAFC}
+  .bloque.abierto{border-color:#BFDBFE;background:#F8FBFF}
+  .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:14px;flex:none;background:#EFF6FF}
+  .cab b{font-size:14.5px}
+  .cab span{color:var(--soft);font-size:12.5px}
+  .cab .estado{margin-left:auto;font-size:11.5px;color:var(--soft);white-space:nowrap}
+  .cmds{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:10px;padding:0 14px 14px}
+
+  .cmd{border:1px solid var(--line);border-radius:11px;padding:11px;background:#fff;position:relative}
+  .cmd.ok{border-color:#A7F3D0;background:#F0FDF9}
+  .cmd code.t{display:block;background:var(--ink);color:#A5F3FC;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;padding:8px 10px;border-radius:8px;margin-bottom:9px;overflow-x:auto}
+  .lin{display:flex;gap:7px;font-size:12.5px;margin-bottom:5px;align-items:flex-start}
+  .lin b{flex:none;font-size:11px;padding:1px 6px;border-radius:5px}
+  .b1{background:#DBEAFE;color:#1D4ED8}
+  .b2{background:#DCFCE7;color:#15803D}
+  .b3{background:#EDE9FE;color:#6D28D9}
+  .lin code{background:#F1F5F9;padding:1px 5px;border-radius:4px;font-family:ui-monospace,monospace;font-size:11.5px}
+  .lin code.ej{cursor:pointer;border-bottom:1px dashed var(--soft)}
+  .lin code.ej:hover{background:#E2E8F0}
+  .chk-resp{margin-top:9px}
+  .in-resp{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;transition:border-color .15s,background .15s}
+  .in-resp.acierto{border-color:#86EFAC;background:#F0FDF9}
+
+  .lateral{display:flex;flex-direction:column;gap:14px}
+  .acciones{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .acciones button{border:none;border-radius:11px;padding:13px 11px;color:#fff;font-size:13.5px;font-weight:600;text-align:left}
+  .a1{background:var(--azul)} .a2{background:var(--naranja)} .a3{background:var(--verde)}
+  .a4{background:var(--morado)} .a5{background:var(--rojo)} .a6{background:#0F766E}
+
+  .ra{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+  .ra .anillo{position:relative;width:100%;aspect-ratio:1;max-width:62px;margin:0 auto}
+  .ra small{display:block;font-size:10px;color:var(--soft);margin-top:4px;line-height:1.25}
+
+  /* terminal */
+  .term{background:#0B1220;border-radius:12px;padding:0;overflow:hidden;border:1px solid #1E293B}
+  .term .barra-t{background:#111C30;padding:8px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #1E293B}
+  .punto{width:10px;height:10px;border-radius:50%}
+  .term .tit{color:#94A3B8;font-size:12px;margin-left:6px}
+  .term .out{height:420px;overflow-y:auto;overflow-x:hidden;padding:12px 14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#E2E8F0;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.45}
+  .term .out .pr{color:#4ADE80}
+  .term .out .err{color:#FCA5A5}
+  .term .out .inf{color:#93C5FD}
+  .entrada{display:flex;align-items:center;gap:8px;border-top:1px solid #1E293B;padding:9px 12px;background:#0F172A}
+  .entrada span{color:#4ADE80;font-family:ui-monospace,monospace;font-size:13px;white-space:nowrap}
+  .entrada input{flex:1;background:none;border:none;color:#E2E8F0;font-family:ui-monospace,monospace;font-size:13px;outline:none}
+
+  .reto{border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px;background:#fff;display:flex;gap:12px;align-items:flex-start}
+  .reto.hecho{border-color:#A7F3D0;background:#F0FDF9}
+  .reto .num{width:28px;height:28px;border-radius:8px;background:#FEF3C7;color:#B45309;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+  .reto.hecho .num{background:var(--verde);color:#fff}
+  .reto b{display:block;font-size:14.5px}
+  .reto p{margin:3px 0 8px;font-size:13px;color:var(--soft)}
+  .reto button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-size:12.5px}
+
+  .preg{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff}
+  .preg .q{font-weight:600;font-size:14.5px;margin-bottom:10px}
+  .op{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;margin-bottom:6px;font-size:13.5px}
+  .op:hover{border-color:#94A3B8}
+  .op.bien{background:#DCFCE7;border-color:#86EFAC;font-weight:600}
+  .op.mal{background:#FEE2E2;border-color:#FCA5A5}
+  .expl{font-size:12.5px;color:var(--soft);margin-top:7px;padding-left:2px}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  td code{font-family:ui-monospace,monospace;background:#F1F5F9;padding:1px 6px;border-radius:5px;font-size:12.5px}
+
+  .oculto{display:none !important}
+  .nota{font-size:12.5px;color:var(--soft)}
+  .pie{text-align:center;color:var(--soft);font-size:13px;margin-top:22px;padding-top:16px;border-top:1px solid var(--line)}
+  @media print{nav,.fases,.lateral,.acciones,.entrada,button{display:none !important}body{background:#fff}}
+
+  .fase.f4{background:linear-gradient(135deg,#8B5CF6,#7C3AED)}
+  .fase{cursor:pointer}
+  .fase.gen{grid-column:1/-1;cursor:default}
+  .selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .ejb{border:1px solid var(--line);background:#fff;border-radius:9px;min-width:40px;padding:7px 10px;font-weight:700;color:var(--soft);font-size:13.5px}
+  .ejb.ok{background:#ECFDF5;border-color:#A7F3D0;color:var(--verde)}
+  .ejb.on{background:var(--azul);border-color:var(--azul);color:#fff}
+  .ejtit{margin:0 0 8px;font-size:19px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+  .badge{font-size:11.5px;font-weight:700;background:#EEF2FF;color:#4338CA;border-radius:20px;padding:3px 9px}
+  .badge.ok{background:#DCFCE7;color:#15803D}
+  .enun{font-size:14.5px;margin:0 0 10px}
+  .enun code,.chul code,.pista code,.ayu code{background:#EEF1F5;color:#B5179E;padding:1px 5px;border-radius:4px;font-family:Consolas,Monaco,monospace;font-size:.92em}
+  .esperada{background:#F8FAFC;border:1px dashed #CBD5E1;border-radius:10px;padding:9px 12px;margin:0 0 10px}
+  .esperada small{color:var(--soft);font-weight:600}
+  .esperada pre{margin:4px 0 0;font:13px/1.5 Consolas,Monaco,monospace;white-space:pre-wrap}
+  .pista{background:#FFF8E6;border-left:4px solid #F0A500;border-radius:0 8px 8px 0;padding:7px 11px;margin:6px 0;font-size:13.5px}
+  .editor{display:flex;border:1px solid #1E293B;border-radius:12px;overflow:hidden;background:#0B1220;margin-top:10px}
+  .gutter{margin:0;padding:12px 8px;color:#475569;font:13.5px/1.55 Consolas,"Cascadia Mono",monospace;text-align:right;user-select:none;min-width:40px;background:#0F172A;height:330px;overflow:hidden;white-space:pre}
+  #editor{flex:1;border:0;outline:none;resize:none;height:330px;padding:12px;background:#0B1220;color:#E2E8F0;font:13.5px/1.55 Consolas,"Cascadia Mono",monospace;tab-size:4;white-space:pre;overflow:auto;caret-color:#60A5FA}
+  .params{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+  .params label{font-size:12.5px;font-weight:600;color:var(--soft);display:block;margin-bottom:3px}
+  .params input,.params textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font:13px Consolas,Monaco,monospace}
+  .params textarea{height:62px;resize:vertical}
+  @media (max-width:640px){.params{grid-template-columns:1fr}}
+  .botones{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .botones button{border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:14px;color:#fff}
+  .b-run{background:var(--azul)} .b-chk{background:var(--verde)} .b-gris{background:#64748B} .b-claro{background:#fff !important;color:var(--ink) !important;border:1px solid var(--line) !important}
+  .botones button:disabled{opacity:.5;cursor:default}
+  .consola{margin-top:12px}
+  .consola .out{height:auto;min-height:120px;max-height:330px;overflow:auto;white-space:pre-wrap}
+  .resumen{margin-top:14px;padding:10px 13px;border-radius:10px;font-weight:700}
+  .resumen.ok{background:#DCFCE7;color:#15803D} .resumen.ko{background:#FEF2F2;color:#B91C1C}
+  .res{border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-top:8px;background:#fff}
+  .res.ok b{color:#15803D} .res.ko{border-color:#FECACA} .res.ko b{color:#B91C1C}
+  .det{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .det small{color:var(--soft);font-weight:600}
+  .det pre{margin:3px 0 0;background:#F8FAFC;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font:12.5px/1.45 Consolas,Monaco,monospace;white-space:pre-wrap;max-height:180px;overflow:auto}
+  @media (max-width:640px){.det{grid-template-columns:1fr}}
+  .lista{display:flex;flex-direction:column;gap:5px;max-height:420px;overflow:auto}
+  .fila{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;font-size:13.5px}
+  .fila small{color:var(--soft)} .fila.on{border-color:var(--azul);background:#EFF6FF}
+  .est{flex:0 0 26px;height:26px;border-radius:50%;background:#F1F5F9;color:var(--soft);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px}
+  .est.ok{background:#DCFCE7;color:#15803D}
+  .pts{font-size:26px;font-weight:800;letter-spacing:-.02em}
+  .chul h4{margin:18px 0 6px;font-size:15px;color:var(--azul)}
+  .chul table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .chul th,.chul td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+  .chul th{background:#E7F0FF}
+  .chul pre,.ayu pre{background:#0B1220;color:#E2E8F0;border-radius:9px;padding:10px 12px;font:13px/1.5 Consolas,Monaco,monospace;overflow:auto}
+  .toasts{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
+  .toast{background:#0F172A;color:#fff;padding:11px 16px;border-radius:11px;font-size:14px;font-weight:600;box-shadow:0 10px 25px rgba(15,23,42,.25);opacity:0;transform:translateY(10px);transition:opacity .25s,transform .25s}
+  .toast.in{opacity:1;transform:none}
+  .toast.ok{background:#059669}
+
+  .traza{color:#94A3B8}
+
+
+  .banner-iframe{display:none;position:fixed;top:0;left:0;right:0;z-index:100000;background:linear-gradient(90deg,#F59E0B,#EA580C);color:#fff;padding:10px 16px;font:600 13.5px/1.3 -apple-system,Segoe UI,Roboto,Arial,sans-serif;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .banner-iframe.on{display:flex}
+  .banner-iframe button{border:none;border-radius:8px;padding:7px 14px;font-weight:700;font-size:12.5px;background:#fff;color:#9A3412;cursor:pointer;white-space:nowrap}
+</style>
+</head>
+<body>
+<div class="banner-iframe" id="bannerIframe"><span>⚠️ Esta página se ve dentro de un recuadro pequeño. Para verla completa, ábrela a pantalla completa.</span><button id="btnFullscreen">Abrir a pantalla completa ↗</button></div>
+
+<div class="wrap">
+<header>
+  <h1>SH Lab</h1>
+  <p>Módulo 0374 · 2º ASIR · RA7 · Pequeños scripts de Bash (.sh) con corrección automática</p>
+</header>
+<div class="fases" id="fases"></div>
+<nav>
+  <button data-tab="ejercicios" class="on">Ejercicios</button>
+  <button data-tab="chuleta">Chuleta Bash</button>
+  <button data-tab="ayuda">Ayuda</button>
+</nav>
+<div class="cols">
+  <div>
+    <section id="tab-ejercicios" class="panel">
+      <div class="selector" id="selector"></div>
+      <h3 class="ejtit" id="ejTitulo"></h3>
+      <p class="enun" id="ejEnun"></p>
+      <div class="esperada"><small>Ejemplo de salida</small><pre id="ejSalida"></pre></div>
+      <p class="nota" id="ejFich"></p>
+      <div id="ejPistas"></div>
+      <div class="editor"><pre class="gutter" id="gutter">1</pre><textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Editor del script Bash"></textarea></div>
+      <div class="params">
+        <div><label for="args">Parámetros ($1 $2 …)</label><input id="args" placeholder="p. ej.: Ana 5 7" autocomplete="off"></div>
+        <div><label for="entrada">Entrada de teclado (read) · una por línea</label><textarea id="entrada" placeholder="p. ej.:&#10;4"></textarea></div>
+      </div>
+      <div class="botones">
+        <button class="b-run" id="btnEjecutar">▶ Ejecutar</button>
+        <button class="b-gris" id="btnTraza" title="Como bash -x">Ejecutar con traza</button>
+        <button class="b-chk" id="btnComprobar">✔ Comprobar</button>
+        <button class="b-gris" id="btnPista">Ver pista</button>
+        <button class="b-claro" id="btnPlantilla">↺ Plantilla</button>
+        <span style="flex:1"></span>
+        <button class="b-claro" id="btnAnterior">◀</button>
+        <button class="b-claro" id="btnSiguiente">▶</button>
+      </div>
+      <div class="consola"><div class="term">
+        <div class="barra-t"><i class="punto" style="background:#EF4444"></i><i class="punto" style="background:#F59E0B"></i><i class="punto" style="background:#22C55E"></i><span class="tit">alumno@aso: ~/practicas</span></div>
+        <div class="out" id="out"></div>
+      </div></div>
+      <div id="resultados"></div>
+    </section>
+    <section id="tab-chuleta" class="panel oculto chul"><h3>Chuleta de Bash</h3>
+<h4>Estructura y ejecución</h4>
+<pre>#!/bin/bash
+# Comentario
+echo "Hola mundo"
+exit 0</pre>
+<table><tr><th>Orden</th><th>Qué hace</th></tr>
+<tr><td><code>#!/bin/bash</code></td><td>Shebang: primera línea, indica el intérprete.</td></tr>
+<tr><td><code>chmod +x script.sh</code> · <code>./script.sh</code></td><td>Da permiso de ejecución · lo ejecuta.</td></tr>
+<tr><td><code>bash -x script.sh</code> · <code>bash -n script.sh</code></td><td>Ejecuta mostrando cada orden (depurar) · solo comprueba la sintaxis.</td></tr>
+<tr><td><code>exit N</code> · <code>$?</code></td><td>Termina con el código N (0 = bien) · código de la última orden.</td></tr></table>
+
+<h4>Variables</h4>
+<table><tr><th>Sintaxis</th><th>Qué hace</th></tr>
+<tr><td><code>nombre="Ana"</code></td><td>Crea una variable. <b>Sin espacios</b> junto al <code>=</code> (<code>a = 5</code> intenta ejecutar la orden <code>a</code>).</td></tr>
+<tr><td><code>$nombre</code> · <code>${nombre}</code> · <code>"$nombre"</code></td><td>Lee el valor. Entre comillas dobles se conservan los espacios.</td></tr>
+<tr><td><code>'$nombre'</code></td><td>Comillas simples: texto literal, no se sustituye nada.</td></tr>
+<tr><td><code>$(orden)</code></td><td>Sustitución de órdenes: la salida de la orden.</td></tr>
+<tr><td><code>$(( a + b * 2 ))</code> · <code>(( i++ ))</code> · <code>let x=a+1</code></td><td>Aritmética entera (<code>+ - * / % **</code>).</td></tr>
+<tr><td><code>read -p "Edad: " edad</code></td><td>Lee del teclado.</td></tr>
+<tr><td><code>$USER $HOME $PWD $RANDOM</code></td><td>Variables de entorno útiles.</td></tr>
+<tr><td><code>${#s}</code> <code>${s:0:3}</code> <code>${s%.*}</code> <code>${s##*.}</code> <code>${v:-defecto}</code></td><td>Longitud, subcadena, quitar extensión, extensión, valor por defecto.</td></tr>
+<tr><td><code>a=(uno dos)</code> · <code>${a[0]}</code> · <code>${a[@]}</code> · <code>${#a[@]}</code></td><td>Arrays: crear, un elemento, todos, número de elementos.</td></tr></table>
+
+<h4>Parámetros</h4>
+<table><tr><th>Sintaxis</th><th>Significado</th></tr>
+<tr><td><code>$0</code> · <code>$1</code> … <code>$9</code> · <code>${10}</code></td><td>Nombre del script · parámetros.</td></tr>
+<tr><td><code>$#</code></td><td>Número de parámetros.</td></tr>
+<tr><td><code>"$@"</code> · <code>$*</code></td><td>Todos los parámetros (<code>"$@"</code> respeta los que llevan espacios).</td></tr>
+<tr><td><code>shift</code></td><td>Desplaza los parámetros.</td></tr></table>
+
+<h4>Condiciones</h4>
+<pre>if [ $# -eq 0 ]; then
+    echo "Falta el parametro"
+    exit 1
+elif [ "$1" -ge 18 ]; then
+    echo "Mayor"
+else
+    echo "Menor"
+fi
+[ -f notas.txt ] && echo "Existe" || echo "No existe"</pre>
+<table><tr><th>Operador</th><th>Significado</th></tr>
+<tr><td><code>-eq -ne -lt -le -gt -ge</code></td><td>Comparan <b>números</b>: = ≠ &lt; ≤ &gt; ≥.</td></tr>
+<tr><td><code>= != -z -n</code></td><td>Comparan <b>textos</b> · vacío · no vacío.</td></tr>
+<tr><td><code>-f -d -e -r -w -x</code></td><td>Es fichero · es directorio · existe · se puede leer / escribir / ejecutar.</td></tr>
+<tr><td><code>! -a -o</code> · <code>&amp;&amp; ||</code></td><td>No · y · o (dentro de <code>[ ]</code>) · y · o (entre órdenes o en <code>[[ ]]</code>).</td></tr>
+<tr><td><code>[[ $f == *.txt ]]</code> · <code>(( n &gt; 5 ))</code></td><td>Patrones en <code>[[ ]]</code> · comparación aritmética en <code>(( ))</code>.</td></tr></table>
+<p class="nota">Dentro de <code>[ ]</code> hacen falta espacios: <code>[ $a -gt 5 ]</code>. Pon las variables entre comillas (<code>"$a"</code>) para que no falle si están vacías.</p>
+
+<h4>case</h4>
+<pre>case $op in
+    1) echo "Uno" ;;
+    2|3) echo "Dos o tres" ;;
+    [a-z]) echo "Una letra" ;;
+    *) echo "Otra cosa" ;;
+esac</pre>
+
+<h4>Bucles</h4>
+<table><tr><th>Forma</th><th>Qué recorre</th></tr>
+<tr><td><code>for x in uno dos tres; do echo $x; done</code></td><td>Una lista de valores.</td></tr>
+<tr><td><code>for f in *.txt; do echo "$f"; done</code></td><td>Ficheros que cumplen el patrón (si no hay ninguno, <code>$f</code> vale <code>*.txt</code>).</td></tr>
+<tr><td><code>for i in $(seq 1 10)</code> · <code>for i in {1..10}</code> · <code>for ((i=1;i&lt;=10;i++))</code></td><td>Contadores.</td></tr>
+<tr><td><code>while [ $n -lt 5 ]; do ... done</code> · <code>until ...</code></td><td>Mientras se cumpla · hasta que se cumpla.</td></tr>
+<tr><td><code>while IFS=';' read -r a b; do ... done &lt; datos.csv</code></td><td>Lee un fichero línea a línea, partida en campos.</td></tr>
+<tr><td><code>break</code> · <code>continue</code></td><td>Sale del bucle · pasa a la siguiente vuelta.</td></tr></table>
+<p class="nota">Una tubería (<code>cat f | while read ...</code>) ejecuta el bucle en un subproceso: las variables que cambies dentro se pierden al terminar. Usa <code>done &lt; fichero</code>.</p>
+
+<h4>Funciones</h4>
+<pre>saluda() {
+    local nombre=$1
+    echo "Hola, $nombre"
+    return 0
+}
+saluda Ana</pre>
+<p class="nota">Se definen <b>antes</b> de usarlas. Los argumentos llegan como <code>$1</code>, <code>$2</code>… Para devolver un valor se muestra con <code>echo</code> y se recoge con <code>$(funcion)</code>; <code>return</code> solo devuelve un código.</p>
+
+<h4>Redirecciones y tuberías</h4>
+<table><tr><th>Sintaxis</th><th>Qué hace</th></tr>
+<tr><td><code>&gt;</code> · <code>&gt;&gt;</code> · <code>&lt;</code></td><td>Salida a fichero · añadir · entrada desde fichero.</td></tr>
+<tr><td><code>2&gt;/dev/null</code> · <code>&amp;&gt;/dev/null</code> · <code>2&gt;&amp;1</code></td><td>Ocultar errores · ocultar todo · errores a la salida normal.</td></tr>
+<tr><td><code>orden1 | orden2</code></td><td>La salida de una es la entrada de la otra.</td></tr>
+<tr><td><code>cat &lt;&lt;EOF ... EOF</code></td><td>Documento-aquí: varias líneas de texto (menús).</td></tr></table>
+
+<h4>Órdenes útiles</h4>
+<table><tr><th>Orden</th><th>Qué hace</th></tr>
+<tr><td><code>grep -i -v -c -q</code></td><td>Busca líneas (ignorar mayúsculas, invertir, contar, silencioso).</td></tr>
+<tr><td><code>cut -d: -f1,3</code> · <code>awk -F: '{print $1}'</code></td><td>Extrae campos.</td></tr>
+<tr><td><code>sort -n -r -u</code> · <code>uniq -c</code> · <code>wc -l</code></td><td>Ordena · cuenta repetidos · cuenta líneas.</td></tr>
+<tr><td><code>head -n 5</code> · <code>tail -n +2</code></td><td>Primeras líneas · desde la segunda.</td></tr>
+<tr><td><code>tr a-z A-Z</code> · <code>sed 's/a/b/g'</code></td><td>Cambia caracteres · sustituye texto.</td></tr>
+<tr><td><code>mkdir -p</code> · <code>rm -r</code> · <code>cp</code> · <code>mv</code> · <code>touch</code></td><td>Ficheros y carpetas.</td></tr></table>
+</section>
+    <section id="tab-ayuda" class="panel oculto ayu"><h3>Ayuda</h3>
+<p><b>Cómo funciona.</b> Elige un ejercicio, escribe tu script en el editor y pulsa <b>Ejecutar</b>. Si usa parámetros (<code>$1</code>, <code>$2</code>…), escríbelos en <i>Parámetros</i>. Si lee del teclado con <code>read</code>, pon las respuestas en <i>Entrada de teclado</i>, una por línea.</p>
+<p><b>Traza.</b> <b>Ejecutar con traza</b> equivale a <code>bash -x</code>: muestra en gris cada orden con las variables ya sustituidas. Es la mejor forma de encontrar errores.</p>
+<p><b>Comprobar.</b> Pasa varias pruebas automáticas (distintos parámetros, entradas y ficheros). El ejercicio queda superado cuando pasan todas. Solo se compara la salida normal; los mensajes de error aparecen en rojo para que los leas.</p>
+<p><b>Atajos.</b> <code>Ctrl + Intro</code> ejecuta. La tecla <code>Tab</code> inserta 4 espacios.</p>
+<p><b>Es un simulador de bash.</b> Se ha comparado con bash real con más de 80 scripts de prueba. Reproduce también sus errores típicos (espacios en <code>a = 5</code>, <code>[</code> sin espacios, el patrón <code>*.txt</code> sin ficheros, la última línea sin salto en <code>while read</code>, variables perdidas en una tubería…). No toca tu equipo: trabaja en una carpeta <code>/home/alumno/practicas</code> propia.</p>
+<p><b>Sin tildes.</b> Escribe los mensajes sin tildes ni eñes para evitar problemas de codificación. Las pruebas no distinguen mayúsculas ni tildes.</p>
+<p><b>Tu progreso</b> y tu código se guardan en este navegador.</p>
+<p><b>Entrega.</b> Pulsa <b>Descargar informe PDF</b> y súbelo a la tarea de Aeducar. Incluye tus resultados y el código de los ejercicios superados. Es APTO con 9 ejercicios superados (el 13 es de ampliación).</p>
+<p><b>Pruébalo de verdad.</b> En tu máquina virtual Ubuntu: guarda el script como <code>ejercicio.sh</code>, dale permisos con <code>chmod +x ejercicio.sh</code> y ejecútalo con <code>./ejercicio.sh</code>.</p>
+</section>
+  </div>
+  <aside class="lateral">
+    <div class="panel">
+      <h3 style="font-size:15px">Entrega en Aeducar</h3>
+      <p class="sub" style="margin-bottom:10px">Descarga el PDF con tu nombre, tus resultados y tu código, y súbelo a la tarea.</p>
+      <input id="alumNombre" readonly placeholder="Nombre y apellidos" style="width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;margin-bottom:9px;background:#F6F9FF">
+      <button id="btnPDF" style="width:100%;border:none;border-radius:11px;padding:12px;color:#fff;font-size:14px;font-weight:700;background:var(--azul)">Descargar informe PDF</button>
+      <p class="nota" id="avisoPDF" style="margin-top:8px"></p>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:15px">Ejercicios</h3>
+      <div class="lista" id="lista"></div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:15px">Tu actividad</h3>
+      <div id="stats" class="nota"></div>
+      <button id="btnReiniciar" class="chip" style="margin-top:10px">Reiniciar todo</button>
+    </div>
+  </aside>
+</div>
+<p class="pie">Objetivo: escribir pequeños scripts de Bash que funcionen en un Linux real.</p>
+</div>
+<div class="toasts" id="toasts"></div>
+<script>
+/* ================= INTERPRETE DE BASH (.sh) SIMULADO ================= */
+function crearFSsh(ficheros){
+  const raiz={tipo:"d",nombre:"/",hijos:{}};
+  const api={raiz};
+  api.partes=function(ruta,cwd){ ruta=String(ruta); const base=ruta.startsWith("/")?[]:cwd.slice();
+    ruta.split("/").forEach(p=>{ if(!p||p===".") return; if(p===".."){ base.pop(); } else base.push(p); }); return base; };
+  api.nodo=function(p){ let n=raiz; for(const x of p){ if(!n||n.tipo!=="d") return null; n=n.hijos[x]; if(!n) return null; } return n; };
+  api.crearDir=function(p){ let n=raiz; for(const x of p){ if(!n.hijos[x]) n.hijos[x]={tipo:"d",nombre:x,hijos:{}}; n=n.hijos[x]; if(n.tipo!=="d") return null; } return n; };
+  api.escribir=function(p,texto,anadir){ const dir=api.nodo(p.slice(0,-1)); if(!dir||dir.tipo!=="d") return "dir"; const nom=p[p.length-1]; const prev=dir.hijos[nom];
+    if(prev&&prev.tipo==="d") return "esdir"; dir.hijos[nom]={tipo:"f",nombre:nom,txt:(anadir&&prev?prev.txt:"")+texto}; return true; };
+  api.borrar=function(p){ const dir=api.nodo(p.slice(0,-1)); if(!dir||!dir.hijos[p[p.length-1]]) return false; delete dir.hijos[p[p.length-1]]; return true; };
+  api.lista=function(p){ const n=api.nodo(p); if(!n||n.tipo!=="d") return []; return Object.values(n.hijos).sort((a,b)=>a.nombre<b.nombre?-1:a.nombre>b.nombre?1:0); };
+  api.ruta=p=>"/"+p.join("/");
+  api.crearDir(["home","alumno","practicas"]); api.crearDir(["tmp"]); api.crearDir(["usr","bin"]); api.crearDir(["etc"]); api.crearDir(["var","log"]);
+  api.escribir(["etc","passwd"],"root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsshd:x:110:65534::/run/sshd:/usr/sbin/nologin\nalumno:x:1000:1000:Alumno ASIR,,,:/home/alumno:/bin/bash\nprofesor:x:1001:1001:Profesor,,,:/home/profesor:/bin/bash\n");
+  api.escribir(["etc","group"],"root:x:0:\nsudo:x:27:alumno\nalumno:x:1000:\nprofesor:x:1001:\n");
+  api.escribir(["etc","shells"],"# /etc/shells: valid login shells\n/bin/sh\n/bin/bash\n/usr/bin/bash\n/bin/dash\n");
+  api.escribir(["etc","hostname"],"aso\n");
+  for(const [ruta,txt] of Object.entries(ficheros||{})){ const p=api.partes(ruta,["home","alumno","practicas"]);
+    if(ruta.endsWith("/")) api.crearDir(p); else { api.crearDir(p.slice(0,-1)); api.escribir(p,txt,false); } }
+  return api;
+}
+
+function ejecutarSh(codigo,opts){
+  opts=opts||{};
+  const fs=opts.fs||crearFSsh(opts.ficheros);
+  if(!opts.fs){ const pn=fs.partes(opts.nombre||"./ejercicio.sh",["home","alumno","practicas"]); fs.escribir(pn,String(codigo),false); const nn=fs.nodo(pn); if(nn) nn.x=true; }
+  const NOMBRE=opts.nombre||"./ejercicio.sh", LIMITE=opts.limite||50000;
+  const consola=[]; // {s, err}
+  const st={ cwd:["home","alumno","practicas"], vars:{}, locales:[], funciones:{}, pos:[].concat(opts.args||[]), estado:0,
+    teclado:(opts.entrada||[]).slice(), pasos:0, xtrace:!!opts.traza, sinEntrada:false, linea:0, uid:opts.uid===undefined?1000:opts.uid, prof:0 };
+  const entorno=Object.assign({USER:"alumno",LOGNAME:"alumno",HOME:"/home/alumno",SHELL:"/bin/bash",PATH:"/usr/local/bin:/usr/bin:/bin",HOSTNAME:"aso",LANG:"es_ES.UTF-8",PWD:"/home/alumno/practicas"},opts.entorno||{});
+  for(const [k,v] of Object.entries(entorno)) st.vars[k]={v:String(v),exp:true};
+
+  class ShError{ constructor(msg,cod){ this.msg=msg; this.cod=cod===undefined?1:cod; } }
+  class Control{ constructor(tipo,n){ this.tipo=tipo; this.n=n; } }
+  class Parada{ constructor(msg){ this.msg=msg; } }
+  const prefijo=()=>NOMBRE+": línea "+st.linea+": ";
+
+  /* ---------- E/S ---------- */
+  class Entrada{ constructor(texto,teclado){ this.teclado=!!teclado; if(!teclado){ this.lineas=texto===""?[]:texto.replace(/\n$/,"").split("\n"); this.sinNL=texto!==""&&!texto.endsWith("\n"); } this.pos=0; this.ultSinNL=false; }
+    leerLinea(){ this.ultSinNL=false; if(this.teclado){ if(!st.teclado.length){ st.sinEntrada=true; return null; } return st.teclado.shift(); } if(this.pos<this.lineas.length){ const l=this.lineas[this.pos++]; if(this.pos===this.lineas.length&&this.sinNL) this.ultSinNL=true; return l; } return null; }
+    leerTodo(){ if(this.teclado){ const r=[]; let l; while((l=this.leerLinea())!==null) r.push(l); return r.length?r.join("\n")+"\n":""; }
+      const r=this.lineas.slice(this.pos); this.pos=this.lineas.length; if(!r.length) return ""; return r.join("\n")+(this.sinNL?"":"\n"); } }
+  const TECLADO=new Entrada("",true);
+  const consolaOut={write:s=>consola.push({s,err:false}),tty:true}, consolaErr={write:s=>consola.push({s,err:true}),tty:true};
+  function bufOut(){ const o={t:"",write(s){ o.t+=s; },tty:false}; return o; }
+  function ficheroOut(ruta,anadir,io){
+    if(ruta==="/dev/null") return {write(){},tty:false};
+    if(ruta==="/dev/stderr") return io.err; if(ruta==="/dev/stdout") return io.out;
+    const p=fs.partes(ruta,st.cwd); const n=fs.nodo(p);
+    if(n&&n.tipo==="d") throw new ShError(ruta+": Es un directorio");
+    const r=fs.escribir(p,"",anadir); if(r!==true) throw new ShError(ruta+": No existe el archivo o el directorio");
+    return {write(s){ fs.nodo(p).txt+=s; },tty:false};
+  }
+
+  /* ---------- variables ---------- */
+  function buscar(n){ for(let i=st.locales.length-1;i>=0;i--) if(Object.prototype.hasOwnProperty.call(st.locales[i],n)) return st.locales[i]; return st.vars; }
+  function getVar(n){ const t=buscar(n)[n]; if(!t){ if(n==="RANDOM") return String(Math.floor(Math.random()*32768)); if(n==="LINENO") return String(st.linea); return undefined; } if(t.arr) return t.arr[0]!==undefined?t.arr[0]:""; return t.v; }
+  function getArr(n){ const t=buscar(n)[n]; if(!t) return []; if(t.arr) return t.arr.filter(x=>x!==undefined); return [t.v]; }
+  function setVar(n,v){ const tb=buscar(n); const prev=tb[n]; if(prev&&prev.ro) throw new ShError(n+": variable de sólo lectura");
+    if(prev&&prev.arr){ prev.arr[0]=String(v); return; } tb[n]={v:String(v),exp:prev?prev.exp:false,ro:false,ent:prev?prev.ent:false};
+    if(prev&&prev.ent){ const x=parseArit(String(v)); tb[n].v=String(x); tb[n].ent=true; } }
+  function setArr(n,arr){ const tb=buscar(n); tb[n]={arr:arr.map(String),exp:false}; }
+  function especial(c){ switch(c){ case "#": return String(st.pos.length); case "?": return String(st.estado); case "$": return "4242"; case "!": return "4243"; case "0": return NOMBRE; case "-": return "hB"; case "*": return st.pos.join(" "); case "@": return st.pos.join(" "); } }
+
+  /* ---------- lexer ---------- */
+  function buscarCierre(s,i,abre,cierra){ // s[i] es el primer caracter despues del abre
+    let d=1, q=null;
+    for(let j=i;j<s.length;j++){ const c=s[j];
+      if(q==="'"){ if(c==="'") q=null; continue; }
+      if(c==="\\"){ j++; continue; }
+      if(q==='"'){ if(c==='"') q=null; else if(c==="$"&&s[j+1]==="("){ const k=buscarCierre(s,j+2,"(",")"); if(k<0) return -1; j=k; } continue; }
+      if(c==="'"||c==='"'){ q=c; continue; }
+      if(c==="`"){ const k=s.indexOf("`",j+1); if(k<0) return -1; j=k; continue; }
+      if(c===abre) d++; else if(c===cierra){ d--; if(d===0) return j; }
+    }
+    return -1;
+  }
+  function lexer(src){
+    const toks=[]; let i=0, linea=1; const n=src.length; const pendientesHD=[];
+    const esOp="|&;<>()";
+    while(i<n){
+      const c=src[i];
+      if(c===" "||c==="\t"||c==="\r"){ i++; continue; }
+      if(c==="\\"&&src[i+1]==="\n"){ i+=2; linea++; continue; }
+      if(c==="\n"){ toks.push({t:"NL",linea}); linea++; i++;
+        while(pendientesHD.length){ const hd=pendientesHD.shift(); const cuerpo=[]; let hall=false;
+          while(i<n){ let k=src.indexOf("\n",i); if(k<0) k=n; let l=src.slice(i,k); i=k+1; linea++; if(hd.tab) l=l.replace(/^\t+/,""); if(l===hd.del){ hall=true; break; } cuerpo.push(l); }
+          hd.cuerpo=cuerpo.length?cuerpo.join("\n")+"\n":""; if(!hall) consola.push({s:NOMBRE+": línea "+linea+": aviso: el documento-aquí esperaba «"+hd.del+"» y se encontró el fin del fichero\n",err:true}); }
+        continue; }
+      if(c==="#"){ while(i<n&&src[i]!=="\n") i++; continue; }
+      if(c==="("&&src[i+1]==="("){ const k=buscarCierre(src,i+2,"(",")"); if(k>=0&&src[k+1]===")"){ const txt=src.slice(i+2,k); toks.push({t:"ARIT",v:txt,linea}); linea+=(txt.match(/\n/g)||[]).length; i=k+2; continue; } }
+      const tres=src.slice(i,i+3), dos=src.slice(i,i+2);
+      if(tres==="&>>"||tres==="2>>"){ toks.push({t:"OP",v:tres,linea}); i+=3; continue; }
+      if(["&&","||",";;",">>","&>","2>",">&","<<"].includes(dos)&&!(dos==="2>"&&false)){
+        if(dos==="2>"&&src[i+2]==="&"&&src[i+3]==="1"){ toks.push({t:"OP",v:"2>&1",linea}); i+=4; continue; }
+        if(dos===">&"&&src[i+2]==="2"){ toks.push({t:"OP",v:">&2",linea}); i+=3; continue; }
+        if(dos==="<<"&&src[i+2]==="<"){ toks.push({t:"OP",v:"<<<",linea}); i+=3; continue; }
+        if(dos==="<<"){ let j=i+2, tab=false; if(src[j]==="-"){ tab=true; j++; } while(src[j]===" "||src[j]==="\t") j++;
+          let del=""; while(j<n&&!/[\s;&|<>()]/.test(src[j])) del+=src[j++]; const citado=/['"\\]/.test(del); del=del.replace(/['"\\]/g,"");
+          if(!del) throw new Parada(NOMBRE+": línea "+linea+": error sintáctico cerca del elemento inesperado «nueva línea»");
+          const tk={t:"OP",v:"<<",linea,hd:{del,citado,tab,cuerpo:null}}; toks.push(tk); pendientesHD.push(tk.hd); i=j; continue; }
+        toks.push({t:"OP",v:dos,linea}); i+=2; continue; }
+      if(dos==="1>"){ toks.push({t:"OP",v:src[i+2]===">"?">>":">",linea}); i+=src[i+2]===">"?3:2; continue; }
+      if(esOp.includes(c)){ toks.push({t:"OP",v:c,linea}); i++; continue; }
+      // palabra
+      let raw="", j=i;
+      while(j<n){ const d=src[j];
+        if(d===" "||d==="\t"||d==="\n"||d==="\r"||esOp.includes(d)){
+          if(d==="("&&/^[A-Za-z_]\w*\+?=$/.test(raw)){ const k=buscarCierre(src,j+1,"(",")"); if(k<0) throw new Parada(NOMBRE+": línea "+linea+": error sintáctico: falta «)»"); raw+=src.slice(j,k+1); linea+=(src.slice(j,k).match(/\n/g)||[]).length; j=k+1; continue; }
+          break; }
+        if(d==="\\"){ if(src[j+1]==="\n"){ j+=2; linea++; continue; } raw+=src.slice(j,j+2); j+=2; continue; }
+        if(d==="'"){ const k=src.indexOf("'",j+1); if(k<0) throw new Parada(NOMBRE+": línea "+linea+": se encontró EOF inesperado mientras se buscaba un «'» coincidente"); raw+=src.slice(j,k+1); linea+=(src.slice(j,k).match(/\n/g)||[]).length; j=k+1; continue; }
+        if(d==='"'){ let k=j+1; for(;k<n;k++){ if(src[k]==="\\"){ k++; continue; } if(src[k]==='"') break; if(src[k]==="$"&&src[k+1]==="("){ const m=buscarCierre(src,k+2,"(",")"); if(m>0) k=m; } }
+          if(k>=n) throw new Parada(NOMBRE+": línea "+linea+": se encontró EOF inesperado mientras se buscaba un «\"» coincidente"); raw+=src.slice(j,k+1); linea+=(src.slice(j,k).match(/\n/g)||[]).length; j=k+1; continue; }
+        if(d==="$"&&src[j+1]==="("){ const k=buscarCierre(src,j+2,"(",")"); if(k<0) throw new Parada(NOMBRE+": línea "+linea+": error sintáctico: falta «)»"); raw+=src.slice(j,k+1); linea+=(src.slice(j,k).match(/\n/g)||[]).length; j=k+1; continue; }
+        if(d==="$"&&src[j+1]==="{"){ const k=buscarCierre(src,j+2,"{","}"); if(k<0) throw new Parada(NOMBRE+": línea "+linea+": sustitución errónea"); raw+=src.slice(j,k+1); j=k+1; continue; }
+        if(d==="`"){ const k=src.indexOf("`",j+1); if(k<0) throw new Parada(NOMBRE+": línea "+linea+": se encontró EOF inesperado mientras se buscaba un «`» coincidente"); raw+=src.slice(j,k+1); j=k+1; continue; }
+        raw+=d; j++;
+      }
+      toks.push({t:"W",v:raw,linea}); i=j;
+    }
+    toks.push({t:"EOF",linea});
+    return toks;
+  }
+
+  /* ---------- parser ---------- */
+  const RESERVADAS=["then","do","done","fi","elif","else","esac","}","in"];
+  function parser(toks){
+    let p=0;
+    const ver=()=>toks[p], sig=()=>toks[p++];
+    const esP=(v)=>ver().t==="W"&&ver().v===v;
+    const esOp=(v)=>ver().t==="OP"&&ver().v===v;
+    const saltarNL=()=>{ while(ver().t==="NL"||esOp(";")&&false) p++; };
+    const error=(msg)=>{ throw new Parada(NOMBRE+": línea "+ver().linea+": "+msg); };
+    const inesperado=()=>{ const t=ver(); error("error sintáctico cerca del elemento inesperado «"+(t.t==="EOF"?"fin del fichero":t.t==="NL"?"nueva línea":t.v)+"»"); };
+    function esperar(v){ saltarNL(); if(!esP(v)) inesperado(); p++; }
+    function lista(terms){
+      const items=[]; saltarNL();
+      while(true){
+        saltarNL();
+        const t=ver();
+        if(t.t==="EOF") break;
+        if(t.t==="W"&&terms.includes(t.v)) break;
+        if(t.t==="OP"&&(terms.includes(t.v)||t.v===";;")) break;
+        const n=andor(); let sep=";";
+        if(esOp(";")||esOp("&")){ sep=sig().v; }
+        else if(ver().t==="NL"){ p++; }
+        else if(!(ver().t==="EOF"||(ver().t==="W"&&terms.includes(ver().v))||(ver().t==="OP"&&(terms.includes(ver().v)||ver().v===";;")))) inesperado();
+        items.push({n,sep});
+      }
+      return {tipo:"lista",items};
+    }
+    function andor(){ const first=tuberia(); const resto=[];
+      while(esOp("&&")||esOp("||")){ const op=sig().v; saltarNL(); resto.push({op,n:tuberia()}); }
+      return resto.length?{tipo:"andor",first,resto}:first; }
+    function tuberia(){ let neg=false; if(esP("!")){ p++; neg=true; } const cmds=[comando()];
+      while(esOp("|")){ p++; saltarNL(); cmds.push(comando()); }
+      return (cmds.length>1||neg)?{tipo:"tuberia",neg,cmds}:cmds[0]; }
+    function redirs(){ const r=[]; while(ver().t==="OP"&&[">",">>","<","2>","2>>","&>","&>>","2>&1",">&2","<<","<<<"].includes(ver().v)){ const tk=sig(), op=tk.v; if(op==="2>&1"||op===">&2"){ r.push({op}); continue; } if(op==="<<"){ r.push({op,hd:tk.hd}); continue; } if(ver().t!=="W") inesperado(); r.push({op,dest:sig().v}); } return r; }
+    function comando(){
+      const t=ver(); let nodo;
+      if(t.t==="ARIT"){ p++; nodo={tipo:"arit",expr:t.v,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+      if(t.t==="OP"&&t.v==="("){ p++; const b=lista([")"]); if(!esOp(")")) inesperado(); p++; nodo={tipo:"subshell",cuerpo:b}; nodo.redirs=redirs(); return nodo; }
+      if(t.t==="W"){
+        switch(t.v){
+          case "if":{ p++; const cl=[]; let cond=lista(["then"]); esperar("then"); let cuerpo=lista(["elif","else","fi"]); cl.push({cond,cuerpo}); let sino=null;
+            while(esP("elif")){ p++; cond=lista(["then"]); esperar("then"); cuerpo=lista(["elif","else","fi"]); cl.push({cond,cuerpo}); }
+            if(esP("else")){ p++; sino=lista(["fi"]); } esperar("fi"); nodo={tipo:"if",cl,sino,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+          case "while": case "until":{ p++; const cond=lista(["do"]); esperar("do"); const cuerpo=lista(["done"]); esperar("done"); nodo={tipo:"while",until:t.v==="until",cond,cuerpo,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+          case "for":{ p++;
+            if(ver().t==="ARIT"){ const a=sig().v.split(";"); if(a.length!==3) error("error sintáctico en la expresión aritmética del for"); if(esOp(";")) p++; saltarNL(); esperar("do"); const cuerpo=lista(["done"]); esperar("done"); nodo={tipo:"cfor",ini:a[0],cond:a[1],paso:a[2],cuerpo,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+            if(ver().t!=="W") inesperado(); const v=sig().v; let pal=null; saltarNL();
+            if(esP("in")){ p++; pal=[]; while(ver().t==="W"){ pal.push(sig().v); } }
+            if(esOp(";")) p++; saltarNL(); esperar("do"); const cuerpo=lista(["done"]); esperar("done"); nodo={tipo:"for",var:v,pal,cuerpo,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+          case "case":{ p++; const w=sig().v; saltarNL(); esperar("in"); const items=[]; saltarNL();
+            while(!esP("esac")){ if(ver().t==="EOF") error("error sintáctico: se esperaba «esac»"); if(esOp("(")) p++; const pats=[]; if(ver().t!=="W") inesperado(); pats.push(sig().v);
+              while(esOp("|")){ p++; pats.push(sig().v); } if(!esOp(")")) inesperado(); p++; const cuerpo=lista(["esac"]); if(esOp(";;")) p++; saltarNL(); items.push({pats,cuerpo}); }
+            p++; nodo={tipo:"case",w,items,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+          case "{":{ p++; const b=lista(["}"]); esperar("}"); nodo={tipo:"grupo",cuerpo:b}; nodo.redirs=redirs(); return nodo; }
+          case "[[":{ p++; const ts=[]; while(!esP("]]")){ const x=sig(); if(x.t==="EOF"||x.t==="NL") error("error sintáctico en la expresión condicional: falta «]]»"); ts.push(x.t==="W"?{w:x.v}:{op:x.v}); } p++; nodo={tipo:"cond",ts,linea:t.linea}; nodo.redirs=redirs(); return nodo; }
+          case "function":{ p++; const nom=sig().v; if(esOp("(")){ p++; if(!esOp(")")) inesperado(); p++; } saltarNL(); const cu=comando(); return {tipo:"func",nom,cuerpo:cu}; }
+        }
+        if(RESERVADAS.includes(t.v)) inesperado();
+        if(toks[p+1]&&toks[p+1].t==="OP"&&toks[p+1].v==="("&&toks[p+2]&&toks[p+2].t==="OP"&&toks[p+2].v===")"&&/^[\w.-]+$/.test(t.v)){ p+=3; saltarNL(); const cu=comando(); return {tipo:"func",nom:t.v,cuerpo:cu}; }
+      }
+      // comando simple
+      const asig=[], pal=[], rd=[]; const linea=ver().linea;
+      while(true){ const x=ver();
+        if(x.t==="W"){ if(!pal.length&&/^[A-Za-z_]\w*(\[[^\]]*\])?\+?=/.test(x.v)) asig.push(sig().v); else pal.push(sig().v); }
+        else if(x.t==="OP"&&[">",">>","<","2>","2>>","&>","&>>","2>&1",">&2","<<","<<<"].includes(x.v)) rd.push(...redirs());
+        else break; }
+      if(!asig.length&&!pal.length&&!rd.length) inesperado();
+      return {tipo:"simple",asig,pal,rd,linea};
+    }
+    const prog=lista([]);
+    if(ver().t!=="EOF") inesperado();
+    return prog;
+  }
+
+  /* ---------- aritmetica ---------- */
+  function parseArit(txt){
+    const s=expandirUno(String(txt)); const tk=[]; let i=0;
+    while(i<s.length){ const c=s[i];
+      if(/\s/.test(c)){ i++; continue; }
+      if(/[0-9]/.test(c)){ let m=s.slice(i).match(/^(0x[0-9a-f]+|\d+)/i)[0]; i+=m.length; tk.push({n:parseInt(m,/^0x/i.test(m)?16:10)}); continue; }
+      if(/[A-Za-z_]/.test(c)){ let m=s.slice(i).match(/^[A-Za-z_]\w*/)[0]; i+=m.length; tk.push({v:m}); continue; }
+      const ops=["**=","<<=",">>=","**","++","--","<=",">=","==","!=","&&","||","+=","-=","*=","/=","%=","<<",">>"];
+      const o=ops.find(x=>s.startsWith(x,i)); if(o){ tk.push({o}); i+=o.length; continue; }
+      if("+-*/%()<>!=?:,&|^~".includes(c)){ tk.push({o:c}); i++; continue; }
+      throw new ShError(s.slice(i)+": error sintáctico: se esperaba un operando (el elemento de error es \""+s.slice(i)+"\")");
+    }
+    let k=0; const ver=()=>tk[k], tomar=()=>tk[k++], es=o=>tk[k]&&tk[k].o===o;
+    const valVar=n=>{ const v=getVar(n); if(v===undefined||v==="") return 0; const x=parseInt(v,10); if(/^\s*-?\d+\s*$/.test(v)) return x; if(/^[A-Za-z_]\w*$/.test(v)) return valVar(v); return isNaN(x)?0:x; };
+    function prim(){ const t=tomar(); if(!t) throw new ShError(s+": error sintáctico: se esperaba un operando");
+      if(t.n!==undefined) return t.n;
+      if(t.v!==undefined){ if(es("++")||es("--")){ const o=tomar().o, a=valVar(t.v); setVar(t.v,a+(o==="++"?1:-1)); return a; } return valVar(t.v); }
+      if(t.o==="("){ const v=coma(); if(!es(")")) throw new ShError(s+": falta «)»"); tomar(); return v; }
+      if(t.o==="++"||t.o==="--"){ const x=tomar(); if(!x||x.v===undefined) throw new ShError(s+": error sintáctico"); const a=valVar(x.v)+(t.o==="++"?1:-1); setVar(x.v,a); return a; }
+      if(t.o==="-") return -un(); if(t.o==="+") return un(); if(t.o==="!") return un()?0:1; if(t.o==="~") return ~un();
+      throw new ShError(s+": error sintáctico: se esperaba un operando (el elemento de error es \""+(t.o||"")+"\")"); }
+    function un(){ return prim(); }
+    function pot(){ let b=un(); if(es("**")){ tomar(); const e=pot(); return Math.pow(b,e)|0; } return b; }
+    function mul(){ let v=pot(); while(es("*")||es("/")||es("%")){ const o=tomar().o, b=pot(); if(o!=="*"&&b===0) throw new ShError(s+": división por 0 (el elemento de error es \"0\")"); v=o==="*"?v*b:o==="/"?Math.trunc(v/b):v%b; } return v; }
+    function sum(){ let v=mul(); while(es("+")||es("-")){ const o=tomar().o, b=mul(); v=o==="+"?v+b:v-b; } return v; }
+    function des(){ let v=sum(); while(es("<<")||es(">>")){ const o=tomar().o, b=sum(); v=o==="<<"?v<<b:v>>b; } return v; }
+    function rel(){ let v=des(); while(es("<")||es(">")||es("<=")||es(">=")){ const o=tomar().o, b=des(); v=({"<":v<b,">":v>b,"<=":v<=b,">=":v>=b}[o])?1:0; } return v; }
+    function igu(){ let v=rel(); while(es("==")||es("!=")){ const o=tomar().o, b=rel(); v=(o==="=="?v===b:v!==b)?1:0; } return v; }
+    function band(){ let v=igu(); while(es("&")){ tomar(); v&=igu(); } return v; }
+    function bxor(){ let v=band(); while(es("^")){ tomar(); v^=band(); } return v; }
+    function bor(){ let v=bxor(); while(es("|")){ tomar(); v|=bxor(); } return v; }
+    function y(){ let v=bor(); while(es("&&")){ tomar(); const b=bor(); v=(v&&b)?1:0; } return v; }
+    function o(){ let v=y(); while(es("||")){ tomar(); const b=y(); v=(v||b)?1:0; } return v; }
+    function ter(){ const c=o(); if(es("?")){ tomar(); const a=asig(); if(!es(":")) throw new ShError(s+": se esperaba «:»"); tomar(); const b=asig(); return c?a:b; } return c; }
+    function asig(){ if(ver()&&ver().v!==undefined&&tk[k+1]&&["=","+=","-=","*=","/=","%=","**=","<<=",">>="].includes(tk[k+1].o)){ const n=tomar().v, op=tomar().o, b=asig(), a=valVar(n); let v;
+        switch(op){ case "=":v=b;break; case "+=":v=a+b;break; case "-=":v=a-b;break; case "*=":v=a*b;break; case "**=":v=Math.pow(a,b)|0;break; case "<<=":v=a<<b;break; case ">>=":v=a>>b;break;
+          case "/=": case "%=": if(b===0) throw new ShError(s+": división por 0 (el elemento de error es \"0\")"); v=op==="/="?Math.trunc(a/b):a%b; break; }
+        setVar(n,v); return v; } return ter(); }
+    function coma(){ let v=asig(); while(es(",")){ tomar(); v=asig(); } return v; }
+    if(!tk.length) return 0;
+    const v=coma(); if(k<tk.length) throw new ShError(s+": error sintáctico en la expresión (el elemento de error es \""+s.slice(s.indexOf(tk[k].o||tk[k].v||tk[k].n))+"\")");
+    return v;
+  }
+
+  /* ---------- expansiones ---------- */
+  function sustitucionOrden(cmd){ const o=bufOut(); const guard=subshell(); try{ ejecutarTexto(cmd,{out:o,err:consolaErrActual(),inp:ioActual.inp}); }catch(e){ if(!(e instanceof Control&&e.tipo==="exit")) throw e; } finally{ guard(); } return o.t.replace(/\n+$/,""); }
+  let ioActual={out:consolaOut,err:consolaErr,inp:TECLADO};
+  const consolaErrActual=()=>ioActual.err;
+  function patronARegex(p,todo){ let r=""; for(let i=0;i<p.length;i++){ const c=p[i];
+      if(c==="\u0000"){ r+=p[i+1].replace(/[.*+?^${}()|[\]\\\/]/g,"\\$&"); i++; continue; }
+      if(c==="*") r+=".*"; else if(c==="?") r+="."; else if(c==="["){ const k=p.indexOf("]",i+1); if(k>i){ let cl=p.slice(i+1,k).replace(/\u0000/g,""); if(cl[0]==="!") cl="^"+cl.slice(1); r+="["+cl.replace(/\\/g,"\\\\")+"]"; i=k; } else r+="\\["; }
+      else r+=c.replace(/[.+^${}()|\\\/]/g,"\\$&"); }
+    return new RegExp(todo===false?r:"^"+r+"$","s"); }
+  function quitarPatron(v,pat,modo){ // modo: # ## % %%
+    const re=patronARegex(pat,false); const src=re.source;
+    if(modo==="#"||modo==="##"){ const cands=[]; for(let i=0;i<=v.length;i++) if(new RegExp("^(?:"+src+")$","s").test(v.slice(0,i))) cands.push(i); if(!cands.length) return v; return v.slice(modo==="#"?cands[0]:cands[cands.length-1]); }
+    const cands=[]; for(let i=0;i<=v.length;i++) if(new RegExp("^(?:"+src+")$","s").test(v.slice(i))) cands.push(i); if(!cands.length) return v; return v.slice(0,modo==="%"?cands[cands.length-1]:cands[0]);
+  }
+  function expParametro(inner,enComillas){
+    let m;
+    if((m=inner.match(/^#([A-Za-z_]\w*)\[[@*]\]$/))) return {val:String(getArr(m[1]).length)};
+    if((m=inner.match(/^#([A-Za-z_]\w*|[0-9]+|[@*#?])$/))){ if(m[1]==="@"||m[1]==="*") return {val:String(st.pos.length)}; const v=/^\d+$/.test(m[1])?(m[1]==="0"?NOMBRE:(st.pos[+m[1]-1]||"")):(especial(m[1])!==undefined&&!/^[A-Za-z_]/.test(m[1])?especial(m[1]):(getVar(m[1])||"")); return {val:String(v.length)}; }
+    if((m=inner.match(/^([A-Za-z_]\w*)\[([@*])\]$/))){ const a=getArr(m[1]); return (m[2]==="@")?{arr:a}:{val:a.join(" ")}; }
+    if((m=inner.match(/^!([A-Za-z_]\w*)\[[@*]\]$/))){ const t=buscar(m[1])[m[1]]; return {arr:t&&t.arr?t.arr.map((x,i)=>x===undefined?null:String(i)).filter(x=>x!==null):(t?["0"]:[])}; }
+    let nombre, resto;
+    if((m=inner.match(/^([A-Za-z_]\w*)\[([^\]]+)\](.*)$/s))){ const idx=parseArit(m[2]); const t=buscar(m[1])[m[1]]; let v=t?(t.arr?(t.arr[idx]!==undefined?t.arr[idx]:undefined):(idx===0?t.v:undefined)):undefined; nombre=null; resto=m[3]; return aplicarOp(v,resto,m[1]+"["+m[2]+"]"); }
+    if((m=inner.match(/^([A-Za-z_]\w*|[0-9]+|[@*#?$!])(.*)$/s))){ nombre=m[1]; resto=m[2]; }
+    else throw new ShError("${"+inner+"}: sustitución errónea");
+    if(nombre==="@"&&!resto) return {arr:st.pos.slice()};
+    let v;
+    if(/^\d+$/.test(nombre)) v=nombre==="0"?NOMBRE:st.pos[+nombre-1]; else if(/^[@*#?$!]$/.test(nombre)) v=especial(nombre); else v=getVar(nombre);
+    return aplicarOp(v,resto,nombre);
+  }
+  function aplicarOp(v,resto,nombre){
+    if(!resto) return {val:v===undefined?"":v};
+    let m;
+    if((m=resto.match(/^(:?)([-=+?])(.*)$/s))){ const vacio=v===undefined||(m[1]===":"&&v===""); const w=expandirUno(m[3]);
+      switch(m[2]){ case "-": return {val:vacio?w:v}; case "=": if(vacio){ setVar(nombre,w); return {val:w}; } return {val:v};
+        case "+": return {val:vacio?"":w}; case "?": if(vacio) throw new ShError(nombre+": "+(w||"parámetro nulo o no establecido")); return {val:v}; } }
+    v=v===undefined?"":v;
+    if((m=resto.match(/^:\s*(-?[^:]*)(?::(.*))?$/s))){ let ini=parseArit(m[1]); if(ini<0) ini=Math.max(0,v.length+ini); let r=v.slice(ini); if(m[2]!==undefined){ const l=parseArit(m[2]); r=l<0?r.slice(0,Math.max(0,r.length+l)):r.slice(0,l); } return {val:r}; }
+    if((m=resto.match(/^(##?|%%?)(.*)$/s))) return {val:quitarPatron(v,expandirPatron(m[2]),m[1])};
+    if((m=resto.match(/^(\/\/?)([^/]*)(?:\/(.*))?$/s))){ const re=patronARegex(expandirPatron(m[2]),false); const rep=expandirUno(m[3]||""); return {val:v.replace(new RegExp(re.source,m[1]==="//"?"gs":"s"),()=>rep)}; }
+    if(resto==="^^") return {val:v.toUpperCase()}; if(resto===",,") return {val:v.toLowerCase()}; if(resto==="^") return {val:v.charAt(0).toUpperCase()+v.slice(1)};
+    throw new ShError("${"+nombre+resto+"}: sustitución errónea");
+  }
+  function expDolar(raw,i,enComillas){
+    const c=raw[i];
+    if(c==="`"){ const k=raw.indexOf("`",i+1); const cmd=raw.slice(i+1,k<0?raw.length:k).replace(/\\`/g,"`"); return {len:(k<0?raw.length:k+1)-i,val:sustitucionOrden(cmd)}; }
+    const n=raw[i+1];
+    if(n==="("&&raw[i+2]==="("){ const k=buscarCierre(raw,i+3,"(",")"); if(k>0&&raw[k+1]===")") return {len:k+2-i,val:String(parseArit(raw.slice(i+3,k)))}; }
+    if(n==="("){ const k=buscarCierre(raw,i+2,"(",")"); return {len:k+1-i,val:sustitucionOrden(raw.slice(i+2,k))}; }
+    if(n==="{"){ const k=buscarCierre(raw,i+2,"{","}"); const r=expParametro(raw.slice(i+2,k),enComillas); return Object.assign({len:k+1-i},r); }
+    if(n!==undefined&&/[A-Za-z_]/.test(n)){ const m=raw.slice(i+1).match(/^[A-Za-z_]\w*/)[0]; const v=getVar(m); return {len:1+m.length,val:v===undefined?"":v}; }
+    if(n!==undefined&&/[0-9]/.test(n)){ return {len:2,val:n==="0"?NOMBRE:(st.pos[+n-1]||"")}; }
+    if(n==="@"){ return {len:2,arr:st.pos.slice()}; }
+    if(n!==undefined&&"#?$!*-".includes(n)) return {len:2,val:especial(n)};
+    return {len:1,val:"$"};
+  }
+  function segmentos(raw){
+    const segs=[]; let i=0;
+    while(i<raw.length){ const c=raw[i];
+      if(c==="'"){ const k=raw.indexOf("'",i+1); segs.push({s:raw.slice(i+1,k<0?raw.length:k),q:true}); i=k<0?raw.length:k+1; continue; }
+      if(c==='"'){ let j=i+1, buf="", hubo=false;
+        while(j<raw.length&&raw[j]!=='"'){ const d=raw[j];
+          if(d==="\\"&&j+1<raw.length&&'$`"\\\n'.includes(raw[j+1])){ buf+=raw[j+1]; j+=2; continue; }
+          if(d==="$"||d==="`"){ const r=expDolar(raw,j,true); if(r.val==="$"&&r.len===1){ buf+="$"; j++; continue; }
+            if(buf){ segs.push({s:buf,q:true}); buf=""; } hubo=true;
+            if(r.arr!==undefined) segs.push({arr:r.arr,q:true}); else segs.push({s:r.val,q:true}); j+=r.len; continue; }
+          buf+=d; j++; }
+        segs.push({s:buf,q:true,vacio:!buf&&!hubo}); i=j+1; continue; }
+      if(c==="\\"){ if(i+1<raw.length) segs.push({s:raw[i+1],q:true}); i+=2; continue; }
+      if(c==="$"||c==="`"){ const r=expDolar(raw,i,false); if(r.val==="$"&&r.len===1){ segs.push({s:"$",lit:true}); i++; continue; }
+        if(r.arr!==undefined) segs.push({arr:r.arr,q:false}); else segs.push({s:r.val,exp:true}); i+=r.len; continue; }
+      if(c==="~"&&i===0&&(raw.length===1||raw[1]==="/")){ segs.push({s:getVar("HOME")||"/home/alumno",q:true}); i++; continue; }
+      let j=i; while(j<raw.length&&!"'\"\\$`".includes(raw[j])) j++;
+      segs.push({s:raw.slice(i,j),lit:true}); i=j;
+    }
+    return segs;
+  }
+  function expandirHD(txt){ let o="", i=0; while(i<txt.length){ const c=txt[i];
+      if(c==="\\"&&"$`\\".includes(txt[i+1]||"")){ o+=txt[i+1]; i+=2; continue; }
+      if(c==="$"||c==="`"){ const r=expDolar(txt,i,true); o+=r.arr?r.arr.join(" "):r.val; i+=r.len; continue; }
+      o+=c; i++; } return o; }
+  const escGlob=s=>s.replace(/[\s\S]/g,ch=>"\u0000"+ch);
+  function expandirUno(raw){ return segmentos(raw).map(s=>s.arr?s.arr.join(" "):s.s).join(""); }
+  function expandirPatron(raw){ return segmentos(raw).map(s=>s.arr?escGlob(s.arr.join(" ")):(s.q?escGlob(s.s):s.s)).join(""); }
+  function ifsSplit(){ const v=getVar("IFS"); return v===undefined?" \t\n":v; }
+  function llaves(raw){
+    let q=null;
+    for(let i=0;i<raw.length;i++){ const c=raw[i];
+      if(q){ if(c==="\\"&&q==='"'){ i++; continue; } if(c===q) q=null; continue; }
+      if(c==="\\"){ i++; continue; } if(c==="'"||c==='"'){ q=c; continue; }
+      if(c==="$"&&(raw[i+1]==="{"||raw[i+1]==="(")){ const k=buscarCierre(raw,i+2,raw[i+1],raw[i+1]==="{"?"}":")"); if(k>0){ i=k; continue; } }
+      if(c==="{"){ const k=buscarCierre(raw,i+1,"{","}"); if(k<0) continue; const dentro=raw.slice(i+1,k); const pre=raw.slice(0,i), post=raw.slice(k+1);
+        let m=dentro.match(/^(-?\d+)\.\.(-?\d+)(?:\.\.(-?\d+))?$/), items=null;
+        if(m){ const a=+m[1], b=+m[2], p=Math.abs(+m[3]||1)*(a<=b?1:-1); items=[]; const w=(m[1].length>1&&m[1].startsWith("0"))||(m[2].length>1&&m[2].startsWith("0"))?Math.max(m[1].length,m[2].length):0; for(let x=a; a<=b?x<=b:x>=b; x+=p){ items.push(w?String(x).padStart(w,"0"):String(x)); if(items.length>10000) break; } }
+        else if((m=dentro.match(/^([a-zA-Z])\.\.([a-zA-Z])$/))){ items=[]; const a=m[1].charCodeAt(0), b=m[2].charCodeAt(0); for(let x=a; a<=b?x<=b:x>=b; x+=a<=b?1:-1) items.push(String.fromCharCode(x)); }
+        else { const partes=[]; let d=0, qq=null, ini=0; for(let j=0;j<dentro.length;j++){ const ch=dentro[j]; if(qq){ if(ch===qq) qq=null; continue; } if(ch==="'"||ch==='"'){ qq=ch; continue; } if(ch==="\\"){ j++; continue; } if(ch==="{") d++; else if(ch==="}") d--; else if(ch===","&&d===0){ partes.push(dentro.slice(ini,j)); ini=j+1; } }
+          partes.push(dentro.slice(ini)); if(partes.length>1) items=partes; }
+        if(!items) continue;
+        return [].concat(...items.map(it=>llaves(pre+it+post)));
+      }
+    }
+    return [raw];
+  }
+  function expandirCampos(raw){ const rs=llaves(raw); if(rs.length>1||rs[0]!==raw) return [].concat(...rs.map(expandirCampos1)); return expandirCampos1(raw); }
+  function expandirCampos1(raw){
+    const segs=segmentos(raw); const campos=[]; let cur=null;
+    const nuevo=()=>({s:"",pat:"",glob:false});
+    const cerrar=()=>{ if(cur) campos.push(cur); cur=null; };
+    const ifs=ifsSplit();
+    for(const g of segs){
+      if(g.arr!==undefined){ if(g.q){ g.arr.forEach((v,k)=>{ if(k>0) cerrar(); if(!cur) cur=nuevo(); cur.s+=v; cur.pat+=escGlob(v); }); if(!g.arr.length&&!cur){} continue; }
+        const txt=g.arr.join(" "); for(const ch of txt){ if(ifs.includes(ch)){ cerrar(); } else { if(!cur) cur=nuevo(); cur.s+=ch; cur.pat+=ch; if("*?[".includes(ch)) cur.glob=true; } } continue; }
+      if(g.q){ if(!cur) cur=nuevo(); cur.s+=g.s; cur.pat+=escGlob(g.s); continue; }
+      if(g.lit){ if(!cur) cur=nuevo(); cur.s+=g.s; cur.pat+=g.s; if(/[*?[]/.test(g.s)) cur.glob=true; continue; }
+      if(g.exp){ for(const ch of g.s){ if(ifs.includes(ch)){ if(/\s/.test(ch)) cerrar(); else { if(!cur) cur=nuevo(); cerrar(); } } else { if(!cur) cur=nuevo(); cur.s+=ch; cur.pat+=ch; if("*?[".includes(ch)) cur.glob=true; } } }
+    }
+    cerrar();
+    const res=[];
+    for(const c of campos){ if(c.glob){ const m=glob(c.pat); if(m.length){ res.push(...m); continue; } if(st.nullglob) continue; } res.push(c.s); }
+    return res;
+  }
+  function glob(pat){
+    const partes=pat.split("/"); const abs=pat.startsWith("/");
+    let cands=[{p:abs?[]:st.cwd.slice(),txt:abs?"":null}];
+    const trozos=partes.filter((x,i)=>!(i===0&&x===""));
+    for(let i=0;i<trozos.length;i++){ const t=trozos[i]; const ult=i===trozos.length-1; const nuevo=[];
+      for(const c of cands){ const n=fs.nodo(c.p); if(!n||n.tipo!=="d") continue;
+        if(!/[*?[]/.test(t.replace(/\u0000./g,""))){ const nom=t.replace(/\u0000(.)/g,"$1"); const h=n.hijos[nom]; if(h&&(ult||h.tipo==="d")) nuevo.push({p:c.p.concat(nom),txt:(c.txt===null?"":c.txt+(c.txt===""&&abs?"":"/"))+nom}); continue; }
+        const re=patronARegex(t);
+        fs.lista(c.p).forEach(h=>{ if(h.nombre.startsWith(".")&&!t.startsWith(".")) return; if(re.test(h.nombre)&&(ult||h.tipo==="d")) nuevo.push({p:c.p.concat(h.nombre),txt:(c.txt===null?"":c.txt+(c.txt===""&&abs?"":"/"))+h.nombre}); }); }
+      cands=nuevo; }
+    return cands.map(c=>(abs?"/":"")+c.txt).sort();
+  }
+
+  /* ---------- subshell ---------- */
+  function subshell(){ const copia={vars:JSON.parse(JSON.stringify(st.vars)),loc:JSON.parse(JSON.stringify(st.locales)),cwd:st.cwd.slice(),pos:st.pos.slice(),fun:Object.assign({},st.funciones)};
+    return ()=>{ st.vars=copia.vars; st.locales=copia.loc; st.cwd=copia.cwd; st.pos=copia.pos; st.funciones=copia.fun; }; }
+
+  /* ---------- test / [ ] ---------- */
+  const esEntero=s=>/^\s*[-+]?\d+\s*$/.test(s);
+  function entero(s,cmd){ if(!esEntero(s)) throw new ShError(cmd+": "+s+": se esperaba una expresión entera",2); return parseInt(s,10); }
+  function unario(op,a){ const n=fs.nodo(fs.partes(a,st.cwd));
+    switch(op){ case "-z": return a===""; case "-n": return a!=="";
+      case "-e": case "-a": return !!n; case "-f": return !!n&&n.tipo==="f"; case "-d": return !!n&&n.tipo==="d";
+      case "-s": return !!n&&n.tipo==="f"&&n.txt.length>0; case "-r": case "-w": return !!n; case "-x": return !!n&&(n.tipo==="d"||/^#!/.test(n.txt)||!!n.x); case "-L": case "-h": return false; } }
+  const UNARIOS=["-z","-n","-e","-a","-f","-d","-s","-r","-w","-x","-L","-h"];
+  const BINARIOS=["=","==","!=","-eq","-ne","-lt","-le","-gt","-ge","<",">","-nt","-ot"];
+  function binario(a,op,b,cmd){ switch(op){ case "=": case "==": return a===b; case "!=": return a!==b; case "<": return a<b; case ">": return a>b;
+      case "-nt": case "-ot": return false; }
+    const x=entero(a,cmd), y=entero(b,cmd); return {"-eq":x===y,"-ne":x!==y,"-lt":x<y,"-le":x<=y,"-gt":x>y,"-ge":x>=y}[op]; }
+  function evalTest(args,cmd){
+    const n=args.length;
+    const t1=a=>a!=="";
+    const t2=(a,b)=>{ if(a==="!") return !t1(b); if(UNARIOS.includes(a)) return unario(a,b); throw new ShError(cmd+": "+a+": se esperaba un operador unario",2); };
+    const t3=(a,b,c)=>{ if(BINARIOS.includes(b)) return binario(a,b,c,cmd); if(b==="-a") return t1(a)&&t1(c); if(b==="-o") return t1(a)||t1(c); if(a==="!") return !t2(b,c); if(a==="("&&c===")") return t1(b); throw new ShError(cmd+": "+b+": se esperaba un operador binario",2); };
+    if(n===0) return false; if(n===1) return t1(args[0]); if(n===2) return t2(args[0],args[1]); if(n===3) return t3(args[0],args[1],args[2]);
+    if(n===4){ if(args[0]==="!") return !t3(args[1],args[2],args[3]); if(args[0]==="("&&args[3]===")") return t2(args[1],args[2]); }
+    let p=0; const ver=()=>args[p];
+    function o(){ let v=y(); while(ver()==="-o"){ p++; const w=y(); v=v||w; } return v; }
+    function y(){ let v=no(); while(ver()==="-a"){ p++; const w=no(); v=v&&w; } return v; }
+    function no(){ if(ver()==="!"){ p++; return !no(); } return prim(); }
+    function prim(){ const a=args[p];
+      if(a==="("){ p++; const v=o(); if(args[p]!==")") throw new ShError(cmd+": se esperaba «)»",2); p++; return v; }
+      if(UNARIOS.includes(a)&&p+1<n&&!BINARIOS.includes(args[p+1])){ p+=2; return unario(a,args[p-1]); }
+      if(p+2<n+1&&BINARIOS.includes(args[p+1])){ const r=binario(a,args[p+1],args[p+2]===undefined?"":args[p+2],cmd); p+=3; return r; }
+      if(a===undefined) throw new ShError(cmd+": se esperaba un argumento",2);
+      p++; return t1(a); }
+    const v=o(); if(p<n) throw new ShError(cmd+": demasiados argumentos",2); return v;
+  }
+  function evalCond(ts){
+    let p=0; const ver=()=>ts[p];
+    const esO=v=>ts[p]&&ts[p].op===v, esW=v=>ts[p]&&ts[p].w===v;
+    function o(){ let v=y(); while(esO("||")){ p++; const w=y(); v=v||w; } return v; }
+    function y(){ let v=no(); while(esO("&&")){ p++; const w=no(); v=v&&w; } return v; }
+    function no(){ if(esW("!")){ p++; return !no(); } return prim(); }
+    function prim(){
+      if(esO("(")){ p++; const v=o(); if(!esO(")")) throw new ShError("error sintáctico en la expresión condicional",2); p++; return v; }
+      const a=ts[p]; if(!a) throw new ShError("error sintáctico en la expresión condicional",2);
+      const pal=a.w!==undefined?a.w:a.op;
+      if(UNARIOS.includes(pal)&&ts[p+1]&&!(ts[p+2]&&(BINARIOS.includes(ts[p+2].w)||ts[p+2].op==="<"||ts[p+2].op===">"||ts[p+2].w==="=~"))){ p+=2; return unario(pal,expandirUno(ts[p-1].w||"")); }
+      const b=ts[p+1]; const opb=b?(b.w!==undefined?b.w:b.op):undefined;
+      if(b&&(BINARIOS.includes(opb)||opb==="=~")){
+        const izq=expandirUno(pal); const c=ts[p+2]; if(!c) throw new ShError("se esperaba un argumento tras «"+opb+"»",2); p+=3;
+        if(opb==="=="||opb==="="||opb==="!="){ const re=patronARegex(expandirPatron(c.w)); const r=re.test(izq); return opb==="!="?!r:r; }
+        if(opb==="=~"){ let rx=expandirUno(c.w); try{ const m=izq.match(new RegExp(rx)); if(m) setArr("BASH_REMATCH",Array.from(m)); return !!m; }catch(e){ throw new ShError("expresión regular no válida",2); } }
+        if(["-eq","-ne","-lt","-le","-gt","-ge"].includes(opb)){ const x=parseArit(izq), y2=parseArit(expandirUno(c.w)); return {"-eq":x===y2,"-ne":x!==y2,"-lt":x<y2,"-le":x<=y2,"-gt":x>y2,"-ge":x>=y2}[opb]; }
+        return binario(izq,opb,expandirUno(c.w),"[["); }
+      p++; return expandirUno(pal)!=="";
+    }
+    const v=o(); if(p<ts.length) throw new ShError("error sintáctico en la expresión condicional cerca de «"+(ts[p].w||ts[p].op)+"»",2); return v;
+  }
+
+  /* ---------- ejecucion ---------- */
+  function paso(){ if(++st.pasos>LIMITE) throw new Parada("*** Ejecución detenida: demasiados pasos. ¿Tienes un bucle infinito? ***"); }
+  function ejecutarTexto(txt,io){ const arbol=parser(lexer(txt)); return ejecutar(arbol,io); }
+  function conRedir(nodo,io,fn){
+    if(!nodo.redirs||!nodo.redirs.length) return fn(io);
+    let n2; try{ n2=abrirRedirs(nodo.redirs,io); }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); return 1; } throw e; }
+    return fn(n2);
+  }
+  function abrirRedirs(rd,io){
+    const n={out:io.out,err:io.err,inp:io.inp};
+    for(const r of rd){
+      if(r.op==="2>&1"){ n.err=n.out; continue; } if(r.op===">&2"){ n.out=n.err; continue; }
+      if(r.op==="<<"){ const c=r.hd.cuerpo||""; n.inp=new Entrada(r.hd.citado?c:expandirHD(c)); continue; }
+      if(r.op==="<<<"){ n.inp=new Entrada(expandirUno(r.dest)+"\n"); continue; }
+      const dest=expandirUno(r.dest);
+      if(r.op==="<"){ if(dest==="/dev/null"){ n.inp=new Entrada(""); continue; } const f=fs.nodo(fs.partes(dest,st.cwd)); if(!f) throw new ShError(dest+": No existe el archivo o el directorio"); if(f.tipo==="d") throw new ShError(dest+": Es un directorio"); n.inp=new Entrada(f.txt); continue; }
+      const w=ficheroOut(dest,r.op.endsWith(">>"),io);
+      if(r.op===">"||r.op===">>") n.out=w; else if(r.op==="2>"||r.op==="2>>") n.err=w; else { n.out=w; n.err=w; }
+    }
+    return n;
+  }
+  function ejecutar(nodo,io){
+    const ant=ioActual; ioActual=io;
+    try{ return ejec(nodo,io); } finally{ ioActual=ant; }
+  }
+  function ejec(nodo,io){
+    switch(nodo.tipo){
+      case "lista":{ let s=0; for(const it of nodo.items){ s=ejecutar(it.n,io); st.estado=s; } return s; }
+      case "andor":{ let s=ejecutar(nodo.first,io); st.estado=s; for(const r of nodo.resto){ if((r.op==="&&"&&s===0)||(r.op==="||"&&s!==0)){ s=ejecutar(r.n,io); st.estado=s; } } return s; }
+      case "tuberia":{
+        if(nodo.cmds.length===1){ const s=ejecutar(nodo.cmds[0],io); return nodo.neg?(s?0:1):s; }
+        let entrada=io.inp, s=0;
+        nodo.cmds.forEach((c,i)=>{ const ult=i===nodo.cmds.length-1; const o=ult?io.out:bufOut(); const guard=subshell();
+          try{ s=ejecutar(c,{out:o,err:io.err,inp:entrada}); }catch(e){ if(e instanceof Control&&e.tipo==="exit") s=e.n; else throw e; } finally{ guard(); }
+          if(!ult) entrada=new Entrada(o.t); });
+        return nodo.neg?(s?0:1):s; }
+      case "simple": return simple(nodo,io);
+      case "func": st.funciones[nodo.nom]=nodo.cuerpo; return 0;
+      case "grupo": return conRedir(nodo,io,io2=>ejecutar(nodo.cuerpo,io2));
+      case "subshell": return conRedir(nodo,io,io2=>{ const g=subshell(); try{ return ejecutar(nodo.cuerpo,io2); }catch(e){ if(e instanceof Control&&e.tipo==="exit") return e.n; throw e; } finally{ g(); } });
+      case "arit": st.linea=nodo.linea; paso(); traza(io,"(( "+nodo.expr.trim()+" ))"); try{ return parseArit(nodo.expr)?0:1; }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+"((: "+e.msg+"\n"); return 1; } throw e; }
+      case "cond": st.linea=nodo.linea; paso(); traza(io,"[[ "+nodo.ts.map(t=>t.w!==undefined?citar(expandirUno(t.w)):t.op).join(" ")+" ]]"); return conRedir(nodo,io,()=>{ try{ return evalCond(nodo.ts)?0:1; }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); return 2; } throw e; } });
+      case "if": return conRedir(nodo,io,io2=>{ for(const c of nodo.cl){ if(ejecutar(c.cond,io2)===0) return ejecutar(c.cuerpo,io2); } return nodo.sino?ejecutar(nodo.sino,io2):0; });
+      case "while": return conRedir(nodo,io,io2=>{ let s=0; while(true){ paso(); const c=ejecutar(nodo.cond,io2); if(nodo.until?c===0:c!==0) break;
+          try{ s=ejecutar(nodo.cuerpo,io2); }catch(e){ if(e instanceof Control&&(e.tipo==="break"||e.tipo==="continue")){ if(e.n>1){ e.n--; throw e; } if(e.tipo==="break") break; continue; } throw e; } } return s; });
+      case "for": return conRedir(nodo,io,io2=>{ st.linea=nodo.linea; let lista; try{ lista=nodo.pal===null?st.pos.slice():[].concat(...nodo.pal.map(expandirCampos)); }catch(e){ if(e instanceof ShError){ io2.err.write(prefijo()+e.msg+"\n"); throw new Control("exit",1); } throw e; } let s=0;
+          for(const v of lista){ paso(); traza(io2,"for "+nodo.var+" in "+lista.map(citar).join(" ")); setVar(nodo.var,v); try{ s=ejecutar(nodo.cuerpo,io2); }catch(e){ if(e instanceof Control&&(e.tipo==="break"||e.tipo==="continue")){ if(e.n>1){ e.n--; throw e; } if(e.tipo==="break") break; continue; } throw e; } } return s; });
+      case "cfor": return conRedir(nodo,io,io2=>{ st.linea=nodo.linea; let s=0; try{ if(nodo.ini.trim()) parseArit(nodo.ini);
+          while(true){ paso(); if(nodo.cond.trim()&&!parseArit(nodo.cond)) break;
+            try{ s=ejecutar(nodo.cuerpo,io2); }catch(e){ if(e instanceof Control&&(e.tipo==="break"||e.tipo==="continue")){ if(e.n>1){ e.n--; throw e; } if(e.tipo==="break") break; } else throw e; }
+            if(nodo.paso.trim()) parseArit(nodo.paso); } }catch(e){ if(e instanceof ShError){ io2.err.write(prefijo()+"((: "+e.msg+"\n"); return 1; } throw e; } return s; });
+      case "case": return conRedir(nodo,io,io2=>{ st.linea=nodo.linea; const w=expandirUno(nodo.w);
+          for(const it of nodo.items){ if(it.pats.some(pt=>patronARegex(expandirPatron(pt)).test(w))) return ejecutar(it.cuerpo,io2); } return 0; });
+    }
+    throw new Error("nodo desconocido "+nodo.tipo);
+  }
+  function asignar(a){
+    const m=a.match(/^([A-Za-z_]\w*)(\[([^\]]*)\])?(\+?)=([\s\S]*)$/); const nom=m[1], idx=m[3], mas=m[4]==="+", val=m[5];
+    if(val.startsWith("(")&&val.endsWith(")")&&idx===undefined){ const inner=val.slice(1,-1); const pal=lexer(inner).filter(t=>t.t==="W").map(t=>t.v); const arr=[].concat(...pal.map(expandirCampos));
+      if(mas){ setArr(nom,getArr(nom).concat(arr)); } else setArr(nom,arr); return; }
+    const v=expandirUno(val);
+    if(idx!==undefined){ const i=parseArit(idx); const tb=buscar(nom); let t=tb[nom]; if(!t||!t.arr){ t={arr:t?[t.v]:[],exp:false}; tb[nom]=t; } t.arr[i]=mas?((t.arr[i]||"")+v):v; return; }
+    const prev=getVar(nom); const t=buscar(nom)[nom];
+    if(mas&&t&&t.ent){ setVar(nom,String((parseInt(prev,10)||0)+parseArit(v))); return; }
+    setVar(nom,mas?(prev||"")+v:v);
+  }
+  const citar=a=>a===""?"''":(/[^\w@%+=:,./-]/.test(a)?"'"+a.replace(/'/g,"'\\''")+"'":a);
+  function traza(io,txt){ if(st.xtrace) io.err.write("+ "+txt+"\n"); }
+  function simple(nodo,io){
+    st.linea=nodo.linea; paso();
+    let pal;
+    try{ pal=[].concat(...nodo.pal.map(expandirCampos)); }
+    catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); throw new Control("exit",1); } throw e; }
+    if(!pal.length){ if(st.xtrace) nodo.asig.forEach(a=>{ const m=a.match(/^([^=]+=)(.*)$/s); traza(io,m[1]+citar(expandirUno(m[2]))); });
+      try{ nodo.asig.forEach(asignar); }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); throw new Control("exit",1); } throw e; }
+      if(nodo.rd.length){ try{ abrirRedirs(nodo.rd,io); }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); return 1; } throw e; } }
+      return (nodo.pal.length&&false)?0:(nodo.asig.some(a=>/\$\(|`/.test(a))?st.estado:0); }
+    let io2; try{ io2=abrirRedirs(nodo.rd,io); }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); return 1; } throw e; }
+    // asignaciones temporales delante de la orden (IFS=; read ...)
+    const tempo={}; let restaurar=null;
+    if(nodo.asig.length){ nodo.asig.forEach(a=>{ const nm=a.match(/^([A-Za-z_]\w*)/)[1]; if(!(nm in tempo)) tempo[nm]=st.vars[nm]; }); try{ nodo.asig.forEach(asignar); }catch(e){ if(e instanceof ShError){ io.err.write(prefijo()+e.msg+"\n"); throw new Control("exit",1); } throw e; } restaurar=()=>{ for(const [k,v] of Object.entries(tempo)){ if(v===undefined) delete st.vars[k]; else st.vars[k]=v; } }; }
+    if(st.xtrace) traza(io,nodo.asig.map(a=>{ const m=a.match(/^([^=]+=)(.*)$/s); return m[1]+citar(expandirUno(m[2])); }).concat(pal.map(citar)).join(" "));
+    try{ return invocar(pal[0],pal.slice(1),io2); }
+    finally{ if(restaurar) restaurar(); }
+  }
+  function invocar(cmd,args,io){
+    const ant=ioActual; ioActual=io;
+    try{
+      if(st.funciones[cmd]!==undefined){
+        if(++st.prof>200) throw new Parada(NOMBRE+": línea "+st.linea+": "+cmd+": se superó el nivel máximo de anidamiento de funciones (¿recursión infinita?)");
+        const posAnt=st.pos; st.pos=args.slice(); st.locales.push({});
+        try{ return ejecutar(st.funciones[cmd],io); }catch(e){ if(e instanceof Control&&e.tipo==="return") return e.n; throw e; }
+        finally{ st.pos=posAnt; st.locales.pop(); st.prof--; }
+      }
+      const f=BUILTINS[cmd];
+      if(f){ try{ const r=f(args,io); return r===undefined?0:r; }catch(e){ if(e instanceof ShError){ io.err.write((/^\S+: /.test(e.msg)&&!e.sinPref?prefijo():prefijo()+cmd+": ")+e.msg.replace(new RegExp("^"+cmd.replace(/[.*+?^${}()|[\]\\\/]/g,"\\$&")+": "),"")+"\n"); return e.cod; } throw e; } }
+      if(/^\.?\.?\//.test(cmd)){ const n=fs.nodo(fs.partes(cmd,st.cwd)); if(!n){ io.err.write(prefijo()+cmd+": No existe el archivo o el directorio\n"); return 127; } if(n.tipo==="d"){ io.err.write(prefijo()+cmd+": Es un directorio\n"); return 126; }
+        io.err.write(prefijo()+cmd+": Permiso denegado\n"); return 126; }
+      io.err.write(prefijo()+cmd+": orden no encontrada\n"); return 127;
+    } finally{ ioActual=ant; }
+  }
+  const leerFicheros=(args,io,cmd)=>{ if(!args.length||(args.length===1&&args[0]==="-")) return {txt:io.inp.leerTodo(),ok:true};
+    let t="", ok=true; for(const a of args){ const n=fs.nodo(fs.partes(a,st.cwd)); if(!n){ io.err.write(cmd+": "+a+": No existe el archivo o el directorio\n"); ok=false; continue; } if(n.tipo==="d"){ io.err.write(cmd+": "+a+": Es un directorio\n"); ok=false; continue; } t+=n.txt; } return {txt:t,ok}; };
+  const lineasDe=t=>t===""?[]:t.replace(/\n$/,"").split("\n");
+  const opciones=(args,conValor)=>{ const o={}, resto=[]; let fin=false;
+    for(let i=0;i<args.length;i++){ const a=args[i]; if(fin||!/^-./.test(a)||/^-\d+$/.test(a)&&!conValor.includes("NUM")){ resto.push(a); continue; } if(a==="--"){ fin=true; continue; }
+      if(/^-\d+$/.test(a)){ o.NUM=a.slice(1); continue; }
+      for(let k=1;k<a.length;k++){ const l=a[k]; if(conValor.includes(l)){ o[l]=a.slice(k+1)||args[++i]; break; } o[l]=true; } }
+    return {o,resto}; };
+  function formatoPrintf(fmt,args){ let out="", k=0; const next=()=>args[k++];
+    const esc=s=>s.replace(/\\(n|t|\\|a|r|0)/g,(m,c)=>({n:"\n",t:"\t","\\":"\\",a:"",r:"",0:""}[c]));
+    do{ let i=0; const f=esc(fmt); out+=f.replace(/%([-+ 0#]*)(\d*)(?:\.(\d+))?([sdifcxX%b])/g,(m,fl,an,pr,ty)=>{ if(ty==="%") return "%"; let v=next(); if(v===undefined) v=ty==="s"||ty==="b"?"":"0";
+        let r; switch(ty){ case "s": case "b": r=String(v); if(pr!==undefined) r=r.slice(0,+pr); break; case "d": case "i": r=String(parseInt(v,10)||0); break;
+          case "f": r=(parseFloat(v)||0).toFixed(pr===undefined?6:+pr); break; case "c": r=String(v).charAt(0); break; case "x": r=(parseInt(v,10)||0).toString(16); break; case "X": r=(parseInt(v,10)||0).toString(16).toUpperCase(); break; }
+        if(an){ const w=+an; if(fl.includes("-")) r=r.padEnd(w); else r=r.padStart(w,fl.includes("0")&&ty!=="s"?"0":" "); } return r; });
+    } while(k<args.length&&/%[-+ 0#]*\d*(?:\.\d+)?[sdifcxXb]/.test(fmt));
+    return out; }
+  const BUILTINS={
+    echo(args,io){ let n=false,e=false,i=0; while(i<args.length&&/^-[neE]+$/.test(args[i])){ if(args[i].includes("n")) n=true; if(args[i].includes("e")) e=true; if(args[i].includes("E")) e=false; i++; }
+      let t=args.slice(i).join(" "); if(e){ let corte=false; t=t.replace(/\\(n|t|\\|a|b|r|c|e|0\d{0,3})/g,(m,c)=>{ if(c==="c"){ corte=true; return "\u0002"; } return ({n:"\n",t:"\t","\\":"\\",a:"",b:"",r:"",e:""}[c]!==undefined?{n:"\n",t:"\t","\\":"\\",a:"",b:"",r:"",e:""}[c]:""); }); if(corte){ t=t.split("\u0002")[0]; n=true; } }
+      io.out.write(t+(n?"":"\n")); return 0; },
+    printf(args,io){ if(!args.length) throw new ShError("uso: printf [-v var] formato [argumentos]",2); io.out.write(formatoPrintf(args[0],args.slice(1))); return 0; },
+    read(args,io){ const {o,resto}=opciones(args,"pdnta"); if(o.p!==undefined) io.err.write(o.p);
+      let l=io.inp.leerLinea(); if(o.p!==undefined&&l!==null&&io.inp.teclado) io.err.write(l+"\n");
+      if(l===null) { if(o.p!==undefined&&io.inp.teclado) io.err.write("\n"); resto.forEach(v=>setVar(v,"")); return 1; }
+      if(!o.r) l=l.replace(/\\(.)/g,"$1");
+      if(o.a){ const ifs0=ifsSplit(); setArr(o.a,l.split(new RegExp("["+ifs0.replace(/[\]\\^-]/g,"\\$&")+"]+")).filter(x=>x!=="")); return io.inp.ultSinNL?1:0; }
+      const vars=resto.length?resto:["REPLY"]; if(!resto.length){ setVar("REPLY",l); return io.inp.ultSinNL?1:0; }
+      const ifs=ifsSplit(); const ws=ifs.split("").filter(c=>/\s/.test(c)).join(""), nws=ifs.split("").filter(c=>!/\s/.test(c)).join("");
+      let s=ws?l.replace(new RegExp("^["+ws.replace(/[\]\\^-]/g,"\\$&")+"]+|["+ws.replace(/[\]\\^-]/g,"\\$&")+"]+$","g"),""):l;
+      const campos=[];
+      for(let k=0;k<vars.length;k++){ if(k===vars.length-1){ campos.push(s); break; }
+        let j=0; while(j<s.length&&!ifs.includes(s[j])) j++;
+        campos.push(s.slice(0,j)); s=s.slice(j);
+        if(ws) s=s.replace(new RegExp("^["+ws.replace(/[\]\\^-]/g,"\\$&")+"]*"),"");
+        if(nws&&nws.includes(s[0])) s=s.slice(1);
+        if(ws) s=s.replace(new RegExp("^["+ws.replace(/[\]\\^-]/g,"\\$&")+"]*"),""); }
+      if(o.a){ setArr(o.a,l.split(new RegExp("["+ifs.replace(/[\]\\^-]/g,"\\$&")+"]+")).filter(x=>x!=="")); return 0; }
+      vars.forEach((v,k)=>setVar(v,campos[k]===undefined?"":campos[k])); return io.inp.ultSinNL?1:0; },
+    cd(args,io){ const d=args[0]===undefined||args[0]==="~"?(getVar("HOME")||"/home/alumno"):args[0]; const p=fs.partes(d,st.cwd); const n=fs.nodo(p);
+      if(!n) throw new ShError(d+": No existe el archivo o el directorio"); if(n.tipo!=="d") throw new ShError(d+": No es un directorio"); st.cwd=p; setVar("PWD",fs.ruta(p)); return 0; },
+    pwd(args,io){ io.out.write(fs.ruta(st.cwd)+"\n"); return 0; },
+    exit(args){ const n=args[0]===undefined?st.estado:parseInt(args[0],10); throw new Control("exit",isNaN(n)?2:(n&255)); },
+    return(args){ const n=args[0]===undefined?st.estado:parseInt(args[0],10); throw new Control("return",isNaN(n)?2:(n&255)); },
+    break(args){ throw new Control("break",parseInt(args[0]||"1",10)); },
+    continue(args){ throw new Control("continue",parseInt(args[0]||"1",10)); },
+    shift(args){ const n=parseInt(args[0]||"1",10); if(n>st.pos.length) return 1; st.pos=st.pos.slice(n); return 0; },
+    local(args){ if(!st.locales.length) throw new ShError("sólo se puede usar dentro de una función"); args.forEach(a=>{ const m=a.match(/^([A-Za-z_]\w*)(=([\s\S]*))?$/); if(!m) return; st.locales[st.locales.length-1][m[1]]={v:m[2]!==undefined?m[3]:"",exp:false}; }); return 0; },
+    declare(args){ const {o,resto}=opciones(args,""); resto.forEach(a=>{ const m=a.match(/^([A-Za-z_]\w*)(=([\s\S]*))?$/); if(!m) return; const tb=st.locales.length?st.locales[st.locales.length-1]:st.vars;
+        if(o.a&&!(m[1] in tb)) tb[m[1]]={arr:[],exp:false}; else if(!(m[1] in tb)||m[2]!==undefined) tb[m[1]]={v:m[2]!==undefined?(o.i?String(parseArit(m[3])):m[3]):"",exp:false};
+        if(o.i) tb[m[1]].ent=true; if(o.r) tb[m[1]].ro=true; }); return 0; },
+    export(args){ args.forEach(a=>{ const m=a.match(/^([A-Za-z_]\w*)(=([\s\S]*))?$/); if(!m) return; if(m[2]!==undefined) setVar(m[1],m[3]); const t=buscar(m[1])[m[1]]; if(t) t.exp=true; else st.vars[m[1]]={v:"",exp:true}; }); return 0; },
+    readonly(args){ args.forEach(a=>{ const m=a.match(/^([A-Za-z_]\w*)(=([\s\S]*))?$/); if(!m) return; if(m[2]!==undefined) setVar(m[1],m[3]); const t=buscar(m[1])[m[1]]; if(t) t.ro=true; }); return 0; },
+    unset(args){ args.filter(a=>!a.startsWith("-")).forEach(a=>{ const tb=buscar(a); delete tb[a]; delete st.funciones[a]; }); return 0; },
+    set(args,io){ if(args.includes("-x")){ st.xtrace=true; return 0; } if(args.includes("+x")){ st.xtrace=false; return 0; } if(args[0]==="--"){ st.pos=args.slice(1); return 0; } if(!args.length){ Object.keys(st.vars).sort().forEach(k=>{ const t=st.vars[k]; io.out.write(k+"="+(t.arr?"("+t.arr.join(" ")+")":t.v)+"\n"); }); } return 0; },
+    let(args){ let v=0; args.forEach(a=>v=parseArit(a)); return v?0:1; },
+    test(args){ return evalTest(args,"test")?0:1; },
+    "["(args){ if(args[args.length-1]!=="]") throw new ShError("falta «]»",2); return evalTest(args.slice(0,-1),"[")?0:1; },
+    true(){ return 0; }, false(){ return 1; }, ":"(){ return 0; },
+    source(args,io){ const n=fs.nodo(fs.partes(args[0]||"",st.cwd)); if(!n||n.tipo!=="f") throw new ShError((args[0]||"")+": No existe el archivo o el directorio"); return ejecutarTexto(n.txt,io); },
+    eval(args,io){ return ejecutarTexto(args.join(" "),io); },
+    sleep(){ return 0; },
+    shopt(args){ const act=args.includes("-s"), des=args.includes("-u"); args.filter(a=>!a.startsWith("-")).forEach(o=>{ if(o==="nullglob"){ if(act) st.nullglob=true; if(des) st.nullglob=false; } }); return 0; }, clear(){ return 0; }, chmod(args){ args.filter(a=>!/^[-+]?[0-7ugoarwx+=,-]+$/.test(a)||/\//.test(a)||/\./.test(a)).forEach(a=>{ const n=fs.nodo(fs.partes(a,st.cwd)); if(n) n.x=true; }); return 0; }, chown(){ return 0; },
+    type(args,io){ args.forEach(a=>io.out.write(a+(BUILTINS[a]?" es una orden interna del shell":st.funciones[a]!==undefined?" es una función":" no se encontró")+"\n")); return 0; },
+    cat(args,io){ const r=leerFicheros(args.filter(a=>!/^-[nAE]+$/.test(a)),io,"cat"); let t=r.txt; if(args.includes("-n")) t=lineasDe(t).map((l,i)=>String(i+1).padStart(6)+"\t"+l).join("\n")+(t?"\n":""); io.out.write(t); return r.ok?0:1; },
+    grep(args,io){ const {o,resto}=opciones(args,"emA"); let pat=o.e!==undefined?o.e:resto.shift(); if(pat===undefined) throw new ShError("uso: grep [OPCIÓN]... PATRONES [FICHERO]...",2);
+      let re; try{ let src=o.F?pat.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"):(o.E?pat:pat.replace(/\\([(){}|+?])/g,"\u0003$1").replace(/[(){}|+?]/g,"\\$&").replace(/\u0003(.)/g,"$1")); if(o.w) src="\\b(?:"+src+")\\b"; if(o.x) src="^(?:"+src+")$"; re=new RegExp(src,o.i?"i":""); }catch(e){ throw new ShError("expresión regular no válida",2); }
+      const fich=resto.length?resto:[null]; let hay=false, total=0; const varios=fich.length>1;
+      for(const f of fich){ let txt; if(f===null) txt=io.inp.leerTodo(); else { const n=fs.nodo(fs.partes(f,st.cwd)); if(!n){ if(!o.s) io.err.write("grep: "+f+": No existe el archivo o el directorio\n"); continue; } if(n.tipo==="d"){ io.err.write("grep: "+f+": Es un directorio\n"); continue; } txt=n.txt; }
+        const ls=lineasDe(txt); let c=0; ls.forEach((l,i)=>{ let m=re.test(l); if(o.v) m=!m; if(m){ c++; hay=true; if(!o.c&&!o.q&&!o.l&&(o.m===undefined||c<=+o.m)) io.out.write((varios?f+":":"")+(o.n?(i+1)+":":"")+l+"\n"); } });
+        if(o.c) io.out.write((varios?f+":":"")+c+"\n"); if(o.l&&c) io.out.write(f+"\n"); total+=c; }
+      return hay?0:1; },
+    wc(args,io){ const {o,resto}=opciones(args,""); const todos=!o.l&&!o.w&&!o.c&&!o.m;
+      const cuenta=t=>{ const r=[]; if(o.l||todos) r.push((t.match(/\n/g)||[]).length); if(o.w||todos) r.push(t.split(/\s+/).filter(Boolean).length); if(o.c||o.m||todos) r.push(t.length); return r; };
+      if(!resto.length){ const c=cuenta(io.inp.leerTodo()); io.out.write((c.length===1?String(c[0]):c.map(x=>String(x).padStart(7)).join(" "))+"\n"); return 0; }
+      let ok=true, tot=[0,0,0];
+      for(const f of resto){ const n=fs.nodo(fs.partes(f,st.cwd)); if(!n||n.tipo!=="f"){ io.err.write("wc: "+f+": No existe el archivo o el directorio\n"); ok=false; continue; } const c=cuenta(n.txt); c.forEach((x,i)=>tot[i]+=x); io.out.write(c.join(" ")+" "+f+"\n"); }
+      if(resto.length>1) io.out.write(tot.slice(0,cuenta("").length).join(" ")+" total\n"); return ok?0:1; },
+    sort(args,io){ const {o,resto}=opciones(args,"tk"); const r=leerFicheros(resto,io,"sort"); let ls=lineasDe(r.txt);
+      const clave=l=>{ if(!o.k) return l; const k=parseInt(o.k,10); const campos=o.t?l.split(o.t):l.trim().split(/\s+/); return campos.slice(k-1).join(o.t||" "); };
+      ls.sort((a,b)=>{ const x=clave(a), y=clave(b); if(o.n){ const d=(parseFloat(x)||0)-(parseFloat(y)||0); if(d) return d; } return x<y?-1:x>y?1:0; });
+      if(o.r) ls.reverse(); if(o.u) ls=ls.filter((l,i)=>i===0||l!==ls[i-1]); io.out.write(ls.map(l=>l+"\n").join("")); return 0; },
+    uniq(args,io){ const {o,resto}=opciones(args,""); const r=leerFicheros(resto,io,"uniq"); const ls=lineasDe(r.txt); const g=[];
+      ls.forEach(l=>{ if(g.length&&g[g.length-1].l===l) g[g.length-1].n++; else g.push({l,n:1}); });
+      g.filter(x=>!o.d||x.n>1).filter(x=>!o.u||x.n===1).forEach(x=>io.out.write((o.c?String(x.n).padStart(7)+" ":"")+x.l+"\n")); return 0; },
+    head(args,io){ const {o,resto}=opciones(args,"nc"); const n=parseInt(o.n||o.NUM||"10",10); const r=leerFicheros(resto,io,"head"); const ls=lineasDe(r.txt); io.out.write((n<0?ls.slice(0,n):ls.slice(0,n)).map(l=>l+"\n").join("")); return r.ok?0:1; },
+    tail(args,io){ const {o,resto}=opciones(args,"nc"); let nn=o.n||o.NUM||"10"; const r=leerFicheros(resto,io,"tail"); const ls=lineasDe(r.txt);
+      const sel=String(nn).startsWith("+")?ls.slice(parseInt(nn,10)-1):ls.slice(-parseInt(nn,10)||ls.length); io.out.write((parseInt(nn,10)===0&&!String(nn).startsWith("+")?[]:sel).map(l=>l+"\n").join("")); return r.ok?0:1; },
+    cut(args,io){ const {o,resto}=opciones(args,"dfc"); const r=leerFicheros(resto,io,"cut"); const d=o.d===undefined?"\t":o.d;
+      if(o.f===undefined&&o.c===undefined) throw new ShError("se debe especificar una lista de bytes, caracteres o campos",1);
+      const rango=(spec,max)=>{ const s=new Set(); spec.split(",").forEach(x=>{ const m=x.match(/^(\d*)(-?)(\d*)$/); if(!m) return; const a=m[1]?+m[1]:1, b=m[2]?(m[3]?+m[3]:max):a; for(let i=a;i<=b;i++) s.add(i); }); return [...s].sort((a,b)=>a-b); };
+      lineasDe(r.txt).forEach(l=>{ if(o.c!==undefined){ io.out.write(rango(o.c,l.length).map(i=>l[i-1]||"").join("")+"\n"); return; }
+        if(!l.includes(d)){ if(!o.s) io.out.write(l+"\n"); return; } const c=l.split(d); io.out.write(rango(o.f,c.length).filter(i=>i<=c.length).map(i=>c[i-1]).join(d)+"\n"); });
+      return r.ok?0:1; },
+    tr(args,io){ const {o,resto}=opciones(args,""); const exp=s=>{ s=s.replace(/\[:upper:\]/g,"A-Z").replace(/\[:lower:\]/g,"a-z").replace(/\[:digit:\]/g,"0-9").replace(/\[:space:\]/g," \t\n").replace(/\\n/g,"\n").replace(/\\t/g,"\t"); let r=""; for(let i=0;i<s.length;i++){ if(s[i+1]==="-"&&s[i+2]!==undefined){ for(let c=s.charCodeAt(i);c<=s.charCodeAt(i+2);c++) r+=String.fromCharCode(c); i+=2; } else r+=s[i]; } return r; };
+      const t=io.inp.leerTodo(); const a=exp(resto[0]||""), b=exp(resto[1]||""); let out="";
+      if(o.d){ for(const c of t) if(!a.includes(c)) out+=c; } else { for(const c of t){ const k=a.indexOf(c); out+=k>=0?(b[k]!==undefined?b[k]:b[b.length-1]||c):c; } }
+      if(o.s){ const cj=o.d?b:(b||a); out=out.replace(new RegExp("(["+cj.replace(/[\]\\^-]/g,"\\$&")+"])\\1+","g"),"$1"); }
+      io.out.write(out); return 0; },
+    sed(args,io){ const {o,resto}=opciones(args,"e"); const script=o.e!==undefined?o.e:resto.shift(); if(!script) throw new ShError("uso: sed [OPCIÓN]... {script} [fichero]...",1);
+      const r=leerFicheros(resto,io,"sed"); let ls=lineasDe(r.txt); let m;
+      if((m=script.match(/^s(.)(.*?)\1(.*?)\1([gi]*)$/))){ const re=new RegExp(o.E||o.r?m[2]:m[2].replace(/\\([(){}|+?])/g,"\u0003$1").replace(/[(){}|+?]/g,"\\$&").replace(/\u0003(.)/g,"$1"),(m[4].includes("g")?"g":"")+(m[4].includes("i")?"i":"")); const rep=m[3].replace(/\\(\d)/g,"$$$1").replace(/&/g,"$$&"); ls=ls.map(l=>l.replace(re,rep)); }
+      else if((m=script.match(/^(\d+)d$/))) ls=ls.filter((l,i)=>i+1!==+m[1]);
+      else if((m=script.match(/^\/(.*)\/d$/))) ls=ls.filter(l=>!new RegExp(m[1]).test(l));
+      else if((m=script.match(/^(\d+)(?:,(\d+))?p$/))&&o.n) ls=ls.filter((l,i)=>i+1>=+m[1]&&i+1<=+(m[2]||m[1]));
+      else if(script==="1d") ls=ls.slice(1);
+      else throw new ShError("orden de sed no disponible en el simulador: "+script,1);
+      io.out.write(ls.map(l=>l+"\n").join("")); return 0; },
+    awk(args,io){ const {o,resto}=opciones(args,"F"); const prog=resto.shift()||""; const r=leerFicheros(resto,io,"awk"); const fsep=o.F;
+      const m=prog.trim().match(/^(?:(.*?)\s*)?\{\s*print\s*(.*?)\s*;?\s*\}$/s)||prog.trim().match(/^(.+)$/);
+      if(!m) throw new ShError("programa de awk no disponible en el simulador",2);
+      const cond=prog.includes("{")?m[1]:m[1], expr=prog.includes("{")?m[2]:"$0";
+      let nr=0;
+      lineasDe(r.txt).forEach(l=>{ nr++; const campos=fsep!==undefined?l.split(fsep==="\\t"?"\t":fsep):l.trim().split(/\s+/); const F=i=>i===0?l:(campos[i-1]||"");
+        const val=e=>{ e=e.trim(); let q; if((q=e.match(/^\$(\d+)$/))) return F(+q[1]); if(e==="NR") return String(nr); if(e==="NF") return String(campos.length); if((q=e.match(/^"(.*)"$/))) return q[1]; if(/^-?\d+$/.test(e)) return e; return ""; };
+        if(cond&&cond.trim()){ const c=cond.trim(); let q; let ok=true;
+          if((q=c.match(/^\/(.*)\/$/))) ok=new RegExp(q[1]).test(l);
+          else if((q=c.match(/^(.+?)\s*(==|!=|>=|<=|>|<|~)\s*(.+)$/))){ const a=val(q[1]), b=q[2]==="~"?q[3].replace(/^\/|\/$/g,""):val(q[3]); const na=/^-?\d+$/.test(a)&&/^-?\d+$/.test(b);
+            const x=na?+a:a, y=na?+b:b; ok=q[2]==="~"?new RegExp(b).test(a):({"==":x==y,"!=":x!=y,">=":x>=y,"<=":x<=y,">":x>y,"<":x<y}[q[2]]); }
+          else throw new ShError("condición de awk no disponible en el simulador",2);
+          if(!ok) return; }
+        const toks=[]; let cur=[]; const ex=expr.trim(); for(let i=0;i<ex.length;){ const ch=ex[i]; if(/\s/.test(ch)){ i++; continue; } if(ch===","){ toks.push(cur); cur=[]; i++; continue; }
+          if(ch==='"'){ let j=i+1, t=""; while(j<ex.length&&ex[j]!=='"'){ if(ex[j]==="\\"&&j+1<ex.length){ const e=ex[j+1]; t+=e==="n"?"\n":e==="t"?"\t":e; j+=2; continue; } t+=ex[j++]; } cur.push({lit:t}); i=j+1; continue; }
+          let j=i; while(j<ex.length&&!/[\s,"]/.test(ex[j])) j++; cur.push({e:ex.slice(i,j)}); i=j; }
+        if(cur.length) toks.push(cur);
+        io.out.write((toks.length?toks.map(g=>g.map(t=>t.lit!==undefined?t.lit:val(t.e)).join("")).join(" "):l)+"\n"); });
+      return 0; },
+    ls(args,io){ const {o,resto}=opciones(args,""); const objetivos=resto.length?resto:["."]; let ok=true; const salida=[];
+      objetivos.forEach(t=>{ const n=fs.nodo(fs.partes(t,st.cwd)); if(!n){ io.err.write("ls: no se puede acceder a '"+t+"': No existe el archivo o el directorio\n"); ok=false; return; }
+        if(n.tipo==="f"){ salida.push(o.l?"-rw-r--r-- 1 alumno alumno "+String(n.txt.length).padStart(5)+" sep 24 09:00 "+t:t); return; }
+        let h=fs.lista(fs.partes(t,st.cwd)).filter(x=>o.a||o.A||!x.nombre.startsWith("."));
+        if(objetivos.length>1) salida.push(t+":");
+        if(o.l){ salida.push("total "+h.length*4); h.forEach(x=>salida.push((x.tipo==="d"?"drwxr-xr-x 2":"-rw-r--r-- 1")+" alumno alumno "+String(x.tipo==="d"?4096:x.txt.length).padStart(5)+" sep 24 09:00 "+x.nombre)); }
+        else if(io.out.tty&&!o[1]) { if(h.length) salida.push(h.map(x=>x.nombre).join("  ")); } else h.forEach(x=>salida.push(x.nombre)); });
+      salida.forEach(l=>io.out.write(l+"\n")); return ok?0:2; },
+    mkdir(args,io){ const {o,resto}=opciones(args,"m"); if(!resto.length) throw new ShError("falta un operando",1); let ok=true;
+      resto.forEach(d=>{ const p=fs.partes(d,st.cwd); if(fs.nodo(p)){ if(!o.p){ io.err.write("mkdir: no se puede crear el directorio «"+d+"»: El archivo ya existe\n"); ok=false; } return; }
+        if(!o.p&&!fs.nodo(p.slice(0,-1))){ io.err.write("mkdir: no se puede crear el directorio «"+d+"»: No existe el archivo o el directorio\n"); ok=false; return; } fs.crearDir(p); }); return ok?0:1; },
+    rmdir(args,io){ let ok=true; args.forEach(d=>{ const p=fs.partes(d,st.cwd), n=fs.nodo(p); if(!n){ io.err.write("rmdir: fallo al borrar '"+d+"': No existe el archivo o el directorio\n"); ok=false; return; }
+        if(n.tipo!=="d"){ io.err.write("rmdir: fallo al borrar '"+d+"': No es un directorio\n"); ok=false; return; } if(Object.keys(n.hijos).length){ io.err.write("rmdir: fallo al borrar '"+d+"': El directorio no está vacío\n"); ok=false; return; } fs.borrar(p); }); return ok?0:1; },
+    rm(args,io){ const {o,resto}=opciones(args,""); let ok=true; resto.forEach(f=>{ const p=fs.partes(f,st.cwd), n=fs.nodo(p);
+        if(!n){ if(!o.f){ io.err.write("rm: no se puede borrar '"+f+"': No existe el archivo o el directorio\n"); ok=false; } return; }
+        if(n.tipo==="d"&&!o.r&&!o.R){ io.err.write("rm: no se puede borrar '"+f+"': Es un directorio\n"); ok=false; return; } fs.borrar(p); }); return ok?0:1; },
+    touch(args,io){ args.filter(a=>!a.startsWith("-")).forEach(f=>{ const p=fs.partes(f,st.cwd); if(!fs.nodo(p)){ if(fs.escribir(p,"",false)!==true) io.err.write("touch: no se puede efectuar `touch' sobre '"+f+"': No existe el archivo o el directorio\n"); } }); return 0; },
+    cp(args,io){ const {o,resto}=opciones(args,""); if(resto.length<2) throw new ShError("falta el operando archivo de destino",1); const dest=resto.pop(); const pd=fs.partes(dest,st.cwd), nd=fs.nodo(pd); let ok=true;
+      if(resto.length>1&&(!nd||nd.tipo!=="d")) { io.err.write("cp: el destino '"+dest+"' no es un directorio\n"); return 1; }
+      resto.forEach(f=>{ const p=fs.partes(f,st.cwd), n=fs.nodo(p); if(!n){ io.err.write("cp: no se puede efectuar `stat' sobre '"+f+"': No existe el archivo o el directorio\n"); ok=false; return; }
+        const destino=(nd&&nd.tipo==="d")?pd.concat(n.nombre):pd;
+        if(n.tipo==="d"){ if(!o.r&&!o.R&&!o.a){ io.err.write("cp: -r no especificado; se omite el directorio '"+f+"'\n"); ok=false; return; } const copiar=(src,dst)=>{ fs.crearDir(dst); Object.values(src.hijos).forEach(h=>{ if(h.tipo==="d") copiar(h,dst.concat(h.nombre)); else fs.escribir(dst.concat(h.nombre),h.txt,false); }); }; copiar(n,destino); return; }
+        if(fs.escribir(destino,n.txt,false)!==true){ io.err.write("cp: no se puede crear el fichero regular '"+dest+"': No existe el archivo o el directorio\n"); ok=false; } }); return ok?0:1; },
+    mv(args,io){ const {resto}=opciones(args,""); if(resto.length<2) throw new ShError("falta el operando archivo de destino",1); const dest=resto.pop(); const pd=fs.partes(dest,st.cwd), nd=fs.nodo(pd); let ok=true;
+      resto.forEach(f=>{ const p=fs.partes(f,st.cwd), n=fs.nodo(p); if(!n){ io.err.write("mv: no se puede efectuar `stat' sobre '"+f+"': No existe el archivo o el directorio\n"); ok=false; return; }
+        const destino=(nd&&nd.tipo==="d")?pd.concat(n.nombre):pd; const dir=fs.nodo(destino.slice(0,-1)); if(!dir){ io.err.write("mv: no se puede mover '"+f+"' a '"+dest+"': No existe el archivo o el directorio\n"); ok=false; return; }
+        fs.borrar(p); n.nombre=destino[destino.length-1]; dir.hijos[n.nombre]=n; }); return ok?0:1; },
+    basename(args,io){ let s=(args[0]||"").replace(/\/+$/,""); s=s.slice(s.lastIndexOf("/")+1); if(args[1]&&s.endsWith(args[1])&&s!==args[1]) s=s.slice(0,-args[1].length); io.out.write(s+"\n"); return 0; },
+    dirname(args,io){ const s=(args[0]||"").replace(/\/+$/,""); const k=s.lastIndexOf("/"); io.out.write((k<0?".":k===0?"/":s.slice(0,k))+"\n"); return 0; },
+    date(args,io){ const d=new Date(); const f=args.find(a=>a.startsWith("+")); const dias=["dom","lun","mar","mié","jue","vie","sáb"], meses=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]; const z=(n,l)=>String(n).padStart(l||2,"0");
+      if(!f){ io.out.write(dias[d.getDay()]+" "+z(d.getDate())+" "+meses[d.getMonth()]+" "+d.getFullYear()+" "+z(d.getHours())+":"+z(d.getMinutes())+":"+z(d.getSeconds())+" CEST\n"); return 0; }
+      io.out.write(f.slice(1).replace(/%([YmdHMSFTDjuaAbBye%s])/g,(m,c)=>({Y:d.getFullYear(),m:z(d.getMonth()+1),d:z(d.getDate()),H:z(d.getHours()),M:z(d.getMinutes()),S:z(d.getSeconds()),F:d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()),T:z(d.getHours())+":"+z(d.getMinutes())+":"+z(d.getSeconds()),D:z(d.getMonth()+1)+"/"+z(d.getDate())+"/"+String(d.getFullYear()).slice(2),j:z(Math.floor((d-new Date(d.getFullYear(),0,0))/864e5),3),u:d.getDay()||7,a:dias[d.getDay()],A:dias[d.getDay()],b:meses[d.getMonth()],B:meses[d.getMonth()],y:String(d.getFullYear()).slice(2),e:String(d.getDate()).padStart(2," "),"%":"%",s:Math.floor(d/1000)}[c]))+"\n"); return 0; },
+    whoami(a,io){ io.out.write((st.uid===0?"root":getVar("USER")||"alumno")+"\n"); return 0; },
+    id(args,io){ if(args.includes("-u")){ io.out.write(st.uid+"\n"); return 0; } if(args.includes("-un")||args.includes("-nu")){ io.out.write((st.uid===0?"root":"alumno")+"\n"); return 0; } io.out.write(st.uid===0?"uid=0(root) gid=0(root) grupos=0(root)\n":"uid=1000(alumno) gid=1000(alumno) grupos=1000(alumno),27(sudo)\n"); return 0; },
+    hostname(a,io){ io.out.write("aso\n"); return 0; },
+    seq(args,io){ const n=args.filter(a=>!a.startsWith("-s")).map(Number); const s=(args.find(a=>a.startsWith("-s"))||"").slice(2)||"\n"; let [a,b,c]=n.length===1?[1,1,n[0]]:n.length===2?[n[0],1,n[1]]:[n[0],n[1],n[2]]; const r=[];
+      if(b>0) for(let i=a;i<=c&&r.length<100000;i+=b) r.push(i); else if(b<0) for(let i=a;i>=c&&r.length<100000;i+=b) r.push(i); if(r.length) io.out.write(r.join(s)+"\n"); return 0; },
+    tee(args,io){ const {o,resto}=opciones(args,""); const t=io.inp.leerTodo(); resto.forEach(f=>{ fs.escribir(fs.partes(f,st.cwd),t,!!o.a); }); io.out.write(t); return 0; },
+    expr(args,io){ const e=args.join(" "); let m; let v;
+      if((m=e.match(/^(-?\d+)\s*([+\-*/%])\s*(-?\d+)$/))){ const a=+m[1], b=+m[3]; if((m[2]==="/"||m[2]==="%")&&b===0) throw new ShError("división por cero",2); v={"+":a+b,"-":a-b,"*":a*b,"/":Math.trunc(a/b),"%":a%b}[m[2]]; }
+      else if((m=e.match(/^(\S+)\s*(=|!=|<|>|<=|>=)\s*(\S+)$/))){ const na=/^-?\d+$/.test(m[1])&&/^-?\d+$/.test(m[3]); const a=na?+m[1]:m[1], b=na?+m[3]:m[3]; v=({"=":a==b,"!=":a!=b,"<":a<b,">":a>b,"<=":a<=b,">=":a>=b}[m[2]])?1:0; }
+      else if((m=e.match(/^length (.*)$/))) v=m[1].length;
+      else if(/^-?\d+$/.test(e)) v=+e;
+      else if(args.length===3&&["*","/","+","-","%"].includes(args[1])) throw new ShError("argumento no numérico",2);
+      else throw new ShError("error sintáctico: argumento inesperado",2);
+      io.out.write(v+"\n"); return v===0||v==="0"?1:0; },
+    sudo(args,io){ const ant=st.uid; st.uid=0; try{ return invocar(args[0],args.slice(1),io); } finally{ st.uid=ant; } },
+  };
+
+  let status=0, parada=null;
+  try{ const arbol=parser(lexer(String(codigo).replace(/\r/g,""))); status=ejecutar(arbol,{out:consolaOut,err:consolaErr,inp:TECLADO}); }
+  catch(e){ if(e instanceof Control){ if(e.tipo==="exit") status=e.n; else if(e.tipo==="return") status=e.n; else status=0; }
+    else if(e instanceof Parada){ parada=e.msg; consola.push({s:e.msg+"\n",err:true}); status=2; }
+    else if(e instanceof ShError){ parada=prefijo()+e.msg; consola.push({s:parada+"\n",err:true}); status=e.cod; }
+    else { parada="Error interno del simulador: "+e.message; consola.push({s:parada+"\n",err:true}); status=2; } }
+  // lineas
+  const lineas=[], esError=[], lineasStd=[]; let actual="", actErr=false, empezada=false;
+  for(const ch of consola){ for(const c of ch.s){ if(!empezada){ actErr=ch.err; empezada=true; } if(c==="\n"){ lineas.push(actual.replace(/\s+$/,"")); esError.push(actErr); actual=""; empezada=false; } else actual+=c; } }
+  if(empezada) { lineas.push(actual.replace(/\s+$/,"")); esError.push(actErr); }
+  let o2=""; consola.filter(c=>!c.err).forEach(c=>o2+=c.s); o2.replace(/\n$/,"").split("\n").forEach(l=>{ if(o2!=="") lineasStd.push(l.replace(/\s+$/,"")); });
+  return {lineas,esError,lineasStd,errorlevel:status,estado:status,fs,parada,sinEntrada:st.sinEntrada,pasos:st.pasos};
+}
+
+
+/* ================= EJERCICIOS Y PRUEBAS (Bash) ================= */
+const quitarTildes=s=>String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const nrm=s=>quitarTildes(s).toLowerCase().replace(/\s+/g," ").trim();
+const utiles=r=>(r.lineasStd||r.lineas).filter(l=>l.trim()!=="");
+function exactas(esperadas){ return r=>{ const got=utiles(r); const ok=got.length===esperadas.length&&esperadas.every((e,i)=>nrm(got[i])===nrm(e)); return {ok,esperado:esperadas.join("\n"),obtenido:got.join("\n")}; }; }
+function contiene(txt,extra){ return r=>{ const got=utiles(r); const ok=got.some(l=>nrm(l).includes(nrm(txt)))&&(!extra||extra(r)); return {ok,esperado:"Una línea que contenga: "+txt+(extra&&extra.desc?" · "+extra.desc:""),obtenido:got.join("\n")+(extra&&extra.desc?"\n(código de salida: "+r.estado+")":"")}; }; }
+function noContiene(txt){ return r=>{ const got=utiles(r); return {ok:!got.some(l=>nrm(l).includes(nrm(txt))),esperado:"Ninguna línea con: "+txt,obtenido:got.join("\n")}; }; }
+function estado(n){ const f=r=>r.estado===n; f.desc="código de salida (exit) "+n; return f; }
+function todas(...fs){ return r=>{ for(const f of fs){ const x=f(r); if(!x.ok) return x; } return fs[0](r); }; }
+const existeDir=nom=>r=>{ const n=r.fs.nodo(["home","alumno","practicas",nom]); return !!n&&n.tipo==="d"; };
+
+const EJERCICIOS=[
+ {id:"e1",nivel:1,tit:"Hola mundo",ce:"CE1",
+  enun:"Escribe un script que muestre exactamente <b>Hola mundo</b>. Empieza con la línea <code>#!/bin/bash</code> (shebang), que indica qué intérprete ejecuta el script.",
+  salida:"Hola mundo", plantilla:"#!/bin/bash\n# Mi primer script\n",
+  pistas:["Para mostrar texto se usa <code>echo</code>.","<code>echo \"Hola mundo\"</code>"],
+  pruebas:[{nom:"Muestra solo 'Hola mundo'",chk:exactas(["Hola mundo"])}]},
+ {id:"e2",nivel:1,tit:"Saludo personalizado",ce:"CE1",
+  enun:"Muestra <b>Hola, &lt;usuario&gt;. Hoy es un buen dia para programar.</b> usando la variable de entorno del usuario (no lo escribas a mano: se probará con otro usuario).",
+  salida:"Hola, alumno. Hoy es un buen dia para programar.", plantilla:"#!/bin/bash\n",
+  pistas:["El usuario actual está en la variable de entorno <code>USER</code>.","Se lee con <code>$USER</code> (o <code>${USER}</code>)."],
+  pruebas:[{nom:"Usuario alumno",chk:exactas(["Hola, alumno. Hoy es un buen dia para programar."])},
+           {nom:"Usuario pepe",entorno:{USER:"pepe"},chk:exactas(["Hola, pepe. Hoy es un buen dia para programar."])}]},
+ {id:"e3",nivel:1,tit:"Parámetros",ce:"CE1",
+  enun:"El script recibe un nombre como parámetro y muestra <b>Hola, &lt;nombre&gt;</b>. Si no recibe ningún parámetro, muestra <b>Uso: saludo.sh nombre</b> y termina con código de salida 1.",
+  salida:"./saludo.sh Ana  →  Hola, Ana\n./saludo.sh      →  Uso: saludo.sh nombre", plantilla:"#!/bin/bash\n",
+  pistas:["<code>$1</code> es el primer parámetro y <code>$#</code> el número de parámetros.","<code>if [ $# -eq 0 ]; then echo \"Uso: saludo.sh nombre\"; exit 1; fi</code>"],
+  pruebas:[{nom:"Con parámetro Ana",args:["Ana"],chk:exactas(["Hola, Ana"])},
+           {nom:"Con parámetro Luis",args:["Luis"],chk:exactas(["Hola, Luis"])},
+           {nom:"Sin parámetros: uso y exit 1",args:[],chk:todas(contiene("Uso: saludo.sh nombre",estado(1)),noContiene("Hola"))}]},
+ {id:"e4",nivel:1,tit:"Suma de dos números",ce:"CE1",
+  enun:"Recibe dos números como parámetros y muestra la suma con el formato <b>5 + 7 = 12</b>.",
+  salida:"./suma.sh 5 7  →  5 + 7 = 12", plantilla:"#!/bin/bash\n",
+  pistas:["La aritmética entera se hace con <code>$(( ... ))</code>.","<code>echo \"$1 + $2 = $(( $1 + $2 ))\"</code>"],
+  obligatorio:[/\$\(\(|\blet\b|\bexpr\b|\(\(/,"Debes calcular la suma con $(( )), let o expr."],
+  pruebas:[{nom:"5 y 7",args:["5","7"],chk:exactas(["5 + 7 = 12"])},{nom:"10 y -3",args:["10","-3"],chk:exactas(["10 + -3 = 7"])},{nom:"0 y 0",args:["0","0"],chk:exactas(["0 + 0 = 0"])}]},
+ {id:"e5",nivel:2,tit:"Par o impar",ce:"CE1",
+  enun:"Pide un número por teclado con <code>read -p \"Introduce un numero: \" num</code> y muestra <b>El numero N es par</b> o <b>El numero N es impar</b>.",
+  salida:"Introduce un numero: 4\nEl numero 4 es par", plantilla:"#!/bin/bash\n",
+  pistas:["El resto de dividir entre 2: <code>$(( num % 2 ))</code>","<code>if [ $(( num % 2 )) -eq 0 ]; then ... else ... fi</code>"],
+  pruebas:[{nom:"Número 4",entrada:["4"],chk:todas(contiene("El numero 4 es par"),noContiene("impar"))},{nom:"Número 7",entrada:["7"],chk:contiene("El numero 7 es impar")},{nom:"Número 0",entrada:["0"],chk:todas(contiene("El numero 0 es par"),noContiene("impar"))}]},
+ {id:"e6",nivel:2,tit:"¿Mayor de edad?",ce:"CE1",
+  enun:"Recibe la edad como parámetro y muestra <b>Mayor de edad</b> (18 o más) o <b>Menor de edad</b>. Si no recibe parámetro, muestra <b>Uso: edad.sh numero</b> y termina con código 1.",
+  salida:"./edad.sh 20  →  Mayor de edad", plantilla:"#!/bin/bash\n",
+  pistas:["Para números se usan <code>-ge</code> (≥), <code>-gt</code> (&gt;), <code>-lt</code> (&lt;)… Ojo: <code>&gt;</code> dentro de <code>[ ]</code> no compara números.","<code>if [ \"$1\" -ge 18 ]; then echo \"Mayor de edad\"; else echo \"Menor de edad\"; fi</code>"],
+  pruebas:[{nom:"20 años",args:["20"],chk:exactas(["Mayor de edad"])},{nom:"18 años (límite)",args:["18"],chk:exactas(["Mayor de edad"])},{nom:"15 años",args:["15"],chk:exactas(["Menor de edad"])},
+           {nom:"9 años (¿comparas como número?)",args:["9"],chk:exactas(["Menor de edad"])},{nom:"Sin parámetro",args:[],chk:contiene("Uso: edad.sh numero",estado(1))}]},
+ {id:"e7",nivel:2,tit:"¿Existe el fichero?",ce:"CE1, CE5",
+  enun:"Recibe una ruta y muestra <b>El fichero X existe</b> (terminando con código 0) o <b>El fichero X no existe</b> (código 1). En la carpeta hay un <code>notas.txt</code>.",
+  salida:"./existe.sh notas.txt  →  El fichero notas.txt existe", plantilla:"#!/bin/bash\n", ficheros:{"notas.txt":"Apuntes de ASO\n"},
+  pistas:["<code>[ -f \"$1\" ]</code> es verdadero si existe y es un fichero normal (<code>-e</code> si existe cualquier cosa).","Para terminar con un código: <code>exit 1</code>"],
+  pruebas:[{nom:"notas.txt existe",args:["notas.txt"],chk:contiene("El fichero notas.txt existe",estado(0))},{nom:"nada.txt no existe",args:["nada.txt"],chk:contiene("El fichero nada.txt no existe",estado(1))}]},
+ {id:"e8",nivel:3,tit:"Tabla de multiplicar",ce:"CE1",
+  enun:"Recibe un número N y muestra su tabla del 1 al 10 con el formato <b>7 x 1 = 7</b>, una línea por operación. Usa un bucle.",
+  salida:"./tabla.sh 7\n7 x 1 = 7\n7 x 2 = 14\n...\n7 x 10 = 70", plantilla:"#!/bin/bash\n",
+  pistas:["<code>for i in $(seq 1 10)</code> o <code>for (( i=1; i&lt;=10; i++ ))</code>","Dentro: <code>echo \"$1 x $i = $(( $1 * i ))\"</code>"],
+  obligatorio:[/\b(for|while|until)\b/,"Debes usar un bucle (for, while o until)."],
+  pruebas:[{nom:"Tabla del 7",args:["7"],chk:exactas([1,2,3,4,5,6,7,8,9,10].map(i=>"7 x "+i+" = "+7*i))},{nom:"Tabla del 3",args:["3"],chk:exactas([1,2,3,4,5,6,7,8,9,10].map(i=>"3 x "+i+" = "+3*i))}]},
+ {id:"e9",nivel:3,tit:"Contar ficheros .txt",ce:"CE1, CE6",
+  enun:"Recorre los ficheros <code>.txt</code> de la carpeta actual, muestra cada uno numerado (<b>1: a.txt</b>) y al final <b>Hay N ficheros .txt</b>. ¡Cuidado con la carpeta que no tiene ninguno!",
+  salida:"1: a.txt\n2: b.txt\n3: c.txt\nHay 3 ficheros .txt", plantilla:"#!/bin/bash\n", ficheros:{"a.txt":"uno\n","b.txt":"dos\n","c.txt":"tres\n","datos.csv":"x;y\n"},
+  pistas:["<code>for f in *.txt; do ... done</code> y un contador <code>cont=$((cont+1))</code>.","Si no hay ningún .txt, bash deja el patrón tal cual y <code>$f</code> vale <code>*.txt</code>. Compruébalo con <code>[ -f \"$f\" ] || continue</code>."],
+  pruebas:[{nom:"Carpeta con 3 .txt",chk:exactas(["1: a.txt","2: b.txt","3: c.txt","Hay 3 ficheros .txt"])},
+           {nom:"Carpeta con 2 .txt",ficheros:{"informe.txt":"x\n","lista.txt":"y\n","foto.jpg":"z"},chk:exactas(["1: informe.txt","2: lista.txt","Hay 2 ficheros .txt"])},
+           {nom:"Carpeta sin .txt",ficheros:{"foto.jpg":"z"},chk:exactas(["Hay 0 ficheros .txt"])}]},
+ {id:"e10",nivel:3,tit:"Leer un CSV",ce:"CE1, CE5",
+  enun:"El fichero <code>usuarios.csv</code> tiene la cabecera <code>usuario;grupo</code> y una línea por usuario. Muestra por cada uno <b>Usuario ana del grupo ventas</b>, saltándote la cabecera.",
+  salida:"Usuario ana del grupo ventas\nUsuario luis del grupo it\nUsuario marta del grupo ventas", plantilla:"#!/bin/bash\n", ficheros:{"usuarios.csv":"usuario;grupo\nana;ventas\nluis;it\nmarta;ventas\n"},
+  pistas:["<code>while IFS=';' read -r usuario grupo; do ... done &lt; usuarios.csv</code>","Para saltar la cabecera: <code>tail -n +2 usuarios.csv | while ...</code>, o leer una primera línea antes del bucle."],
+  obligatorio:[/\bread\b/,"Debes leer el fichero con read."],
+  pruebas:[{nom:"Tres usuarios",chk:exactas(["Usuario ana del grupo ventas","Usuario luis del grupo it","Usuario marta del grupo ventas"])},
+           {nom:"Otro fichero",ficheros:{"usuarios.csv":"usuario;grupo\npepe;rrhh\n"},chk:exactas(["Usuario pepe del grupo rrhh"])},
+           {nom:"Última línea sin salto de línea",ficheros:{"usuarios.csv":"usuario;grupo\nana;ventas\nluis;it"},chk:exactas(["Usuario ana del grupo ventas","Usuario luis del grupo it"])}]},
+ {id:"e11",nivel:4,tit:"Menú con case",ce:"CE1, CE5",
+  enun:"Haz un menú que se repita hasta elegir salir: <b>1</b> crea la carpeta <code>prueba</code>, <b>2</b> la borra, <b>3</b> muestra <b>Adios</b> y termina. Cualquier otra opción muestra <b>Opcion no valida</b>. Lee la opción con <code>read -p \"Opcion: \" op</code>.",
+  salida:"1) Crear carpeta prueba\n2) Borrar carpeta prueba\n3) Salir\nOpcion: 1\n...\nOpcion: 3\nAdios", plantilla:"#!/bin/bash\n",
+  pistas:["Un bucle infinito: <code>while true; do ... done</code>, y para salir <code>break</code> o <code>exit</code>.","<code>case $op in 1) mkdir -p prueba ;; 2) rm -r prueba ;; 3) echo Adios; break ;; *) echo \"Opcion no valida\" ;; esac</code>"],
+  obligatorio:[/\bcase\b/,"Debes usar case."],
+  pruebas:[{nom:"Opción 1 y salir: crea la carpeta",entrada:["1","3"],chk:contiene("Adios",existeDir("prueba"))},
+           {nom:"Crear, borrar y salir: no queda la carpeta",entrada:["1","2","3"],chk:contiene("Adios",r=>!existeDir("prueba")(r))},
+           {nom:"Opción no válida y salir",entrada:["9","3"],chk:todas(contiene("Opcion no valida"),contiene("Adios"))}]},
+ {id:"e12",nivel:4,tit:"Funciones",ce:"CE1, CE8",
+  enun:"Define una función <code>cuadrado</code> que reciba un número y muestre <b>El cuadrado de N es R</b>. Llámala en un bucle del 1 al 5.",
+  salida:"El cuadrado de 1 es 1\n...\nEl cuadrado de 5 es 25", plantilla:"#!/bin/bash\n",
+  pistas:["<code>cuadrado() { ... }</code> y dentro el número llega como <code>$1</code>.","La función debe estar definida <b>antes</b> de llamarla: <code>for i in 1 2 3 4 5; do cuadrado $i; done</code>"],
+  obligatorio:[/(\b[A-Za-z_]\w*\s*\(\)\s*\{?)|(\bfunction\s+\w+)/,"Debes definir una función."],
+  pruebas:[{nom:"Cuadrados del 1 al 5",chk:exactas([1,2,3,4,5].map(i=>"El cuadrado de "+i+" es "+i*i))}]},
+ {id:"e13",nivel:4,tit:"Ampliación: cuentas sospechosas",ce:"CE3, CE5",
+  enun:"Un atacante puede añadir en <code>/etc/passwd</code> una cuenta con UID 0 (el de root). Recibe como parámetro el fichero a revisar (si no se indica, <code>/etc/passwd</code>). Por cada cuenta con UID 0 que no sea <code>root</code> muestra <b>Cuenta sospechosa: nombre</b>, y al final <b>Fichero cuentas de usuario sospechoso</b> o <b>Todo normal</b>.",
+  salida:"./revisa.sh passwd_prueba\nCuenta sospechosa: pepe\nFichero cuentas de usuario sospechoso", plantilla:"#!/bin/bash\nfichero=${1:-/etc/passwd}\n",
+  ficheros:{"passwd_prueba":"root:x:0:0:root:/root:/bin/bash\npepe:x:0:0::/home/pepe:/bin/bash\nana:x:1000:1000::/home/ana:/bin/bash\n"},
+  pistas:["Los campos de <code>/etc/passwd</code> se separan con <code>:</code>. El tercero es el UID: <code>while IFS=: read -r usuario x uid resto; do ... done &lt; \"$fichero\"</code>","Usa una variable para recordar si has encontrado alguna: <code>sospechoso=0</code> y luego <code>sospechoso=1</code>."],
+  pruebas:[{nom:"Con una cuenta sospechosa",args:["passwd_prueba"],chk:exactas(["Cuenta sospechosa: pepe","Fichero cuentas de usuario sospechoso"])},
+           {nom:"Con dos cuentas sospechosas",args:["pw2"],ficheros:{"pw2":"root:x:0:0:root:/root:/bin/bash\nhack:x:0:0::/tmp:/bin/bash\nana:x:1000:1000::/home/ana:/bin/bash\nroot2:x:00:0::/root:/bin/bash\n"},chk:exactas(["Cuenta sospechosa: hack","Cuenta sospechosa: root2","Fichero cuentas de usuario sospechoso"])},
+           {nom:"Fichero limpio",args:["limpio"],ficheros:{"limpio":"root:x:0:0:root:/root:/bin/bash\nana:x:1000:1000::/home/ana:/bin/bash\n"},chk:exactas(["Todo normal"])},
+           {nom:"Sin parámetro: revisa /etc/passwd",args:[],chk:exactas(["Todo normal"])}]}
+];
+function corregir(ej,codigo,ejecutor){
+  ejecutor=ejecutor||((c,o)=>ejecutarSh(c,o));
+  const res=[];
+  if(ej.obligatorio&&!ej.obligatorio[0].test(codigo.replace(/^\s*#.*$/gm,""))) res.push({nom:"Requisito",ok:false,esperado:ej.obligatorio[1],obtenido:"No aparece en tu código."});
+  for(const p of ej.pruebas){
+    const r=ejecutor(codigo,{args:p.args||[],entrada:p.entrada||[],entorno:p.entorno||{},ficheros:p.ficheros||ej.ficheros||{},nombre:"./ejercicio.sh"});
+    let v; try{ v=p.chk(r); }catch(e){ v={ok:false,esperado:"",obtenido:"Error al comprobar: "+e.message}; }
+    const pista=[];
+    if(r.parada) pista.push(r.parada);
+    const errs=(r.lineas||[]).filter((l,i)=>r.esError&&r.esError[i]&&/orden no encontrada|se esperaba|error sintáctico|falta «\]»|división/.test(l));
+    if(errs.length) pista.push(errs[0]);
+    if(r.sinEntrada&&!(p.entrada||[]).length) pista.push("El script ha pedido datos con read y esta prueba no da ninguno.");
+    res.push({nom:p.nom,ok:v.ok,esperado:v.esperado,obtenido:v.obtenido,pista:pista.join(" ")});
+  }
+  return res;
+}
+
+
+/* ============ GENERADOR DE PDF PROPIO, VARIAS PAGINAS (sin internet) ============ */
+function MiniPDF(){
+  var K=72/25.4, H=842, paginas=[[]], ops=paginas[0];
+  function enc(s){ var o=""; s=String(s);
+    for(var i=0;i<s.length;i++){ var c=s.charCodeAt(i);
+      if(c===0x2013||c===0x2014) c=45; else if(c===0x2018||c===0x2019) c=39; else if(c===0x201C||c===0x201D) c=34; else if(c===0x20AC) c=128; else if(c===0x2192) { o+="->"; continue; } else if(c===0x2713){ o+="OK"; continue; }
+      if(c===9){ o+="    "; continue; }
+      if(c>255) c=63; var ch=String.fromCharCode(c);
+      if(ch==="\\"||ch==="("||ch===")") ch="\\"+ch; o+=ch; }
+    return o; }
+  function col(c){ return (c[0]/255).toFixed(3)+" "+(c[1]/255).toFixed(3)+" "+(c[2]/255).toFixed(3); }
+  function ancho(s,size,mono){ return String(s).length*size*(mono?0.6:0.52); }
+  var api={
+    nuevaPagina:function(){ ops=[]; paginas.push(ops); },
+    rect:function(x,y,w,h,c){ ops.push(col(c)+" rg "+(x*K).toFixed(2)+" "+(H-(y+h)*K).toFixed(2)+" "+(w*K).toFixed(2)+" "+(h*K).toFixed(2)+" re f"); },
+    line:function(x1,y1,x2,y2,c){ ops.push(col(c)+" RG 0.8 w "+(x1*K).toFixed(2)+" "+(H-y1*K).toFixed(2)+" m "+(x2*K).toFixed(2)+" "+(H-y2*K).toFixed(2)+" l S"); },
+    text:function(s,x,y,o){ o=o||{}; var size=o.size||11, f=o.mono?"F3":(o.bold?"F2":"F1"), c=o.color||[15,23,42];
+      var px=x*K; if(o.align==="right") px-=ancho(s,size,o.mono); if(o.align==="center") px-=ancho(s,size,o.mono)/2;
+      ops.push("BT /"+f+" "+size+" Tf "+col(c)+" rg "+px.toFixed(2)+" "+(H-y*K).toFixed(2)+" Td ("+enc(s)+") Tj ET"); },
+    wrap:function(s,x,y,maxW,o){ o=o||{}; var size=o.size||11, maxC=Math.max(10,Math.floor(maxW*K/(size*0.52))), pal=String(s).split(" "), l="", n=0;
+      for(var i=0;i<pal.length;i++){ if((l+" "+pal[i]).trim().length>maxC){ api.text(l.trim(),x,y+n*size*0.45,o); n++; l=pal[i]; } else l+=" "+pal[i]; }
+      if(l.trim()){ api.text(l.trim(),x,y+n*size*0.45,o); n++; } return n*size*0.45; },
+    numPaginas:function(){ return paginas.length; },
+    bytes:function(){
+      var objs=[], n=paginas.length, kids=[];
+      objs[0]="<< /Type /Catalog /Pages 2 0 R >>";
+      objs[2]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+      objs[3]="<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+      objs[4]="<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>";
+      for(var p=0;p<n;p++){ var pid=6+p*2, cid=7+p*2, cont=paginas[p].join("\n"); kids.push(pid+" 0 R");
+        objs[pid-1]="<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents "+cid+" 0 R >>";
+        objs[cid-1]="<< /Length "+cont.length+" >>\nstream\n"+cont+"\nendstream"; }
+      objs[1]="<< /Type /Pages /Kids ["+kids.join(" ")+"] /Count "+n+" >>";
+      objs[5]=objs[5]||"<< >>";
+      var out="%PDF-1.4\n", off=[];
+      for(var i=0;i<objs.length;i++){ off.push(out.length); out+=(i+1)+" 0 obj\n"+(objs[i]||"<< >>")+"\nendobj\n"; }
+      var xref=out.length;
+      out+="xref\n0 "+(objs.length+1)+"\n0000000000 65535 f \n";
+      for(var j=0;j<off.length;j++) out+=String(off[j]).padStart(10,"0")+" 00000 n \n";
+      out+="trailer\n<< /Size "+(objs.length+1)+" /Root 1 0 R >>\nstartxref\n"+xref+"\n%%EOF";
+      var b=new Uint8Array(out.length); for(var k=0;k<out.length;k++) b[k]=out.charCodeAt(k)&255; return b; }
+  };
+  return api;
+}
+function descargarPDF(bytes,nombreFichero,aviso){
+  var blob=new Blob([bytes],{type:"application/pdf"}), url=URL.createObjectURL(blob);
+  try{ if(window.navigator&&window.navigator.msSaveOrOpenBlob){ window.navigator.msSaveOrOpenBlob(blob,nombreFichero); return; } }catch(e){}
+  var a=document.createElement("a"); a.href=url; a.download=nombreFichero; a.style.display="none";
+  document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); },500);
+  if(aviso){ aviso.innerHTML='PDF generado. Si no se ha descargado solo, <a href="'+url+'" download="'+nombreFichero+'" target="_blank" style="font-weight:700">pulsa aquí para descargarlo</a> y súbelo a la tarea de Aeducar.'; aviso.style.color="#059669"; }
+}
+
+/* ================= APLICACION ================= */
+const KEY="aso_shlab_v1", UMBRAL_APTO=9;
+const NIVELES=[[1,"Nivel 1 · Primeros pasos","echo, variables, parámetros y $(( ))"],[2,"Nivel 2 · Decisiones","if, test [ ], read y exit"],[3,"Nivel 3 · Bucles","for, while, read de ficheros y comodines"],[4,"Nivel 4 · Menús y funciones","case, funciones y un script de seguridad"]];
+let prog={codigos:{},superados:{},aprobados:{},pistas:{},actual:"e1",ejecuciones:0,comprobaciones:0,visitas:0};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function guardar(){ try{ localStorage.setItem(KEY,JSON.stringify(prog)); }catch(e){} }
+function cargar(){ try{ const v=localStorage.getItem(KEY); if(v) prog=Object.assign(prog,JSON.parse(v)); }catch(e){} prog.visitas=(prog.visitas||0)+1; }
+function toast(msg,tipo){ const c=$("toasts"); const t=document.createElement("div"); t.className="toast"+(tipo?" "+tipo:""); t.textContent=msg; c.appendChild(t); requestAnimationFrame(()=>t.classList.add("in")); setTimeout(()=>{ t.classList.remove("in"); setTimeout(()=>t.remove(),300); },3400); }
+const ej=()=>EJERCICIOS.find(e=>e.id===prog.actual)||EJERCICIOS[0];
+const numEj=e=>EJERCICIOS.indexOf(e)+1;
+const nSuperados=()=>EJERCICIOS.filter(e=>prog.superados[e.id]).length;
+
+function pintarFases(){
+  let h=NIVELES.map(([n,t,s])=>{ const l=EJERCICIOS.filter(e=>e.nivel===n), ok=l.filter(e=>prog.superados[e.id]).length, p=Math.round(100*ok/l.length);
+    return `<button class="fase f${n}" data-nivel="${n}"><span class="n">${ok} de ${l.length} ejercicios</span><h2>${t}</h2><small>${s}</small><div class="barra"><i style="width:${p}%"></i></div></button>`; }).join("");
+  const g=Math.round(100*nSuperados()/EJERCICIOS.length);
+  h+=`<div class="fase gen"><span class="n" style="color:var(--soft)">Tu progreso</span>
+     <div style="display:flex;align-items:baseline;gap:8px"><span class="pct">${g}%</span><span class="nota">${nSuperados()} de ${EJERCICIOS.length} superados</span></div>
+     <div class="barra" style="margin-top:8px"><i style="width:${g}%"></i></div>
+     <small style="margin-top:7px;color:var(--soft)">${nSuperados()>=UMBRAL_APTO?"Ya tienes el APTO. ¡A por el resto!":"APTO a partir de "+UMBRAL_APTO+" ejercicios superados."}</small></div>`;
+  $("fases").innerHTML=h;
+  $("fases").querySelectorAll("[data-nivel]").forEach(b=>b.onclick=()=>{ const e=EJERCICIOS.find(x=>x.nivel===+b.dataset.nivel&&!prog.superados[x.id])||EJERCICIOS.find(x=>x.nivel===+b.dataset.nivel); abrir(e.id); });
+}
+function pintarSelector(){
+  $("selector").innerHTML=EJERCICIOS.map((e,i)=>`<button class="ejb ${e.id===prog.actual?"on":""} ${prog.superados[e.id]?"ok":""}" data-e="${e.id}" title="${esc(e.tit)}">${prog.superados[e.id]?"✓ ":""}${i+1}</button>`).join("");
+  $("selector").querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>abrir(b.dataset.e));
+  $("lista").innerHTML=EJERCICIOS.map((e,i)=>`<button class="fila ${e.id===prog.actual?"on":""}" data-e="${e.id}"><span class="est ${prog.superados[e.id]?"ok":""}">${prog.superados[e.id]?"✓":i+1}</span><span>${esc(e.tit)}<br><small>Nivel ${e.nivel} · ${e.ce}</small></span></button>`).join("");
+  $("lista").querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ abrir(b.dataset.e); $("tab-ejercicios").scrollIntoView({behavior:"smooth"}); });
+}
+function abrir(id){ prog.actual=id; guardar(); ir("ejercicios"); pintarEjercicio(); pintarSelector(); }
+function pintarEjercicio(){
+  const e=ej(), n=numEj(e), vistas=prog.pistas[e.id]||0;
+  $("ejTitulo").innerHTML=`Ejercicio ${n} · ${esc(e.tit)} ${prog.superados[e.id]?'<span class="badge ok">Superado</span>':""}<span class="badge">${e.ce}</span>`;
+  $("ejEnun").innerHTML=e.enun;
+  $("ejSalida").textContent=e.salida;
+  $("ejFich").innerHTML=e.ficheros?("Ficheros en la carpeta: "+Object.keys(e.ficheros).map(f=>"<code>"+esc(f)+"</code>").join(" ")):"";
+  $("ejPistas").innerHTML=e.pistas.slice(0,vistas).map((p,i)=>`<div class="pista"><b>Pista ${i+1}.</b> ${p}</div>`).join("");
+  $("btnPista").textContent=vistas<e.pistas.length?"Ver pista ("+(vistas+1)+"/"+e.pistas.length+")":"No hay más pistas";
+  $("btnPista").disabled=vistas>=e.pistas.length;
+  $("editor").value=prog.codigos[e.id]!==undefined?prog.codigos[e.id]:e.plantilla;
+  const p0=e.pruebas[0]||{};
+  $("args").value=(p0.args||[]).join(" ");
+  $("entrada").value=(p0.entrada||[]).join("\n");
+  $("resultados").innerHTML="";
+  $("out").innerHTML='<span class="inf">Escribe tu programa y pulsa Ejecutar para probarlo, o Comprobar para corregirlo.</span>';
+  numeros();
+}
+function numeros(){ const n=$("editor").value.split("\n").length; let h=""; for(let i=1;i<=Math.max(n,1);i++) h+=i+"\n"; $("gutter").textContent=h; $("gutter").scrollTop=$("editor").scrollTop; }
+function partirArgs(s){ const r=[]; let a="",q=false,hay=false; for(const c of s){ if(c==='"'){ q=!q; a+=c; hay=true; } else if(!q&&/\s/.test(c)){ if(hay){ r.push(a); a=""; hay=false; } } else { a+=c; hay=true; } } if(hay) r.push(a); return r; }
+
+function ejecutar(traza){
+  const e=ej(), codigo=$("editor").value;
+  const args=partirArgs($("args").value).map(x=>x.replace(/^"(.*)"$/,"$1").replace(/^'(.*)'$/,"$1")), entrada=$("entrada").value===""?[]:$("entrada").value.split("\n");
+  const r=ejecutarSh(codigo,{args,entrada,ficheros:e.ficheros||{},nombre:"./ejercicio.sh",traza:!!traza});
+  prog.ejecuciones++; guardar(); pintarStats();
+  let h=`<span class="pr">alumno@aso:~/practicas$</span> ${traza?"bash -x ejercicio.sh":"./ejercicio.sh"} ${esc($("args").value)}\n`;
+  h+=r.lineas.map((l,i)=>r.esError[i]?`<span class="${/^\+ /.test(l)?"traza":"err"}">${esc(l)}</span>`:esc(l)).join("\n");
+  if(r.sinEntrada) h+=`\n<span class="inf">(El script ha pedido datos con read y no quedaban respuestas en "Entrada de teclado".)</span>`;
+  const dir=r.fs.lista(["home","alumno","practicas"]).filter(x=>x.nombre!=="ejercicio.sh").map(x=>x.tipo==="d"?x.nombre+"/":x.nombre);
+  h+=`\n<span class="inf">── Fin · código de salida ${r.estado} · Carpeta: ${esc(dir.join("  ")||"(vacía)")}</span>`;
+  $("out").innerHTML=h; $("out").scrollTop=0;
+}
+function comprobar(){
+  const e=ej(), codigo=$("editor").value;
+  const res=corregir(e,codigo); prog.comprobaciones++;
+  const ok=res.every(x=>x.ok);
+  $("resultados").innerHTML=`<div class="resumen ${ok?"ok":"ko"}">${ok?"¡Superado! Todas las pruebas pasan.":res.filter(x=>x.ok).length+" de "+res.length+" pruebas correctas."}</div>`+
+    res.map(x=>`<div class="res ${x.ok?"ok":"ko"}"><b>${x.ok?"✓":"✗"} ${esc(x.nom)}</b>${x.ok?"":`<div class="det"><div><small>Esperado</small><pre>${esc(x.esperado)}</pre></div><div><small>Obtenido</small><pre>${esc(x.obtenido||"(nada)")}</pre></div></div>`}${!x.ok&&x.pista?`<div class="pista">${esc(x.pista)}</div>`:""}</div>`).join("");
+  if(ok&&!prog.superados[e.id]){ prog.superados[e.id]=1; toast("¡Ejercicio "+numEj(e)+" superado!","ok"); }
+  if(ok) prog.aprobados[e.id]=codigo;
+  guardar(); pintarFases(); pintarSelector(); pintarStats();
+  $("ejTitulo").innerHTML=`Ejercicio ${numEj(e)} · ${esc(e.tit)} ${prog.superados[e.id]?'<span class="badge ok">Superado</span>':""}<span class="badge">${e.ce}</span>`;
+  $("resultados").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function pintarStats(){
+  $("stats").innerHTML=`<div class="pts">${nSuperados()} / ${EJERCICIOS.length}</div>Ejercicios superados<br>Ejecuciones: <b>${prog.ejecuciones}</b> · Comprobaciones: <b>${prog.comprobaciones}</b><br>Sesiones: <b>${prog.visitas}</b>`;
+}
+function ir(t){
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
+  ["ejercicios","chuleta","ayuda"].forEach(x=>$("tab-"+x).classList.toggle("oculto",x!==t));
+}
+
+/* ----- informe PDF ----- */
+function generarPDF(){
+  const nombre=(window.__alumno||"").trim(), aviso=$("avisoPDF");
+  if(!nombre){ aviso.textContent="Falta tu nombre: recarga la página e identifícate."; aviso.style.color="#DC2626"; return; }
+  try{
+    const d=MiniPDF(), W=210, x=18; let y;
+    const cabecera=()=>{ d.rect(0,0,W,16,[37,99,235]); d.text("SH Lab · Informe de scripts Bash (ASO)",x,10.5,{size:13,bold:true,color:[255,255,255]}); d.text(nombre,W-x,10.5,{size:9,color:[255,255,255],align:"right"}); };
+    let pag=1; const pie=()=>d.text("Página "+pag+" · Informe generado en el navegador: evidencia de trabajo, no examen oficial.",x,289,{size:7.5,color:[100,116,139]});
+    cabecera(); y=28;
+    d.text("Módulo: 0374 Administración de Sistemas Operativos · 2º ASIR · RA7 (scripting)",x,y,{size:10.5}); y+=7;
+    d.text("Alumno/a: "+nombre,x,y,{size:12,bold:true}); y+=7;
+    const f=new Date(); d.text("Fecha: "+f.toLocaleDateString("es-ES")+"  "+f.toLocaleTimeString("es-ES"),x,y,{size:10.5}); y+=6;
+    d.line(x,y,W-x,y,[203,212,229]); y+=8;
+    d.text("Ejercicios",x,y,{size:12.5,bold:true}); y+=7;
+    EJERCICIOS.forEach((e,i)=>{ const ok=!!prog.superados[e.id];
+      if(i%2===0) d.rect(x,y-4.6,W-2*x,6.4,[246,249,255]);
+      d.text((i+1)+". "+e.tit,x+2,y,{size:10.5}); d.text("Nivel "+e.nivel,x+105,y,{size:9.5,color:[100,116,139]});
+      d.text(ok?"SUPERADO":"pendiente",W-x-2,y,{size:10,bold:ok,align:"right",color:ok?[21,128,61]:[148,163,184]}); y+=6.4; });
+    y+=4; const n=nSuperados(), apto=n>=UMBRAL_APTO;
+    d.rect(x,y,W-2*x,15,apto?[220,252,231]:[254,226,226]);
+    d.text((apto?"RESULTADO: APTO":"RESULTADO: NO APTO TODAVÍA")+"  ·  "+n+" de "+EJERCICIOS.length+" superados",W/2,y+9.5,{size:13,bold:true,align:"center",color:apto?[21,128,61]:[185,28,28]});
+    y+=21; d.wrap("Criterio de APTO: al menos "+UMBRAL_APTO+" de "+EJERCICIOS.length+" ejercicios superados (todas sus pruebas automáticas correctas). En el anexo se incluye el código que superó las pruebas.",x,y,W-2*x,{size:9,color:[71,85,105]});
+    pie();
+    const sup=EJERCICIOS.filter(e=>prog.superados[e.id]&&prog.aprobados[e.id]!==undefined);
+    if(sup.length){
+      d.nuevaPagina(); pag++; cabecera(); y=26; d.text("Anexo · Código de los ejercicios superados",x,y,{size:12.5,bold:true}); y+=8;
+      sup.forEach(e=>{
+        if(y>262){ pie(); d.nuevaPagina(); pag++; cabecera(); y=26; }
+        d.rect(x,y-4.5,W-2*x,6.5,[231,240,255]); d.text("Ejercicio "+numEj(e)+" · "+e.tit,x+2,y,{size:10.5,bold:true,color:[8,48,107]}); y+=7;
+        const lineas=[]; String(prog.aprobados[e.id]).replace(/\r/g,"").replace(/\t/g,"    ").split("\n").forEach(l=>{ if(!l.length){ lineas.push(""); return; } for(let i=0;i<l.length;i+=92) lineas.push(l.slice(i,i+92)); });
+        while(lineas.length&&lineas[lineas.length-1]==="") lineas.pop();
+        lineas.forEach(l=>{ if(y>280){ pie(); d.nuevaPagina(); pag++; cabecera(); y=26; } d.text(l,x+3,y,{size:8.5,mono:true}); y+=3.9; });
+        y+=5; });
+      pie();
+    }
+    const limpio=nombre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"_");
+    descargarPDF(d.bytes(),"ASO_ShLab_"+limpio+".pdf",aviso);
+  }catch(e){ aviso.textContent="No se ha podido generar el PDF: "+e.message; aviso.style.color="#DC2626"; }
+}
+
+/* ----- puerta de identificacion ----- */
+function puerta(){
+  const KEYN="__aso_alumno_nombre"; let g=""; try{ g=localStorage.getItem(KEYN)||""; }catch(e){}
+  const ov=document.createElement("div"); ov.id="gateIdent";
+  ov.setAttribute("style","position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1D4ED8,#5b2be0);display:flex;align-items:center;justify-content:center;padding:20px;");
+  ov.innerHTML='<div style="background:#fff;border-radius:16px;max-width:440px;width:100%;padding:26px 24px;box-shadow:0 20px 50px rgba(0,0,0,.3)">'+
+    '<h2 style="margin:0 0 6px;font-size:1.35em;color:#0F172A">Identifícate para empezar</h2>'+
+    '<p style="margin:0 0 16px;color:#64748B;font-size:14px">Escribe tu <b>nombre y apellidos</b>. Es obligatorio: aparecerán en el informe PDF que entregarás en Aeducar.</p>'+
+    '<input id="gateNombre" placeholder="Nombre y apellidos" autocomplete="name" style="width:100%;border:2px solid #CBD5E1;border-radius:10px;padding:12px 14px;font-size:15px;margin-bottom:6px">'+
+    '<p id="gateErr" style="color:#DC2626;font-size:13px;min-height:18px;margin:0 0 10px"></p>'+
+    '<button id="gateBtn" style="width:100%;border:none;border-radius:11px;padding:13px;color:#fff;font-size:15px;font-weight:700;background:#2563EB">Entrar</button></div>';
+  document.body.appendChild(ov);
+  const inp=$("gateNombre"); inp.value=g; setTimeout(()=>inp.focus(),100);
+  const entrar=()=>{ const v=(inp.value||"").trim().replace(/\s+/g," ");
+    if(v.split(" ").filter(Boolean).length<2){ $("gateErr").textContent="Escribe tu nombre y al menos un apellido."; inp.focus(); return; }
+    window.__alumno=v; try{ localStorage.setItem(KEYN,v); }catch(e){} ov.remove(); $("alumNombre").value=v; };
+  $("gateBtn").onclick=entrar; inp.addEventListener("keydown",e=>{ if(e.key==="Enter") entrar(); });
+}
+
+/* ----- eventos ----- */
+let tg=null;
+$("editor").addEventListener("input",()=>{ numeros(); clearTimeout(tg); tg=setTimeout(()=>{ prog.codigos[prog.actual]=$("editor").value; guardar(); },300); });
+$("editor").addEventListener("scroll",()=>{ $("gutter").scrollTop=$("editor").scrollTop; });
+$("editor").addEventListener("keydown",e=>{
+  if(e.key==="Tab"){ e.preventDefault(); const t=e.target, s=t.selectionStart; t.setRangeText("    ",s,t.selectionEnd,"end"); t.dispatchEvent(new Event("input")); }
+  if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){ e.preventDefault(); ejecutar(false); }
+});
+$("btnEjecutar").onclick=()=>ejecutar(false);
+$("btnTraza").onclick=()=>ejecutar(true);
+$("btnComprobar").onclick=comprobar;
+$("btnPlantilla").onclick=()=>{ if(!confirm("¿Volver a la plantilla inicial? Perderás el código de este ejercicio.")) return; const e=ej(); delete prog.codigos[e.id]; guardar(); pintarEjercicio(); };
+$("btnPista").onclick=()=>{ const e=ej(); prog.pistas[e.id]=Math.min((prog.pistas[e.id]||0)+1,e.pistas.length); guardar(); pintarEjercicio(); };
+$("btnAnterior").onclick=()=>{ const i=EJERCICIOS.indexOf(ej()); if(i>0) abrir(EJERCICIOS[i-1].id); };
+$("btnSiguiente").onclick=()=>{ const i=EJERCICIOS.indexOf(ej()); if(i<EJERCICIOS.length-1) abrir(EJERCICIOS[i+1].id); };
+$("btnPDF").onclick=generarPDF;
+$("btnReiniciar").onclick=()=>{ if(!confirm("Esto borra todo tu código y tu progreso. ¿Seguro?")) return; prog={codigos:{},superados:{},aprobados:{},pistas:{},actual:"e1",ejecuciones:0,comprobaciones:0,visitas:1}; guardar(); pintarTodo(); };
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>ir(b.dataset.tab));
+function pintarTodo(){ pintarFases(); pintarSelector(); pintarEjercicio(); pintarStats(); }
+cargar(); pintarTodo(); puerta();
+
+
+/* ============ AVISO SI SE VE DENTRO DE UN IFRAME (Aeducar incrustado) ============ */
+(function(){
+  function comprobar(){
+    try{
+      if(window.self!==window.top){
+        var b=document.getElementById("bannerIframe");
+        if(b) b.classList.add("on");
+      }
+    }catch(e){
+      var b=document.getElementById("bannerIframe");
+      if(b) b.classList.add("on");
+    }
+  }
+  function activar(){
+    var btn=document.getElementById("btnFullscreen");
+    if(btn) btn.onclick=function(){ window.open(location.href,"_blank"); };
+  }
+  if(document.readyState!=="loading"){ comprobar(); activar(); }
+  else document.addEventListener("DOMContentLoaded",function(){ comprobar(); activar(); });
+})();
+</script>
+</body>
+</html>

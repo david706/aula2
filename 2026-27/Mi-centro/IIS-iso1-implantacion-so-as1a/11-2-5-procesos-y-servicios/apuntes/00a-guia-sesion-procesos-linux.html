@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de sesión: procesos y servicios en Linux — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+details{margin:.5em 0}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}}
+.analogia{border-left:6px solid var(--navy2);background:#eef4fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><div class="k">&gt; module ISO 0369 · UD2 · RA2.c</div><h1>Procesos y servicios en Linux</h1><p>Qué hacer, en qué orden y cómo comprobar que lo has hecho bien: misiones 1 a 4 de la práctica 6.</p><div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">Una sesión + remate en casa</span><span class="pill">Ubuntu Server</span></div></div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+<div class="wrap">
+
+<div class="card"><h2>Qué vas a aprender</h2>
+<ul><li>Qué es un <b>proceso</b>, cómo se localiza, se prioriza, se pausa y se termina.</li>
+<li>Qué es un <b>servicio</b> y por qué <b>start no es enable</b>.</li>
+<li>Cómo crear <b>tu propio servicio</b> que se relance solo si falla.</li></ul>
+<h3>Antes de empezar</h3>
+<ul><li>VM <b>Ubuntu Server</b> con <b>instantánea</b> hecha: hoy se reinicia.</li>
+<li>Abre <b>dos terminales</b> (dos conexiones a la VM). Las llamaremos <b>A</b> y <b>B</b>.</li>
+<li>Existe el usuario <code>pedro</code> con shell bash: <code>getent passwd pedro</code>. Si acaba en <code>nologin</code>, un administrador debe cambiarlo con <code>sudo usermod -s /bin/bash pedro</code>.</li></ul>
+<div class="warn"><b>Guarda cada salida.</b> Esta guía es la práctica 6: cada vez que ejecutes algo, copia el comando <b>y</b> su resultado, porque es lo que pegarás en la práctica.</div></div>
+
+<div class="card"><h2>0. De dónde venimos</h2> <span class="time">10 min</span>
+<p>Todo lo que hemos hecho en la UD2 responde a tres preguntas. Hoy empezamos la tercera:</p>
+<table><tr><th>Pregunta</th><th>Linux</th><th>Windows</th></tr>
+<tr><td><b>1 · ¿Quién entra?</b><br><span class="muted">2.1 y 2.3</span></td><td>Cuentas y grupos: <code>/etc/passwd</code>, <code>/etc/shadow</code> (solo lo lee root), <code>/etc/group</code>, <code>usermod -aG</code>.<br>Contraseñas con <b>PAM</b> (<code>/etc/pam.d/</code>): <code>pam_pwquality</code> decide si vale la contraseña y <code>pam_faillock</code> bloquea tras varios fallos. La caducidad es <code>chage</code>.</td><td><code>net user</code>, <code>net accounts</code> (longitud, caducidad, bloqueo), <code>secpol.msc</code> (complejidad), <code>net user luis /expires:30/06/2027</code>.</td></tr>
+<tr><td><b>2 · ¿Qué puede tocar?</b><br><span class="muted">2.1 y 2.2</span></td><td><code>rwx</code> y octal, <code>chmod</code>, <code>chown</code>, <code>umask</code>, ACL con <code>setfacl</code>/<code>getfacl</code>.</td><td>NTFS: herencia, Denegar gana, <code>icacls</code>; por red manda lo más restrictivo entre compartido y NTFS.</td></tr>
+<tr><td><b>3 · ¿Qué está corriendo?</b><br><span class="muted">2.4 · hoy</span></td><td>Procesos y servicios: <code>ps</code>, <code>top</code>, <code>kill</code>, <code>systemctl</code>.</td><td>Mañana: <code>Get-Service</code> y <code>sc.exe</code>.</td></tr></table>
+<div class="info"><b>El puente:</b> todo lo que corre en el sistema lo ejecuta <b>una cuenta</b>, y solo puede tocar lo que esa cuenta puede tocar. Por eso las cuentas y los permisos de las prácticas 3, 4 y 5 deciden también qué puede hacer cada proceso. Lo verás en la columna <b>USER</b> de <code>ps</code> y en la línea <code>User=</code> de tu servicio (misión 4).</div>
+<div class="warn"><b>Mañana, examen parcial (60 min, al empezar la clase):</b> cuentas y permisos en Linux: <code>/etc/passwd</code>, <code>/etc/shadow</code>, <code>/etc/group</code>, grupos, <code>chmod</code>, ACL, <code>umask</code> y <code>chage</code>. Procesos y servicios no entran.</div>
+<div class="q" onclick="this.classList.toggle('open')">marta tiene que leer <code>/srv/contabilidad</code> (<code>drwxrwx--- ana contabilidad</code>) sin entrar en el grupo y sin abrir «otros». ¿Cómo? <small>(clic para ver la respuesta)</small><div class="ans"><code>sudo setfacl -m u:marta:rx /srv/contabilidad</code> y se comprueba con <code>getfacl /srv/contabilidad</code>. En <code>ls -ld</code> aparece un <code>+</code> al final de los permisos.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">luis es becario hasta el 30/06/2027. ¿Qué orden pone esa fecha de caducidad a su cuenta en Ubuntu? <small>(clic para ver la respuesta)</small><div class="ans"><code>sudo chage -E 2027-06-30 luis</code>, y se comprueba con <code>sudo chage -l luis</code>. <code>passwd -l</code> la bloquearía ya, no en esa fecha; y <code>chage -M</code> es la caducidad de la <i>contraseña</i>, no de la cuenta.</div></div>
+</div>
+
+<div class="card"><h2>1. Qué es un proceso</h2>
+<div class="analogia"><b>Una receta y un cocinero.</b> Un <b>programa</b> es la receta: un archivo en el disco que no hace nada. Un <b>proceso</b> es la receta <b>cocinándose</b>: está en marcha, ocupa memoria y CPU y tiene un número, un dueño y un padre.</div>
+<ul><li><b>PID</b>: el número único del proceso.</li><li><b>PPID</b>: el PID de su <b>padre</b> (quien lo lanzó).</li><li><b>Dueño</b>: el usuario con cuyos permisos corre.</li></ul>
+<h3>Todos cuelgan de uno: el árbol de procesos</h3>
+<pre>PID 1  systemd
+ └─ sshd (root)
+     └─ sshd: ana@pts/0
+         └─ bash          ← tu terminal
+             └─ ps -ef    ← el comando que acabas de lanzar</pre>
+<h3>La columna STAT: en qué estado está</h3>
+<table><tr><th>Letra</th><th>Significado</th></tr>
+<tr><td><b>R</b></td><td>Corriendo (usando CPU)</td></tr><tr><td><b>S</b></td><td>Durmiendo: espera algo. Es lo normal</td></tr>
+<tr><td><b>T</b></td><td>Parado (pausado con una señal)</td></tr><tr><td><b>Z</b></td><td>Zombi: ha terminado pero su padre no lo ha «recogido»</td></tr></table>
+<h3>Prioridad: nice</h3>
+<p>El valor <b>nice</b> va de <b>-20</b> (máxima prioridad) a <b>19</b> (mínima). Ser «amable» (nice alto) es ceder CPU a los demás. Un usuario normal solo puede <b>subir</b> su nice; bajarlo es cosa de root.</p>
+<h3>Señales: cómo se le habla a un proceso</h3>
+<table><tr><th>Señal</th><th>Número</th><th>Qué hace</th></tr>
+<tr><td>TERM</td><td>15</td><td>Pide que termine con elegancia (la que se envía <b>por defecto</b>)</td></tr>
+<tr><td>KILL</td><td>9</td><td>Lo mata sin avisar. Último recurso</td></tr>
+<tr><td>STOP</td><td>19</td><td>Lo <b>pausa</b> (STAT = T)</td></tr>
+<tr><td>CONT</td><td>18</td><td>Lo <b>reanuda</b></td></tr></table>
+<div class="q" onclick="this.classList.toggle('open')">¿Por qué no usar siempre <code>kill -9</code>? <small>(clic para ver la respuesta)</small><div class="ans">El proceso no se entera: no cierra archivos ni avisa a sus hijos y puede dejar datos corruptos. Primero se manda la 15 y solo si no responde, la 9.</div></div></div>
+
+<div class="card"><h2>2. Misión 1 · Fotografía del sistema</h2>
+<div class="step"><input type="checkbox"><div>Mira el árbol de procesos: <pre>ps -ef --forest | head -40</pre> Verás algo como: <pre>root     1     0 ... /sbin/init                 ← PID 1: systemd
+root     2     0 ... [kthreadd]                ← kernel (entre corchetes)
+root   812     1 ... sshd: /usr/sbin/sshd
+ana   1532  1498 ... -bash                     ← tu shell</pre></div></div>
+<div class="step"><input type="checkbox"><div>Averigua el PID de <b>tu shell</b> y el de su <b>padre</b>: <pre>echo $$
+ps -o ppid= -p $$</pre></div></div>
+<div class="step"><input type="checkbox"><div>Localiza el servicio SSH: <pre>pgrep -a sshd</pre></div></div>
+<div class="step"><input type="checkbox"><div>Los procesos que más memoria usan: <pre>ps aux --sort=-%mem | head -6</pre></div></div>
+<div class="info"><b>Para la práctica</b>: no basta con pegar la salida; hay que <b>señalar</b> el PID 1 y qué es, tres procesos del kernel, tu shell y su padre, y el PID de sshd.</div>
+<div class="q" onclick="this.classList.toggle('open')">¿Cómo reconoces un proceso del kernel? <small>(clic para ver la respuesta)</small><div class="ans">Va entre <b>corchetes</b> (por ejemplo <code>[kthreadd]</code>) y su padre es el PID 2.</div></div></div>
+
+<div class="card"><h2>3. Misión 2 · El proceso que se come la CPU</h2>
+<p>Un usuario lanza algo que ocupa toda la CPU. Tú, como administrador, lo controlas <b>sin matarlo a lo bruto</b>.</p>
+<div class="step"><input type="checkbox"><div><b>Terminal A</b> (como pedro). Lanza el proceso en segundo plano y anota su PID: <pre>sudo -u pedro bash
+sha256sum /dev/zero &amp;
+echo $!</pre> <span class="muted">Deja la terminal A abierta: si cierras la sesión, el proceso puede morir.</span></div></div>
+<div class="step"><input type="checkbox"><div><b>Terminal B</b> (administrador). Míralo en <code>top</code> (sal con <kbd>q</kbd>): debe ocupar ~100 % de CPU.<pre>top</pre></div></div>
+<div class="step"><input type="checkbox"><div>Localízalo por nombre y dueño y mira su prioridad: <pre>pgrep -u pedro sha256sum
+ps -o pid,ni,stat,cmd -p PID</pre> Sustituye <code>PID</code> por el número real. Salida: <pre>  PID  NI STAT CMD
+ 2210   0 R    sha256sum /dev/zero</pre></div></div>
+<div class="step"><input type="checkbox"><div>Bájale la prioridad a nice <b>15</b> y comprueba que la columna NI cambia: <pre>sudo renice -n 15 -p PID
+ps -o pid,ni,stat,cmd -p PID</pre></div></div>
+<div class="step"><input type="checkbox"><div><b>Páralo</b> y comprueba que STAT pasa a <b>T</b>; luego <b>reanúdalo</b> y STAT vuelve a R: <pre>sudo kill -STOP PID
+ps -o pid,ni,stat,cmd -p PID
+sudo kill -CONT PID
+ps -o pid,ni,stat,cmd -p PID</pre></div></div>
+<div class="step"><input type="checkbox"><div><b>Termínalo bien</b>, con la señal por defecto (15), <b>sin -9</b>: <pre>sudo kill PID
+ps -p PID</pre> Ya no debe aparecer. En la terminal A verás <code>Terminated</code>.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">Si <code>renice</code> da «Operation not permitted», ¿qué falta? <small>(clic para ver la respuesta)</small><div class="ans">Falta <code>sudo</code>: solo root puede bajar el nice de un proceso de otro usuario.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">Haces <code>pgrep -u pedro sha256sum</code> y no sale nada. ¿Por qué? <small>(clic para ver la respuesta)</small><div class="ans">Lo más probable es que la terminal A se cerró y el proceso murió, o que lo lanzaste con otro usuario. Vuelve a lanzarlo y mantén abierta la terminal.</div></div></div>
+
+<div class="card"><h2>4. Qué es un servicio</h2>
+<p>Un <b>servicio</b> es un proceso que arranca solo con el sistema, vive en segundo plano y tiene un <b>vigilante</b>: si se cae, lo relanza. En Linux el vigilante es <b>systemd</b> (el PID 1), y se maneja con <code>systemctl</code>.</p>
+<h3>Dos preguntas distintas</h3>
+<table><tr><th>Pregunta</th><th>Comando</th><th>Respuestas</th></tr>
+<tr><td>¿Está corriendo <b>ahora</b>?</td><td><code>systemctl is-active servicio</code></td><td>active / inactive</td></tr>
+<tr><td>¿Arrancará <b>al reiniciar</b>?</td><td><code>systemctl is-enabled servicio</code></td><td>enabled / disabled</td></tr></table>
+<table><tr><th></th><th>Ahora mismo</th><th>Al reiniciar</th></tr>
+<tr><td><code>start</code> / <code>stop</code></td><td>lo arranca / lo para</td><td><b>no cambia</b></td></tr>
+<tr><td><code>enable</code> / <code>disable</code></td><td><b>no cambia</b></td><td>arranca / no arranca</td></tr></table>
+<p><code>--now</code> hace las dos cosas a la vez: <code>enable --now</code> y <code>disable --now</code>.</p>
+<div class="q" onclick="this.classList.toggle('open')">Un servicio está <i>active</i> y <i>disabled</i>. ¿Qué pasa al reiniciar el equipo? <small>(clic para ver la respuesta)</small><div class="ans">No vuelve a arrancar: ahora corre, pero no está habilitado.</div></div></div>
+
+<div class="card"><h2>5. Misión 3 · start no es enable</h2>
+<div class="step"><input type="checkbox"><div>Instala Apache y mira cómo queda: <pre>sudo apt install -y apache2
+systemctl is-active apache2
+systemctl is-enabled apache2
+ss -tlnp | grep :80</pre> En Ubuntu el paquete <b>arranca y habilita</b> el servicio solo: <code>active</code>, <code>enabled</code> y Apache escuchando en el 80.</div></div>
+<div class="step"><input type="checkbox"><div>Páralo <b>sin deshabilitarlo</b> y compara: <pre>sudo systemctl stop apache2
+systemctl is-active apache2
+systemctl is-enabled apache2
+ss -tlnp | grep :80</pre> Ahora es <code>inactive</code> pero sigue <code>enabled</code>, y el puerto 80 queda libre.</div></div>
+<div class="step"><input type="checkbox"><div>Deshabilítalo del todo y <b>reinicia la VM</b>: <pre>sudo systemctl disable --now apache2
+systemctl is-enabled apache2
+sudo reboot</pre> Al volver: <code>is-active</code> → inactive y <code>ss -tlnp | grep :80</code> vacío. <b>Pega la salida de después del reinicio.</b></div></div>
+<div class="step"><input type="checkbox"><div>Ahora lo contrario: déjalo <b>activo y habilitado</b> y vuelve a reiniciar: <pre>sudo systemctl enable --now apache2
+sudo reboot</pre> Al volver, <code>is-active</code> → active y <code>ss -tlnp | grep :80</code> muestra Apache escuchando.</div></div>
+<div class="warn"><b>Para ver el nombre del proceso en <code>ss</code> usa <code>sudo ss -tlnp</code>.</b> Sin sudo, la columna del proceso sale vacía.</div>
+<div class="q" onclick="this.classList.toggle('open')">¿Cuáles son las 2 cosas que debes demostrar con reinicio? <small>(clic para ver la respuesta)</small><div class="ans">Que con el servicio <b>disabled</b> no vuelve tras reiniciar, y que con <b>enabled</b> sí vuelve. Se documenta con <code>is-active</code>, <code>is-enabled</code> y <code>ss</code> en cada caso.</div></div></div>
+
+<div class="card"><h2>6. Misión 4 · Tu propio servicio (remate en casa)</h2>
+<p>Crea un servicio que cada 30 segundos escriba la fecha y el número de archivos de <code>/srv/contabilidad</code> en un log, que <b>arranque con el sistema</b> y que <b>se relance solo si falla</b>.</p>
+<div class="step"><input type="checkbox"><div>Escribe el script <code>/usr/local/bin/monitor-conta.sh</code> y hazlo ejecutable.</div></div>
+<div class="step"><input type="checkbox"><div>Crea la unidad <code>/etc/systemd/system/monitor-conta.service</code> con <code>Restart=always</code> y <code>RestartSec=5</code>.</div></div>
+<div class="step"><input type="checkbox"><div>Recarga systemd, habilítalo y arráncalo. Demuestra: <code>status</code>, el log creciendo, que al matar el proceso con <code>kill -9</code> systemd lo relanza (PID nuevo) y que sigue activo tras un reinicio.</div></div>
+<details><summary>Pista</summary><p>Un bucle infinito con <code>sleep 30</code>. La unidad tiene tres bloques: <code>[Unit]</code>, <code>[Service]</code> y <code>[Install]</code>. Para ver el PID: <code>systemctl show -p MainPID monitor-conta</code>.</p></details>
+<div class="q" onclick="this.classList.toggle('open')">Solución completa <small>(clic para ver la respuesta)</small><div class="ans"><pre>sudo tee /usr/local/bin/monitor-conta.sh &gt;/dev/null &lt;&lt;'EOF'
+#!/bin/bash
+while true; do
+  echo "$(date) $(ls /srv/contabilidad | wc -l) archivos" &gt;&gt; /var/log/monitor-conta.log
+  sleep 30
+done
+EOF
+sudo chmod +x /usr/local/bin/monitor-conta.sh
+
+sudo tee /etc/systemd/system/monitor-conta.service &gt;/dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Monitor de la carpeta de contabilidad
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/monitor-conta.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now monitor-conta
+systemctl status monitor-conta
+systemctl show -p MainPID monitor-conta
+sudo kill -9 PID ; sleep 6
+systemctl show -p MainPID monitor-conta     # PID nuevo
+tail -3 /var/log/monitor-conta.log</pre></div></div>
+<table><tr><th>Si falla</th><th>Causa probable</th></tr>
+<tr><td><code>status=203/EXEC</code></td><td>Falta <code>chmod +x</code> o la línea <code>#!/bin/bash</code></td></tr>
+<tr><td>El servicio no aparece</td><td>Falta <code>sudo systemctl daemon-reload</code></td></tr>
+<tr><td>No se relanza tras <code>kill -9</code></td><td>Falta <code>Restart=</code>, o mataste otro PID: usa el <code>MainPID</code></td></tr>
+<tr><td>No ves el cambio de PID</td><td>Sin <code>RestartSec=5</code> se relanza en una fracción de segundo</td></tr>
+<tr><td>El log no se crea</td><td>Mira <code>journalctl -u monitor-conta</code></td></tr></table>
+<div class="q" onclick="this.classList.toggle('open')">Reflexión: ¿cuándo sería un problema <code>Restart=always</code>? <small>(clic para ver la respuesta)</small><div class="ans">Si el servicio falla al arrancar por un error de configuración, entra en un bucle de reinicios que consume recursos y llena los logs. Hay que limitar los reintentos o usar <code>Restart=on-failure</code>.</div></div></div>
+
+<div class="card"><h2>Comprueba antes de terminar</h2>
+<table><tr><th>Comprobación</th><th>Debe verse</th></tr>
+<tr><td>Misión 1</td><td>PID 1, kernel, tu shell y su padre, sshd, señalados</td></tr>
+<tr><td>Misión 2</td><td>NI = 15, STAT = T tras STOP, STAT = R tras CONT, proceso desaparecido tras <code>kill</code> (sin -9)</td></tr>
+<tr><td>Misión 3</td><td>Dos reinicios: <i>disabled</i> → no vuelve; <i>enabled</i> → vuelve (con <code>is-active</code>, <code>is-enabled</code>, <code>ss</code>)</td></tr>
+<tr><td>Misión 4</td><td>Servicio activo, PID nuevo tras <code>kill -9</code>, activo tras reinicio</td></tr></table>
+<h3>Ideas clave</h3>
+<ol><li>Un proceso es un programa en marcha: se localiza con <code>ps</code>/<code>pgrep</code>, se prioriza con <code>renice</code>, se pausa con STOP y se termina con 15. El 9 es el último recurso.</li>
+<li><b>start no es enable</b>: uno cambia el ahora y el otro el próximo arranque. Se comprueba <b>reiniciando</b>.</li>
+<li>Lo que no se usa se <b>deshabilita</b>: es una medida de seguridad, no solo de rendimiento.</li>
+<li>Una misión no está hecha hasta que está <b>comprobada</b> con la salida real.</li></ol>
+<h3>Chuleta</h3>
+<table><tr><th>Quiero…</th><th>Comando</th></tr>
+<tr><td>Ver procesos</td><td><code>ps -ef --forest</code> · <code>top</code></td></tr>
+<tr><td>Buscar por nombre / dueño</td><td><code>pgrep -u usuario nombre</code></td></tr>
+<tr><td>Cambiar prioridad</td><td><code>sudo renice -n 15 -p PID</code></td></tr>
+<tr><td>Pausar / reanudar / terminar</td><td><code>kill -STOP</code> · <code>kill -CONT</code> · <code>kill</code></td></tr>
+<tr><td>Estado de un servicio</td><td><code>systemctl is-active</code> · <code>is-enabled</code> · <code>status</code></td></tr>
+<tr><td>Arrancar y habilitar</td><td><code>sudo systemctl enable --now servicio</code></td></tr>
+<tr><td>Parar y deshabilitar</td><td><code>sudo systemctl disable --now servicio</code></td></tr>
+<tr><td>Quién escucha un puerto</td><td><code>sudo ss -tlnp | grep :80</code></td></tr>
+<tr><td>Ver el registro de un servicio</td><td><code>journalctl -u servicio</code></td></tr></table></div>
+
+</div>
+<script>
+(function(){
+ var iso_alumno_proc_linux='iso_alumno_proc_linux',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(iso_alumno_proc_linux)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b,i){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(iso_alumno_proc_linux,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+})();
+</script>
+</body>
+</html>

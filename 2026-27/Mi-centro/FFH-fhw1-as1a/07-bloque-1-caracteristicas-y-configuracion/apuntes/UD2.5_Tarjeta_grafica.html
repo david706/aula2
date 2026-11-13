@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjeta Gráfica y GPU</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root { color-scheme:dark; --bg:#0b0d12; --panel:#151922; --panel2:#1c2230; --line:#2a3242; --ink:#e6e9ef; --muted:#9aa4b5; --amber:#f2b632; --amber2:#ffd36b; --ok:#3ddc84; --warn:#ff8a3d; --bad:#ff5a5a; --blue:#4da3ff; --font-ui:"Segoe UI",Roboto,Arial,sans-serif; --font-mono:Consolas,"Courier New",monospace; }
+  * { box-sizing:border-box; } [hidden]{display:none!important}
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-ui); }
+  .wrap { max-width:1100px; margin:0 auto; padding-block:14px 40px; padding-inline:16px; }
+  .intro { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
+  .intro h1 { margin:0; font-size:22px; text-wrap:balance; } .intro p { margin:4px 0 0; color:var(--muted); max-width:66ch; font-size:14px; line-height:1.5; }
+  .progress { font-family:var(--font-mono); font-size:13px; color:var(--amber2); border:1px solid var(--line); padding:6px 10px; border-radius:6px; background:var(--panel); }
+  h2.sec { font-size:18px; margin:26px 0 6px; color:var(--amber); }
+  p.lead { color:var(--muted); margin:0 0 10px; max-width:72ch; font-size:14px; line-height:1.5; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .card svg { width:100%; height:auto; display:block; max-width:100%; }
+  .hs { cursor:pointer; } .hs rect,.hs path,.hs circle,.hs polygon { transition:filter .15s; } .hs:hover rect,.hs:hover path,.hs:hover circle,.hs:hover polygon { filter:brightness(1.3); }
+  .hs.done > rect:first-child, .hs.done > circle:first-child, .hs.done > path:first-child { stroke:var(--ok); stroke-width:1.6; }
+  .lb { font-family:var(--font-mono); font-size:8px; fill:#e6e9ef; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } .three { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; } @media (max-width:760px){ .two,.three{grid-template-columns:1fr} }
+  .brand { border:1px solid var(--line); border-radius:10px; padding:12px; background:var(--panel2); }
+  .brand h3 { margin:0 0 6px; font-size:16px; font-family:var(--font-mono); }
+  .brand.nv h3 { color:#76b900; } .brand.amd h3 { color:#ed1c24; } .brand.intel h3 { color:#0071c5; }
+  .brand ul { margin:6px 0 0 16px; padding:0; font-size:13px; line-height:1.5; }
+  .name { display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; padding:12px 10px; background:#0b0d12; border:1px solid var(--line); border-radius:8px; }
+  .seg { cursor:pointer; padding:6px 8px 4px; border-bottom:3px solid var(--line); border-radius:4px 4px 0 0; font-family:var(--font-mono); font-size:clamp(17px,3.4vw,28px); font-weight:600; }
+  .seg:hover, .seg.on { background:var(--panel2); } .seg small { display:block; font-size:10px; font-weight:400; color:var(--muted); font-family:var(--font-ui); }
+  .seg.c0{border-color:#4da3ff} .seg.c1{border-color:#3ddc84} .seg.c2{border-color:#f2b632} .seg.c3{border-color:#ff8a3d} .seg.c4{border-color:#c084fc} .seg.c5{border-color:#ff5a5a}
+  .ex { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; } .ex button, .fam button { font-family:var(--font-mono); font-size:12px; border:1px solid var(--line); background:var(--panel2); color:var(--muted); border-radius:6px; padding:6px 10px; cursor:pointer; } .ex button.on { border-color:var(--blue); color:#bfe0ff; } .fam { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; } .fam button.on { border-color:var(--amber); color:var(--amber2); }
+  .expl { margin-top:10px; padding:12px 14px; border:1px solid var(--line); border-left:4px solid var(--amber); border-radius:6px; background:var(--panel2); font-size:14px; line-height:1.55; min-height:70px; } .expl b.t { display:block; color:var(--amber); margin-bottom:4px; }
+  .specs { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:10px; } .specs div { background:#0b0d12; border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:12.5px; line-height:1.4; } .specs b { display:block; color:var(--amber2); font-family:var(--font-mono); font-size:13px; }
+  .calc { display:grid; gap:10px; } .calc .row { display:flex; flex-wrap:wrap; gap:12px; align-items:end; } .calc label { font-size:13px; display:flex; flex-direction:column; gap:4px; }
+  .calc input, .calc select { background:#0b0d12; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:4px 6px; font-family:var(--font-mono); font-size:13px; } .calc input[type=number] { width:90px; text-align:right; }
+  .out { font-family:var(--font-mono); font-size:13px; line-height:1.7; color:var(--muted); } .out b { color:var(--amber2); } .out .ok { color:var(--ok); } .out .bad { color:var(--bad); } .out .warn { color:var(--warn); }
+  table.t { border-collapse:collapse; width:100%; font-size:12.5px; font-family:var(--font-mono); } .t th,.t td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; } .t th { color:var(--amber); } .t td:first-child { font-weight:600; white-space:nowrap; } .tw { overflow-x:auto; }
+  .gloss { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; } .g { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.45; } .g b { color:var(--amber); font-family:var(--font-mono); }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:20; }
+  .modal .mc { background:var(--panel); border:1px solid var(--amber); border-radius:10px; max-width:720px; width:100%; max-height:90vh; overflow:auto; padding:18px 20px; }
+  .modal h2 { margin:0 0 4px; font-size:19px; color:var(--amber); } .modal .where { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .modal p,.modal li { font-size:14px; line-height:1.55; } .modal p { margin:8px 0; max-width:68ch; } .modal ul { margin:6px 0 6px 18px; padding:0; }
+  .modal .foot { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .btn { font-family:inherit; font-size:12.5px; border:1px solid var(--line); background:#1f2633; color:var(--ink); border-radius:4px; padding:5px 10px; cursor:pointer; }
+  .tag { display:inline-block; font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--amber2); margin-right:4px; }
+</style>
+
+<div class="wrap">
+<div class="intro">
+  <div><h1>La tarjeta gráfica: partes, nombres y números</h1>
+  <p>UD2.5. Qué hay en una tarjeta, qué significa cada número de las tres marcas que fabrican GPU hoy (NVIDIA, AMD e Intel), cuándo basta con la gráfica integrada y qué mirar antes de meter una en un equipo.</p></div>
+  <div class="progress" id="progress">Partes vistas: 0 / 0</div>
+</div>
+
+<h2 class="sec">1 · La tarjeta por dentro (sin el disipador)</h2>
+<p class="lead">Pulsa cada zona. Es un ordenador completo montado en una tarjeta: procesador, memoria, regulador de tensión y salidas.</p>
+<div class="card">
+<svg viewBox="0 0 720 300" role="img" aria-label="Tarjeta gráfica vista sin disipador">
+  <rect x="0" y="0" width="720" height="300" rx="8" fill="#12151c"/>
+  <!-- PCB -->
+  <rect x="60" y="30" width="600" height="210" rx="4" fill="#1a1f2b" stroke="#2a3242"/>
+  <!-- bracket -->
+  <g class="hs" data-c="bracket"><rect x="20" y="10" width="34" height="270" rx="3" fill="#8e97a3"/><rect x="26" y="40" width="22" height="14" fill="#0b0d12"/><rect x="26" y="70" width="22" height="14" fill="#0b0d12"/><rect x="26" y="100" width="22" height="14" fill="#0b0d12"/><rect x="26" y="130" width="22" height="10" fill="#0b0d12"/><text x="37" y="200" class="lb" transform="rotate(-90 37 200)" text-anchor="middle" style="fill:#0b0d12">HDMI · 3× DP</text></g>
+  <!-- GPU -->
+  <g class="hs" data-c="gpu"><rect x="280" y="80" width="130" height="130" rx="4" fill="#3a4250" stroke="#9aa4b5"/><rect x="305" y="105" width="80" height="80" fill="#0b0d12"/><text x="345" y="150" class="lb" text-anchor="middle" style="font-size:11px">GPU</text><text x="345" y="164" class="lb" text-anchor="middle">die + sustrato</text></g>
+  <!-- VRAM chips around -->
+  <g class="hs" data-c="vram"><g fill="#111" stroke="#666"><rect x="230" y="70" width="36" height="24"/><rect x="230" y="104" width="36" height="24"/><rect x="230" y="138" width="36" height="24"/><rect x="230" y="172" width="36" height="24"/><rect x="424" y="70" width="36" height="24"/><rect x="424" y="104" width="36" height="24"/><rect x="424" y="138" width="36" height="24"/><rect x="424" y="172" width="36" height="24"/></g><text x="345" y="230" class="lb" text-anchor="middle">8 × GDDR6 (2 GB cada uno = 16 GB, bus 256 bits)</text></g>
+  <!-- VRM -->
+  <g class="hs" data-c="vrm"><g fill="#4d5a6a" stroke="#777"><rect x="490" y="60" width="18" height="30"/><rect x="514" y="60" width="18" height="30"/><rect x="538" y="60" width="18" height="30"/><rect x="562" y="60" width="18" height="30"/><rect x="586" y="60" width="18" height="30"/><rect x="610" y="60" width="18" height="30"/><rect x="490" y="100" width="18" height="30"/><rect x="514" y="100" width="18" height="30"/><rect x="538" y="100" width="18" height="30"/><rect x="562" y="100" width="18" height="30"/><rect x="586" y="100" width="18" height="30"/><rect x="610" y="100" width="18" height="30"/></g><text x="560" y="150" class="lb" text-anchor="middle">VRM 12+2 fases</text></g>
+  <!-- power connector -->
+  <g class="hs" data-c="power"><rect x="560" y="32" width="60" height="18" rx="3" fill="#2b2b2b" stroke="#f2b632"/><text x="590" y="44" class="lb" text-anchor="middle" style="fill:#ffd36b;font-size:7px">12V-2×6</text><rect x="470" y="32" width="70" height="18" rx="3" fill="#2b2b2b" stroke="#777"/><text x="505" y="44" class="lb" text-anchor="middle" style="font-size:7px">o 2× PCIe 8 pin</text></g>
+  <!-- PCIe edge connector -->
+  <g class="hs" data-c="pcie"><rect x="70" y="240" width="40" height="14" fill="#c9a227"/><rect x="118" y="240" width="200" height="14" fill="#c9a227"/><text x="194" y="270" class="lb" text-anchor="middle">conector PCIe ×16 (11 + 78 contactos, muesca)</text></g>
+  <!-- fan header / rgb -->
+  <g class="hs" data-c="fanhdr"><rect x="640" y="180" width="14" height="10" fill="#e9e2c8" stroke="#333"/><rect x="640" y="200" width="14" height="10" fill="#e9e2c8" stroke="#333"/><text x="647" y="226" class="lb" text-anchor="middle" style="font-size:6.5px">ventiladores</text></g>
+  <!-- BIOS switch -->
+  <g class="hs" data-c="vbios"><rect x="630" y="140" width="24" height="10" rx="2" fill="#0b0d12" stroke="#4da3ff"/><rect x="632" y="142" width="9" height="6" fill="#4da3ff"/><text x="642" y="164" class="lb" text-anchor="middle" style="font-size:6.5px">BIOS sw</text></g>
+  <!-- cooler ghost -->
+  <g class="hs" data-c="cooler"><rect x="60" y="260" width="600" height="30" rx="4" fill="#232833" stroke="#4a5060" stroke-dasharray="4 3"/><text x="360" y="279" class="lb" text-anchor="middle">disipador: base de cobre + heatpipes + aletas + 2–3 ventiladores (ocupa 2–3,5 ranuras)</text></g>
+  <!-- backplate -->
+  <g class="hs" data-c="backplate"><rect x="600" y="232" width="60" height="14" rx="2" fill="#5a6572"/><text x="630" y="256" class="lb" text-anchor="middle" style="font-size:6.5px">backplate</text></g>
+</svg>
+</div>
+
+<h2 class="sec">2 · Tres fabricantes, tres formas de numerar</h2>
+<div class="three">
+  <div class="brand nv"><h3>NVIDIA GeForce</h3><ul><li><b>RTX 5070 Ti</b>: RTX = con ray tracing y tensor cores (GTX = sin, ya solo gama vieja).</li><li><b>50</b> = generación (Blackwell, 2025). 40 = Ada, 30 = Ampere, 20 = Turing, 10 = Pascal.</li><li><b>70</b> = gama: 50 &lt; 60 &lt; 70 &lt; 80 &lt; 90.</li><li><b>Ti</b> / <b>SUPER</b> = versiones mejoradas o revisiones.</li><li>Portátil: mismo nombre con "Laptop GPU" y menos potencia.</li></ul></div>
+  <div class="brand amd"><h3>AMD Radeon</h3><ul><li><b>RX 9070 XT</b>: RX = gama de juegos.</li><li><b>9</b> = generación (RDNA 4, 2025). 7 = RDNA 3, 6 = RDNA 2, 5 = RDNA 1. Saltaron el 8 en sobremesa.</li><li><b>070</b> = gama, alineada a propósito con la de NVIDIA desde 2025 (9070 ≈ 5070).</li><li><b>XT</b> &gt; sin letra; <b>XTX</b> = tope (7900 XTX); <b>GRE</b> = recortada.</li><li>Integradas: Radeon 780M / 890M en Ryzen (APU).</li></ul></div>
+  <div class="brand intel"><h3>Intel Arc</h3><ul><li><b>Arc B580</b>: Arc = dedicada (desde 2022).</li><li>Letra = generación: <b>A</b> (Alchemist, 2022) → <b>B</b> (Battlemage, 2024) → <b>C</b> (Celestial).</li><li><b>5</b> = gama: 3 &lt; 5 &lt; 7 (como Core i3/i5/i7).</li><li><b>80</b> = posición dentro de la gama (B570 &lt; B580).</li><li>Integradas: Intel UHD → Iris Xe → Arc 140V / Arc Graphics en Core Ultra.</li></ul></div>
+</div>
+
+<h2 class="sec">3 · Decodifica un nombre</h2>
+<div class="card">
+  <div class="fam" id="fam"></div><div class="ex" id="ex"></div>
+  <div class="name" id="name"></div>
+  <div class="expl" id="expl"></div>
+  <div class="specs" id="specs"></div>
+</div>
+
+<h2 class="sec">4 · Integrada o dedicada: ¿cuál necesita este equipo?</h2>
+<div class="card calc">
+  <div class="row">
+    <label>Uso principal <select id="use"><option value="office">Ofimática, web, vídeo</option><option value="edu">Aula: programación, VM, diseño 2D</option><option value="light">Juegos ligeros / e-sports 1080p</option><option value="games">Juegos actuales 1440p</option><option value="pro">Vídeo 4K, 3D, IA local</option></select></label>
+    <label>CPU del equipo <select id="cpu"><option value="igpu">Con gráfica integrada (i5, Ryzen G/7000+)</option><option value="f">Sin gráfica (Intel F / Ryzen antiguo sin G)</option></select></label>
+    <label>Fuente (W) <input type="number" id="psu" value="450" step="50"></label>
+    <label>Ranuras libres en la caja <select id="slots"><option>1</option><option selected>2</option><option>3</option></select></label>
+  </div>
+  <div class="out" id="rec"></div>
+</div>
+
+<h2 class="sec">5 · Calculadora: ancho de banda de la VRAM y VRAM necesaria</h2>
+<div class="card calc">
+  <div class="row">
+    <label>Tipo de memoria <select id="mem"><option value="GDDR6|16">GDDR6 16 Gb/s</option><option value="GDDR6|20">GDDR6 20 Gb/s</option><option value="GDDR6X|21">GDDR6X 21 Gb/s</option><option value="GDDR7|28" selected>GDDR7 28 Gb/s</option><option value="GDDR7|32">GDDR7 32 Gb/s</option><option value="LPDDR5X|8.5">Integrada: LPDDR5X 8,5 Gb/s (compartida)</option><option value="DDR5|5.6">Integrada: DDR5-5600 (compartida)</option></select></label>
+    <label>Ancho de bus (bits) <select id="bus"><option>64</option><option>96</option><option>128</option><option>192</option><option selected>256</option><option>384</option><option>512</option></select></label>
+    <label>VRAM (GB) <input type="number" id="vram" value="16" min="2" max="48"></label>
+    <label>Resolución de juego <select id="res"><option value="1080">1080p</option><option value="1440" selected>1440p</option><option value="2160">4K</option></select></label>
+  </div>
+  <div class="out" id="bwout"></div>
+</div>
+
+<h2 class="sec">6 · Referencia rápida por generación (2022–2026)</h2>
+<div class="card"><div class="tw"><table class="t">
+  <tr><th>Año</th><th>NVIDIA</th><th>AMD</th><th>Intel</th><th>Novedades</th></tr>
+  <tr><td>2022</td><td>RTX 40 (Ada): 4090 … 4060</td><td>RX 7000 (RDNA 3): 7900 XTX … 7600</td><td>Arc A770 / A750 / A380</td><td>DLSS 3 (frame generation), 12VHPWR, chiplets en AMD, entra Intel</td></tr>
+  <tr><td>2024</td><td>RTX 40 SUPER</td><td>RX 7000 GRE</td><td>Arc B580 / B570 (Battlemage)</td><td>Intel mejora drivers y precio/rendimiento en gama media</td></tr>
+  <tr><td>2025</td><td>RTX 50 (Blackwell): 5090 … 5060</td><td>RX 9070 XT / 9070 / 9060 XT (RDNA 4)</td><td>Arc B770 (anunciada)</td><td>GDDR7, DLSS 4 multi-frame, FSR 4 con IA, PCIe 5.0, 12V-2×6</td></tr>
+  <tr><td>2026</td><td>RTX 50 SUPER / portátil</td><td>RX 9000 refresh</td><td>Arc C (Celestial)</td><td>Datos orientativos: comprobar en la web del fabricante</td></tr>
+</table></div></div>
+
+<h2 class="sec">7 · Glosario</h2>
+<div class="gloss">
+  <div class="g"><b>Núcleos (CUDA / Stream Processors / Xe cores)</b> Unidades de cálculo en paralelo: miles, frente a los 8–16 de una CPU. Solo comparables dentro de la misma marca y generación.</div>
+  <div class="g"><b>RT cores · Tensor cores · AI accelerators</b> Unidades para trazado de rayos (luz realista) y para IA (escalado DLSS/FSR/XeSS, frame generation). Lo que separa a las tres marcas hoy.</div>
+  <div class="g"><b>DLSS / FSR / XeSS</b> Escalado con IA: la GPU renderiza a 1080p y la IA lo sube a 1440p/4K. DLSS solo NVIDIA; FSR y XeSS funcionan en cualquiera.</div>
+  <div class="g"><b>TBP / TGP</b> Potencia total de la tarjeta: la cifra para dimensionar la fuente (más los picos transitorios: ATX 3.x).</div>
+  <div class="g"><b>PCIe ×16 4.0 / 5.0</b> Compatible hacia atrás. Una tarjeta 5.0 en ranura 3.0 pierde poco; una tarjeta barata con solo ×8 o ×4 líneas en ranura 3.0 sí pierde.</div>
+  <div class="g"><b>Resizable BAR / SAM</b> Permite a la CPU ver toda la VRAM de golpe; se activa en la UEFI (Above 4G Decoding + ReBAR). Intel Arc lo necesita obligatoriamente.</div>
+  <div class="g"><b>Salidas</b> DisplayPort 2.1 y HDMI 2.1 en actuales; sin VGA ni DVI desde 2020. Monitor conectado a la tarjeta, no a la placa, si hay dedicada.</div>
+  <div class="g"><b>eGPU</b> Gráfica externa por Thunderbolt/USB4 para portátiles; pierde 20–30 % por el ancho de banda del cable.</div>
+</div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="mc" role="dialog" aria-modal="true"><h2 id="mTitle"></h2><div class="where" id="mWhere"></div><div id="mBody"></div><div class="foot"><span id="mTags"></span><button class="btn" id="mClose">Cerrar (Esc)</button></div></div></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const C={
+    gpu:{t:"GPU (el chip)", w:"Centro de la tarjeta, bajo el disipador", tags:["die","núcleos","nm"], b:`<p>El procesador gráfico: un die de 300–750 mm² con miles de núcleos pequeños que hacen la misma operación sobre muchos datos a la vez (vértices, píxeles, texturas, y hoy también IA y cálculo científico). Va soldado a un sustrato y este a la PCB: no se cambia.</p><ul><li>NVIDIA los llama CUDA cores, AMD Stream Processors, Intel Xe cores. No son comparables entre marcas.</li><li>Lleva además RT cores (rayos), tensor/AI cores (DLSS, FSR 4, XeSS) y el motor de vídeo (codificar/decodificar H.264, HEVC, AV1).</li><li>Fabricado por TSMC (4–5 nm) o Samsung; consume 100–575 W y necesita contacto perfecto con el disipador: la pasta térmica también envejece aquí.</li></ul>`},
+    vram:{t:"VRAM (memoria de vídeo)", w:"Chips negros alrededor de la GPU", tags:["GDDR6","GDDR7","bus"], b:`<p>Memoria propia de la tarjeta, mucho más rápida que la RAM del sistema: guarda texturas, geometría, fotogramas y modelos de IA. Cada chip aporta 32 bits al bus: 8 chips = 256 bits, 12 = 384 bits.</p><ul><li><b>GDDR6</b> (16–20 Gb/s por pin), <b>GDDR6X</b> (NVIDIA 30/40, 21–23), <b>GDDR7</b> (serie 50 y RX 9000, 28–32). <b>HBM</b>: apilada junto al chip, solo en tarjetas de centro de datos.</li><li>Ancho de banda = bus × velocidad ÷ 8. 256 bits × 28 Gb/s = 896 GB/s.</li><li>Cantidad: 8 GB justo para 1080p hoy; 12–16 GB para 1440p; 16–24 para 4K e IA local. Quedarse sin VRAM = tirones aunque la GPU sobre.</li><li>Los chips se calientan más que la GPU en GDDR6X: los pads térmicos del disipador los cubren.</li></ul>`},
+    vrm:{t:"VRM de la tarjeta", w:"Filas de fases junto al conector de alimentación", tags:["fases","12 V → 1 V"], b:`<p>Igual que en la placa base: convierte los 12 V de la fuente en el ~1 V que pide la GPU, con corrientes de 300–500 A en gama alta. Por eso una tarjeta grande lleva 12–20 fases y disipador propio sobre ellas. Un VRM insuficiente (tarjetas baratas de marcas desconocidas) es la causa habitual de cuelgues bajo carga.</p>`},
+    power:{t:"Conectores de alimentación", w:"Borde superior de la tarjeta", tags:["PCIe 8 pin","12V-2×6","75 W ranura"], b:`<p>La ranura PCIe da 75 W. Todo lo demás llega por cable directo desde la fuente:</p><ul><li><b>PCIe 6 pines</b> = 75 W · <b>8 pines</b> = 150 W. Tarjetas de 200–350 W llevan dos o tres.</li><li><b>12V-2×6</b> (antes 12VHPWR): hasta 600 W por un cable; en NVIDIA serie 40/50 y algunas AMD/Intel. Necesita fuente ATX 3.x o el adaptador que viene en la caja (nunca en cadena).</li><li>Sin conectar: la tarjeta enciende un LED y no da imagen, o el equipo no arranca. Es la primera comprobación cuando "no hay vídeo" con gráfica nueva.</li><li>Gama baja (RTX 3050 6 GB, RX 6400, Arc A380): sin conector, solo ranura: valen para equipos de oficina con fuente pequeña.</li></ul>`},
+    pcie:{t:"Conector PCIe ×16", w:"Borde inferior dorado, con muesca", tags:["×16","Gen 4/5","pestaña"], b:`<p>16 líneas PCIe hacia la CPU: en 4.0 son 32 GB/s, en 5.0, 64 GB/s. Entra en la ranura más larga y reforzada de la placa, cerca de la CPU. La pestaña del final de la ranura la bloquea: hay que apretarla para sacarla, y romperla es el accidente clásico.</p><ul><li>Una tarjeta ×16 funciona en una ranura ×8 o ×4 (con menos rendimiento) si la ranura está abierta por detrás.</li><li>Tarjetas de gama baja usan solo ×8 o ×4 líneas: en placas PCIe 3.0 pierden un 10–20 %.</li><li>Las tarjetas pesadas (1,5–2 kg) doblan la ranura: soporte anti-sag o montaje vertical.</li></ul>`},
+    bracket:{t:"Chapa y salidas de vídeo", w:"Chapa metálica que se atornilla a la caja", tags:["DisplayPort","HDMI","ranuras"], b:`<p>Sujeta la tarjeta a la caja y lleva las salidas: normalmente <b>3× DisplayPort + 1× HDMI</b>. Ocupa 2, 2,5 o 3 ranuras según el disipador: hay que contar las libres en la caja y en la placa.</p><ul><li>Monitor siempre en la tarjeta, no en la placa (con gráfica dedicada la integrada suele desactivarse).</li><li>Sin VGA ni DVI desde 2020: monitor antiguo → adaptador activo DP/HDMI→VGA.</li><li>Máximo de monitores simultáneos: 4 en casi todas.</li></ul>`},
+    cooler:{t:"Disipador", w:"Todo lo que se ve por fuera", tags:["heatpipes","2–3 ventiladores","Zero RPM"], b:`<p>Base de cobre sobre la GPU (y pads sobre VRAM y VRM), heatpipes que llevan el calor a un bloque de aletas de aluminio, y 2–3 ventiladores de 90–110 mm que lo expulsan hacia abajo o hacia atrás (blower, en tarjetas de servidor y OEM). Define el tamaño (hasta 35 cm de largo) y el ruido. Casi todas paran los ventiladores por debajo de 50–60 °C.</p><p>Limpieza: aire comprimido con los ventiladores bloqueados; cambiar pasta y pads solo si la temperatura sube con los años (y anula garantía en muchas marcas).</p>`},
+    backplate:{t:"Backplate", w:"Chapa trasera", tags:["rigidez","estética"], b:`<p>Placa metálica en la cara trasera: evita que la PCB se doble por el peso del disipador, protege los componentes y a veces disipa algo. En tarjetas grandes es obligatoria; en gama baja no la hay.</p>`},
+    fanhdr:{t:"Cabezales de los ventiladores", w:"Conectores pequeños en el borde", tags:["PWM","4 pines"], b:`<p>Los ventiladores de la tarjeta van a la propia PCB, no a la placa base: la GPU los controla por PWM según su temperatura. En algunas tarjetas hay además un cabezal ARGB para iluminación sincronizada.</p>`},
+    vbios:{t:"VBIOS y selector dual BIOS", w:"Interruptor pequeño junto al borde", tags:["firmware","Silent / Performance"], b:`<p>La tarjeta tiene su propio firmware (VBIOS) con límites de potencia, curva de ventiladores y frecuencias. Tarjetas de gama media-alta llevan dos: <b>Performance</b> y <b>Silent/Quiet</b>, elegibles con este interruptor con el equipo apagado. Si una actualización de VBIOS falla, se arranca con la otra: igual que el Dual BIOS de la placa.</p>`}
+  };
+  const seen=new Set(), N=Object.keys(C).length;
+  function upd(){ $("#progress").textContent=`Partes vistas: ${seen.size} / ${N}`; } upd();
+  function open(id){ const c=C[id]; if(!c) return; $("#mTitle").textContent=c.t; $("#mWhere").textContent=c.w; $("#mBody").innerHTML=c.b; $("#mTags").innerHTML=c.tags.map(t=>`<span class="tag">${t}</span>`).join(""); $("#modal").hidden=false; $("#mClose").focus(); seen.add(id); upd(); $$(`[data-c="${id}"]`).forEach(e=>e.classList.add("done")); }
+  function close(){ $("#modal").hidden=true; }
+  $("#mClose").addEventListener("click",close); $("#modal").addEventListener("click",e=>{ if(e.target===$("#modal")) close(); }); document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+  $$(".hs").forEach(el=>{ el.setAttribute("tabindex","0"); el.addEventListener("click",()=>open(el.dataset.c)); el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(el.dataset.c);} }); });
+
+  // name decoder
+  const F=[
+   {f:"NVIDIA GeForce", ex:[
+    {n:"NVIDIA GeForce RTX 5070 Ti", specs:{"CUDA":"8960","VRAM":"16 GB GDDR7, 256 bits, 896 GB/s","TBP":"300 W","Alimentación":"12V-2×6","PCIe":"5.0 ×16","Año":"2025"}, s:[["NVIDIA GeForce","Marca y familia","GeForce = consumo. RTX Pro = profesional. Los chips de centro de datos (H100, B200) no llevan GeForce."],["RTX","Prefijo","Con RT cores y tensor cores. GTX ya solo en modelos antiguos o de entrada (GTX 1650)."],["50","Generación","Serie 50 = Blackwell (2025). Cada generación sube de 10 en 10: 20 (2018), 30 (2020), 40 (2022)."],["70","Gama","50 &lt; 60 &lt; 70 &lt; 80 &lt; 90. La 60 es la más vendida; la 90 cuesta como el resto del PC."],["Ti","Variante","Titanium: la misma gama, más núcleos y a veces más VRAM. 5070 &lt; 5070 Ti &lt; 5080."]]},
+    {n:"NVIDIA GeForce RTX 4060", specs:{"CUDA":"3072","VRAM":"8 GB GDDR6, 128 bits, 272 GB/s","TBP":"115 W","Alimentación":"1× 8 pin","PCIe":"4.0 ×8","Año":"2023"}, s:[["NVIDIA GeForce","Marca","Consumo."],["RTX","Prefijo","Con RT y DLSS 3."],["40","Generación","Ada Lovelace (2022–24)."],["60","Gama","Gama media: 1080p. Fíjate en el bus de 128 bits y ×8 líneas PCIe: en placas PCIe 3.0 pierde rendimiento."]]},
+    {n:"NVIDIA GeForce RTX 5090", specs:{"CUDA":"21760","VRAM":"32 GB GDDR7, 512 bits, 1792 GB/s","TBP":"575 W","Alimentación":"12V-2×6 (600 W)","PCIe":"5.0 ×16","Año":"2025"}, s:[["NVIDIA GeForce","Marca","Consumo, aunque se usa como tarjeta de IA."],["RTX","Prefijo","RT + tensor de 5ª gen."],["50","Generación","Blackwell."],["90","Gama","Tope absoluto: 575 W obligan a fuente ATX 3.1 de 1000 W+ y caja grande (3,5 ranuras)."]]}
+   ]},
+   {f:"AMD Radeon", ex:[
+    {n:"AMD Radeon RX 9070 XT", specs:{"Stream Processors":"4096 (64 CU)","VRAM":"16 GB GDDR6 20 Gb/s, 256 bits, 640 GB/s","TBP":"304 W","Alimentación":"2× 8 pin","PCIe":"5.0 ×16","Año":"2025 (RDNA 4)"}, s:[["AMD Radeon","Marca y familia","Radeon = gráficas AMD (desde la compra de ATI en 2006). Radeon Pro = profesional; Instinct = centro de datos."],["RX","Prefijo","Gama de juegos desde 2016."],["9","Generación","9000 = RDNA 4 (2025). 7000 = RDNA 3, 6000 = RDNA 2. En sobremesa saltaron el 8000."],["070","Gama","Desde 2025 la numeración imita a NVIDIA: 9070 compite con la 5070, 9060 con la 5060."],["XT","Variante","XT por encima del modelo base; XTX solo existió en la 7900. La 9070 sin XT tiene menos CU y 220 W."]]},
+    {n:"AMD Radeon RX 7600", specs:{"Stream Processors":"2048 (32 CU)","VRAM":"8 GB GDDR6, 128 bits, 288 GB/s","TBP":"165 W","Alimentación":"1× 8 pin","PCIe":"4.0 ×8","Año":"2023 (RDNA 3)"}, s:[["AMD Radeon","Marca","Consumo."],["RX","Prefijo","Juegos."],["7","Generación","RDNA 3."],["600","Gama","Entrada/media: 1080p. Sin letra = modelo base; existe 7600 XT con 16 GB."]]}
+   ]},
+   {f:"Intel Arc", ex:[
+    {n:"Intel Arc B580", specs:{"Xe cores":"20 (2560 shaders)","VRAM":"12 GB GDDR6, 192 bits, 456 GB/s","TBP":"190 W","Alimentación":"1× 8 pin","PCIe":"4.0 ×8","Año":"2024 (Battlemage)"}, s:[["Intel Arc","Marca y familia","Arc = gráficas dedicadas de Intel desde 2022; antes solo integradas (UHD, Iris). Arc Pro = profesional."],["B","Generación","Letra por generación en orden alfabético: A = Alchemist (2022), B = Battlemage (2024), C = Celestial (2026), D = Druid."],["5","Gama","3 &lt; 5 &lt; 7, igual que Core i3/i5/i7. B580 = gama media, compite con RTX 4060 / RX 7600 con 12 GB por menos dinero."],["80","Posición","Dentro de la gama: B570 &lt; B580. Los dos últimos dígitos ordenan; no indican año."]]},
+    {n:"Intel Arc A770", specs:{"Xe cores":"32 (4096 shaders)","VRAM":"16 GB GDDR6, 256 bits, 560 GB/s","TBP":"225 W","Alimentación":"8 + 6 pin","PCIe":"4.0 ×16","Año":"2022 (Alchemist)"}, s:[["Intel Arc","Marca","Primera generación dedicada."],["A","Generación","Alchemist (2022). Necesita Resizable BAR activado en la UEFI para rendir; sin él pierde hasta un 30 %."],["7","Gama","Tope de la serie A."],["70","Posición","A750 &lt; A770."]]}
+   ]},
+   {f:"Integradas (iGPU)", ex:[
+    {n:"AMD Radeon 890M (Ryzen AI 9 HX 370)", specs:{"CU":"16 (RDNA 3.5)","VRAM":"compartida con la RAM del sistema (LPDDR5X-7500)","TBP":"dentro de los 28–54 W de la CPU","Año":"2024"}, s:[["AMD Radeon","Marca","La misma arquitectura que las RX, dentro de la CPU."],["890M","Modelo","8 = generación (Ryzen 8000/AI 300), 90 = posición, M = móvil. La 780M es la anterior. Rinde como una GTX 1650: juegos ligeros a 1080p."]]},
+    {n:"Intel Arc 140V (Core Ultra 9 288V)", specs:{"Xe cores":"8 (Xe2)","VRAM":"compartida (LPDDR5X-8533 en el encapsulado)","Año":"2024 (Lunar Lake)"}, s:[["Intel Arc","Marca","Desde Core Ultra la integrada también se llama Arc."],["140V","Modelo","1 = serie 1 de Arc integrada, 40 = posición, V = Lunar Lake. Xe2 = misma generación que la B580 dedicada."]]},
+    {n:"Intel UHD Graphics 630 (Core i5-8400)", specs:{"EU":"24","VRAM":"compartida (DDR4-2666)","Año":"2017–2019"}, s:[["Intel UHD Graphics","Marca","Integrada básica de Intel 2017–2021 (antes HD Graphics, después Iris Xe). Es lo que llevan la mayoría de equipos de aula."],["630","Modelo","6 = generación 9.5 de Intel Graphics; 30 = variante de sobremesa. Sirve para oficina, vídeo 4K y dos monitores; no para juegos actuales."]]}
+   ]}
+  ];
+  let fi=0, ei=0;
+  function rf(){ $("#fam").innerHTML=F.map((f,i)=>`<button class="${i===fi?'on':''}" data-i="${i}">${f.f}</button>`).join(""); }
+  function re(){ $("#ex").innerHTML=F[fi].ex.map((e,i)=>`<button class="${i===ei?'on':''}" data-i="${i}">${e.n}</button>`).join(""); }
+  function rn(){ const e=F[fi].ex[ei]; $("#name").innerHTML=e.s.map((s,i)=>`<span class="seg c${i%6}" data-i="${i}" tabindex="0">${s[0]}<small>${s[1]}</small></span>`).join(""); $("#specs").innerHTML=Object.entries(e.specs).map(([k,v])=>`<div><b>${k}</b>${v}</div>`).join(""); show(0); }
+  function show(i){ const s=F[fi].ex[ei].s[i]; $("#expl").innerHTML=`<b class="t">${s[0]} · ${s[1]}</b>${s[2]}`; $$("#name .seg").forEach((x,j)=>x.classList.toggle("on",j===i)); }
+  $("#fam").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; fi=+b.dataset.i; ei=0; rf(); re(); rn(); });
+  $("#ex").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; ei=+b.dataset.i; re(); rn(); });
+  $("#name").addEventListener("click",e=>{ const s=e.target.closest(".seg"); if(s) show(+s.dataset.i); });
+  rf(); re(); rn();
+
+  // recommendation
+  function rec(){ const use=$("#use").value, cpu=$("#cpu").value, psu=+$("#psu").value||0, slots=+$("#slots").value; let out=[];
+    const need={office:0,edu:0,light:1,games:2,pro:3}[use];
+    if(need===0){ out.push(cpu==="igpu"? `<span class="ok">✓ Con la gráfica integrada sobra.</span> Vídeo 4K, dos monitores y programación van perfectos; una dedicada solo añadiría consumo y ruido.` : `<span class="warn">△ La CPU no tiene gráfica: hace falta una tarjeta básica sin conector de alimentación</span> (RTX 3050 6 GB, RX 6400, Arc A380, o de segunda mano GT 1030): 50–75 W, cabe con cualquier fuente.`); }
+    else if(need===1){ out.push(`Juegos ligeros / e-sports a 1080p: una integrada moderna (Radeon 780M/890M, Arc 140V) llega; en un equipo de aula con UHD 630 no. Dedicada de entrada: <b>RTX 5060 / RX 9060 XT / Arc B580</b>, 115–190 W.`); if(psu<450) out.push(`<span class="warn">△ Fuente de ${psu} W: justa. Recomendable 500 W de calidad.</span>`); }
+    else if(need===2){ out.push(`1440p con juegos actuales: <b>RTX 5070 / RX 9070 / Arc B770</b>, 220–300 W, 12–16 GB de VRAM.`); if(psu<650) out.push(`<span class="bad">✗ Fuente de ${psu} W insuficiente: mínimo 650–750 W ATX 3.x.</span>`); else out.push(`<span class="ok">✓ Fuente suficiente.</span>`); if(slots<2) out.push(`<span class="bad">✗ Estas tarjetas ocupan 2–2,5 ranuras; con 1 libre no entra.</span>`); }
+    else { out.push(`Vídeo 4K, 3D o IA local: manda la VRAM: <b>RTX 5070 Ti / 5080 (16 GB), RX 9070 XT (16 GB) o RTX 5090 (32 GB)</b>; para IA, NVIDIA por CUDA.`); if(psu<850) out.push(`<span class="bad">✗ Fuente de ${psu} W: hacen falta 850–1000 W ATX 3.1 con 12V-2×6.</span>`); if(slots<3) out.push(`<span class="warn">△ Comprueba longitud (hasta 35 cm) y 3 ranuras libres.</span>`); }
+    if(cpu==="f"&&need>0) out.push(`Al ser CPU sin gráfica, si la tarjeta falla no habrá vídeo para diagnosticar: guarda una tarjeta básica de repuesto en el taller.`);
+    out.push(`Antes de comprar: ¿la placa tiene PCIe ×16 libre? ¿la fuente tiene los conectores (8 pin / 12V-2×6)? ¿cabe el largo en la caja? ¿Resizable BAR activable en la UEFI (obligatorio en Arc)?`);
+    $("#rec").innerHTML=out.join("<br>"); }
+  ["use","cpu","psu","slots"].forEach(id=>$("#"+id).addEventListener("input",rec)); rec();
+
+  // bandwidth
+  function bw(){ const [type,gbps]=$("#mem").value.split("|"); const bus=+$("#bus").value, vram=+$("#vram").value, res=$("#res").value; const shared=type.startsWith("LP")||type.startsWith("DDR");
+    const bwv= shared? (type==="DDR5"? 5.6*8*2/8*1000/1000 : 8.5*128/8) : +gbps*bus/8;
+    const need={1080:8,1440:12,2160:16}[res];
+    $("#bwout").innerHTML=`${type} × ${shared? (type==="DDR5"?"128 bits (doble canal)":"128 bits"):bus+" bits"} → <b>${bwv.toFixed(0)} GB/s</b> ${shared?"(compartidos con la CPU: es el gran límite de las integradas; una DDR5 de sobremesa da ~90 GB/s frente a 500–1800 de una dedicada)":""}<br>VRAM ${vram} GB para ${res==="2160"?"4K":res+"p"}: ${vram>=need?`<span class="ok">✓ suficiente (orientativo: ${need} GB)</span>`:`<span class="bad">✗ corta: hoy se recomiendan ${need} GB; con menos hay tirones por intercambio con la RAM</span>`}<br>Fórmula: ancho de banda = bits del bus × Gb/s por pin ÷ 8. Ejemplos: RTX 5070 Ti 256 × 28 ÷ 8 = 896 GB/s · RTX 4060 128 × 17 ÷ 8 = 272 GB/s · Arc B580 192 × 19 ÷ 8 = 456 GB/s.`; }
+  ["mem","bus","vram","res"].forEach(id=>$("#"+id).addEventListener("input",bw)); bw();
+})();
+</script>
+</body>
+</html>

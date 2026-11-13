@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Gestores de paquetes en otras distros: Fedora y Arch — ISO UD2</title><style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:12px 14px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}pre code{background:none;color:inherit;padding:0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;gap:22px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.cols{grid-template-columns:1fr}}
+html,body{height:100%}
+.deck{height:100vh;display:flex;flex-direction:column}
+.slide{display:none;flex:1;padding:34px 60px 80px;overflow:auto;max-width:1280px;margin:0 auto;width:100%}
+.slide.on{display:block}
+.slide h1{font-size:2.6rem;color:var(--navy);margin:0 0 .3em;line-height:1.15}
+.slide h2{font-size:1.9rem;color:var(--navy);margin:0 0 .5em;border-bottom:4px solid var(--orange);padding-bottom:.2em;display:inline-block}
+.slide h3{font-size:1.25rem;color:var(--navy2);margin:.9em 0 .3em}
+.slide p,.slide li{font-size:1.18rem}
+.slide li{margin:.3em 0}
+.slide pre{font-size:1rem}
+.slide table{font-size:1.02rem}
+.kicker{font-family:Consolas,"Courier New",monospace;color:var(--orange);font-size:1rem;letter-spacing:.05em;margin-bottom:8px}
+.cover{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:18px;padding:60px;margin-top:40px}
+.cover h1{color:#fff;font-size:3rem}
+.cover p{font-size:1.4rem;opacity:.95}
+.cover .kicker{color:#ffd28a}
+.box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.box h3{margin-top:0}
+.q{background:#eef3f8;border-left:6px solid var(--navy2);border-radius:12px;padding:14px 18px;margin:14px 0;cursor:pointer}
+.q .ans{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--navy2)}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:.8rem;font-weight:600;color:#fff;background:var(--navy2);vertical-align:middle}
+.tag.f{background:#3c6eb4}.tag.a{background:#1793d1}.tag.u{background:#c4681e}.tag.w{background:#2f6fb3}
+.notes{font-size:1rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:18px;padding-top:8px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 24px;z-index:10}
+.nav button{background:var(--navy);color:#fff;border:none;border-radius:999px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer}
+.nav button.sec{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.nav .pb{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.nav .pb span{display:block;height:100%;background:var(--orange);width:0}
+.nav .n{font-size:.9rem;color:var(--muted);min-width:90px;text-align:right}
+.toc{columns:2;column-gap:40px}
+.toc li{break-inside:avoid;font-size:1.15rem}
+.body-doc .deck{height:auto}
+.body-doc .slide{display:block;border-bottom:3px solid var(--orange);padding-bottom:40px}
+.body-doc .nav{display:none}
+@media(max-width:860px){.slide{padding:20px 18px 80px}.slide h1{font-size:1.9rem}.slide h2{font-size:1.5rem}.slide p,.slide li{font-size:1.05rem}.toc{columns:1}}
+@media print{.nav{display:none}.slide{display:block;page-break-after:always;padding:20px}.deck{height:auto}.q .ans{display:block}}
+</style></head><body><div class="deck">
+
+<section class="slide on"><div class="cover"><div class="kicker">&gt; módulo ISO 0369 · UD2 · RA2 · CE g) · ampliación de la sesión 13</div><h1>Gestores de paquetes en otras distribuciones</h1><p>Del <code style="background:rgba(255,255,255,.18);color:#fff">apt</code> de Ubuntu al <code style="background:rgba(255,255,255,.18);color:#fff">dnf</code> de Fedora y al <code style="background:rgba(255,255,255,.18);color:#fff">pacman</code> de Arch Linux: mismas ideas, otros comandos.</p><p style="font-size:1rem;opacity:.8;margin-top:30px">1.º ASIR · Implantación de Sistemas Operativos · I.E.S. Pablo Serrano · Curso 2026/27</p></div>
+<p class="notes">Usa ← → o espacio para avanzar. Tecla <b>D</b> cambia a modo documento (todo seguido, para Aeducar). Las cajas azules se despliegan al hacer clic.</p></section>
+
+<section class="slide"><div class="kicker">ÍNDICE</div><h2>Qué vamos a ver</h2><ol class="toc"><li>El mapa de las distribuciones</li><li>Anatomía de un gestor de paquetes</li><li>Versiones fijas frente a rolling release</li><li>Fedora: <code>dnf</code> y <code>rpm</code></li><li>Fedora: repositorios y actualizaciones automáticas</li><li>Arch Linux: <code>pacman</code></li><li>Arch Linux: AUR y la regla de oro</li><li>La tabla Rosetta: apt ↔ dnf ↔ pacman ↔ winget</li><li>Otros gestores: zypper, apk, Flatpak, Snap</li><li>Chocolatey, Scoop, nala y compañía (adelanto de la 2.ª evaluación)</li><li>Reparar apt: <code>--fix-missing</code> y <code>--fix-broken</code></li><li>Actualizaciones automáticas: comparativa</li><li>Un script que funciona en cualquier distro</li><li>Preguntas y resumen</li></ol></section>
+
+<section class="slide"><div class="kicker">1 · EL MAPA</div><h2>El mapa de las distribuciones</h2>
+<p>Linux es el núcleo; una <b>distribución</b> añade el gestor de paquetes, los repositorios y las decisiones de diseño. Casi todas descienden de unas pocas familias, y <b>el gestor de paquetes es lo que define la familia</b>.</p>
+<table><tr><th>Familia</th><th>Distribuciones</th><th>Formato</th><th>Gestor (alto nivel / bajo nivel)</th><th>Dónde se ve</th></tr>
+<tr><td><span class="tag u">Debian</span></td><td>Debian, <b>Ubuntu</b>, Linux Mint, Kali</td><td><code>.deb</code></td><td><code>apt</code> / <code>dpkg</code></td><td>Servidores y escritorio, nuestra Ubuntu Server/Desktop</td></tr>
+<tr><td><span class="tag f">Red Hat</span></td><td><b>Fedora</b>, RHEL, Rocky Linux, AlmaLinux, CentOS Stream</td><td><code>.rpm</code></td><td><code>dnf</code> / <code>rpm</code></td><td>Servidores corporativos (RHEL y derivadas); Fedora es la "cantera" de RHEL</td></tr>
+<tr><td><span class="tag a">Arch</span></td><td><b>Arch Linux</b>, Manjaro, EndeavourOS</td><td><code>.pkg.tar.zst</code></td><td><code>pacman</code> (todo en uno)</td><td>Entusiastas y escritorio; poco habitual en producción</td></tr>
+<tr><td><span class="tag">SUSE</span></td><td>openSUSE, SUSE Linux Enterprise</td><td><code>.rpm</code></td><td><code>zypper</code> / <code>rpm</code></td><td>Empresa, sobre todo en Europa y SAP</td></tr>
+<tr><td><span class="tag">Alpine</span></td><td>Alpine Linux</td><td><code>.apk</code></td><td><code>apk</code></td><td>Contenedores (imágenes diminutas)</td></tr></table>
+<div class="info"><b>Para ASIR:</b> en el trabajo te encontrarás sobre todo Debian/Ubuntu y la familia Red Hat (RHEL, Rocky, Alma). Saber leer <code>dnf</code> te abre media infraestructura de empresa; <code>pacman</code> lo conviene conocer porque es el ejemplo más claro de <i>rolling release</i> y de otra filosofía.</div></section>
+
+<section class="slide"><div class="kicker">2 · CONCEPTOS</div><h2>Anatomía de un gestor de paquetes</h2>
+<p>Da igual la distro: todos hacen lo mismo con otro nombre.</p>
+<div class="cols"><div class="box"><h3>Las piezas</h3><ul>
+<li><b>Paquete:</b> archivo comprimido con programa + metadatos (versión, dependencias, scripts de instalación).</li>
+<li><b>Repositorio:</b> servidor (o espejo) con muchos paquetes y un <b>índice</b>.</li>
+<li><b>Índice / metadatos:</b> lista local de qué hay disponible. Si no se refresca, el gestor trabaja con información vieja.</li>
+<li><b>Dependencias:</b> lo que el paquete necesita; el gestor lo resuelve y lo instala solo.</li>
+<li><b>Firma GPG:</b> garantiza que el paquete viene de quien dice y no ha sido alterado.</li>
+<li><b>Base de datos local:</b> qué hay instalado y qué archivos pertenece a cada paquete.</li></ul></div>
+<div class="box"><h3>Dos niveles</h3><table><tr><th>Familia</th><th>Alto nivel (repos, dependencias)</th><th>Bajo nivel (un archivo local)</th></tr>
+<tr><td>Debian</td><td><code>apt</code></td><td><code>dpkg</code></td></tr>
+<tr><td>Red Hat</td><td><code>dnf</code></td><td><code>rpm</code></td></tr>
+<tr><td>Arch</td><td><code>pacman</code></td><td><code>pacman -U</code> / <code>makepkg</code></td></tr></table>
+<p class="muted">El alto nivel descarga y resuelve dependencias; el bajo nivel solo instala o consulta el archivo que le des. Por eso <code>dpkg -i x.deb</code> falla si faltan dependencias y <code>apt install ./x.deb</code> no.</p></div></div>
+<div class="warn">Los tres hacen las mismas cinco cosas: <b>refrescar índice · actualizar · instalar · quitar · consultar</b>. Si sabes cuál es cuál, cambiar de distro es solo cambiar de vocabulario.</div></section>
+
+<section class="slide"><div class="kicker">3 · MODELOS DE VERSIÓN</div><h2>Versiones fijas frente a rolling release</h2>
+<table><tr><th></th><th>Versión fija (release)</th><th>Rolling release</th></tr>
+<tr><td><b>Ejemplos</b></td><td>Ubuntu LTS (cada 2 años, 5 de soporte estándar), Debian, RHEL/Rocky, Fedora (cada ~6 meses, ~13 meses de soporte)</td><td>Arch Linux, openSUSE Tumbleweed</td></tr>
+<tr><td><b>Idea</b></td><td>Un "lote" de versiones congelado; entre versiones solo se publican parches de seguridad y correcciones.</td><td>No hay versiones: el sistema se va actualizando siempre a lo último.</td></tr>
+<tr><td><b>Ventaja</b></td><td>Predecible, probado, ideal para servidores.</td><td>Software siempre reciente.</td></tr>
+<tr><td><b>Riesgo</b></td><td>Software más antiguo; hay que planificar el salto a la siguiente versión.</td><td>Un cambio grande puede romper algo; hay que leer las novedades antes de actualizar.</td></tr>
+<tr><td><b>Uso típico</b></td><td>Servidores, equipos de empresa, portátiles de usuarios.</td><td>Equipos personales de quien quiere estar a la última.</td></tr></table>
+<div class="info"><b>Fedora</b> está en medio: versión fija, pero con ciclo corto y software muy reciente. <b>Ubuntu LTS</b> y <b>Rocky/Alma</b> son las opciones "aburridas" (en el buen sentido) que elige una empresa para sus portátiles y servidores.</div></section>
+
+<section class="slide"><div class="kicker">4 · FEDORA</div><h2>Fedora: <code>dnf</code> y <code>rpm</code> <span class="tag f">Red Hat</span></h2>
+<pre>sudo dnf check-update                <i># qué hay por actualizar (refresca metadatos solo)</i>
+sudo dnf upgrade                    <i># actualiza todo lo instalado   (alias: dnf update)</i>
+sudo dnf install vim                <i># instalar</i>
+sudo dnf remove vim                 <i># quitar</i>
+sudo dnf autoremove                 <i># dependencias huérfanas</i>
+dnf search editor ; dnf info vim    <i># buscar / ficha del paquete</i>
+dnf list --installed                <i># inventario  (equivale a: rpm -qa)</i>
+dnf provides /usr/sbin/sshd         <i># qué paquete aporta ese archivo (aunque no esté instalado)</i>
+dnf history                         <i># historial de transacciones</i>
+sudo dnf history undo 12            <i># deshacer la transacción nº 12</i>
+sudo dnf install ./paquete.rpm      <i># rpm local con resolución de dependencias</i>
+
+<b># Bajo nivel: rpm (consulta de lo instalado)</b>
+rpm -qa | wc -l                     <i># cuántos paquetes hay</i>
+rpm -qi openssh-server              <i># información</i>
+rpm -ql openssh-server              <i># archivos que instala  (≈ dpkg -L)</i>
+rpm -qf /usr/sbin/sshd              <i># a qué paquete pertenece un archivo  (≈ dpkg -S)</i>
+rpm -qc openssh-server              <i># solo sus archivos de configuración</i></pre>
+<div class="ok"><b>Ventaja sobre apt:</b> <code>dnf history undo</code> deshace una transacción completa. Con apt hay que reconstruir a mano qué se instaló (<code>/var/log/apt/history.log</code>).</div>
+<p class="muted">Desde Fedora 41 el comando <code>dnf</code> es <b>DNF 5</b> (reescrito en C++, mucho más rápido). Los comandos habituales no cambian; sí algunos plugins.</p></section>
+
+<section class="slide"><div class="kicker">5 · FEDORA</div><h2>Fedora: repositorios y actualizaciones automáticas</h2>
+<div class="cols"><div><h3>Repositorios</h3>
+<pre>ls /etc/yum.repos.d/                <i># un .repo por repositorio</i>
+dnf repolist                        <i># repos activos</i>
+sudo dnf config-manager setopt updates-testing.enabled=1   <i># DNF5: activar/desactivar</i>
+cat /etc/yum.repos.d/fedora.repo</pre>
+<pre>[fedora]
+name=Fedora $releasever - $basearch
+metalink=https://mirrors.fedoraproject.org/metalink?...
+enabled=1
+gpgcheck=1                          <i># verificar la firma de cada paquete</i>
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-$releasever-$basearch</pre>
+<ul><li><b>RPM Fusion:</b> repo de terceros muy usado (códecs, drivers privativos).</li><li><b>COPR:</b> repos de usuarios, equivalente a los PPA de Ubuntu; mismo criterio de confianza.</li></ul></div>
+<div><h3>Actualizaciones automáticas</h3>
+<pre>sudo dnf install dnf-automatic
+<i># Fedora 41+ (DNF 5) el paquete es dnf5-plugin-automatic</i>
+sudo nano /etc/dnf/automatic.conf</pre>
+<pre>[commands]
+upgrade_type = security            <i># solo seguridad (o: default = todo)</i>
+apply_updates = yes                <i># yes = instalar; no = solo descargar/avisar</i>
+[emitters]
+emit_via = stdio                   <i># o email / motd</i></pre>
+<pre>sudo systemctl enable --now dnf-automatic.timer
+systemctl list-timers | grep -i automatic   <i># comprobar que está programado</i></pre>
+<p class="muted">El nombre exacto del timer cambia según versión (<code>dnf-automatic.timer</code>, <code>dnf-automatic-install.timer</code> o <code>dnf5-automatic.timer</code>). Se localiza con <code>rpm -ql &lt;paquete&gt; | grep timer</code>.</p></div></div>
+<div class="info">Fíjate en la analogía con Ubuntu: <code>unattended-upgrades</code> + <code>50unattended-upgrades</code> ↔ <code>dnf-automatic</code> + <code>automatic.conf</code>. Misma idea: <b>qué</b> instalar (solo seguridad), <b>cuándo</b> (timer) y <b>cómo avisar</b>.</div></section>
+
+<section class="slide"><div class="kicker">6 · ARCH LINUX</div><h2>Arch Linux: <code>pacman</code> <span class="tag a">Arch</span></h2>
+<p><code>pacman</code> usa <b>letras mayúsculas para la operación</b> (<code>-S</code> sync/repos, <code>-Q</code> query/instalado, <code>-R</code> remove, <code>-U</code> upgrade desde archivo) y minúsculas para modificarla.</p>
+<pre>sudo pacman -Syu                    <i># sincronizar índice (-y) Y actualizar todo (-u): LA forma de actualizar</i>
+sudo pacman -S vim                  <i># instalar</i>
+sudo pacman -S --needed vim         <i># instalar solo si no está</i>
+sudo pacman -R vim                  <i># quitar el paquete</i>
+sudo pacman -Rns vim                <i># quitar + dependencias huérfanas (-s) + configuración (-n)  ≈ apt purge + autoremove</i>
+pacman -Ss editor                   <i># buscar en repos</i>
+pacman -Si vim ; pacman -Qi vim     <i># ficha en repo / ficha del instalado</i>
+pacman -Q | wc -l                   <i># inventario: cuántos paquetes hay</i>
+pacman -Qe                          <i># solo los instalados explícitamente por ti</i>
+pacman -Ql openssh                  <i># archivos de un paquete   (≈ dpkg -L)</i>
+pacman -Qo /usr/bin/ssh             <i># a qué paquete pertenece un archivo (≈ dpkg -S)</i>
+pacman -Qdtq                        <i># huérfanos</i>
+sudo pacman -U ./paquete.pkg.tar.zst   <i># paquete local</i>
+sudo pacman -Sc                     <i># limpiar caché de paquetes viejos</i></pre>
+<ul><li>Configuración: <code>/etc/pacman.conf</code> (repos <code>core</code>, <code>extra</code>, <code>multilib</code>, <code>SigLevel</code>) y <code>/etc/pacman.d/mirrorlist</code> (espejos).</li><li>Log: <code>/var/log/pacman.log</code>. Base de datos local: <code>/var/lib/pacman/</code>.</li></ul></section>
+
+<section class="slide"><div class="kicker">7 · ARCH LINUX</div><h2>Arch Linux: AUR y la regla de oro</h2>
+<div class="danger"><b>Regla de oro de Arch:</b> nunca ejecutes <code>pacman -Sy paquete</code> (refrescar el índice e instalar sin actualizar el resto). Eso es una <b>actualización parcial</b>: el paquete nuevo puede necesitar librerías más recientes que las que tienes y el sistema puede quedar roto. <b>Siempre</b> <code>pacman -Syu</code>, y si quieres instalar algo: <code>pacman -Syu paquete</code>.</div>
+<div class="cols"><div class="box"><h3>AUR (Arch User Repository)</h3>
+<ul><li>Repositorio de <b>recetas</b> (<code>PKGBUILD</code>) publicadas por usuarios, no de paquetes binarios.</li><li>Se descarga la receta, se revisa y se compila: <code>makepkg -si</code>.</li><li>Los "ayudantes" (<code>yay</code>, <code>paru</code>) automatizan el proceso, pero <b>no son oficiales</b>.</li></ul>
+<pre>git clone https://aur.archlinux.org/yay.git
+cd yay ; less PKGBUILD   <i># LEER antes de construir</i>
+makepkg -si</pre></div>
+<div class="box"><h3>Mantenimiento</h3>
+<ul><li>Antes de actualizar tras semanas sin hacerlo: leer las noticias en <code>archlinux.org/news</code>.</li><li>Si falla la firma: actualizar primero <code>archlinux-keyring</code>.</li><li><code>pacman-contrib</code> aporta <code>checkupdates</code> (ver novedades sin tocar la base de datos local) y <code>paccache</code> (limpiar caché).</li><li><b>No existe</b> un "unattended-upgrades" oficial: la filosofía es que el administrador decida cuándo actualizar.</li></ul></div></div>
+<div class="warn">El AUR es el equivalente (más arriesgado) de los PPA/COPR: código de terceros sin revisión oficial. En un equipo de empresa, <b>no</b>.</div></section>
+
+<section class="slide"><div class="kicker">8 · TABLA ROSETTA</div><h2>apt ↔ dnf ↔ pacman ↔ winget</h2>
+<table><tr><th>Tarea</th><th>Ubuntu · apt</th><th>Fedora · dnf</th><th>Arch · pacman</th><th>Windows · winget</th></tr>
+<tr><td>Refrescar índice</td><td><code>apt update</code></td><td><code>dnf check-update</code></td><td><code>pacman -Sy</code> ⚠ solo con -u</td><td><code>winget source update</code></td></tr>
+<tr><td>Actualizar todo</td><td><code>apt upgrade</code> / <code>full-upgrade</code></td><td><code>dnf upgrade</code></td><td><code>pacman -Syu</code></td><td><code>winget upgrade --all</code></td></tr>
+<tr><td>Instalar</td><td><code>apt install x</code></td><td><code>dnf install x</code></td><td><code>pacman -S x</code></td><td><code>winget install x</code></td></tr>
+<tr><td>Quitar</td><td><code>apt remove x</code></td><td><code>dnf remove x</code></td><td><code>pacman -R x</code></td><td><code>winget uninstall x</code></td></tr>
+<tr><td>Quitar con config</td><td><code>apt purge x</code></td><td>— (<code>remove</code> guarda como <code>.rpmsave</code> lo modificado)</td><td><code>pacman -Rns x</code></td><td>—</td></tr>
+<tr><td>Huérfanos</td><td><code>apt autoremove</code></td><td><code>dnf autoremove</code></td><td><code>pacman -Qdtq</code> + <code>-Rns</code></td><td>—</td></tr>
+<tr><td>Buscar</td><td><code>apt search x</code></td><td><code>dnf search x</code></td><td><code>pacman -Ss x</code></td><td><code>winget search x</code></td></tr>
+<tr><td>Ficha</td><td><code>apt show x</code></td><td><code>dnf info x</code></td><td><code>pacman -Si x</code> / <code>-Qi x</code></td><td><code>winget show x</code></td></tr>
+<tr><td>Inventario</td><td><code>dpkg -l</code></td><td><code>rpm -qa</code></td><td><code>pacman -Q</code></td><td><code>winget list</code></td></tr>
+<tr><td>Archivos de un paquete</td><td><code>dpkg -L x</code></td><td><code>rpm -ql x</code></td><td><code>pacman -Ql x</code></td><td>—</td></tr>
+<tr><td>¿De quién es este archivo?</td><td><code>dpkg -S /ruta</code></td><td><code>rpm -qf /ruta</code></td><td><code>pacman -Qo /ruta</code></td><td>—</td></tr>
+<tr><td>Paquete local</td><td><code>apt install ./x.deb</code></td><td><code>dnf install ./x.rpm</code></td><td><code>pacman -U x.pkg.tar.zst</code></td><td><code>winget install --manifest</code></td></tr>
+<tr><td>Config. de repos</td><td><code>/etc/apt/sources.list.d/</code></td><td><code>/etc/yum.repos.d/</code></td><td><code>/etc/pacman.conf</code></td><td><code>winget source list</code></td></tr>
+<tr><td>Registro</td><td><code>/var/log/apt/history.log</code></td><td><code>dnf history</code></td><td><code>/var/log/pacman.log</code></td><td><code>Get-HotFix</code>, Visor de eventos</td></tr></table></section>
+
+<section class="slide"><div class="kicker">9 · OTROS</div><h2>Otros gestores: zypper, apk, Flatpak y Snap</h2>
+<div class="cols"><div><h3>Más distros, mismas ideas</h3>
+<table><tr><th>Gestor</th><th>Instalar</th><th>Actualizar</th></tr>
+<tr><td><code>zypper</code> (openSUSE/SLES)</td><td><code>zypper install x</code></td><td><code>zypper refresh &amp;&amp; zypper update</code></td></tr>
+<tr><td><code>apk</code> (Alpine)</td><td><code>apk add x</code></td><td><code>apk update &amp;&amp; apk upgrade</code></td></tr>
+<tr><td><code>dnf</code> (Rocky/Alma/RHEL)</td><td><code>dnf install x</code></td><td><code>dnf upgrade</code></td></tr></table>
+<p class="muted">Rocky, Alma y RHEL usan los mismos comandos que Fedora. Con <code>dnf</code> aprendes toda la familia.</p></div>
+<div><h3>Gestores universales (cualquier distro)</h3>
+<pre>flatpak install flathub org.mozilla.firefox
+flatpak update ; flatpak list ; flatpak uninstall org.mozilla.firefox
+snap install code --classic ; snap refresh ; snap list</pre>
+<ul><li><b>Flatpak</b> y <b>Snap</b> empaquetan la aplicación con sus dependencias y la ejecutan aislada (sandbox).</li><li>Mismo paquete en Ubuntu, Fedora y Arch; las versiones no dependen de la distro.</li><li>Coste: más espacio, y la integración con el sistema puede ser menor.</li></ul></div></div>
+<div class="info">Es la misma tensión que ya viste con <b>winget</b> frente a instaladores <code>.exe</code>: repositorio común y verificado frente a "cada programa trae lo suyo".</div></section>
+
+<section class="slide"><div class="kicker">9b · PARA EL FUTURO</div><h2>Otras herramientas que conviene ir conociendo</h2>
+<p>Solo las <b>nombramos</b> ahora para que os suenen. Las desarrollaremos en la <b>2.ª evaluación</b>.</p>
+<div class="cols"><div class="box"><h3><span class="tag w">Windows</span> Más allá de winget</h3>
+<table><tr><th>Herramienta</th><th>Qué es</th><th>Ejemplo</th></tr>
+<tr><td><b>Chocolatey</b></td><td>El gestor "clásico" de Windows, anterior a winget. Repositorio comunitario enorme; versión de pago para empresa. Requiere PowerShell como administrador.</td><td><code>choco install 7zip -y</code><br><code>choco upgrade all -y</code></td></tr>
+<tr><td><b>Scoop</b></td><td>Instala en la carpeta del usuario, <b>sin administrador</b>. Orientado a herramientas de línea de comandos y desarrolladores. Usa "buckets" (repos).</td><td><code>scoop install git</code><br><code>scoop bucket add extras</code></td></tr>
+<tr><td><b>Ninite</b></td><td>Web que genera un único instalador con las apps marcadas. Útil para preparar un equipo rápido.</td><td>ninite.com</td></tr>
+<tr><td><b>Microsoft Store</b>, <b>Intune / SCCM</b></td><td>Tienda oficial y gestión de software centralizada en empresa.</td><td>RA8 / 2.ª eval.</td></tr></table></div>
+<div class="box"><h3><span class="tag u">Linux</span> Según el sistema</h3>
+<table><tr><th>Herramienta</th><th>Qué es</th><th>Ejemplo</th></tr>
+<tr><td><b>nala</b></td><td>Interfaz moderna <b>sobre apt</b> (Debian/Ubuntu): descargas en paralelo, salida legible e historial. Usa los mismos repos.</td><td><code>sudo nala install htop</code><br><code>sudo nala upgrade</code></td></tr>
+<tr><td><b>snap</b></td><td>Paquetes autocontenidos de Canonical, con actualización automática.</td><td><code>snap install code --classic</code></td></tr>
+<tr><td><b>Flatpak</b></td><td>Equivalente universal, muy usado en Fedora; repositorio Flathub.</td><td><code>flatpak install flathub ...</code></td></tr>
+<tr><td><b>yay / paru</b></td><td>"Ayudantes" de Arch para el AUR (no oficiales).</td><td><code>yay -S nombre</code></td></tr>
+<tr><td><b>AppImage</b></td><td>Un único archivo ejecutable portátil, sin instalar.</td><td><code>chmod +x app.AppImage</code></td></tr>
+<tr><td><b>Homebrew, Nix</b></td><td>Gestores multiplataforma (macOS y Linux); Nix permite entornos reproducibles.</td><td>Curiosidad</td></tr></table></div></div>
+<div class="info">Idea común: casi todas son <b>frontends o alternativas</b> a lo que ya sabes (repositorio + índice + dependencias + firma). Si entiendes apt, dnf y winget, aprender cualquiera de estas es cuestión de leer su <code>--help</code>.</div></section>
+
+<section class="slide"><div class="kicker">9c · CUANDO ALGO FALLA</div><h2>Reparar apt: <code>--fix-missing</code> y <code>--fix-broken</code></h2>
+<div class="cols"><div class="box"><h3><code>--fix-missing</code></h3>
+<p><b>Qué hace:</b> le dice a apt que, si no puede descargar alguno de los paquetes (error 404, "Failed to fetch", "Unable to fetch some archives"), <b>no se detenga</b>: ignora los que faltan y sigue con el resto.</p>
+<p><b>Por qué pasa:</b></p><ul><li>Olvidaste <code>apt update</code> y el índice apunta a versiones que el servidor ya retiró (el caso más común).</li><li>El espejo está sincronizándose o va lento.</li><li>Se cortó la red a mitad de la descarga.</li></ul>
+<pre>sudo apt update                          <i># 1º: refrescar el índice (suele bastar)</i>
+sudo apt install --fix-missing nombre   <i># 2º: si sigue fallando, continuar sin lo que falta</i>
+sudo apt upgrade --fix-missing</pre></div>
+<div class="box"><h3><code>--fix-broken</code> (<code>-f</code>)</h3>
+<p><b>Qué hace:</b> repara un sistema con <b>dependencias rotas</b>: instala las que faltan o elimina los paquetes que no se pueden satisfacer. Distinto del anterior: <code>--fix-missing</code> arregla <i>descargas</i>; <code>-f</code> arregla <i>dependencias</i>.</p>
+<pre>sudo apt --fix-broken install     <i># = apt -f install</i>
+sudo dpkg --configure -a          <i># terminar instalaciones interrumpidas</i>
+sudo apt clean ; sudo apt update  <i># vaciar caché de .deb y reintentar</i></pre>
+<p class="muted">Típico: instalas un <code>.deb</code> con <code>dpkg -i</code>, faltan dependencias y apt se queja; <code>apt -f install</code> las trae.</p></div></div>
+<div class="warn"><b>Ojo:</b> <code>--fix-missing</code> no es un parche mágico. Al saltarse paquetes puede dejar una instalación incompleta. Orden recomendado: <b>1)</b> <code>apt update</code> · <b>2)</b> reintentar · <b>3)</b> <code>--fix-missing</code> · <b>4)</b> <code>apt -f install</code> al terminar para comprobar que no queda nada roto.</div>
+<table><tr><th>Problema</th><th>Ubuntu · apt</th><th>Fedora · dnf</th><th>Arch · pacman</th></tr>
+<tr><td>Descarga fallida / índice viejo</td><td><code>apt update</code>, <code>--fix-missing</code></td><td><code>dnf clean all</code>, <code>dnf upgrade --refresh</code>, <code>--skip-unavailable</code> (DNF 5) / <code>--skip-broken</code> (DNF 4)</td><td><code>pacman -Syyu</code> (fuerza refresco), cambiar espejo</td></tr>
+<tr><td>Dependencias rotas</td><td><code>apt -f install</code></td><td><code>dnf distro-sync</code>, <code>dnf check</code></td><td><code>pacman -Syu</code> completo; <code>pacman -Dk</code> (comprobar BD)</td></tr>
+<tr><td>Instalación interrumpida</td><td><code>dpkg --configure -a</code></td><td><code>dnf history</code> / <code>rpm --rebuilddb</code></td><td>Borrar <code>/var/lib/pacman/db.lck</code> si no hay pacman en ejecución</td></tr></table></section>
+
+<section class="slide"><div class="kicker">10 · ACTUALIZACIONES AUTOMÁTICAS</div><h2>Comparativa</h2>
+<table><tr><th></th><th>Ubuntu</th><th>Fedora / Rocky</th><th>Arch</th><th>Windows</th></tr>
+<tr><td><b>Herramienta</b></td><td><code>unattended-upgrades</code></td><td><code>dnf-automatic</code></td><td>Ninguna oficial</td><td>Windows Update</td></tr>
+<tr><td><b>Configuración</b></td><td><code>/etc/apt/apt.conf.d/50unattended-upgrades</code>, <code>20auto-upgrades</code></td><td><code>/etc/dnf/automatic.conf</code></td><td>—</td><td>Configuración / GPO / WSUS</td></tr>
+<tr><td><b>Mecanismo</b></td><td>Timers de systemd (<code>apt-daily*.timer</code>)</td><td>Timer de systemd</td><td>—</td><td>Servicio <code>wuauserv</code></td></tr>
+<tr><td><b>Solo seguridad</b></td><td>Sí (origen <code>-security</code>)</td><td>Sí (<code>upgrade_type = security</code>)</td><td>No existe esa distinción</td><td>Sí (calidad / seguridad)</td></tr>
+<tr><td><b>Reinicio</b></td><td><code>Automatic-Reboot "true"</code> + hora</td><td>Aparte (<code>needs-restarting -r</code>)</td><td>—</td><td>Horas activas</td></tr>
+<tr><td><b>Registro</b></td><td><code>/var/log/unattended-upgrades/</code></td><td><code>journalctl -u dnf-automatic*</code></td><td><code>/var/log/pacman.log</code></td><td>Visor de eventos, ID 19</td></tr></table>
+<h3>Congelar una versión</h3>
+<pre>sudo apt-mark hold nginx            <i># Ubuntu</i>
+sudo dnf install python3-dnf-plugin-versionlock ; sudo dnf versionlock add nginx   <i># Fedora (DNF 4; en DNF 5 el plugin se llama distinto)</i>
+<b># Arch: en /etc/pacman.conf</b>
+IgnorePkg = nginx</pre>
+<div class="warn"><b>Criterio de administrador:</b> las actualizaciones automáticas de <i>seguridad</i> en portátiles de usuarios sí; en servidores críticos, mejor ventana de mantenimiento, prueba previa y reinicio planificado. Y Arch, por su modelo rolling, no se automatiza sin supervisión.</div></section>
+
+<section class="slide"><div class="kicker">11 · AUTOMATIZACIÓN</div><h2>Un script que funciona en cualquier distro</h2>
+<p>El archivo <code>/etc/os-release</code> identifica la distribución: <code>ID</code> es la propia y <code>ID_LIKE</code> la familia de la que desciende.</p>
+<pre>$ cat /etc/os-release | head -4
+NAME="Ubuntu"            <i># Fedora: ID=fedora   Arch: ID=arch   Rocky: ID="rocky" ID_LIKE="rhel centos fedora"</i>
+ID=ubuntu
+ID_LIKE=debian
+VERSION_ID="24.04"</pre>
+<pre>#!/bin/sh
+<i># instalar.sh — instala paquetes con el gestor de la distro actual</i>
+. /etc/os-release
+SUDO=""; [ "$(id -u)" -eq 0 ] || SUDO="sudo"      <i># no usar sudo si ya somos root (contenedores)</i>
+case "$ID $ID_LIKE" in
+  *debian*|*ubuntu*) $SUDO apt-get update &amp;&amp; $SUDO apt-get install -y "$@" ;;
+  *fedora*|*rhel*)   $SUDO dnf install -y "$@" ;;
+  *arch*)            $SUDO pacman -Syu --needed --noconfirm "$@" ;;
+  *) echo "Distro no soportada: $ID" &gt;&amp;2; exit 1 ;;
+esac</pre>
+<div class="info">Fíjate en que en la rama de Arch usamos <code>-Syu</code> y no <code>-S</code>: aplicamos la regla de oro aunque solo queramos instalar un paquete. Este es el tipo de cosa que hacen herramientas como Ansible (<code>ansible.builtin.package</code>) para gestionar flotas de equipos con distros distintas.</div></section>
+
+<section class="slide"><div class="kicker">12 · PREGUNTAS</div><h2>Compruébate (haz clic para ver la respuesta)</h2>
+<div class="q"><b>1.</b> En Fedora, ¿qué comando te dice a qué paquete pertenece <code>/usr/bin/ssh</code>? ¿Y en Arch? <small>(clic)</small><div class="ans"><code>rpm -qf /usr/bin/ssh</code> en Fedora y <code>pacman -Qo /usr/bin/ssh</code> en Arch. En Ubuntu: <code>dpkg -S /usr/bin/ssh</code>. Los tres consultan la base de datos local de paquetes.</div></div>
+<div class="q"><b>2.</b> Un compañero ejecuta <code>sudo pacman -Sy gimp</code> y después el sistema deja de arrancar bien. ¿Qué ha pasado? <small>(clic)</small><div class="ans">Actualización parcial: refrescó el índice a la última versión, pero solo instaló GIMP sin actualizar el resto. GIMP (o sus librerías) exigía versiones más nuevas que las instaladas y el sistema quedó inconsistente. Lo correcto: <code>pacman -Syu gimp</code>.</div></div>
+<div class="q"><b>3.</b> ¿Qué equivalente tiene <code>apt purge x &amp;&amp; apt autoremove</code> en Arch? <small>(clic)</small><div class="ans"><code>sudo pacman -Rns x</code>: quita el paquete (<code>-R</code>), sus dependencias que nadie más usa (<code>-s</code>) y los archivos de configuración guardados (<code>-n</code>).</div></div>
+<div class="q"><b>4.</b> Tu empresa pone 40 portátiles. ¿Qué distro de las tres elegirías y por qué? <small>(clic)</small><div class="ans">Respuesta razonada, normalmente Ubuntu LTS (o Rocky/Alma si la empresa ya usa Red Hat): versión fija con soporte largo, actualizaciones automáticas de seguridad, mucha documentación y soporte comercial disponible. Arch exigiría supervisión constante; Fedora tiene ciclo corto (~13 meses de soporte) y obliga a migrar con frecuencia.</div></div>
+<div class="q"><b>5.</b> ¿Qué diferencia hay entre <code>dnf upgrade</code> y <code>dnf check-update</code>? ¿Se parece a la de <code>apt update</code> y <code>apt upgrade</code>? <small>(clic)</small><div class="ans"><code>check-update</code> solo <i>informa</i> de qué hay disponible; <code>upgrade</code> instala. Es parecido, pero en dnf los metadatos se refrescan automáticamente cuando caducan, por lo que no existe el error de "instalar sin hacer update" tan típico de apt.</div></div></section>
+
+<section class="slide"><div class="kicker">13 · RESUMEN</div><h2>Para llevarse a casa</h2>
+<ol><li>Todas las distros tienen un gestor con las mismas cinco acciones: refrescar, actualizar, instalar, quitar y consultar.</li><li>Debian/Ubuntu: <code>apt</code> + <code>dpkg</code>. Red Hat/Fedora: <code>dnf</code> + <code>rpm</code>. Arch: <code>pacman</code>.</li><li>Consultas útiles: <code>dpkg -S/-L</code> ↔ <code>rpm -qf/-ql</code> ↔ <code>pacman -Qo/-Ql</code>.</li><li>En Arch, <b>nunca</b> <code>-Sy</code> sin <code>-u</code>. El AUR es código de terceros: leer el <code>PKGBUILD</code>.</li><li>Repositorios firmados (GPG) siempre; PPA, COPR y AUR son "confía en quien lo publica".</li><li>Actualizaciones automáticas: <code>unattended-upgrades</code> ↔ <code>dnf-automatic</code> ↔ (nada en Arch) ↔ Windows Update.</li><li>Un script portable lee <code>/etc/os-release</code> y elige el gestor.</li></ol>
+<div class="info"><b>Ahora:</b> actividad en clase "Tres distros, un mismo trabajo", con contenedores Fedora y Arch sobre tu <code>pc-ubuntu</code>.</div></section>
+
+</div>
+<div class="nav"><button class="sec" onclick="go(-1)">← Anterior</button><button onclick="go(1)">Siguiente →</button><div class="pb"><span id="pb"></span></div><span class="n" id="n"></span><button class="sec" onclick="toggleDoc()" title="Tecla D">Modo documento</button></div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let i=0;
+function show(k){i=Math.max(0,Math.min(slides.length-1,k));slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+ document.getElementById('pb').style.width=(100*i/(slides.length-1))+'%';document.getElementById('n').textContent=(i+1)+' / '+slides.length;
+ location.hash='s'+(i+1);window.scrollTo(0,0);}
+function go(d){show(i+d)}
+function toggleDoc(){document.body.classList.toggle('body-doc')}
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(1)}
+ else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(-1)}
+ else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+ else if(e.key.toLowerCase()==='d')toggleDoc();});
+document.querySelectorAll('.q').forEach(q=>q.addEventListener('click',()=>q.classList.toggle('open')));
+const h=parseInt((location.hash||'').replace('#s',''));show(isNaN(h)?0:h-1);
+</script></body></html>

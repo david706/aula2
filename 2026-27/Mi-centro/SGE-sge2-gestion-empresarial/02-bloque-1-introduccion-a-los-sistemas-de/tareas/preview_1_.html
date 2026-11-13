@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Laboratorio interactivo de Python aplicado a Sistemas de Gestión Empresarial">
+<title>Python Survival · Misión ERP-01 · SGE</title>
+<style>
+:root{
+  --bg:#07110f;--panel:#0c1b18;--panel2:#102520;--line:#214a41;
+  --ink:#edfff9;--muted:#9bc8ba;--green:#58e6b5;--green2:#1cb889;
+  --amber:#ffc857;--red:#ff7272;--blue:#64c8ff;--paper:#f4f8f6;
+  --shadow:0 18px 60px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Inter,system-ui,-apple-system,sans-serif;line-height:1.55}
+button,textarea,input{font:inherit}
+button{touch-action:manipulation}
+code,.mono{font-family:"Cascadia Code","Cascadia Mono",Consolas,monospace}
+a{color:inherit}
+.skip-link{position:fixed;left:12px;top:-60px;z-index:100;padding:9px 13px;background:#fff;color:#111;border-radius:5px}
+.skip-link:focus{top:12px}
+
+/* Fondo tecnológico ligero: no depende de imágenes externas. */
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+ radial-gradient(circle at 84% 8%,rgba(88,230,181,.12),transparent 25rem),
+ radial-gradient(circle at 10% 72%,rgba(100,200,255,.08),transparent 30rem),
+ linear-gradient(rgba(88,230,181,.025) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(88,230,181,.025) 1px,transparent 1px);
+ background-size:auto,auto,32px 32px,32px 32px}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(transparent 50%,rgba(0,0,0,.035) 50%);background-size:100% 4px;opacity:.55}
+
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;padding:11px max(18px,calc((100vw - 1180px)/2));background:rgba(7,17,15,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(88,230,181,.18)}
+.brand{display:flex;align-items:center;gap:10px;min-width:max-content;font-weight:900;letter-spacing:.02em}
+.brand-mark{display:grid;place-items:center;width:35px;height:35px;border:1px solid var(--green);border-radius:8px;color:var(--green);box-shadow:0 0 18px rgba(88,230,181,.16)}
+.brand small{display:block;color:var(--muted);font:600 10px/1.1 "Cascadia Mono",monospace;letter-spacing:.12em}
+.top-progress{display:flex;align-items:center;gap:10px;width:100%}
+.bar{height:7px;flex:1;min-width:60px;background:#17332d;border-radius:99px;overflow:hidden}
+.bar>span{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:inherit;transition:width .45s ease}
+.progress-copy{color:var(--muted);font:700 11px "Cascadia Mono",monospace;white-space:nowrap}
+.reset{border:1px solid #315d54;background:transparent;color:#bddbd3;border-radius:6px;padding:7px 10px;cursor:pointer}
+.reset:hover{border-color:var(--green);color:#fff}
+.operator{max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--green);font:750 11px "Cascadia Mono",monospace}
+
+.shell{max-width:1180px;margin:auto;padding:28px 22px 100px}
+.hero{position:relative;overflow:hidden;min-height:420px;display:grid;grid-template-columns:1.22fr .78fr;gap:32px;align-items:center;padding:54px clamp(26px,5vw,66px);border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(13,39,33,.96),rgba(7,22,19,.98));box-shadow:var(--shadow)}
+.hero::before{content:"";position:absolute;right:-7%;top:-45%;width:520px;height:520px;border:1px solid rgba(88,230,181,.15);border-radius:50%;box-shadow:0 0 0 55px rgba(88,230,181,.025),0 0 0 110px rgba(88,230,181,.018)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:18px;padding:6px 10px;border:1px solid rgba(88,230,181,.45);border-radius:4px;color:var(--green);background:rgba(88,230,181,.06);font:800 11px "Cascadia Mono",monospace;letter-spacing:.13em;text-transform:uppercase}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(255,114,114,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(255,114,114,0)}100%{box-shadow:0 0 0 0 rgba(255,114,114,0)}}
+.hero h1{margin:0;max-width:12ch;font-size:clamp(2.7rem,7vw,5.9rem);line-height:.86;letter-spacing:-.065em;text-transform:uppercase}
+.hero h1 span{display:block;color:var(--green);text-shadow:0 0 28px rgba(88,230,181,.22)}
+.hero .lead{max-width:58ch;margin:24px 0 0;color:#c5e2da;font-size:1.04rem}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.primary,.ghost{border-radius:7px;padding:11px 15px;font-weight:850;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.primary{border:1px solid var(--green);background:var(--green);color:#062019;box-shadow:0 0 22px rgba(88,230,181,.12)}
+.primary:hover{background:#7bf0c8}
+.ghost{border:1px solid #3a655c;background:rgba(255,255,255,.02);color:#d9f4ed}
+.ghost:hover{border-color:var(--green)}
+
+.terminal{position:relative;border:1px solid #315d54;border-radius:12px;background:#04100d;box-shadow:0 20px 50px rgba(0,0,0,.3);transform:rotate(1.3deg)}
+.term-head{display:flex;align-items:center;gap:6px;padding:11px 13px;border-bottom:1px solid #193b33;color:#789e94;font:700 10px "Cascadia Mono",monospace}
+.dot{width:8px;height:8px;border-radius:50%;background:#ff6b6b}.dot:nth-child(2){background:#ffc857}.dot:nth-child(3){background:#58e6b5}.term-title{margin-left:auto}
+.term-body{min-height:260px;padding:18px;color:#bde9dd;font:600 12px/1.72 "Cascadia Mono",monospace}
+.term-body .bad{color:#ff7f7f}.term-body .good{color:var(--green)}.term-body .warn{color:var(--amber)}.cursor{display:inline-block;width:8px;height:1.1em;background:var(--green);vertical-align:-2px;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+
+.mission-brief{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 40px}
+.brief-card{border:1px solid var(--line);background:rgba(12,27,24,.87);border-radius:10px;padding:16px}
+.brief-card b{display:block;margin-bottom:5px;color:var(--green);font:800 11px "Cascadia Mono",monospace;text-transform:uppercase;letter-spacing:.08em}
+.brief-card span{color:#c6ded8;font-size:.92rem}
+
+.section-head{display:flex;gap:20px;justify-content:space-between;align-items:end;margin:56px 0 19px}
+.section-head .kicker{color:var(--green);font:800 11px "Cascadia Mono",monospace;letter-spacing:.14em;text-transform:uppercase}
+.section-head h2{margin:4px 0 0;font-size:clamp(1.75rem,4vw,2.7rem);letter-spacing:-.035em}
+.section-head p{margin:0;max-width:43ch;color:var(--muted);font-size:.93rem}
+
+.route{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:38px}
+.route button{position:relative;min-height:92px;padding:12px 9px;text-align:left;border:1px solid #2a5149;border-radius:8px;background:#0a1c18;color:#bdd8d1;cursor:pointer;transition:.2s ease}
+.route button::after{content:"🔒";position:absolute;right:8px;top:7px;font-size:12px;filter:grayscale(.4)}
+.route button.open::after{content:"🔓"}.route button.done::after{content:"✓";color:var(--green);font-weight:900}.route button.assisted::after{content:"◐";color:var(--amber)}
+.route button.open{border-color:#4b9f8c;background:#103129;color:#fff}.route button.done{border-color:var(--green2);background:#0d342b;color:#fff}.route button.assisted{border-color:#bb8020;background:#34270f;color:#fff}
+.route button.locked{opacity:.52;cursor:not-allowed}.route .n{display:block;color:var(--amber);font:800 10px "Cascadia Mono",monospace;margin-bottom:5px}.route .t{font-weight:850;font-size:.84rem;line-height:1.18}
+
+.mission{position:relative;margin:0 0 28px;border:1px solid #2a574d;border-left:5px solid var(--green2);border-radius:13px;background:linear-gradient(145deg,rgba(14,35,30,.98),rgba(8,24,20,.98));overflow:hidden;box-shadow:0 11px 34px rgba(0,0,0,.17)}
+.mission.final{border-left-color:var(--amber)}
+.mission.locked{border-color:#233630;border-left-color:#53635f;filter:saturate(.55)}
+.mission.complete{box-shadow:0 0 0 1px rgba(88,230,181,.12),0 16px 46px rgba(0,0,0,.2)}
+.mission-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:17px 20px;border-bottom:1px solid #244c43;background:rgba(88,230,181,.045)}
+.mission.final .mission-head{background:rgba(255,200,87,.06)}
+.m-code{color:var(--green);font:850 10px "Cascadia Mono",monospace;letter-spacing:.12em;text-transform:uppercase}.final .m-code{color:var(--amber)}
+.mission h3{margin:3px 0 0;font-size:1.3rem;letter-spacing:-.015em}
+.status{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font:750 10px "Cascadia Mono",monospace;text-transform:uppercase;white-space:nowrap}.status i{width:8px;height:8px;border-radius:50%;background:#667b75}.mission.available .status i{background:var(--green);box-shadow:0 0 12px var(--green)}.mission.complete .status i{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+.mission-body{display:grid;grid-template-columns:minmax(0,.9fr) minmax(340px,1.1fr);gap:20px;padding:20px}
+.locked-panel{display:none;padding:28px 20px;background:repeating-linear-gradient(-45deg,rgba(255,255,255,.012),rgba(255,255,255,.012) 10px,transparent 10px,transparent 20px)}
+.mission.locked .locked-panel{display:block}.mission.locked .mission-body{display:none}
+.locked-panel strong{font-size:1.05rem}.locked-panel p{margin:.35rem 0 0;color:#91aaa4}
+.story{margin:0 0 14px;color:#d3ebe4}.objective{margin:12px 0;padding:11px 13px;border-left:3px solid var(--blue);background:rgba(100,200,255,.055);color:#c9eaff;font-size:.9rem}.objective b{color:var(--blue)}
+.micro{display:grid;gap:8px;margin-top:14px}.micro-row{display:grid;grid-template-columns:90px 1fr;gap:10px;padding:9px 10px;border:1px solid #23483f;border-radius:6px;background:rgba(255,255,255,.018);font-size:.86rem}.micro-row code{color:var(--green)}.micro-row span{color:#b9d4cd}
+.transfer{margin-top:14px;padding:11px 12px;border:1px dashed #40665d;border-radius:7px;color:#a9c7bf;font-size:.85rem}.transfer strong{color:var(--amber)}
+
+.gate{margin-bottom:14px;border:1px solid #735d2f;border-radius:8px;background:rgba(255,200,87,.055);padding:12px}.gate-title{color:var(--amber);font:850 10px "Cascadia Mono",monospace;letter-spacing:.1em;text-transform:uppercase}.gate p{margin:5px 0 9px;font-size:.9rem}.gate-options{display:flex;flex-wrap:wrap;gap:7px}.gate button{border:1px solid #755f32;background:#17170f;color:#f8e7bc;border-radius:5px;padding:6px 9px;cursor:pointer;font-size:.82rem}.gate button:hover{border-color:var(--amber)}.gate button.right{background:#163c31;border-color:var(--green);color:#dffff5}.gate button.wrong{background:#401c1c;border-color:var(--red);color:#ffd6d6}.gate-ok{display:none;color:var(--green);font-size:.82rem;margin-top:8px}.gate.passed .gate-ok{display:block}.gate.passed .gate-options{display:none}
+
+.lab{border:1px solid #315b52;border-radius:9px;background:#050f0d;overflow:hidden}.lab-top{display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid #24473f;color:#8fb6ac;font:700 10px "Cascadia Mono",monospace}.lab-top span:last-child{margin-left:auto}.codebox{position:relative}.lines{position:absolute;left:0;top:0;bottom:0;width:38px;padding:13px 8px;background:#081713;border-right:1px solid #1d3d35;color:#52746b;text-align:right;white-space:pre;font:500 13px/1.55 "Cascadia Mono",monospace;user-select:none}.editor{display:block;width:100%;min-height:210px;resize:vertical;border:0;outline:0;padding:13px 13px 13px 50px;background:#06120f;color:#dffbf3;font:500 13px/1.55 "Cascadia Mono",monospace;tab-size:4}.editor:disabled{color:#607c75;cursor:not-allowed}.lab-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px;border-top:1px solid #24473f;background:#0a1815}.run,.hint,.solution,.copy{border-radius:5px;padding:7px 10px;font-weight:800;font-size:.8rem;cursor:pointer}.run{border:1px solid var(--green);background:var(--green);color:#062019}.run:disabled{opacity:.42;cursor:not-allowed}.hint,.solution,.copy{border:1px solid #365f56;background:transparent;color:#c5e1da}.solution{display:none;border-color:#8d6b27;color:#ffdd92}.solution.show{display:inline-block}.attempts{margin-left:auto;color:#7fa59b;font:700 10px "Cascadia Mono",monospace}.console{min-height:72px;margin:0;padding:12px;border-top:1px solid #1d3c35;background:#020b09;color:#a6c9c0;white-space:pre-wrap;font:600 12px/1.5 "Cascadia Mono",monospace}.console.ok{color:var(--green)}.console.err{color:#ff9696}.hint-box{display:none;padding:10px 12px;border-top:1px solid #5e4b25;background:#201b0e;color:#f2d797;font-size:.84rem}.hint-box.show{display:block}
+
+.hint:disabled,.solution:disabled,.copy:disabled{opacity:.42;cursor:not-allowed}
+.report{display:none;margin-top:42px;padding:28px;border:1px solid var(--green);border-radius:14px;background:linear-gradient(145deg,#0b2b24,#071814);box-shadow:0 0 55px rgba(88,230,181,.1)}
+.report.show{display:block}.report h2{margin:0;color:var(--green);font-size:2rem}.report .big{font:900 clamp(2.8rem,8vw,5.6rem)/1 "Cascadia Mono",monospace;color:#fff;margin:16px 0}.report-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.report-grid div{padding:13px;border:1px solid #2a574d;border-radius:7px;background:rgba(0,0,0,.15)}.report-grid b{display:block;color:var(--amber);font:800 10px "Cascadia Mono",monospace;text-transform:uppercase;margin-bottom:5px}.report p{color:#b7d5cd}.certificate{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+.toast{position:fixed;left:50%;bottom:24px;z-index:80;max-width:min(560px,calc(100vw - 28px));transform:translate(-50%,25px);opacity:0;pointer-events:none;padding:12px 15px;border:1px solid #3d695f;border-radius:8px;background:#10211d;color:#eafff8;box-shadow:0 14px 40px rgba(0,0,0,.42);font:750 12px/1.4 "Cascadia Mono",monospace;transition:.22s ease}.toast.show{opacity:1;transform:translate(-50%,0)}
+.student-guide{margin:22px 0 44px;border:1px solid #294b44;border-radius:9px;background:#0a1916}.student-guide summary{cursor:pointer;padding:14px 16px;color:#c7e2db;font-weight:800}.student-guide>div{padding:0 16px 16px;color:#a8c6be;font-size:.9rem}.student-guide ol{margin:.5rem 0 0;padding-left:1.25rem}.student-guide li+li{margin-top:.45rem}
+.identity-panel{margin:24px 0;padding:22px;border:1px solid var(--amber);border-radius:12px;background:linear-gradient(145deg,rgba(47,39,18,.96),rgba(14,28,23,.98));box-shadow:var(--shadow)}.identity-panel.confirmed{border-color:var(--green)}.identity-panel h2{margin:3px 0 5px;font-size:1.45rem}.identity-panel>p{margin:0;color:#c8ddd7}.identity-form{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:9px;align-items:end;margin-top:16px}.identity-form label{display:block;margin-bottom:6px;color:var(--amber);font-weight:800}.identity-panel.confirmed label{color:var(--green)}.identity-form input{width:100%;padding:11px 12px;border:1px solid #4e705f;border-radius:7px;outline:0;background:#06120f;color:#effffb}.identity-form input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(88,230,181,.12)}.identity-error{min-height:1.35em;margin:6px 0 0!important;color:#ff9696!important;font-size:.84rem}.identity-status{margin-top:10px;color:var(--amber);font:750 11px "Cascadia Mono",monospace}.identity-panel.confirmed .identity-status{color:var(--green)}
+.footer{max-width:1180px;margin:auto;padding:0 22px 45px;color:#6f938a;font-size:.78rem;text-align:center}
+
+@media(max-width:900px){.hero{grid-template-columns:1fr}.terminal{transform:none}.mission-body{grid-template-columns:1fr}.route{grid-template-columns:repeat(3,1fr)}.section-head{align-items:start;flex-direction:column}.mission-brief{grid-template-columns:1fr}.hero{min-height:0}.report-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.shell{padding:16px 12px 70px}.topbar{padding:9px 12px}.brand>span:last-child,.progress-copy,.operator{display:none}.hero{padding:34px 21px;border-radius:11px}.hero h1{font-size:3.2rem}.identity-form{grid-template-columns:1fr}.route{grid-template-columns:repeat(2,1fr)}.mission-head{align-items:flex-start}.status{white-space:normal}.mission-body{padding:14px}.micro-row{grid-template-columns:1fr}.editor{font-size:12px;min-height:245px}.attempts{width:100%;margin-left:0}.report{padding:20px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media print{body{background:#fff;color:#17211e}.topbar,.hero-actions,.route,.lab-actions,.toast,.identity-panel{display:none!important}.shell{max-width:none;padding:0}.hero,.mission,.report,.student-guide{box-shadow:none;background:#fff;color:#17211e;border-color:#999;break-inside:avoid}.hero{min-height:0}.hero h1 span,.m-code,.section-head .kicker{color:#08785c}.hero .lead,.story,.section-head p,.transfer,.student-guide>div{color:#3d4d48}.terminal{display:none}.mission-body{grid-template-columns:.9fr 1.1fr}.editor,.console{background:#f4f4f4;color:#111;border:1px solid #bbb}.locked-panel{display:none!important}.mission.locked .mission-body{display:grid}.report{display:block}.footer{color:#555}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#misiones">Saltar a las misiones</a>
+<header class="topbar">
+  <div class="brand"><span class="brand-mark mono">&gt;_</span><span>PYTHON SURVIVAL<small>SGE · ERP-01</small></span></div>
+  <div class="top-progress" aria-label="Progreso de la misión"><div class="bar"><span id="progressBar"></span></div><span class="progress-copy" id="progressCopy">0 / 6 RECUPERADOS</span></div>
+  <span class="operator" id="operatorName" title="Alumno identificado"></span>
+  <button class="reset" id="resetBtn" type="button" title="Borrar el progreso guardado">Reiniciar</button>
+</header>
+
+<main class="shell">
+  <section class="hero" id="inicio">
+    <div>
+      <div class="eyebrow"><span class="pulse"></span>SYSTEM STATUS: CRITICAL</div>
+      <h1>Python <span>Survival</span></h1>
+      <p class="lead">El ERP de la empresa ha perdido sus reglas de negocio. Productos, pedidos y clientes siguen ahí, pero el código que los conecta ha desaparecido. Tu misión es reconstruirlo con Python antes del cierre de caja.</p>
+      <div class="hero-actions"><a class="primary" href="#identificacion">Iniciar misión <span aria-hidden="true">→</span></a><a class="ghost" href="#protocolo">Ver protocolo</a></div>
+    </div>
+    <div class="terminal" aria-label="Terminal de estado del ERP">
+      <div class="term-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="term-title">erp-01 / recovery.log</span></div>
+      <div class="term-body"><span class="mono">$ python3 diagnostico.py</span><br><span class="good">[OK]</span> intérprete Python detectado<br><span class="bad">[FAIL]</span> productos.py no responde<br><span class="bad">[FAIL]</span> descuentos.py corrupto<br><span class="warn">[WARN]</span> stock sin monitorización<br><span class="bad">[FAIL]</span> pedido.py incompleto<br><br><span class="mono">$ iniciar_protocolo_survival</span><br>Esperando operador <span class="cursor"></span></div>
+    </div>
+  </section>
+
+  <section class="identity-panel" id="identificacion" aria-labelledby="identityTitle">
+    <div class="m-code">Paso obligatorio · identificación</div>
+    <h2 id="identityTitle">Identifica al operador</h2>
+    <p>Escribe tu nombre y apellidos antes de comenzar. Aparecerán en el informe final.</p>
+    <form class="identity-form" id="identityForm" novalidate>
+      <div><label for="studentName">Nombre y apellidos</label><input id="studentName" name="studentName" type="text" autocomplete="name" maxlength="90" placeholder="Ejemplo: Ana García Pérez" required><p class="identity-error" id="identityError" role="alert"></p></div>
+      <button class="primary" type="submit">Guardar identificación</button>
+    </form>
+    <div class="identity-status" id="identityStatus">⚠ Identificación pendiente. Los ejercicios permanecen desactivados.</div>
+  </section>
+
+  <section class="mission-brief" id="protocolo" aria-label="Protocolo de trabajo">
+    <div class="brief-card"><b>01 · Aprende</b><span>Lee solo la microteoría necesaria para reparar ese módulo.</span></div>
+    <div class="brief-card"><b>02 · Programa</b><span>Completa el código y ejecútalo en el simulador del laboratorio.</span></div>
+    <div class="brief-card"><b>03 · Demuestra</b><span>Supera los candados de memoria y recupera el mini‑ERP.</span></div>
+  </section>
+
+  <details class="student-guide"><summary>🧭 ¿Te has atascado? Abre tu protocolo de orientación</summary><div><ol><li>Lee de nuevo el <strong>objetivo Python</strong> y observa los ejemplos de microteoría.</li><li>Sustituye únicamente los huecos <code>_____</code>; conserva nombres, comillas, paréntesis, dos puntos e indentación.</li><li>Ejecuta el código y utiliza el mensaje de la consola para localizar el tipo de error.</li><li>Abre <strong>Pista</strong> si sigues bloqueado. Tras tres intentos podrás consultar la solución.</li><li>Cuando una misión quede recuperada, supera el candado de memoria de la siguiente.</li></ol><p>Tu progreso se guarda en este navegador. No pulses <strong>Reiniciar</strong> salvo que quieras borrar todas las misiones y volver a identificarte.</p></div></details>
+
+  <div class="section-head" id="misiones">
+    <div><span class="kicker">Ruta de recuperación</span><h2>Seis sistemas. Un solo ERP.</h2></div>
+    <p>Las misiones se desbloquean en orden. A partir de la segunda tendrás que recordar algo anterior antes de tocar el código.</p>
+  </div>
+
+  <nav class="route" id="route" aria-label="Mapa de misiones"></nav>
+
+  <section id="missionList" aria-label="Misiones de Python">
+    <!-- MISIÓN 1 -->
+    <article class="mission available" id="mission-0" data-index="0">
+      <header class="mission-head"><div><div class="m-code">Módulo 01 · productos.py</div><h3>Reactivar el catálogo</h3></div><span class="status"><i></i><span>Disponible</span></span></header>
+      <div class="locked-panel"><strong>🔒 Módulo cifrado</strong><p>Recupera el módulo anterior para obtener la clave.</p></div>
+      <div class="mission-body">
+        <div>
+          <p class="story">El catálogo ha arrancado vacío. Registra un producto llamado <strong>Teclado</strong>, con precio <strong>35.50</strong> y <strong>6</strong> unidades, y muestra su ficha en pantalla.</p>
+          <div class="objective"><b>Objetivo Python:</b> usar variables, tipos básicos y <code>print()</code>.</div>
+          <div class="micro">
+            <div class="micro-row"><code>nombre = "SSD"</code><span>Una variable guarda un dato para reutilizarlo.</span></div>
+            <div class="micro-row"><code>precio = 79.95</code><span>Los decimales se escriben con punto.</span></div>
+            <div class="micro-row"><code>print(nombre)</code><span><code>print()</code> envía información a la consola.</span></div>
+          </div>
+          <div class="transfer"><strong>Después en Odoo:</strong> estos datos acabarán siendo campos de un registro: nombre, precio y stock.</div>
+        </div>
+        <div class="lab" data-lab="0">
+          <div class="lab-top"><span>● EDITOR</span><span>productos.py</span></div>
+          <div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5</span><textarea class="editor" spellcheck="false" aria-label="Editor de código misión 1"># Completa las tres líneas
+nombre = "_____"
+precio = _____
+stock = _____
+
+print(nombre, precio, stock)</textarea></div>
+          <div class="lab-actions"><button class="run" type="button">▶ Ejecutar</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div>
+          <div class="hint-box">Sustituye cada <code>_____</code>. El nombre debe llevar comillas; precio y stock, no.</div>
+          <pre class="console">&gt; Consola preparada. Completa el programa y pulsa Ejecutar.</pre>
+        </div>
+      </div>
+    </article>
+
+    <!-- MISIÓN 2 -->
+    <article class="mission locked" id="mission-1" data-index="1">
+      <header class="mission-head"><div><div class="m-code">Módulo 02 · descuentos.py</div><h3>Restaurar las reglas de cliente</h3></div><span class="status"><i></i><span>Bloqueado</span></span></header>
+      <div class="locked-panel"><strong>🔒 Control de acceso activo</strong><p>Primero debes recuperar <code>productos.py</code>.</p></div>
+      <div class="mission-body">
+        <div>
+          <p class="story">El sistema está cobrando lo mismo a todo el mundo. Recupera la regla que aplica un 10 % de descuento a clientes VIP.</p>
+          <div class="objective"><b>Objetivo Python:</b> tomar decisiones con <code>if</code> y operar con números.</div>
+          <div class="micro">
+            <div class="micro-row"><code>if condicion:</code><span>El bloque se ejecuta solo si la condición es verdadera.</span></div>
+            <div class="micro-row"><code>precio *= 0.90</code><span>Equivale a <code>precio = precio * 0.90</code>.</span></div>
+            <div class="micro-row"><code>True / False</code><span>Un booleano representa dos estados posibles.</span></div>
+          </div>
+          <div class="transfer"><strong>Después en Odoo:</strong> las reglas de negocio deciden descuentos, estados y validaciones.</div>
+        </div>
+        <div>
+          <div class="gate" data-gate="1" data-answer="1"><div class="gate-title">🔒 Candado de memoria 01</div><p>¿Qué tipo de dato usarías para guardar <code>79.95</code>?</p><div class="gate-options"><button type="button">str</button><button type="button">float</button><button type="button">bool</button></div><div class="gate-ok">✓ Identidad verificada. Editor desbloqueado.</div></div>
+          <div class="lab" data-lab="1"><div class="lab-top"><span>● EDITOR</span><span>descuentos.py</span></div><div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5<br>6</span><textarea class="editor" spellcheck="false" disabled aria-label="Editor de código misión 2">precio = 120
+cliente_vip = True
+
+# Completa la condición y el cálculo
+if _____:
+    precio = _____
+
+print(precio)</textarea></div><div class="lab-actions"><button class="run" type="button" disabled>▶ Ejecutar</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div><div class="hint-box">La condición ya está guardada en <code>cliente_vip</code>. El 90 % de 120 se obtiene multiplicando por <code>0.90</code>.</div><pre class="console">&gt; Supera el candado para activar el editor.</pre></div>
+        </div>
+      </div>
+    </article>
+
+    <!-- MISIÓN 3 -->
+    <article class="mission locked" id="mission-2" data-index="2">
+      <header class="mission-head"><div><div class="m-code">Módulo 03 · inventario.py</div><h3>Escanear el almacén</h3></div><span class="status"><i></i><span>Bloqueado</span></span></header>
+      <div class="locked-panel"><strong>🔒 Módulo cifrado</strong><p>Recupera las reglas de cliente para continuar.</p></div>
+      <div class="mission-body">
+        <div><p class="story">Hay varios niveles de stock, pero el sistema solo mira uno. Recorre la lista y lanza una alerta por cada valor inferior a 5.</p><div class="objective"><b>Objetivo Python:</b> repetir acciones con <code>for</code> y combinarlo con <code>if</code>.</div><div class="micro"><div class="micro-row"><code>for dato in lista:</code><span>Toma cada elemento, uno tras otro.</span></div><div class="micro-row"><code>if dato &lt; 5:</code><span>Comprueba una condición en cada vuelta.</span></div><div class="micro-row"><code>print(dato)</code><span>Muestra el dato que se está procesando.</span></div></div><div class="transfer"><strong>Después en Odoo:</strong> recorrerás registros para actualizar productos o generar avisos.</div></div>
+        <div><div class="gate" data-gate="2" data-answer="2"><div class="gate-title">🔒 Candado de memoria 02</div><p>¿Qué símbolo debe cerrar la línea de un <code>if</code>?</p><div class="gate-options"><button type="button">;</button><button type="button">{</button><button type="button">:</button></div><div class="gate-ok">✓ Sintaxis reconocida. Editor desbloqueado.</div></div><div class="lab" data-lab="2"><div class="lab-top"><span>● EDITOR</span><span>inventario.py</span></div><div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5</span><textarea class="editor" spellcheck="false" disabled aria-label="Editor de código misión 3">stocks = [8, 3, 12, 2]
+
+# Recorre todos los valores
+for _____ in _____:
+    if stock < 5:
+        print("ALERTA", stock)</textarea></div><div class="lab-actions"><button class="run" type="button" disabled>▶ Ejecutar</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div><div class="hint-box">En cada vuelta necesitas llamar <code>stock</code> al elemento extraído de la lista <code>stocks</code>.</div><pre class="console">&gt; Supera el candado para activar el editor.</pre></div></div>
+      </div>
+    </article>
+
+    <!-- MISIÓN 4 -->
+    <article class="mission locked" id="mission-3" data-index="3">
+      <header class="mission-head"><div><div class="m-code">Módulo 04 · catalogo.py</div><h3>Reconstruir los registros</h3></div><span class="status"><i></i><span>Bloqueado</span></span></header>
+      <div class="locked-panel"><strong>🔒 Módulo cifrado</strong><p>Completa el escaneo del almacén.</p></div>
+      <div class="mission-body">
+        <div><p class="story">Nombre, precio y stock están separados. Agrúpalos en un diccionario y recupera cada campo por su clave.</p><div class="objective"><b>Objetivo Python:</b> representar registros con listas y diccionarios.</div><div class="micro"><div class="micro-row"><code>{"nombre": "SSD"}</code><span>Un diccionario relaciona claves con valores.</span></div><div class="micro-row"><code>producto["precio"]</code><span>Accede al valor asociado a una clave.</span></div><div class="micro-row"><code>[p1, p2, p3]</code><span>Una lista puede almacenar varios registros.</span></div></div><div class="transfer"><strong>Después en Odoo:</strong> cada diccionario se parece a un registro con campos.</div></div>
+        <div><div class="gate" data-gate="3" data-answer="0"><div class="gate-title">🔒 Candado de memoria 03</div><p>Si <code>stocks = [8, 3, 12]</code>, ¿qué recorre <code>for stock in stocks</code>?</p><div class="gate-options"><button type="button">8, después 3 y después 12</button><button type="button">Solo el 8</button><button type="button">Los índices 1, 2 y 3</button></div><div class="gate-ok">✓ Secuencia confirmada. Editor desbloqueado.</div></div><div class="lab" data-lab="3"><div class="lab-top"><span>● EDITOR</span><span>catalogo.py</span></div><div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5<br>6</span><textarea class="editor" spellcheck="false" disabled aria-label="Editor de código misión 4">producto = {
+    "nombre": "Teclado",
+    "precio": 35.50,
+    "stock": 6
+}
+
+print(producto["_____"])
+print(producto["_____"])</textarea></div><div class="lab-actions"><button class="run" type="button" disabled>▶ Ejecutar</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div><div class="hint-box">Recupera primero <code>nombre</code> y después <code>precio</code>, escribiendo las claves entre comillas.</div><pre class="console">&gt; Supera el candado para activar el editor.</pre></div></div>
+      </div>
+    </article>
+
+    <!-- MISIÓN 5 -->
+    <article class="mission locked" id="mission-4" data-index="4">
+      <header class="mission-head"><div><div class="m-code">Módulo 05 · pedidos.py</div><h3>Recuperar el cálculo de pedidos</h3></div><span class="status"><i></i><span>Bloqueado</span></span></header>
+      <div class="locked-panel"><strong>🔒 Módulo cifrado</strong><p>Reconstruye primero los registros del catálogo.</p></div>
+      <div class="mission-body">
+        <div><p class="story">El cálculo del total aparece repetido y produce errores. Encapsúlalo en una función reutilizable.</p><div class="objective"><b>Objetivo Python:</b> crear funciones con parámetros y <code>return</code>.</div><div class="micro"><div class="micro-row"><code>def total(...):</code><span>Define una tarea con nombre propio.</span></div><div class="micro-row"><code>precio, unidades</code><span>Los parámetros son los datos de entrada.</span></div><div class="micro-row"><code>return resultado</code><span>Devuelve un valor para utilizarlo después.</span></div></div><div class="transfer"><strong>Después en Odoo:</strong> los métodos de un modelo contienen cálculos y acciones reutilizables.</div></div>
+        <div><div class="gate" data-gate="4" data-answer="1"><div class="gate-title">🔒 Candado de memoria 04</div><p>¿Cómo recuperas el precio del diccionario <code>producto</code>?</p><div class="gate-options"><button type="button">producto.precio()</button><button type="button">producto["precio"]</button><button type="button">producto = precio</button></div><div class="gate-ok">✓ Registro validado. Editor desbloqueado.</div></div><div class="lab" data-lab="4"><div class="lab-top"><span>● EDITOR</span><span>pedidos.py</span></div><div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5</span><textarea class="editor" spellcheck="false" disabled aria-label="Editor de código misión 5"># Completa la función
+def calcular_total(_____, _____):
+    return _____ * _____
+
+total = calcular_total(35.50, 3)
+print(total)</textarea></div><div class="lab-actions"><button class="run" type="button" disabled>▶ Ejecutar</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div><div class="hint-box">Usa dos parámetros llamados <code>precio</code> y <code>unidades</code>; devuelve su multiplicación.</div><pre class="console">&gt; Supera el candado para activar el editor.</pre></div></div>
+      </div>
+    </article>
+
+    <!-- MISIÓN FINAL -->
+    <article class="mission final locked" id="mission-5" data-index="5">
+      <header class="mission-head"><div><div class="m-code">Boss final · erp.py</div><h3>Levantar el mini‑ERP</h3></div><span class="status"><i></i><span>Bloqueado</span></span></header>
+      <div class="locked-panel"><strong>🔒 Servidor ERP aislado</strong><p>Recupera los cinco módulos para abrir el acceso final.</p></div>
+      <div class="mission-body">
+        <div><p class="story">Une lo aprendido: registros, recorrido, condición y función. El sistema debe calcular el valor del inventario y avisar del stock bajo.</p><div class="objective"><b>Misión integrada:</b> completar un programa pequeño, pero con lógica real de empresa.</div><div class="micro"><div class="micro-row"><code>lista + dict</code><span>Varios productos con sus propios campos.</span></div><div class="micro-row"><code>for + if</code><span>Procesamiento y regla de alerta.</span></div><div class="micro-row"><code>def + return</code><span>Cálculo reutilizable del valor.</span></div></div><div class="transfer"><strong>Puente directo a Odoo:</strong> datos → reglas → métodos → modelo de negocio.</div></div>
+        <div><div class="gate" data-gate="5" data-answer="2"><div class="gate-title">🔒 Autorización maestra</div><p>¿Qué palabra permite que una función entregue un resultado?</p><div class="gate-options"><button type="button">print</button><button type="button">def</button><button type="button">return</button></div><div class="gate-ok">✓ Acceso de administrador concedido.</div></div><div class="lab" data-lab="5"><div class="lab-top"><span>● EDITOR</span><span>erp.py</span></div><div class="codebox"><span class="lines">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</span><textarea class="editor" spellcheck="false" disabled aria-label="Editor de código misión final">productos = [
+    {"nombre": "SSD", "precio": 80, "stock": 3},
+    {"nombre": "RAM", "precio": 45, "stock": 8}
+]
+
+def valor_stock(precio, stock):
+    return _____
+
+for producto in _____:
+    total = valor_stock(producto["precio"], producto["stock"])
+    print(producto["nombre"], total)
+    if producto["stock"] < 5:
+        print("ALERTA DE STOCK")</textarea></div><div class="lab-actions"><button class="run" type="button" disabled>▶ Ejecutar ERP</button><button class="hint" type="button">Pista</button><button class="solution" type="button">Ver solución</button><button class="copy" type="button">Copiar</button><span class="attempts">INTENTOS: 0</span></div><div class="hint-box">El valor almacenado es <code>precio * stock</code>. El bucle debe recorrer la lista llamada <code>productos</code>.</div><pre class="console">&gt; Supera la autorización maestra.</pre></div></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="report" id="report" aria-live="polite">
+    <div class="m-code">Recovery report · ERP-01</div>
+    <h2>Sistema empresarial recuperado</h2>
+    <div class="big">100%</div>
+    <div class="report-grid"><div><b>Alumno/a</b><span id="studentReport">—</span></div><div><b>Módulos</b><span>6 de 6 operativos</span></div><div><b>Competencias</b><span>Variables · if · for · dict · def</span></div><div><b>Estado</b><span id="assistReport">Superado sin asistencia</span></div></div>
+    <p>Ya tienes la base de Python necesaria para reconocer la lógica de un modelo sencillo de Odoo. El siguiente paso será transformar el diccionario de producto en campos y las funciones en métodos.</p>
+    <div class="certificate"><button class="primary" type="button" onclick="window.print()">Imprimir evidencia</button><button class="ghost" type="button" id="copyFinal">Copiar código final</button></div>
+  </section>
+
+</main>
+<footer class="footer">SGE · Python Survival · Laboratorio introductorio previo a Odoo</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+  const KEY="sge_python_survival_v1";
+  const titles=["Datos","Decisiones","Bucles","Registros","Funciones","Mini‑ERP"];
+  const outputs=[
+    "Teclado 35.5 6\n[OK] Producto registrado.",
+    "108.0\n[OK] Descuento VIP aplicado.",
+    "ALERTA 3\nALERTA 2\n[OK] Inventario escaneado.",
+    "Teclado\n35.5\n[OK] Registro reconstruido.",
+    "106.5\n[OK] Función de pedido operativa.",
+    "SSD 240\nALERTA DE STOCK\nRAM 360\n[OK] ERP-01 OPERATIVO."
+  ];
+  const solutions=[
+`nombre = "Teclado"
+precio = 35.50
+stock = 6
+
+print(nombre, precio, stock)`,
+`precio = 120
+cliente_vip = True
+
+if cliente_vip:
+    precio = precio * 0.90
+
+print(precio)`,
+`stocks = [8, 3, 12, 2]
+
+for stock in stocks:
+    if stock < 5:
+        print("ALERTA", stock)`,
+`producto = {
+    "nombre": "Teclado",
+    "precio": 35.50,
+    "stock": 6
+}
+
+print(producto["nombre"])
+print(producto["precio"])`,
+`def calcular_total(precio, unidades):
+    return precio * unidades
+
+total = calcular_total(35.50, 3)
+print(total)`,
+`productos = [
+    {"nombre": "SSD", "precio": 80, "stock": 3},
+    {"nombre": "RAM", "precio": 45, "stock": 8}
+]
+
+def valor_stock(precio, stock):
+    return precio * stock
+
+for producto in productos:
+    total = valor_stock(producto["precio"], producto["stock"])
+    print(producto["nombre"], total)
+    if producto["stock"] < 5:
+        print("ALERTA DE STOCK")`
+  ];
+  let state={studentName:"",done:[false,false,false,false,false,false],assisted:[false,false,false,false,false,false],attempts:[0,0,0,0,0,0],gates:[true,false,false,false,false,false]};
+  try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&Array.isArray(saved.done)){state.studentName=typeof saved.studentName==="string"?saved.studentName:"";["done","assisted","attempts","gates"].forEach(key=>{if(Array.isArray(saved[key])&&saved[key].length===6)state[key]=saved[key]})}}catch(e){}
+  const $=(s,p=document)=>p.querySelector(s), $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
+  const clean=s=>s.replace(/#.*$/gm,"").replace(/\s+/g," ").trim().toLowerCase();
+  function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.classList.remove("show"),2600)}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  function normaliseName(value){return value.trim().replace(/\s+/g," ")}
+  function validFullName(value){return normaliseName(value).split(" ").filter(Boolean).length>=2}
+  function identified(){return validFullName(state.studentName||"")}
+  function isOpen(i){return i===0||state.done[i-1]}
+  function validate(i,raw){
+    const c=clean(raw); if(c.includes("_____"))return false;
+    if(i===0)return /nombre\s*=\s*["']teclado["']/.test(c)&&/precio\s*=\s*35(?:\.50?)?\b/.test(c)&&/stock\s*=\s*6\b/.test(c)&&/print\s*\(/.test(c);
+    if(i===1)return /if\s+cliente_vip\s*:/.test(c)&&(/precio\s*=\s*precio\s*\*\s*0\.9/.test(c)||/precio\s*\*=\s*0\.9/.test(c));
+    if(i===2)return /for\s+stock\s+in\s+stocks\s*:/.test(c)&&/if\s+stock\s*<\s*5\s*:/.test(c)&&/print\s*\(/.test(c);
+    if(i===3)return /producto\s*\[\s*["']nombre["']\s*\]/.test(c)&&/producto\s*\[\s*["']precio["']\s*\]/.test(c);
+    if(i===4)return /def\s+calcular_total\s*\(\s*precio\s*,\s*unidades\s*\)\s*:/.test(c)&&/return\s+(precio\s*\*\s*unidades|unidades\s*\*\s*precio)/.test(c);
+    if(i===5)return /return\s+(precio\s*\*\s*stock|stock\s*\*\s*precio)/.test(c)&&/for\s+producto\s+in\s+productos\s*:/.test(c)&&/producto\s*\[\s*["']stock["']\s*\]\s*<\s*5/.test(c);
+    return false;
+  }
+  function renderRoute(){
+    const route=$("#route"); route.innerHTML="";
+    titles.forEach((title,i)=>{const b=document.createElement("button");b.type="button";b.innerHTML=`<span class="n">${i===5?"FINAL":"0"+(i+1)}</span><span class="t">${title}</span>`;b.className=state.done[i]?(state.assisted[i]?"assisted":"done"):(isOpen(i)&&identified()?"open":"locked");b.disabled=!identified()||!isOpen(i);b.setAttribute("aria-label",`${i===5?"Misión final":"Misión "+(i+1)}: ${title}`);b.addEventListener("click",()=>$("#mission-"+i).scrollIntoView({behavior:"smooth",block:"start"}));route.appendChild(b)});
+  }
+  function render(){
+    $$(".mission").forEach((m,i)=>{
+      const open=isOpen(i),access=identified();m.classList.toggle("locked",!open);m.classList.toggle("available",open&&access&&!state.done[i]);m.classList.toggle("complete",state.done[i]);
+      const status=$(".status span",m);status.textContent=state.done[i]?(state.assisted[i]?"Superado con ayuda":"Recuperado"):(!access?"Identifícate para comenzar":(open?"Disponible":"Bloqueado"));
+      const gate=$(".gate",m), editor=$(".editor",m), run=$(".run",m), sol=$(".solution",m), attempts=$(".attempts",m);
+      if(gate){gate.classList.toggle("passed",!!state.gates[i]);$$("button",gate).forEach(button=>button.disabled=!access);editor.disabled=!access||!state.gates[i];run.disabled=!access||!state.gates[i]}
+      else{editor.disabled=!access||!open;run.disabled=!access||!open}
+      [$(".hint",m),sol,$(".copy",m)].forEach(button=>{if(button)button.disabled=!access||!open});
+      if(state.attempts[i]>=3&&!state.done[i])sol.classList.add("show");attempts.textContent=`INTENTOS: ${state.attempts[i]}`;
+    });
+    const n=state.done.filter(Boolean).length;$("#progressBar").style.width=(n/6*100)+"%";$("#progressCopy").textContent=`${n} / 6 RECUPERADOS`;renderRoute();
+    $("#operatorName").textContent=state.studentName||"";$("#studentReport").textContent=state.studentName||"—";$("#identificacion").classList.toggle("confirmed",identified());$("#identityStatus").textContent=identified()?`✓ Operador identificado: ${state.studentName}`:"⚠ Identificación pendiente. Los ejercicios permanecen desactivados.";
+    const report=$("#report");report.classList.toggle("show",n===6);if(n===6){const a=state.assisted.filter(Boolean).length;$("#assistReport").textContent=a?`${a} misión${a>1?"es":""} con ayuda`:"Superado sin asistencia"}
+  }
+  $$(".gate").forEach(g=>{$$("button",g).forEach((b,j)=>b.addEventListener("click",()=>{const i=Number(g.dataset.gate);if(j===Number(g.dataset.answer)){b.classList.add("right");state.gates[i]=true;const m=$("#mission-"+i);$(".editor",m).disabled=false;$(".run",m).disabled=false;$(".console",m).textContent="> Acceso concedido. Completa el programa.";save();render();toast("🔓 Candado superado: editor desbloqueado")}else{b.classList.add("wrong");setTimeout(()=>b.classList.remove("wrong"),700);toast("Acceso denegado. Revisa la microteoría.")}}))});
+  $$(".lab").forEach(lab=>{
+    const i=Number(lab.dataset.lab),ed=$(".editor",lab),con=$(".console",lab),sol=$(".solution",lab);
+    $(".run",lab).addEventListener("click",()=>{state.attempts[i]++;if(validate(i,ed.value)){state.done[i]=true;con.className="console ok";con.textContent="> python3 "+["productos.py","descuentos.py","inventario.py","catalogo.py","pedidos.py","erp.py"][i]+"\n"+outputs[i];save();render();toast(i===5?"✓ ERP-01 recuperado. Misión completada.":"✓ Módulo recuperado. Nueva misión desbloqueada.");if(i<5)setTimeout(()=>$("#mission-"+(i+1)).scrollIntoView({behavior:"smooth",block:"start"}),900);else setTimeout(()=>$("#report").scrollIntoView({behavior:"smooth"}),900)}else{con.className="console err";con.textContent="> ERROR DE RECUPERACIÓN\nRevisa los huecos, nombres, dos puntos e indentación.\nEl sistema necesita que uses la estructura indicada.";if(state.attempts[i]>=3)sol.classList.add("show");save();render()}});
+    $(".hint",lab).addEventListener("click",()=>$(".hint-box",lab).classList.toggle("show"));
+    sol.addEventListener("click",()=>{ed.value=solutions[i];state.assisted[i]=true;save();toast("Solución cargada. Ejecútala para verificarla.")});
+    $(".copy",lab).addEventListener("click",async()=>{try{await navigator.clipboard.writeText(ed.value);toast("Código copiado") }catch(e){ed.select();document.execCommand("copy");toast("Código copiado")}});
+    ed.addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();const s=ed.selectionStart,n=ed.selectionEnd;ed.value=ed.value.slice(0,s)+"    "+ed.value.slice(n);ed.selectionStart=ed.selectionEnd=s+4}});
+  });
+  $("#copyFinal").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(solutions[5]);toast("Código final copiado") }catch(e){toast("Selecciona y copia el código de la misión final")}});
+  $("#identityForm").addEventListener("submit",e=>{e.preventDefault();const input=$("#studentName"),name=normaliseName(input.value);if(!validFullName(name)){$("#identityError").textContent="Escribe al menos tu nombre y un apellido.";input.focus();return}state.studentName=name;input.value=name;$("#identityError").textContent="";save();render();toast("✓ Operador identificado. Ya puedes comenzar.");setTimeout(()=>$("#misiones").scrollIntoView({behavior:"smooth",block:"start"}),350)});
+  $("#resetBtn").addEventListener("click",()=>{if(confirm("¿Reiniciar todas las misiones y borrar el progreso guardado?")){try{localStorage.removeItem(KEY)}catch(e){}location.reload()}});
+  if(identified())$("#studentName").value=state.studentName;else state.studentName="";
+  render();
+})();
+</script>
+</body>
+</html>

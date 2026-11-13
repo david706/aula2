@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resumen de programación provisional · Fundamentos de Hardware 0371</title>
+<style>
+  :root{
+    --bg:#071522; --panel:#0d2131; --panel2:#102b3e; --line:#24465c;
+    --cyan:#52d6ff; --green:#a8e52a; --text:#f4f8fb; --muted:#b9c9d4;
+    --paper:#f5f8fa; --ink:#15232d; --soft:#536774; --paperline:#dce6eb;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:Inter,"Segoe UI",Arial,sans-serif;background:var(--paper);color:var(--ink);line-height:1.48}
+  .hero{min-height:430px;padding:58px 8vw 46px;color:var(--text);position:relative;overflow:hidden;
+    background:
+      radial-gradient(circle at 75% 25%, rgba(82,214,255,.18), transparent 25%),
+      linear-gradient(135deg,#06131f 0%,#0c2c42 54%,#0a1725 100%)}
+  .hero:before,.hero:after{content:"";position:absolute;opacity:.35;border:1px solid var(--cyan)}
+  .hero:before{width:520px;height:310px;right:-80px;top:20px;transform:skewX(-18deg);border-radius:24px}
+  .hero:after{width:430px;height:210px;right:80px;bottom:-100px;transform:rotate(-8deg);border-radius:24px}
+  .chip{display:inline-flex;gap:10px;align-items:center;padding:8px 12px;border:1px solid rgba(82,214,255,.35);border-radius:999px;background:rgba(5,20,31,.55);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+  h1{font-size:clamp(40px,6vw,76px);line-height:.98;margin:30px 0 12px;max-width:1000px;font-weight:720;letter-spacing:-.035em}
+  .module{font-size:25px;color:var(--green);margin:0 0 28px}
+  .lead{max-width:850px;color:#d9e7ef;font-size:19px}
+  .meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.meta span{padding:9px 12px;border-radius:9px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);font-size:14px}
+  main{max-width:1120px;margin:-22px auto 0;padding:0 24px 70px;position:relative}
+  .card{background:white;border:1px solid var(--paperline);border-radius:18px;padding:28px;margin:18px 0;box-shadow:0 8px 28px rgba(21,35,45,.06);break-inside:avoid}
+  .card.dark{background:linear-gradient(135deg,var(--panel),var(--panel2));color:var(--text);border-color:#173e57}
+  .card.dark p,.card.dark li{color:#d9e7ef}
+  h2{font-size:26px;margin:0 0 18px;letter-spacing:-.02em} h2 .n{color:#1b8fba;margin-right:8px}.dark h2 .n{color:var(--cyan)}
+  h3{font-size:18px;margin:20px 0 8px}
+  p{margin:8px 0 12px}.muted{color:var(--soft)}
+  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .stat{padding:18px;border-radius:14px;background:#eef6f9;border:1px solid #d7e9f0}.stat strong{display:block;font-size:30px;color:#0c769f;line-height:1.1}.stat span{font-size:13px;color:var(--soft)}
+  .dark .stat{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)}.dark .stat strong{color:var(--green)}.dark .stat span{color:#c5d6df}.dark a{color:#70dfff;font-weight:650}
+  ul{padding-left:22px;margin:8px 0}li{margin:7px 0}
+  .ra{display:grid;grid-template-columns:55px 1fr;gap:14px;align-items:start;padding:14px 0;border-bottom:1px solid var(--paperline)}.ra:last-child{border-bottom:0}
+  .badge{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#0c779f;color:white;font-weight:800}.ra h3{margin:2px 0 5px}.ra p{margin:0;color:var(--soft)}
+  .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.term{padding:18px;border-radius:14px;border:1px solid var(--paperline);background:#fbfdfe}.term .q{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#1384ad;font-weight:700}.term strong{display:block;font-size:20px;margin:5px 0 8px}
+  .formula{display:grid;grid-template-columns:1fr 1fr;gap:14px}.formula>div{padding:20px;border-radius:14px;color:white;background:#123246}.formula b{font-size:34px;color:var(--green);display:block}.formula strong{display:block;margin:4px 0 5px}.formula small{display:block;color:#cbdce5;line-height:1.35}
+  .alert{border-left:5px solid #e29c22;background:#fff8e9;padding:14px 16px;border-radius:0 12px 12px 0}.ok{border-left-color:#2aa56f;background:#eefaf5}.danger{border-left-color:#d74d4d;background:#fff1f1}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--paperline);vertical-align:top}th{background:#edf5f8;color:#28404e}
+  .footer{max-width:1120px;margin:auto;padding:20px 24px 45px;color:#687b87;font-size:13px}
+  .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e9f5fa;color:#0e789f;font-size:12px;font-weight:700;margin-right:5px}
+  a{color:#05769e;text-decoration:none;word-break:break-all}
+
+  /* Acordeones nativos sin JavaScript */
+  .accordion{display:grid;gap:14px}
+  details.acc{
+    background:#fff;border:1px solid var(--paperline);border-radius:18px;
+    box-shadow:0 8px 28px rgba(21,35,45,.06);overflow:hidden
+  }
+  details.acc.dark{
+    background:linear-gradient(135deg,var(--panel),var(--panel2));
+    color:var(--text);border-color:#173e57
+  }
+  details.acc>summary{
+    list-style:none;cursor:pointer;padding:22px 26px;display:flex;
+    align-items:center;gap:14px;font-size:24px;font-weight:750;
+    letter-spacing:-.02em
+  }
+  details.acc>summary::-webkit-details-marker{display:none}
+  details.acc>summary::after{
+    content:"+";margin-left:auto;width:34px;height:34px;border-radius:10px;
+    display:grid;place-items:center;background:#eaf6fa;color:#087da5;
+    font-size:24px;font-weight:500
+  }
+  details.acc[open]>summary::after{content:"−"}
+  details.acc.dark>summary::after{
+    background:rgba(255,255,255,.08);color:var(--green)
+  }
+  details.acc>summary:hover{background:#f8fbfc}
+  details.acc.dark>summary:hover{background:rgba(255,255,255,.035)}
+  .acc-num{
+    min-width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
+    background:#0c779f;color:white;font-size:14px;font-weight:800
+  }
+  details.acc.dark .acc-num{
+    background:rgba(82,214,255,.12);color:var(--cyan);
+    border:1px solid rgba(82,214,255,.25)
+  }
+  .acc-sub{font-size:14px;font-weight:500;color:var(--soft);margin-left:6px}
+  details.acc.dark .acc-sub{color:#bcd0db}
+  .acc-body{padding:0 26px 26px}
+  details.acc.dark .acc-body p,
+  details.acc.dark .acc-body li{color:#d9e7ef}
+  .accordion-help{
+    margin:0 0 16px;padding:11px 14px;border-radius:12px;
+    background:#eaf6fa;color:#40606f;font-size:14px
+  }
+
+  /* Subacordeones de resultados de aprendizaje */
+  details.raacc{border-bottom:1px solid var(--paperline)}
+  details.raacc:last-child{border-bottom:0}
+  details.raacc>summary{
+    list-style:none;cursor:pointer;display:grid;
+    grid-template-columns:55px 1fr 28px;gap:14px;align-items:center;
+    padding:14px 0
+  }
+  details.raacc>summary::-webkit-details-marker{display:none}
+  details.raacc>summary::after{content:"+";font-size:22px;color:#1481a8;text-align:center}
+  details.raacc[open]>summary::after{content:"−"}
+  details.raacc .ra-text h3{margin:2px 0 5px}
+  details.raacc .ra-text p{margin:0;color:var(--soft)}
+  .ra-extra{padding:0 0 15px 69px;color:var(--soft);font-size:14px}
+
+  @media(max-width:760px){
+    details.acc>summary{padding:18px;font-size:20px}
+    .acc-body{padding:0 18px 20px}
+    .acc-sub{display:none}
+    details.raacc>summary{grid-template-columns:48px 1fr 24px}
+    .ra-extra{padding-left:62px}
+  }
+
+  @media print{
+    details.acc{display:block!important}
+    details.acc>summary{padding:12px 0}
+    details.acc>summary::after{display:none}
+    .acc-body{padding:0 0 12px}
+    details.acc:not([open]) .acc-body{display:block}
+    .accordion-help{display:none}
+  }
+
+  @media(max-width:760px){.stats,.grid,.timeline,.formula{grid-template-columns:1fr}.hero{padding:42px 24px}.hero h1{font-size:46px}main{padding:0 14px 50px}.card{padding:21px}.meta{display:grid}.ra{grid-template-columns:48px 1fr}}
+  @media print{
+    @page{size:A4;margin:13mm 13mm 14mm}
+    body{background:white;font-size:10.6pt;color:#16242d}
+    .hero{min-height:245px;padding:25mm 14mm 18mm;margin:-13mm -13mm 0;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .hero h1{font-size:36pt}.module{font-size:18pt}.lead{font-size:12pt}.meta span{font-size:9pt}.chip{font-size:8.5pt}
+    main{max-width:none;margin:0;padding:0}.card{box-shadow:none;border-radius:8px;padding:16px 17px;margin:11px 0;break-inside:avoid}.card.dark{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    h2{font-size:18pt}h3{font-size:12.5pt}.stat strong{font-size:23pt}.stats{gap:8px}.stat{padding:12px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .ra{padding:10px 0}.badge{width:39px;height:39px;border-radius:8px;print-color-adjust:exact;-webkit-print-color-adjust:exact}.timeline,.formula{gap:8px}.term,.formula>div{padding:12px;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .alert{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .footer{max-width:none;padding:10px 0 0;font-size:8.5pt}
+    a{color:#17252e;text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="chip"><span class="dot"></span> Resumen de programación didáctica · provisional</div>
+  <h1>Fundamentos de Hardware</h1>
+  <p class="module">Módulo 0371 · 1.º ASIR · IES Pablo Serrano</p>
+  <p class="lead">Documento de síntesis para el alumnado en formato desplegable: pulsa en cada apartado para consultar la información.</p>
+  <div class="meta">
+    <span>Curso 2026-2027</span><span>116 horas totales</span><span>4 h/semana · pendiente de confirmar distribución completa</span><span>Evaluación continua</span>
+  </div>
+</header>
+
+<main>
+<div class="accordion-help">Pulsa sobre cada apartado para desplegar u ocultar la información.</div>
+<div class="accordion">
+<details class="acc dark" open>
+  <summary><span class="acc-num">01</span><span>Datos clave del módulo<span class="acc-sub"> · Horario, duración y asistencia</span></span></summary>
+  <div class="acc-body">
+<div class="stats">
+      <div class="stat"><strong>116 h</strong><span>Duración total</span></div>
+      <div class="stat"><strong>4 h</strong><span>Carga semanal indicada</span></div>
+      <div class="stat"><strong>15%</strong><span>Límite de faltas para conservar la evaluación continua</span></div>
+      <div class="stat"><strong>~17 h</strong><span>Referencia aproximada del 15% de 116 h</span></div>
+    </div>
+    <h3>Horario comunicado</h3>
+    <div class="grid">
+      <div><span class="tag">Lunes</span> 08:30-09:20</div>
+      <div><span class="tag">Miércoles</span> 10:20-12:30 · recreo 11:10-11:40</div>
+    </div>
+    <p class="alert" style="margin-top:18px"><strong>Comprobación pendiente:</strong> la distribución horaria anterior suma 2 h 30 min lectivos semanales. Como la carga indicada es de 4 h/semana, falta por incorporar o confirmar alguna franja del horario definitivo.</p>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">02</span><span>¿Qué vamos a aprender?<span class="acc-sub"> · Resultados de aprendizaje</span></span></summary>
+  <div class="acc-body">
+<details class="raacc">
+  <summary>
+    <div class="badge">RA1</div>
+    <div class="ra-text"><h3>Equipos microinformáticos y periféricos</h3><p>Configurar equipos, componentes y periféricos analizando sus características, arquitectura, conexiones, prestaciones, diagnóstico y relación con el conjunto.</p></div>
+  </summary>
+  <div class="ra-extra">Resultado de aprendizaje del módulo. Pulsa de nuevo para contraer este apartado.</div>
+</details>
+    <details class="raacc">
+  <summary>
+    <div class="badge">RA2</div>
+    <div class="ra-text"><h3>Software de propósito general</h3><p>Instalar y evaluar software de uso general: utilidades, seguridad básica, ofimática, licencias, aplicaciones portables, mantenimiento e inventario.</p></div>
+  </summary>
+  <div class="ra-extra">Resultado de aprendizaje del módulo. Pulsa de nuevo para contraer este apartado.</div>
+</details>
+    <details class="raacc">
+  <summary>
+    <div class="badge">RA3</div>
+    <div class="ra-text"><h3>Recuperación del software base</h3><p>Trabajar con secuencias de arranque, particionado, creación y restauración de imágenes y diferentes soportes de almacenamiento.</p></div>
+  </summary>
+  <div class="ra-extra">Resultado de aprendizaje del módulo. Pulsa de nuevo para contraer este apartado.</div>
+</details>
+    <details class="raacc">
+  <summary>
+    <div class="badge">RA4</div>
+    <div class="ra-text"><h3>Hardware específico de CPD</h3><p>Analizar e implantar soluciones de centros de proceso de datos: hardware empresarial, almacenamiento, alimentación, seguridad física, condiciones ambientales e inventariado.</p></div>
+  </summary>
+  <div class="ra-extra">Resultado de aprendizaje del módulo. Pulsa de nuevo para contraer este apartado.</div>
+</details>
+    <details class="raacc">
+  <summary>
+    <div class="badge">RA5</div>
+    <div class="ra-text"><h3>Prevención y protección ambiental</h3><p>Aplicar normas de prevención de riesgos, seguridad, orden, limpieza, equipos de protección y gestión adecuada de residuos.</p></div>
+  </summary>
+  <div class="ra-extra">Resultado de aprendizaje del módulo. Pulsa de nuevo para contraer este apartado.</div>
+</details>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">03</span><span>Temporalización provisional<span class="acc-sub"> · Distribución por evaluaciones</span></span></summary>
+  <div class="acc-body">
+<p class="muted">La secuencia podrá ajustarse en función del calendario escolar, el ritmo del grupo, las prácticas y las necesidades del módulo.</p>
+    <div class="timeline">
+      <div class="term"><div class="q">1.ª evaluación</div><strong>RA1 · Hardware del equipo</strong><p>Arquitectura, componentes, periféricos, montaje, configuración, diagnóstico y rendimiento.</p></div>
+      <div class="term"><div class="q">2.ª evaluación</div><strong>RA2 + RA5</strong><p>Software de propósito general, utilidades, licencias y seguridad; prevención de riesgos y buenas prácticas.</p></div>
+      <div class="term"><div class="q">3.ª evaluación</div><strong>RA3 + RA4</strong><p>Imágenes y recuperación de sistemas; hardware empresarial y fundamentos de CPD.</p></div>
+    </div>
+  </div>
+</details>
+<details class="acc dark">
+  <summary><span class="acc-num">04</span><span>Evaluación y calificación<span class="acc-sub"> · Cómo se obtiene la nota</span></span></summary>
+  <div class="acc-body">
+<div class="formula">
+      <div><b>70%</b><strong>Pruebas individuales</strong><small>Exámenes y pruebas teórico-prácticas.</small></div>
+      <div><b>30%</b><strong>Actividades y prácticas</strong><small>Tareas, ejercicios, proyectos o retos de la evaluación.</small></div>
+    </div>
+    <ul>
+      <li>Si en una evaluación no hubiera prácticas o tareas calificables, las pruebas objetivas pasarán a representar el <strong>100%</strong> de la calificación de esa evaluación.</li>
+      <li>Para superar una evaluación se deberá obtener una calificación media de <strong>5 o superior</strong>.</li>
+      <li>La calificación final del módulo será la media de las tres evaluaciones, siempre que se haya obtenido al menos un <strong>5 en cada una</strong>.</li>
+      <li>En cada prueba se comunicarán sus criterios de corrección.</li>
+      <li>Las actividades y entregas se gestionarán preferentemente mediante <strong>Aeducar</strong> dentro del plazo indicado.</li>
+    </ul>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">05</span><span>Asistencia y evaluación continua<span class="acc-sub"> · Límite de faltas</span></span></summary>
+  <div class="acc-body">
+<p>La asistencia forma parte del seguimiento ordinario del módulo. El alumnado que alcance o supere el <strong>15% de faltas de asistencia</strong> perderá el derecho a la evaluación continua y deberá seguir el procedimiento previsto para la evaluación final.</p>
+    <div class="alert ok"><strong>Referencia:</strong> el 15% de 116 horas son 17,4 horas; como orientación práctica se presenta como aproximadamente <strong>17 horas</strong>. La aplicación exacta se realizará conforme a la normativa y al registro de asistencia del centro.</div>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">06</span><span>Convocatorias y recuperación<span class="acc-sub"> · Qué ocurre con las partes pendientes</span></span></summary>
+  <div class="acc-body">
+<table>
+      <thead><tr><th>Situación</th><th>Criterio general</th></tr></thead>
+      <tbody>
+        <tr><td>Ausencia a una prueba</td><td>La prueba no se repetirá en otro momento, salvo que la normativa o una circunstancia debidamente reconocida por el centro establezca otra actuación.</td></tr>
+        <tr><td>1.ª convocatoria de junio (J1)</td><td>El alumnado con evaluaciones pendientes se examinará de las partes no superadas. Quien no haya superado ninguna evaluación realizará la totalidad de la prueba correspondiente.</td></tr>
+        <tr><td>2.ª convocatoria de junio (J2)</td><td>La materia de la prueba abarcará el módulo completo y la superación se producirá al obtener la calificación mínima establecida.</td></tr>
+        <tr><td>Pérdida de evaluación continua</td><td>Las pruebas teórico-prácticas de la convocatoria final supondrán el 100% de la nota correspondiente al procedimiento de evaluación final.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">07</span><span>Redondeo de calificaciones<span class="acc-sub"> · Cómo se obtiene la nota entera</span></span></summary>
+  <div class="acc-body">
+<p>La media de cada evaluación y la final se calcularán inicialmente con <strong>dos decimales</strong>. El resultado se redondeará al entero más próximo, con la excepción de las calificaciones iguales o superiores a 4,5 e inferiores a 5, que se mantendrán como <strong>4</strong>.</p>
+    <div class="grid">
+      <div class="alert ok"><strong>Ejemplos:</strong> 5,60 → 6 · 5,40 → 5</div>
+      <div class="alert"><strong>Excepción:</strong> 4,70 → 4</div>
+    </div>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">08</span><span>Autoría, plagio e inteligencia artificial<span class="acc-sub"> · Integridad académica</span></span></summary>
+  <div class="acc-body">
+<div class="alert danger"><strong>Integridad académica:</strong> si una tarea, ejercicio, trabajo, práctica o examen ha sido copiado, plagiado o suplantado, total o parcialmente, podrá ser calificado como <strong>no apto / 0</strong> para las partes implicadas.</div>
+    <ul>
+      <li>El uso de herramientas de inteligencia artificial para realizar tareas o actividades evaluables <strong>no está permitido</strong>, salvo autorización expresa del profesor para una actividad concreta.</li>
+      <li>Las entregas deberán incluir las fuentes utilizadas y una bibliografía correctamente formateada, tomando como referencia <strong>APA 6.ª edición o superior</strong>.</li>
+      <li>La ausencia de citación adecuada podrá considerarse un problema de plagio o autoría.</li>
+      <li>Se valorarán la calidad, la originalidad, el trabajo propio y la capacidad de explicar o defender lo realizado.</li>
+    </ul>
+  </div>
+</details>
+<details class="acc">
+  <summary><span class="acc-num">09</span><span>Uso de dispositivos electrónicos<span class="acc-sub"> · Normas de aula</span></span></summary>
+  <div class="acc-body">
+<ul>
+      <li>Durante las horas lectivas, los teléfonos móviles y otros dispositivos no autorizados deberán permanecer <strong>guardados, en silencio y/o apagados</strong>.</li>
+      <li>El incumplimiento se tratará conforme a las normas de convivencia y disciplina del centro.</li>
+      <li>Aunque se utilice un ordenador personal para actividades académicas, está prohibido el uso activo de <strong>WhatsApp, Telegram u otras aplicaciones de mensajería</strong> durante las clases, salvo indicación docente.</li>
+    </ul>
+  </div>
+</details>
+<details class="acc dark">
+  <summary><span class="acc-num">10</span><span>Aula virtual y contacto<span class="acc-sub"> · Aeducar y contacto docente</span></span></summary>
+  <div class="acc-body">
+<p><strong>Aula virtual:</strong><br><a href="https://iespabloserrano.aeducar.es/login/">https://iespabloserrano.aeducar.es/login/</a></p>
+    <p><strong>Contacto docente:</strong><br><a href="mailto:domedes@iespabloserrano.com">domedes@iespabloserrano.com</a></p>
+    <p style="margin-top:18px;color:#bcd0db"><strong>Documento provisional:</strong> este resumen facilita al alumnado una visión rápida del funcionamiento del módulo. La programación didáctica definitiva, las instrucciones del centro y los criterios publicados para cada actividad o prueba prevalecerán cuando corresponda.</p>
+  </div>
+</details>
+</div>
+</main>
+
+<footer class="footer">Fundamentos de Hardware · Módulo 0371 · IES Pablo Serrano · Curso 2026-2027 · Resumen provisional</footer>
+</body>
+</html>

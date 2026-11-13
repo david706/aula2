@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Procesos padre, hijo y demonios — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+details{margin:.5em 0}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}}
+.analogia{border-left:6px solid var(--navy2);background:#eef4fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><div class="k">&gt; module ISO 0369 · UD2 · RA2.c</div><h1>Procesos padre, hijo y demonios</h1><p>La familia de procesos: de dónde sale cada uno, qué hereda, qué pasa cuando se rompe y qué es un demonio.</p><div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">Linux + equivalentes en Windows</span><span class="pill">Antes de la práctica 6</span></div></div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+<div class="wrap">
+
+<div class="card"><h2>Por qué importa</h2>
+<p>Casi todo lo que verás en procesos y servicios depende de una idea: <b>los procesos tienen familia</b>. Saber quién es el padre de quién explica por qué un proceso hereda tus permisos, por qué al cerrar la terminal mueren algunos programas y otros no, qué es un proceso «zombi» y qué es un <b>demonio</b>.</p>
+<div class="analogia"><b>Una familia.</b> Cada proceso lo crea <b>otro proceso</b> (su <b>padre</b>). Los creados son sus <b>hijos</b>. Solo hay uno sin padre: el primero que arranca el sistema.</div>
+<h3>Antes de empezar</h3>
+<ul><li>VM <b>Ubuntu Server</b> y una terminal. Para <code>pstree</code>: <code>sudo apt install psmisc</code> (suele venir ya).</li>
+<li>Para el apartado de Windows, <b>PowerShell como administrador</b>.</li></ul></div>
+
+<div class="card"><h2>1. Padre e hijos</h2>
+<p>Cada proceso tiene dos números: su <b>PID</b> (quién soy) y su <b>PPID</b> (quién es mi padre).</p>
+<pre>PID 1  systemd                 ← el primero: no tiene padre real
+ └─ sshd                       ← hijo de systemd
+     └─ sshd: ana@pts/0
+         └─ bash  (PID 1532)   ← tu terminal
+             └─ ls             ← hijo de bash mientras se ejecuta</pre>
+<h3>¿Cómo nace un proceso? fork + exec</h3>
+<p>En Linux un proceso nuevo se crea en <b>dos pasos</b>:</p>
+<ol><li><b><code>fork</code></b>: el padre se <b>clona</b>. Ahora hay dos procesos casi idénticos (padre e hijo), con PID distintos.</li>
+<li><b><code>exec</code></b>: el hijo <b>cambia de programa</b>: sustituye su contenido por otro (por ejemplo <code>ls</code>).</li></ol>
+<p>Eso es exactamente lo que hace tu shell cuando escribes un comando: <b>bash hace fork, el hijo hace exec de <code>ls</code> y bash espera</b> (<code>wait</code>) a que termine para devolverte el prompt.</p>
+<h3>Qué hereda el hijo</h3>
+<table><tr><th>Hereda del padre</th><th>Consecuencia</th></tr>
+<tr><td>El <b>usuario</b> (UID)</td><td>El hijo tiene tus mismos permisos: nada más, nada menos</td></tr>
+<tr><td>El <b>directorio actual</b></td><td>Por eso <code>ls</code> lista donde estás</td></tr>
+<tr><td>Las <b>variables de entorno</b></td><td>El hijo ve <code>PATH</code>, <code>HOME</code>…</td></tr></table>
+<div class="info">Lo que no se hereda hacia arriba: si el hijo cambia de directorio, el padre no se entera. Por eso <code>cd</code> es un comando <b>interno de la shell</b> y no un programa aparte: si fuera un hijo, no podría cambiar el directorio de su padre.</div>
+<h3>Míralo tú</h3>
+<div class="step"><input type="checkbox"><div>Tu PID y el de tu padre: <pre>echo $$
+echo $PPID</pre> <code>$$</code> es el PID de tu shell y <code>$PPID</code> el de su padre (normalmente un <code>sshd</code>).</div></div>
+<div class="step"><input type="checkbox"><div>Abre una shell <b>dentro</b> de la tuya y compara: <pre>bash
+echo $$
+echo $PPID
+exit</pre> El <code>$PPID</code> de la shell nueva es el <code>$$</code> de la anterior: es su hija. <code>exit</code> la cierra y vuelves a la primera.</div></div>
+<div class="step"><input type="checkbox"><div>Mira el árbol entero: <pre>pstree -p | head -20
+ps -ef --forest | head -30</pre></div></div>
+<div class="step"><input type="checkbox"><div>Lanza un hijo en segundo plano y míralo: <pre>sleep 300 &amp;
+ps -o pid,ppid,stat,cmd --ppid $$</pre> Salen los hijos de tu shell, incluido <code>sleep</code>. Con <code>kill %1</code> lo terminas.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">¿Por qué <code>cd</code> no es un programa externo? <small>(clic para ver la respuesta)</small><div class="ans">Porque un hijo no puede cambiar el directorio de su padre. Si <code>cd</code> fuera un programa, cambiaría su propio directorio y desaparecería sin afectar a la shell.</div></div></div>
+
+<div class="card"><h2>2. Cuando la familia se rompe: huérfanos y zombis</h2>
+<h3>Proceso huérfano</h3>
+<p>Es un hijo cuyo <b>padre ha terminado antes que él</b>. Linux no lo deja «colgando»: lo <b>adopta el proceso 1</b> (systemd, o el gestor de systemd de tu usuario). El hijo sigue funcionando con normalidad.</p>
+<div class="step"><input type="checkbox"><div>Provoca uno: <pre>bash -c 'sleep 300 &amp; echo "hijo: $!"'</pre> El <code>bash</code> imprime el PID del hijo y <b>termina enseguida</b>; el <code>sleep</code> queda vivo. Comprueba quién es ahora su padre (sustituye <code>PID</code>): <pre>ps -o pid,ppid,stat,cmd -p PID</pre> El PPID ya no es el del <code>bash</code>: es <b>1</b> (o el de <code>systemd --user</code>). Limpia con <code>kill PID</code>.</div></div>
+<h3>Proceso zombi</h3>
+<p>Es lo contrario: un hijo que <b>ya ha terminado</b>, pero cuyo <b>padre no ha recogido su resultado</b> (no ha hecho <code>wait</code>). El hijo está «muerto»: no usa CPU ni memoria, pero su <b>entrada en la tabla de procesos</b> sigue ahí. Aparece con <b>STAT = Z</b> y <code>&lt;defunct&gt;</code>.</p>
+<div class="step"><input type="checkbox"><div>Provoca un zombi durante un minuto: <pre>bash -c 'sleep 1 &amp; exec sleep 60' &amp;
+sleep 3
+ps -o pid,ppid,stat,cmd | grep -E 'sleep|defunct'</pre> Verás un <code>sleep</code> con STAT <b>Z</b> (<code>[sleep] &lt;defunct&gt;</code>) cuyo padre es el otro <code>sleep 60</code>, que nunca lo recoge.</div></div>
+<div class="warn"><b>A un zombi no se le mata.</b> Ya está muerto; <code>kill -9</code> no hace nada. Se arregla <b>terminando a su padre</b>: cuando el padre muere, el proceso 1 adopta al zombi y lo recoge.</div>
+<table><tr><th></th><th>Huérfano</th><th>Zombi</th></tr>
+<tr><td>¿Qué le pasó?</td><td>Murió su <b>padre</b></td><td>Murió <b>él</b></td></tr>
+<tr><td>¿Sigue funcionando?</td><td>Sí</td><td>No, es solo una entrada en la tabla</td></tr>
+<tr><td>STAT</td><td>R o S normal</td><td><b>Z</b></td></tr>
+<tr><td>¿Problema?</td><td>No: lo adopta el PID 1</td><td>Solo si se acumulan muchos (se agota la tabla)</td></tr>
+<tr><td>Solución</td><td>Ninguna necesaria</td><td>Terminar a su padre</td></tr></table>
+<div class="q" onclick="this.classList.toggle('open')">Ves un proceso en estado Z que no responde a <code>kill -9</code>. ¿Qué haces? <small>(clic para ver la respuesta)</small><div class="ans">Averiguas quién es su padre (<code>ps -o ppid= -p PID</code>) y analizas o terminas <b>al padre</b>. El zombi desaparece cuando el padre lo recoge o muere.</div></div></div>
+
+<div class="card"><h2>3. Qué pasa al cerrar la terminal</h2>
+<p>Tu terminal es el padre de lo que lanzas desde ella. Al <b>cerrarla</b>, el sistema envía a sus hijos la señal <b>SIGHUP</b> («te has quedado sin terminal») y, por defecto, <b>mueren</b>.</p>
+<table><tr><th>Cómo lo lanzas</th><th>Al cerrar la terminal</th></tr>
+<tr><td><code>sleep 300</code></td><td>Muere</td></tr>
+<tr><td><code>sleep 300 &amp;</code> (segundo plano)</td><td>Normalmente muere también</td></tr>
+<tr><td><code>nohup sleep 300 &amp;</code></td><td><b>Sobrevive</b>: ignora SIGHUP</td></tr>
+<tr><td><code>setsid sleep 300 &amp;</code></td><td><b>Sobrevive</b>: se separa de la terminal</td></tr>
+<tr><td>Un <b>servicio</b> (systemd)</td><td><b>Sobrevive</b>: no depende de ninguna terminal</td></tr></table>
+<p>Esto conecta con el siguiente punto: lo que se lanza para que viva sin terminal es un <b>demonio</b>.</p></div>
+
+<div class="card"><h2>4. Demonios (daemons)</h2>
+<p>Un <b>demonio</b> es un proceso que <b>corre en segundo plano, sin terminal, ofreciendo un servicio</b> y que normalmente arranca con el sistema. Es la palabra clásica de Unix/Linux para lo que en systemd llamamos <b>servicio</b> y en Windows también <b>servicio</b>.</p>
+<div class="analogia"><b>El mayordomo.</b> Nadie le habla ni lo ve, pero está ahí de fondo atendiendo lo que haga falta (el web, el SSH, el cron…).</div>
+<h3>Cómo se reconoce</h3>
+<ul><li>Su nombre suele <b>terminar en «d»</b>: <code>sshd</code>, <code>systemd</code>, <code>rsyslogd</code>, <code>crond</code>, <code>httpd</code> (<code>apache2</code> en Debian/Ubuntu es el mismo caso sin la «d»).</li>
+<li>No tiene <b>terminal asociada</b>: en la columna <b>TTY</b> de <code>ps</code> aparece <b>?</b>.</li>
+<li>Su padre es el <b>proceso 1</b> (o systemd), no una shell.</li>
+<li>Arranca <b>solo</b> con el sistema y no pregunta nada a nadie.</li></ul>
+<div class="step"><input type="checkbox"><div>Mira los procesos <b>sin terminal</b> (TTY = ?): <pre>ps -eo pid,ppid,tty,stat,cmd | grep -E 'sshd|cron|rsyslog|systemd' | head</pre> Verás <code>?</code> en la columna TTY. Compáralo con tu propia shell: <pre>ps -o pid,ppid,tty,stat,cmd -p $$</pre> Ahí la TTY es <code>pts/0</code> (tu terminal).</div></div>
+<div class="step"><input type="checkbox"><div>Mira los hijos directos del proceso 1: <pre>ps -eo pid,ppid,cmd | awk '$2==1' | head</pre> Son los demonios y servicios que arrancó systemd.</div></div>
+<div class="step"><input type="checkbox"><div>Mira un servicio y su familia: <pre>systemctl status ssh</pre> Fíjate en <b>Main PID</b> (el proceso principal) y en el árbol de procesos que cuelga del servicio.</div></div>
+<h3>Antes y ahora</h3>
+<table><tr><th></th><th>Antes (SysV)</th><th>Ahora (systemd)</th></tr>
+<tr><td>Cómo se hacía demonio</td><td>El propio programa hacía un doble <code>fork</code> y se desligaba de la terminal</td><td>El programa corre «normal» y <b>systemd</b> lo supervisa</td></tr>
+<tr><td>Quién lo relanza si cae</td><td>Nadie (hacía falta un script)</td><td>systemd, con <code>Restart=</code></td></tr>
+<tr><td>Cómo se controla</td><td>scripts en <code>/etc/init.d</code></td><td><code>systemctl</code></td></tr></table>
+<div class="info"><b>Conexión con la misión 4:</b> el script <code>monitor-conta.sh</code> es un bucle infinito. Al convertirlo en servicio, systemd lo lanza sin terminal, lo vigila y lo relanza si muere: lo has convertido en un <b>demonio</b>.</div>
+<div class="q" onclick="this.classList.toggle('open')">¿Qué diferencia hay entre un servicio y un demonio? <small>(clic para ver la respuesta)</small><div class="ans">En la práctica son lo mismo visto desde dos lados: «demonio» es el <b>proceso</b> (sin terminal, de fondo) y «servicio» es la <b>unidad</b> que lo gestiona (systemd/Windows). A menudo se usan como sinónimos.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">¿Por qué su padre suele ser el PID 1? <small>(clic para ver la respuesta)</small><div class="ans">Porque lo lanza systemd, o porque, al desligarse de la terminal, quedó huérfano y fue adoptado por el PID 1.</div></div></div>
+
+<div class="card"><h2>5. Y en Windows</h2>
+<p>Windows también tiene <b>procesos padre e hijo</b>, pero con matices:</p>
+<table><tr><th></th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Crear un proceso</td><td><code>fork</code> + <code>exec</code></td><td>Una sola llamada: <code>CreateProcess</code></td></tr>
+<tr><td>Si muere el padre</td><td>El hijo es <b>adoptado</b> por el PID 1</td><td>El hijo <b>conserva el PPID antiguo</b>, aunque ese proceso ya no exista</td></tr>
+<tr><td>Demonio</td><td>Demonio / servicio (systemd)</td><td><b>Servicio</b> (lo lanza <code>services.exe</code>)</td></tr>
+<tr><td>Matar la familia</td><td><code>kill</code> + PID de cada uno</td><td><code>taskkill /T</code> mata el proceso <b>y sus hijos</b></td></tr></table>
+<div class="step"><input type="checkbox"><div>Mira padre e hijo con PowerShell: <pre>cmd /c "start notepad"
+Get-CimInstance Win32_Process -Filter "Name='notepad.exe'" | Select ProcessId,ParentProcessId,Name</pre> <code>ParentProcessId</code> es el PPID. Comprueba quién es ese padre (sustituye <code>N</code>): <pre>Get-Process -Id N</pre> Si el padre ya terminó (el <code>cmd</code> con <code>/c</code> acaba enseguida), dirá que <b>no existe ningún proceso con ese ID</b>: Windows no reasigna huérfanos.</div></div>
+<div class="step"><input type="checkbox"><div>Mata el árbol entero con <code>/T</code> (abre antes un <code>cmd</code> y desde él <code>start notepad</code>): <pre>taskkill /PID N_DEL_CMD /T /F</pre> Se cierra el <code>cmd</code> <b>y</b> el Bloc de notas hijo. Sin <code>/T</code>, solo el padre.</div></div>
+<div class="step"><input type="checkbox"><div>Los «demonios» de Windows: los servicios son hijos de <code>services.exe</code>: <pre>Get-CimInstance Win32_Process -Filter "Name='svchost.exe'" | Select -First 3 ProcessId,ParentProcessId</pre> El <code>ParentProcessId</code> de los <code>svchost</code> es el PID de <code>services.exe</code>.</div></div>
+<div class="warn"><b>Cuidado con los PID reutilizados.</b> En Windows, un PPID antiguo puede acabar apuntando a <b>otro proceso distinto</b> que se haya creado después con el mismo número. Por eso un PPID de un proceso huérfano no siempre es de fiar.</div></div>
+
+<div class="card"><h2>Comprueba lo que has entendido</h2>
+<div class="q" onclick="this.classList.toggle('open')">1. Escribes <code>ls</code> en la terminal. ¿Quién es el padre de <code>ls</code>? <small>(clic para ver la respuesta)</small><div class="ans">Tu <b>shell</b> (bash). Bash hace fork, el hijo hace exec de <code>ls</code> y bash espera a que termine.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">2. ¿Qué hereda un proceso hijo del padre? <small>(clic para ver la respuesta)</small><div class="ans">El usuario (y por tanto los permisos), el directorio actual y las variables de entorno.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">3. ¿Qué es un proceso huérfano y qué le ocurre? <small>(clic para ver la respuesta)</small><div class="ans">Un hijo cuyo padre murió antes. Lo adopta el proceso 1 y sigue funcionando.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">4. ¿Qué es un zombi y cómo se elimina? <small>(clic para ver la respuesta)</small><div class="ans">Un hijo que ya terminó pero cuyo padre no ha recogido su estado (STAT = Z). No se mata: se actúa sobre su padre.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">5. ¿Qué es un demonio y cómo lo reconoces en <code>ps</code>? <small>(clic para ver la respuesta)</small><div class="ans">Un proceso de fondo, sin terminal, que ofrece un servicio. En <code>ps</code> tiene <b>TTY = ?</b>, suele colgar del PID 1 y su nombre acaba en «d».</div></div>
+<div class="q" onclick="this.classList.toggle('open')">6. ¿Por qué sobrevive un servicio al cerrar la terminal y un programa lanzado con <code>&amp;</code> normalmente no? <small>(clic para ver la respuesta)</small><div class="ans">El servicio lo lanza y supervisa systemd, sin depender de ninguna terminal. El programa con <code>&amp;</code> es hijo de tu shell y recibe SIGHUP al cerrarse la terminal.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">7. ¿Qué hace <code>taskkill /T</code> en Windows? <small>(clic para ver la respuesta)</small><div class="ans">Termina el proceso <b>y todos sus hijos</b> (el árbol).</div></div>
+<h3>Chuleta</h3>
+<table><tr><th>Quiero…</th><th>Comando</th></tr>
+<tr><td>Mi PID y el de mi padre</td><td><code>echo $$</code> · <code>echo $PPID</code></td></tr>
+<tr><td>Ver el árbol</td><td><code>pstree -p</code> · <code>ps -ef --forest</code></td></tr>
+<tr><td>Hijos de un proceso</td><td><code>ps --ppid PID</code></td></tr>
+<tr><td>Padre de un proceso</td><td><code>ps -o ppid= -p PID</code></td></tr>
+<tr><td>Procesos sin terminal (demonios)</td><td><code>ps -eo pid,ppid,tty,cmd | awk '$3=="?"'</code></td></tr>
+<tr><td>Zombis</td><td><code>ps -eo pid,ppid,stat,cmd | awk '$3 ~ /Z/'</code></td></tr>
+<tr><td>Padre en Windows</td><td><code>Get-CimInstance Win32_Process | Select ProcessId,ParentProcessId,Name</code></td></tr>
+<tr><td>Matar el árbol en Windows</td><td><code>taskkill /PID N /T /F</code></td></tr></table></div>
+
+</div>
+<script>
+(function(){
+ var iso_teoria_ppd='iso_teoria_ppd',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(iso_teoria_ppd)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b,i){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(iso_teoria_ppd,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+})();
+</script>
+</body>
+</html>

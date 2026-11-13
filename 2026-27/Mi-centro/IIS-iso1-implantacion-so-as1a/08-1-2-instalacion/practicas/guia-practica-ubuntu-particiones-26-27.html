@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Práctica guiada · Ubuntu y particionado dual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5;
+    --cream-panel:#FFFFFF;
+    --navy:#182A45;
+    --navy-2:#24385A;
+    --orange:#E0813C;
+    --orange-dark:#B85F22;
+    --ink:#22282F;
+    --ink-soft:#5B6470;
+    --line:#DDD5C2;
+    --ok:#3E7A52;
+    --warn:#B4472B;
+    --deep:#182A45;
+    --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21;
+      --cream-panel:#20252D;
+      --navy:#EDE7D9;
+      --navy-2:#C9CFDA;
+      --ink:#EDEBE3;
+      --ink-soft:#A9AFB9;
+      --line:#333A44;
+      --orange:#E79458;
+      --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21;
+    --cream-panel:#20252D;
+    --navy:#EDE7D9;
+    --navy-2:#C9CFDA;
+    --ink:#EDEBE3;
+    --ink-soft:#A9AFB9;
+    --line:#333A44;
+    --orange:#E79458;
+    --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 80px;}
+  code, .mono, .cmd-line, table.spec th, .badge{
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    background:var(--deep);
+    color:var(--on-deep);
+    padding:52px 24px 38px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute;
+    right:-70px; top:-70px;
+    width:280px;height:280px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, rgba(224,129,60,.30), transparent 70%);
+  }
+  .hero-inner{max-width:960px;margin:0 auto;position:relative;z-index:1;}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+  .pill{
+    border:1px solid rgba(243,239,229,.35);
+    color:var(--on-deep);
+    padding:5px 12px;
+    border-radius:999px;
+    font-size:.78rem;
+    font-family:"IBM Plex Mono",monospace;
+    letter-spacing:.02em;
+  }
+  h1.hero-title{
+    font-size:clamp(1.7rem, 3.4vw, 2.5rem);
+    line-height:1.15;
+    margin:0 0 10px;
+    font-weight:700;
+    max-width:20ch;
+  }
+  .hero-sub{color:var(--on-deep);opacity:.82;font-size:1.02rem;max-width:60ch;margin:0;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:28px;margin-top:26px;}
+  .hero-meta .item .lbl{font-size:.72rem;color:var(--on-deep);opacity:.65;text-transform:none;}
+  .hero-meta .val{font-size:1rem;font-weight:600;color:var(--on-deep);}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;}
+  .sec-num{
+    font-family:"IBM Plex Mono",monospace;
+    color:var(--orange-dark);
+    font-size:.85rem;
+    font-weight:600;
+  }
+  h2{font-size:1.35rem;margin:0;font-weight:700;}
+  .lede{color:var(--ink-soft);max-width:72ch;margin:0 0 20px;}
+
+  .obj-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  .obj-list li{display:flex;gap:12px;align-items:flex-start;}
+  .obj-list .n{
+    flex:0 0 auto;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--deep);
+    color:var(--on-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.78rem;font-weight:700;
+    font-family:"IBM Plex Mono",monospace;
+  }
+
+  /* ---------- TABLES ---------- */
+  table.spec{width:100%;border-collapse:collapse;margin:6px 0 4px;font-size:.88rem;}
+  table.spec th, table.spec td{
+    text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.spec thead th{
+    background:var(--deep);color:var(--on-deep);font-size:.72rem;
+    letter-spacing:.02em;font-weight:600;
+  }
+  table.spec tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+  table.spec td.param{font-weight:600;}
+  table.spec td.mono{font-family:"IBM Plex Mono",monospace;font-size:.85rem;color:var(--orange-dark);}
+
+  /* ---------- PARTITION CARDS ---------- */
+  .part-row{
+    display:grid;
+    grid-template-columns:110px 1fr;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    align-items:start;
+  }
+  .part-row:last-child{border-bottom:none;}
+  .part-dev{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--navy);font-size:.9rem;}
+  .part-tag{
+    display:inline-block;
+    font-size:.68rem;
+    padding:2px 8px;
+    border-radius:6px;
+    margin-top:6px;
+    font-family:"IBM Plex Mono",monospace;
+  }
+  .tag-ext4{background:#DCE7DE;color:#2A5A3B;}
+  .tag-swap{background:#EADFC5;color:#6B4E1C;}
+  .tag-fat{background:#E3DEF0;color:#4B3A78;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .tag-ext4{background:#243A2C;color:#9FD6AF;}
+    :root:not([data-theme="light"]) .tag-swap{background:#453923;color:#E9C98D;}
+    :root:not([data-theme="light"]) .tag-fat{background:#332B4A;color:#C9B8ED;}
+  }
+  :root[data-theme="dark"] .tag-ext4{background:#243A2C;color:#9FD6AF;}
+  :root[data-theme="dark"] .tag-swap{background:#453923;color:#E9C98D;}
+  :root[data-theme="dark"] .tag-fat{background:#332B4A;color:#C9B8ED;}
+  .part-detail{font-size:.92rem;}
+  .part-detail .size{font-weight:600;color:var(--ink);}
+  .part-detail .mount{color:var(--ink-soft);font-family:"IBM Plex Mono",monospace;font-size:.82rem;}
+  .part-detail .purpose{margin-top:4px;color:var(--ink-soft);font-size:.86rem;}
+
+  /* ---------- TERMINAL ---------- */
+  .terminal{
+    background:#12161C;
+    border-radius:var(--radius);
+    padding:18px 20px;
+    margin:16px 0;
+    overflow-x:auto;
+  }
+  .terminal .cmd-line{
+    color:#D7DCE3;
+    font-size:.86rem;
+    white-space:pre;
+    line-height:1.9;
+  }
+  .terminal .cmd-line .prompt{color:#7FD0C1;}
+  .terminal .comment{color:#7B8494;}
+
+  /* ---------- CALLOUT ---------- */
+  .callout{
+    background:rgba(224,129,60,.12);
+    border:1px solid rgba(224,129,60,.35);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    font-size:.92rem;
+    color:var(--ink);
+    margin:18px 0;
+  }
+  .callout b{color:var(--orange-dark);}
+
+  .ticket{background:var(--deep);color:var(--on-deep);border-radius:var(--radius);padding:22px 24px;margin-top:10px;}
+  .ticket h3{color:var(--on-deep);margin-top:0;font-size:1.05rem;}
+  .ticket p{color:var(--on-deep);opacity:.9;font-size:.92rem;margin-bottom:0;}
+
+  /* ---------- RUBRIC ---------- */
+  table.rubric{width:100%;border-collapse:collapse;font-size:.86rem;margin-top:8px;}
+  table.rubric th, table.rubric td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  table.rubric thead th{background:var(--deep);color:var(--on-deep);font-weight:600;font-size:.78rem;}
+  table.rubric td.pct{font-family:"IBM Plex Mono",monospace;font-weight:600;color:var(--orange-dark);white-space:nowrap;}
+  table.rubric tbody tr:nth-child(even){background:rgba(0,0,0,.02);}
+
+  footer{max-width:960px;margin:0 auto;padding:20px 24px 40px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+  .print-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 20px;border-radius:999px;
+    font-family:"Space Grotesk",sans-serif;font-size:.9rem;font-weight:600;
+    cursor:pointer;
+  }
+  @media print{
+    .print-btn{display:none;}
+    header.hero{background:var(--navy) !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+  @media (max-width:640px){
+    .part-row{grid-template-columns:1fr;}
+    .hero-meta{gap:18px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="pills">
+      <span class="pill">Módulo ISO (0369)</span>
+      <span class="pill">UD1 – UD3 · RA1 / RA3</span>
+      <span class="pill">Curso 26/27</span>
+    </div>
+    <h1 class="hero-title">Instalación de Ubuntu Linux y particionado dual / avanzado</h1>
+    <p class="hero-sub">Práctica guiada de configuración de máquina virtual, particionado manual avanzado y comprobación desde terminal, preparando el disco para una simulación de arranque dual.</p>
+    <div class="hero-meta">
+      <div class="item"><div class="lbl">Módulo</div><div class="val">Implantación de Sistemas Operativos</div></div>
+      <div class="item"><div class="lbl">Curso</div><div class="val">1.º ASIR — 26/27</div></div>
+      <div class="item"><div class="lbl">Unidades</div><div class="val">UD1 – UD3</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- OBJETIVOS -->
+  <section>
+    <div class="sec-head"><h2>Objetivos de la práctica</h2></div>
+    <ul class="obj-list">
+      <li><span class="n">1</span><span>Configurar una máquina virtual en VirtualBox optimizada para Linux Ubuntu.</span></li>
+      <li><span class="n">2</span><span>Realizar la instalación de Ubuntu Linux mediante particionado manual avanzado (separando la raíz <code>/</code>, <code>/home</code> y la memoria de intercambio <code>swap</code>).</span></li>
+      <li><span class="n">3</span><span>Preparar el disco virtual para la convivencia o simulación de sistemas duales (Dual-Boot), dejando espacio reservado o particiones compartidas (FAT32/NTFS).</span></li>
+      <li><span class="n">4</span><span>Administrar particiones y montaje desde la terminal de Ubuntu mediante los comandos <code>lsblk</code>, <code>fdisk</code>, <code>df -h</code> y edición de <code>/etc/fstab</code>.</span></li>
+    </ul>
+  </section>
+
+  <!-- FASE 1 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">FASE 1</span><h2>Creación de la máquina virtual en VirtualBox</h2></div>
+    <p class="lede">Configura una nueva máquina virtual con los parámetros técnicos requeridos para albergar Ubuntu Desktop y permitir el particionado avanzado.</p>
+    <table class="spec">
+      <thead>
+        <tr><th>Parámetro</th><th>Valor recomendado</th><th>Justificación técnica</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="param">Nombre y tipo</td><td class="mono">ISO_Ubuntu2627<br>(Linux / Ubuntu 64-bit)</td><td>Identificación en el hipervisor.</td></tr>
+        <tr><td class="param">Memoria RAM</td><td>4096 MB (4 GB)</td><td>Garantiza fluidez durante el instalador gráfico.</td></tr>
+        <tr><td class="param">Procesadores (vCPU)</td><td>2 cores</td><td>Mejora el rendimiento de compilación e instalación.</td></tr>
+        <tr><td class="param">Disco duro VDI</td><td>80 GB (tamaño dinámico)</td><td>Permite dividir espacio para sistema, usuarios y partición dual.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- FASE 2 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">FASE 2</span><h2>Esquema de particionado manual en el instalador</h2></div>
+    <p class="lede">Inicia la ISO de Ubuntu. Al llegar a la pantalla de <b>Tipo de instalación</b>, selecciona <b>«Más opciones» / «Instalación personalizada»</b> para crear la siguiente estructura de particiones.</p>
+
+    <div class="part-row">
+      <div><div class="part-dev">/dev/sda1</div><span class="part-tag tag-ext4">Primaria · ext4</span></div>
+      <div class="part-detail">
+        <div class="size">30 000 MB (30 GB)</div>
+        <div class="mount">Punto de montaje: /</div>
+        <div class="purpose">Sistema operativo y binarios del kernel.</div>
+      </div>
+    </div>
+    <div class="part-row">
+      <div><div class="part-dev">/dev/sda2</div><span class="part-tag tag-ext4">Lógica · ext4</span></div>
+      <div class="part-detail">
+        <div class="size">25 000 MB (25 GB)</div>
+        <div class="mount">Punto de montaje: /home</div>
+        <div class="purpose">Archivos personales y datos de usuarios.</div>
+      </div>
+    </div>
+    <div class="part-row">
+      <div><div class="part-dev">/dev/sda3</div><span class="part-tag tag-swap">Lógica · swap</span></div>
+      <div class="part-detail">
+        <div class="size">4096 MB (4 GB)</div>
+        <div class="mount">Área de intercambio</div>
+        <div class="purpose">Memoria virtual para suspensión/carga.</div>
+      </div>
+    </div>
+    <div class="part-row">
+      <div><div class="part-dev">/dev/sda4</div><span class="part-tag tag-fat">Primaria · FAT32/NTFS</span></div>
+      <div class="part-detail">
+        <div class="size">20 000 MB (20 GB)</div>
+        <div class="mount">Punto de montaje: /media/compartido</div>
+        <div class="purpose">Partición compartida para simulación Dual-Boot / Windows.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FASE 3 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">FASE 3</span><h2>Comprobación y gestión de particiones desde terminal</h2></div>
+    <p class="lede">Una vez completada la instalación e iniciado el sistema en Ubuntu, abre la terminal (<code>Ctrl + Alt + T</code>) y ejecuta los siguientes comandos obligatorios para documentar tu práctica.</p>
+    <div class="terminal">
+      <div class="cmd-line"><span class="comment"># 1. Listar dispositivos de almacenamiento y puntos de montaje</span>
+<span class="prompt">$</span> lsblk -f
+
+<span class="comment"># 2. Comprobar el espacio libre y sistemas de archivos montados</span>
+<span class="prompt">$</span> df -h -T
+
+<span class="comment"># 3. Inspeccionar la tabla de particiones del disco con fdisk</span>
+<span class="prompt">$</span> sudo fdisk -l /dev/sda
+
+<span class="comment"># 4. Crear un directorio y montar automáticamente la partición compartida</span>
+<span class="prompt">$</span> sudo mkdir -p /media/datos_compartidos
+<span class="prompt">$</span> sudo mount /dev/sda4 /media/datos_compartidos</div>
+    </div>
+  </section>
+
+  <!-- FASE 4 -->
+  <section>
+    <div class="sec-head"><span class="sec-num">FASE 4</span><h2>Simulación Dual-Boot y rúbrica de evaluación</h2></div>
+    <div class="callout">
+      <b>Para el informe:</b> explica cómo instalarías un segundo sistema operativo (Windows 11) en la partición reservada <code>/dev/sda4</code> y cómo gestiona GRUB 2 el arranque múltiple.
+    </div>
+    <table class="rubric">
+      <thead>
+        <tr><th>Criterio de evaluación</th><th>Ponderación</th><th>Indicadores de logro</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Configuración MV en VirtualBox</td><td class="pct">15%</td><td>Asignación correcta de RAM, vCPU, almacenamiento VDI y red.</td></tr>
+        <tr><td>Particionado manual (/, /home, swap)</td><td class="pct">35%</td><td>Creación correcta de puntos de montaje independientes en el instalador.</td></tr>
+        <tr><td>Partición compartida / Dual-Boot</td><td class="pct">20%</td><td>Creación y formateo de la partición adicional para intercambio de datos.</td></tr>
+        <tr><td>Comandos de terminal y /etc/fstab</td><td class="pct">20%</td><td>Ejecución correcta de <code>lsblk</code>, <code>df</code>, <code>fdisk</code> y automontaje.</td></tr>
+        <tr><td>Informe técnico y capturas</td><td class="pct">10%</td><td>Presentación del documento justificativo sin faltas y bien formateado.</td></tr>
+      </tbody>
+    </table>
+    <div class="ticket" style="margin-top:20px;">
+      <h3>Antes de entregar</h3>
+      <p>Adjunta capturas de las 4 fases (creación de la VM, esquema de particionado, salida de los 4 comandos de terminal y tu explicación del arranque dual) en un único documento PDF.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:16px;">Módulo ISO (0369) · Implantación de Sistemas Operativos · 1º ASIR · Curso 26/27</p>
+</footer>
+
+</body>
+</html>

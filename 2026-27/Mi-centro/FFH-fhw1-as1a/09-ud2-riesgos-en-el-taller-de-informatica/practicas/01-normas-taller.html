@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normas del Taller FHW</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root { color-scheme: light; --navy:#1E3A8A; --ink:#1F2937; --paper:#F3F4F6; --line:#D1D5DB; --muted:#6B7280; --red:#DC2626; --green:#059669; --orange:#EA580C; --purple:#7C3AED; --blue:#2563EB; }
+  body { background: var(--paper); color: var(--ink); font-family: Calibri, Arial, Helvetica, sans-serif; }
+  .page { max-width: 900px; margin: 0 auto; padding-block:20px 60px; padding-inline:16px; font-size: 15px; line-height: 1.55; }
+  .hero { text-align:center; padding:26px 12px; background:linear-gradient(135deg,#7F1D1D,#DC2626); border-radius:14px; margin-bottom:18px; color:#fff; }
+  .hero h1 { margin:0; font-family: Cambria, Georgia, serif; font-size:28px; text-wrap:balance; }
+  .hero p { margin:6px 0 0; color:#FEE2E2; font-size:15px; }
+  .why { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin:0 0 16px; }
+  .why p { margin:0; }
+  .five { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:14px 0 22px; }
+  .five div { background:#fff; border:2px solid #FCA5A5; border-radius:12px; padding:12px; text-align:center; }
+  .five .n { display:inline-flex; width:34px; height:34px; border-radius:50%; background:var(--red); color:#fff; font-weight:bold; align-items:center; justify-content:center; font-size:17px; margin-bottom:6px; }
+  .five b { display:block; font-size:14px; margin-bottom:3px; }
+  .five span { font-size:12.5px; color:var(--muted); }
+  h2 { color: var(--navy); font-family: Cambria, Georgia, serif; font-size:21px; margin:24px 0 8px; }
+  details { background:#fff; border:1px solid var(--line); border-left-width:6px; border-radius:10px; margin:8px 0; overflow:hidden; }
+  details summary { cursor:pointer; padding:12px 16px; font-weight:bold; font-size:15.5px; list-style:none; display:flex; align-items:center; gap:10px; user-select:none; }
+  details summary::-webkit-details-marker { display:none; }
+  details summary::after { content:"+"; margin-left:auto; font-size:20px; color:var(--muted); font-weight:normal; transition:transform .2s; }
+  details[open] summary::after { content:"−"; }
+  details summary:hover { background:#F9FAFB; }
+  details .body { padding:0 16px 14px; }
+  details ul { margin:4px 0 0 18px; padding:0; } details li { margin:5px 0; }
+  .ic { width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-size:14px; color:#fff; font-weight:bold; flex:none; font-family:Cambria,Georgia,serif; }
+  .r { border-left-color:var(--red); } .r .ic { background:var(--red); }
+  .o { border-left-color:var(--orange); } .o .ic { background:var(--orange); }
+  .g { border-left-color:var(--green); } .g .ic { background:var(--green); }
+  .b { border-left-color:var(--blue); } .b .ic { background:var(--blue); }
+  .p { border-left-color:var(--purple); } .p .ic { background:var(--purple); }
+  .tip { background:#EFF6FF; border-radius:8px; padding:8px 12px; margin-top:8px; font-size:13.5px; }
+  .tip b { color:var(--navy); }
+  .sem { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:10px 0; }
+  .sem div { border-radius:12px; padding:12px 14px; font-size:14px; }
+  .sem b { display:block; font-size:15px; margin-bottom:6px; }
+  .sem ul { margin:0 0 0 16px; padding:0; } .sem li { margin:3px 0; }
+  .no { background:#FEE2E2; color:#7F1D1D; } .ask { background:#FEF3C7; color:#78350F; } .yes { background:#D1FAE5; color:#064E3B; }
+  .check { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 18px; margin-top:8px; }
+  .check label { display:flex; gap:10px; align-items:flex-start; padding:6px 0; border-bottom:1px dashed #E5E7EB; cursor:pointer; }
+  .check label:last-of-type { border-bottom:0; }
+  .check input { width:18px; height:18px; margin-top:2px; accent-color:var(--green); flex:none; }
+  .check .prog { margin-top:10px; font-size:14px; color:var(--muted); }
+  .check .bar { height:10px; background:#E5E7EB; border-radius:5px; overflow:hidden; margin-top:6px; } .check .bar i { display:block; height:100%; background:var(--green); width:0; transition:width .2s; }
+  .sign { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  .sign div { border-top:1px solid var(--ink); padding-top:6px; font-size:13px; color:var(--muted); }
+  .small { color: var(--muted); font-size:12.5px; }
+  .tw { overflow-x:auto; } table { border-collapse:collapse; width:100%; font-size:13.5px; } th { background:var(--navy); color:#fff; padding:7px 10px; text-align:left; border:1px solid var(--line); } td { padding:7px 10px; border:1px solid var(--line); vertical-align:top; background:#fff; }
+  .consent input[type=text], .consent input[type=date] { font:inherit; border:0; border-bottom:2px solid var(--navy); background:#EFF6FF; padding:2px 6px; min-width:120px; color:var(--ink); }
+  .consent input[type=text]#cName { min-width:260px; }
+  .consent .lbl { display:block; font-size:12.5px; color:var(--muted); margin-bottom:4px; }
+  .consent .sign div { border-top:0; padding-top:0; }
+  .sigbox { height:70px; border:1px dashed var(--line); border-radius:8px; background:#fff; }
+  .btn { font:inherit; font-size:14px; border:1px solid var(--navy); background:var(--navy); color:#fff; border-radius:8px; padding:8px 14px; cursor:pointer; }
+  .btn:hover { background:#1e40af; }
+  @media (max-width:520px) { .hero h1 { font-size:23px; } .page { font-size:14.5px; } }
+  @media print {
+    body { background:#fff; } .page { max-width:none; padding:0; font-size:12.5px; }
+    .hero { border-radius:0; padding:14px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .noprint { display:none !important; }
+    details { break-inside:avoid; } details summary::after { display:none; }
+    h2 { break-after:avoid; margin-top:14px; }
+    .check input { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .consent { break-inside:avoid; page-break-inside:avoid; }
+    .consent input { background:transparent; border-bottom:1px solid #000; }
+    .five, .sem { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+</style>
+
+<div class="page">
+
+<div class="hero">
+  <h1>Normas del taller de hardware</h1>
+  <p>Fundamentos de Hardware · 1º ASIR · IES Pablo Serrano · 2026/2027 · Semana 6 (anticipo de RA5)</p>
+</div>
+
+<div class="why">
+<p><b>Por qué hay normas.</b> En el taller hay 230 V, fuentes que guardan 400 V aunque estén desenchufadas, piezas que mueren por una chispa estática que no sientes, y posturas que un curso entero convierte en dolor de espalda. Las normas son pocas, claras y se cumplen siempre. Cuentan en la nota de cada práctica de montaje (RA1) y se evalúan a fondo en RA5 (semana 24). Abre cada apartado para ver el detalle.</p>
+</div>
+
+<h2>Las cinco de siempre</h2>
+<div class="five">
+  <div><span class="n">1</span><b>Apagado de verdad</b><span>Interruptor en O, cable fuera, LED de la placa apagado</span></div>
+  <div><span class="n">2</span><b>Descárgate</b><span>Toca el chasis y ponte la pulsera ESD</span></div>
+  <div><span class="n">3</span><b>Por los bordes</b><span>Nunca por los contactos ni los chips</span></div>
+  <div><span class="n">4</span><b>Fuentes: no se abren</b><span>Ni monitores ni SAI. Se sustituyen</span></div>
+  <div><span class="n">5</span><b>Si dudas, pregunta</b><span>Un conector forzado cuesta más que la pregunta</span></div>
+</div>
+
+<h2>Antes de tocar nada</h2>
+<details class="r" open><summary><span class="ic">1</span>Apagar de verdad: el botón no corta la corriente</summary><div class="body">
+<ul>
+<li>Apagar desde Windows no basta: la fuente sigue dando <b>+5VSB</b> a la placa. Hay 5 V en las ranuras aunque el equipo "esté apagado".</li>
+<li>Interruptor trasero de la fuente en <b>O</b>, cable de red fuera, y esperar a que se apague el LED de standby de la placa (5–10 segundos).</li>
+<li>Portátiles: batería fuera si es extraíble; si no, desconectar el conector interno de la batería antes de tocar la placa.</li>
+</ul>
+<div class="tip"><b>Por qué:</b> cambiar un módulo de RAM con el +5VSB activo es una de las formas más comunes de matar una placa. Lo ves en el simulador UEFI: el raíl +5VSB está siempre encendido.</div>
+</div></details>
+<details class="r"><summary><span class="ic">2</span>Electricidad estática: el enemigo que no se ve</summary><div class="body">
+<ul>
+<li>Tu cuerpo acumula miles de voltios andando por el aula; una descarga de 100 V, que ni notas, ya daña un chip.</li>
+<li>Antes de coger cualquier componente: tocar el chasis metálico del equipo (desenchufado) y ponerse la <b>pulsera antiestática</b> con la pinza al chasis.</li>
+<li>Componentes fuera de la placa: en su bolsa antiestática o sobre la alfombrilla ESD. Nunca sobre la mesa, la ropa o el suelo.</li>
+<li>Evitar jerséis de lana y forro polar en el taller; suelo y calzado: mejor no arrastrar los pies.</li>
+</ul>
+</div></details>
+<details class="r"><summary><span class="ic">3</span>Lo que no se abre nunca</summary><div class="body">
+<ul>
+<li><b>Fuentes de alimentación:</b> condensadores a 400 V que aguantan cargados minutos u horas. Si falla, se sustituye.</li>
+<li><b>Monitores y pantallas:</b> alta tensión en la retroiluminación.</li>
+<li><b>SAI:</b> baterías de plomo con corriente de cortocircuito enorme.</li>
+<li><b>Baterías de portátil hinchadas:</b> no se perforan, no se aprietan, no se tiran a la papelera. Bolsa aparte y avisar.</li>
+</ul>
+</div></details>
+
+<h2>Mientras montas</h2>
+<details class="o"><summary><span class="ic">⚡</span>Riesgo eléctrico</summary><div class="body">
+<ul>
+<li>Un equipo por regleta de pruebas. Nada de regletas encadenadas ni cables de red pelados (se retiran y se avisa).</li>
+<li>No se enciende un equipo con la tapa abierta y cables sueltos dentro, ni con la fuente fuera del chasis sobre metal.</li>
+<li>Manos secas. Nada de comer ni beber en la mesa de montaje.</li>
+<li>Fuentes antiguas con selector 115/230 V: comprobar que está en <b>230</b> antes de enchufar.</li>
+<li>Primer encendido de un equipo recién montado: siempre con el profesor delante (ver semáforo).</li>
+</ul>
+</div></details>
+<details class="o"><summary><span class="ic">✂</span>Cortes, golpes y tornillos perdidos</summary><div class="body">
+<ul>
+<li>El interior de un chasis corta: caja apoyada y estable, nunca en el aire ni en las rodillas.</li>
+<li>Destornillador del tamaño correcto. El que "casi vale" redondea el tornillo y resbala hasta la placa.</li>
+<li>Los tornillos van a un bote. Un tornillo olvidado bajo la placa la cortocircuita al encender.</li>
+<li>Bridas al ras con alicate de corte, no con tijeras ni con cúter hacia el cuerpo.</li>
+<li>Palanca del zócalo, pestañas de RAM, conector de gráfica: si hace falta fuerza, está mal orientado. Parar y mirar.</li>
+</ul>
+</div></details>
+<details class="o"><summary><span class="ic">🌡</span>Calor, pasta térmica y aire comprimido</summary><div class="body">
+<ul>
+<li>Un disipador recién usado quema. Se deja enfriar antes de desmontarlo.</li>
+<li>Pasta térmica: un grano de arroz en el centro. Limpiar con alcohol isopropílico y papel sin pelusa; nunca acetona ni disolventes.</li>
+<li>Aire comprimido: gafas puestas, nunca hacia una persona, y con el ventilador bloqueado con un dedo (si gira libre, genera corriente y puede dañar la placa).</li>
+</ul>
+</div></details>
+<details class="o"><summary><span class="ic">≡</span>Orden, etiquetas y mochilas</summary><div class="body">
+<ul>
+<li>La mesa se entrega como se encontró: herramientas en el panel, componentes en bolsas, tornillos en el bote.</li>
+<li>Cada equipo o pieza desmontada lleva etiqueta con grupo y fecha. "Ya me acordaré" no existe.</li>
+<li>Pasillos y salidas libres. Los cables por el suelo se encintan. Mochilas debajo de la mesa.</li>
+</ul>
+</div></details>
+
+<h2>Ergonomía: tu espalda y tus ojos también son hardware</h2>
+<details class="g"><summary><span class="ic">🪑</span>Cómo colocarte para montar</summary><div class="body">
+<ul>
+<li>De pie con la caja a la altura de las manos, o sentado con los codos a 90º. Nunca encorvado sobre una caja en el suelo.</li>
+<li>Levantar una torre o un SAI (10–20 kg): rodillas flexionadas, espalda recta, carga pegada al cuerpo. SAI y servidores de rack, entre dos.</li>
+<li>Lámpara auxiliar para leer serigrafías; no forzar la vista.</li>
+</ul>
+</div></details>
+<details class="g"><summary><span class="ic">🖥</span>Cómo colocarte delante del ordenador</summary><div class="body">
+<ul>
+<li>Pantalla: borde superior a la altura de los ojos, a un brazo de distancia, sin reflejos de la ventana (luz de lado).</li>
+<li>Teclado y ratón a la altura del codo, muñecas rectas apoyadas en la mesa.</li>
+<li>Silla: pies apoyados, respaldo en contacto con la zona lumbar, muslos horizontales.</li>
+<li>Portátil más de una hora seguida: elevador o pantalla externa y teclado aparte.</li>
+</ul>
+</div></details>
+<details class="g"><summary><span class="ic">⏱</span>Pausas y ruido</summary><div class="body">
+<ul>
+<li>Cada 50 minutos, 5 de pie. Cada 20 minutos, 20 segundos mirando a 20 metros (regla 20-20-20).</li>
+<li>Junto al rack con equipos a plena carga se superan los 70 dB: tapones para sesiones largas.</li>
+</ul>
+</div></details>
+
+<h2>Residuos: nada de esto va a la papelera</h2>
+<details class="b"><summary><span class="ic">♻</span>Dónde va cada cosa</summary><div class="body">
+<div class="tw"><table>
+<tr><th>Residuo</th><th>Dónde va</th><th>Por qué</th></tr>
+<tr><td>Placas, tarjetas, discos, fuentes, cables</td><td>Contenedor RAEE del centro / punto limpio</td><td>Metales pesados y retardantes de llama; además se recuperan oro, cobre y aluminio.</td></tr>
+<tr><td>Pilas CR2032 y baterías</td><td>Contenedor de pilas (hinchadas: aparte, en bolsa, avisar)</td><td>Litio: riesgo de incendio.</td></tr>
+<tr><td>Tóner y cartuchos</td><td>Recogida del proveedor o punto limpio</td><td>Polvo fino tóxico.</td></tr>
+<tr><td>Discos con datos</td><td>Borrado seguro o destrucción física antes de RAEE</td><td>Protección de datos: hay datos personales.</td></tr>
+<tr><td>Cartón, plástico, bolsas ESD</td><td>Reciclaje ordinario (las bolsas ESD se reutilizan)</td><td>Un montaje genera más embalaje que hardware.</td></tr>
+</table></div>
+</div></details>
+
+<h2>Semáforo del taller</h2>
+<div class="sem">
+  <div class="no"><b>Prohibido</b><ul><li>Abrir fuentes, monitores o SAI</li><li>Encender con la tapa abierta y cables sueltos</li><li>Trabajar con el equipo enchufado</li><li>Comer o beber en la mesa</li><li>Forzar conectores</li><li>Sacar equipos o piezas del aula</li><li>Pendrives propios en equipos del taller sin permiso</li></ul></div>
+  <div class="ask"><b>Con permiso</b><ul><li>Primer encendido de un equipo montado</li><li>Aire comprimido</li><li>Cambiar pasta térmica</li><li>Manipular el rack o el SAI</li><li>Usar el cúter</li><li>Conectar un equipo a la red del centro</li></ul></div>
+  <div class="yes"><b>Libre</b><ul><li>Montar y desmontar con el equipo desconectado y pulsera ESD</li><li>Usar los simuladores (UEFI, fuente, RAM, puertos)</li><li>Etiquetar y documentar</li><li>Consultar manuales de la placa</li><li>Preguntar</li></ul></div>
+</div>
+
+<h2>Si algo sale mal</h2>
+<details class="p"><summary><span class="ic">!</span>Humo, chispas, descargas y cortes</summary><div class="body">
+<ul>
+<li><b>Humo o chispas:</b> interruptor de la fuente en O y cable fuera; si no llegas, magnetotérmico del aula. Avisar. Extintor de <b>CO₂</b>, nunca agua ni polvo sobre equipos en tensión.</li>
+<li><b>Descarga a una persona:</b> no tocarla; cortar la corriente primero. Avisar; 112 si pierde el conocimiento o hay quemadura.</li>
+<li><b>Corte:</b> agua, presionar con gasa, botiquín del aula; si no para en 10 minutos, enfermería o 112.</li>
+<li><b>Pieza rota o equipo que no arranca:</b> no insistir. Documentar qué se hizo y avisar. Romper una pieza no baja la nota; ocultarlo, sí.</li>
+</ul>
+</div></details>
+
+<h2>Antes de encender: checklist</h2>
+<div class="check" id="check">
+  <label><input type="checkbox"> Todos los tornillos de la placa puestos y ninguno suelto dentro de la caja</label>
+  <label><input type="checkbox"> Disipador de CPU con pasta térmica, fijado y ventilador en CPU_FAN</label>
+  <label><input type="checkbox"> ATX 24 y EPS 8 conectados hasta el clic</label>
+  <label><input type="checkbox"> RAM en A2/B2 con las dos pestañas cerradas</label>
+  <label><input type="checkbox"> Tarjeta gráfica encajada, pestaña cerrada y con su alimentación PCIe si la necesita</label>
+  <label><input type="checkbox"> Cables del frontal (F_PANEL) según el manual; nada rozando ventiladores</label>
+  <label><input type="checkbox"> Monitor en la gráfica (no en la placa si la CPU es "F")</label>
+  <label><input type="checkbox"> Tapa cerrada, mesa despejada, profesor avisado para el primer POST</label>
+  <div class="prog"><span id="ptext">0 de 8 comprobados</span><div class="bar"><i id="pbar"></i></div></div>
+</div>
+
+<h2>Compromiso</h2>
+<div class="why consent" id="consent">
+<p>Yo, <input type="text" id="cName" placeholder="nombre y apellidos" aria-label="Nombre y apellidos" autocomplete="name">, alumno/a de <input type="text" id="cGroup" placeholder="grupo (1º ASIR A)" aria-label="Grupo" size="14">, declaro que he leído y entendido las normas del taller de Fundamentos de Hardware y me comprometo a cumplirlas. Sé que su incumplimiento cuenta en la calificación de las prácticas y de RA5 y puede suponer la retirada del acceso al taller.</p>
+<div class="sign">
+  <div><span class="lbl">Firma del alumno/a</span><div class="sigbox"></div></div>
+  <div><span class="lbl">Fecha</span><input type="date" id="cDate" aria-label="Fecha"><span class="lbl" style="margin-top:14px">Firma del profesor</span><div class="sigbox"></div></div>
+</div>
+<div class="noprint" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+  <button class="btn" id="btnPrint">Imprimir / guardar como PDF</button>
+  <span class="small">Se imprime el documento completo con todos los apartados abiertos y tus datos rellenos. En el diálogo elige "Guardar como PDF" y entrégalo en Aeducar.</span>
+</div>
+</div>
+<p class="small">Referencias: Ley 31/1995 de Prevención de Riesgos Laborales; RD 488/1997 (pantallas de visualización); RD 487/1997 (manipulación manual de cargas); RD 110/2015 (RAEE); guías técnicas del INSST.</p>
+
+</div>
+<script>
+(function(){ const cbs=Array.from(document.querySelectorAll('#check input')); function u(){ const n=cbs.filter(c=>c.checked).length; document.getElementById('ptext').textContent = n===cbs.length ? 'Listo: 8 de 8. Avisa al profesor para el primer encendido.' : n+' de '+cbs.length+' comprobados'; document.getElementById('pbar').style.width=(n/cbs.length*100)+'%'; } cbs.forEach(c=>c.addEventListener('change',u));
+  const d=document.getElementById('cDate'); if(d&&!d.value){ const t=new Date(); d.value=t.toISOString().slice(0,10); }
+  function openAll(){ document.querySelectorAll('details').forEach(x=>x.open=true); }
+  window.addEventListener('beforeprint', openAll);
+  const b=document.getElementById('btnPrint'); if(b) b.addEventListener('click', ()=>{ openAll(); setTimeout(()=>window.print(), 50); });
+  try{ ['cName','cGroup'].forEach(id=>{ const el=document.getElementById(id); const k='normas_'+id; const v=localStorage.getItem(k); if(v) el.value=v; el.addEventListener('input',()=>{ try{ localStorage.setItem(k,el.value);}catch(e){} }); }); }catch(e){}
+})();
+</script>
+</body>
+</html>

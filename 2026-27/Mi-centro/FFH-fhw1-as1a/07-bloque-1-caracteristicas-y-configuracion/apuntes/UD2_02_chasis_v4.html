@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chasis interactivo UD2</title>
+<style>html{color-scheme:light dark} body{margin:0;font-family:system-ui,sans-serif} img{max-width:100%} [hidden]{display:none!important}</style>
+</head>
+<body>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#F2F3F6; --surface:#FFFFFF; --surface-2:#E9EBF0; --line:#D3D7DF; --line-2:#B9BFCB;
+  --text:#1A1D24; --muted:#5B6270;
+  --accent:#D97A1F; --accent-ink:#8A4A0C; --accent-soft:#FBEBD9;
+  --in:#2F6FE4; --out:#D9413A; --ok:#2E8B57; --warn:#C48A12;
+  --steel:#CBD0D9; --steel-2:#AEB5C2; --steel-ink:#6B7383; --glass:rgba(64,110,180,.16); --pcb:#2F6B4F; --pcb-2:#3E8A67; --dark:#3A3F4A;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",Roboto,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#13161C; --surface:#1B1F27; --surface-2:#242935; --line:#343B48; --line-2:#4A5262;
+    --text:#E8EAEF; --muted:#9AA3B2;
+    --accent:#F0953B; --accent-ink:#FFC58A; --accent-soft:#3A2A18;
+    --in:#6FA0FF; --out:#FF7B72; --ok:#5CC48A; --warn:#E6B349;
+    --steel:#3B4250; --steel-2:#4B5364; --steel-ink:#AAB2C0; --glass:rgba(120,160,230,.14); --pcb:#2A5C45; --pcb-2:#37795A; --dark:#12151B;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#13161C; --surface:#1B1F27; --surface-2:#242935; --line:#343B48; --line-2:#4A5262;
+  --text:#E8EAEF; --muted:#9AA3B2;
+  --accent:#F0953B; --accent-ink:#FFC58A; --accent-soft:#3A2A18;
+  --in:#6FA0FF; --out:#FF7B72; --ok:#5CC48A; --warn:#E6B349;
+  --steel:#3B4250; --steel-2:#4B5364; --steel-ink:#AAB2C0; --glass:rgba(120,160,230,.14); --pcb:#2A5C45; --pcb-2:#37795A; --dark:#12151B;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---- barra superior ---- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:3px solid var(--accent);margin-inline:-16px;padding-inline:16px}
+.topbar .in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:8px}
+.brand{display:flex;flex-direction:column;line-height:1;margin-right:auto}
+.brand .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink)}
+.brand h1{font-family:var(--display);font-weight:700;font-size:26px;margin:2px 0 0}
+.steps{display:flex;gap:4px;flex-wrap:wrap}
+.steps button{font-family:var(--display);font-size:17px;font-weight:600;letter-spacing:.01em;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:8px 10px 6px;cursor:pointer}
+.steps button b{font-family:var(--mono);font-size:11px;font-weight:500;margin-right:4px;color:var(--accent)}
+.steps button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent)}
+.steps button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.score{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.score b{color:var(--text)}
+
+/* ---- paneles ---- */
+.panel{display:none;padding-top:22px}
+.panel.active{display:block}
+h2{font-family:var(--display);font-weight:600;font-size:30px;line-height:1.05;margin:0 0 6px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:20px;margin:18px 0 8px}
+.intro{color:var(--muted);max-width:70ch;margin:0 0 16px}
+p{max-width:70ch}
+code{font-family:var(--mono);font-size:.92em;background:var(--surface-2);padding:1px 5px;border-radius:3px}
+
+.explore{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px;align-items:start}
+@media (max-width:880px){.explore{grid-template-columns:1fr}}
+.stage{background:var(--surface);border:1px solid var(--line);padding:12px}
+.stage-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:6px;overflow:hidden}
+.seg button{background:var(--surface);color:var(--text);border:0;padding:7px 14px;font:inherit;font-weight:500;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.hint{font-size:13px;color:var(--muted)}
+.drawing{width:100%;max-width:100%;overflow:hidden}
+.drawing svg{width:100%;height:auto;display:block;font-family:var(--mono)}
+
+/* estilos SVG */
+.case-shell{fill:var(--steel);stroke:var(--steel-ink);stroke-width:2}
+.case-inner{fill:var(--bg);stroke:var(--steel-ink);stroke-width:1.5}
+.steel{fill:var(--steel-2);stroke:var(--steel-ink);stroke-width:1.5}
+.steel-lt{fill:var(--steel);stroke:var(--steel-ink);stroke-width:1.2}
+.pcb{fill:var(--pcb);stroke:var(--pcb-2);stroke-width:1.5}
+.pcb-2{fill:var(--pcb-2);stroke:none}
+.darkpart{fill:var(--dark);stroke:var(--steel-ink);stroke-width:1.2}
+.fan-frame{fill:var(--surface);stroke:var(--steel-ink);stroke-width:1.6}
+.fan-hub{fill:var(--steel-ink)}
+.fan-blade{stroke:var(--steel-ink);stroke-width:1.4;fill:none}
+.mesh{fill:url(#mesh);stroke:var(--steel-ink);stroke-width:1.2}
+.glass{fill:var(--glass);stroke:var(--steel-ink);stroke-width:1.5}
+.filter{fill:none;stroke:var(--in);stroke-width:2;stroke-dasharray:4 4}
+.lbl{font-size:11px;fill:var(--muted);letter-spacing:.02em}
+.lbl-dark{font-size:11px;fill:var(--text)}
+.dim{stroke:var(--accent);stroke-width:1.2;fill:none}
+.dim-t{font-size:11px;fill:var(--accent-ink);font-weight:500}
+.zone{cursor:pointer}
+.zone .hit{fill:transparent;stroke:transparent;stroke-width:2.5;transition:stroke .12s}
+.zone:hover .hit,.zone:focus-visible .hit{stroke:var(--accent)}
+.zone:focus-visible{outline:none}
+.zone.sel .hit{stroke:var(--accent);fill:var(--accent);fill-opacity:.18}
+.dimmed .zone:not(.sel){opacity:.55}
+/* flujo */
+.flow-in{stroke:var(--in)} .flow-out{stroke:var(--out)}
+.head-in{fill:var(--in)} .head-out{fill:var(--out)}
+.arrow{stroke-width:2.4;fill:none;stroke-dasharray:8 6;animation:flow .7s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-14}}
+@media (prefers-reduced-motion:reduce){.arrow{animation:none}}
+.fan-click{cursor:pointer}
+.fan-click:hover .fan-frame{stroke:var(--accent);stroke-width:2.4}
+.fan-state-in .fan-frame{fill:color-mix(in srgb,var(--in) 18%,var(--surface))}
+.fan-state-out .fan-frame{fill:color-mix(in srgb,var(--out) 18%,var(--surface))}
+.fan-state-off .fan-frame{fill:var(--surface-2);stroke-dasharray:3 3}
+.hot{fill:var(--out);opacity:.10}
+
+/* ficha lateral */
+.ficha{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent);position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px)}
+@media (max-width:880px){.ficha{position:static}}
+.ficha header{padding:12px 16px 8px;border-bottom:1px solid var(--line)}
+.ficha .kicker{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-ink)}
+.ficha h3{margin:2px 0 0;font-size:26px;line-height:1}
+.ficha .blocks{display:flex;flex-direction:column}
+.ficha .blk{padding:10px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.ficha .blk:last-child{border-bottom:0}
+.ficha .blk b{display:block;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.ficha .blk .dato{display:inline-block;font-family:var(--mono);font-size:12px;background:var(--surface-2);padding:1px 6px;border-radius:3px;margin-top:4px}
+.ficha .empty{padding:20px 16px;color:var(--muted);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{font:inherit;font-size:13px;background:var(--surface);border:1px solid var(--line-2);border-radius:999px;padding:4px 10px;cursor:pointer;color:var(--text)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.progress{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:8px}
+
+/* comprende */
+.formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:14px 0}
+.fmt{background:var(--surface);border:1px solid var(--line);padding:12px}
+.fmt svg{width:100%;height:auto;display:block;font-family:var(--mono)}
+.fmt h4{font-family:var(--display);font-size:22px;margin:8px 0 2px}
+.fmt p{font-size:13.5px;color:var(--muted);margin:0}
+.fmt .m{font-family:var(--mono);font-size:12px;color:var(--text)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);padding:14px}
+.card ul{padding-left:18px;margin:6px 0}
+.card li{margin-bottom:4px;font-size:14px}
+.card h3{margin-top:0}
+
+/* relaciona */
+.compat{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:880px){.compat{grid-template-columns:1fr}}
+.form label{display:block;font-size:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px}
+.form label:first-child{margin-top:0}
+.form select{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);color:var(--text)}
+.form select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.spec{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+.spec b{color:var(--text);font-weight:500}
+.result{display:flex;flex-direction:column;gap:10px}
+.row{background:var(--surface);border:1px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:24px minmax(0,1fr);gap:10px;align-items:start}
+.row .ico{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;margin-top:2px}
+.row.ok .ico{background:var(--ok)} .row.warn .ico{background:var(--warn)} .row.bad .ico{background:var(--out)}
+.row h4{margin:0;font-family:var(--display);font-size:19px;font-weight:600}
+.row p{margin:2px 0 6px;font-size:14px}
+.bar{position:relative;height:12px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-top:6px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--in);border-radius:3px}
+.bar i.over{background:var(--out)}
+.bar .lim{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text)}
+.bar-l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:3px}
+
+/* practica */
+.airgrid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:880px){.airgrid{grid-template-columns:1fr}}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);margin:8px 0 0;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px;border-radius:2px}
+.diag{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--accent)}
+.diag header{padding:12px 16px 8px;border-bottom:1px solid var(--line)}
+.diag .kicker{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-ink)}
+.diag h3{margin:2px 0 0;font-size:24px;line-height:1}
+.diag .body{padding:12px 16px;font-size:14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-family:var(--mono);font-size:13px;margin-bottom:10px}
+.kv b{font-weight:500;color:var(--muted)}
+.msg{padding:8px 10px;border-left:3px solid var(--line-2);background:var(--surface-2);margin-top:8px;font-size:13.5px}
+.msg.ok{border-color:var(--ok)} .msg.warn{border-color:var(--warn)} .msg.bad{border-color:var(--out)}
+.btn{font:inherit;font-weight:600;background:var(--accent);color:#fff;border:0;border-radius:6px;padding:9px 16px;cursor:pointer}
+.btn.sec{background:var(--surface);color:var(--text);border:1px solid var(--line-2)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.reto{margin-top:14px;padding:12px 14px;border:1px dashed var(--accent);background:var(--accent-soft);font-size:14px}
+.reto b{font-family:var(--display);font-size:18px;display:block;margin-bottom:4px}
+
+/* comprueba */
+.quiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.q{background:var(--surface);border:1px solid var(--line);padding:14px}
+.q .n{font-family:var(--mono);font-size:11px;color:var(--accent-ink);letter-spacing:.06em}
+.q h4{font-family:var(--body);font-weight:600;font-size:15px;margin:4px 0 10px;line-height:1.4}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{text-align:left;font:inherit;font-size:14px;background:var(--surface);border:1px solid var(--line-2);border-radius:6px;padding:8px 10px;cursor:pointer;color:var(--text)}
+.opt:hover{border-color:var(--accent)}
+.opt:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.opt.right{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--surface))}
+.opt.wrong{border-color:var(--out);background:color-mix(in srgb,var(--out) 12%,var(--surface))}
+.q[data-done] .opt{cursor:default}
+.fb{font-size:13.5px;margin-top:8px;padding:8px 10px;background:var(--surface-2);border-left:3px solid var(--line-2)}
+.fb.ok{border-color:var(--ok)} .fb.bad{border-color:var(--out)}
+.survival{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--out);padding:16px}
+.survival .case{font-size:14.5px;background:var(--surface-2);padding:10px 12px;border-radius:4px;max-width:none}
+.sstep{margin-top:14px}
+.sstep h4{font-family:var(--body);font-weight:600;font-size:15px;margin:0 0 8px}
+.final{margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.final .big{font-family:var(--display);font-size:34px;line-height:1}
+.final .hint{max-width:50ch}
+footer{margin-top:40px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+</style>
+
+<div class="topbar">
+  <div class="in">
+    <div class="brand"><span class="eyebrow">UD2.2 · Montaje y mantenimiento de equipos</span><h1>Chasis interactivo</h1></div>
+    <nav class="steps" role="tablist" aria-label="Pasos">
+      <button role="tab" id="tab-explora" aria-selected="true" data-panel="explora"><b>1</b>Explora</button>
+      <button role="tab" id="tab-comprende" aria-selected="false" data-panel="comprende"><b>2</b>Comprende</button>
+      <button role="tab" id="tab-relaciona" aria-selected="false" data-panel="relaciona"><b>3</b>Relaciona</button>
+      <button role="tab" id="tab-practica" aria-selected="false" data-panel="practica"><b>4</b>Practica</button>
+      <button role="tab" id="tab-comprueba" aria-selected="false" data-panel="comprueba"><b>5</b>Comprueba</button>
+    </nav>
+    <div class="score" id="scorebox">Puntos <b id="scoreval">0</b> / 10</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ================= 1 EXPLORA ================= -->
+<section class="panel active" id="explora" role="tabpanel" aria-labelledby="tab-explora">
+  <h2>Explora el chasis</h2>
+  <p class="intro">Pulsa sobre cualquier parte del dibujo. La ficha de la derecha te dice qué es, dónde está, qué datos te da y qué averías o configuraciones tiene relacionadas. Cambia entre la vista exterior y el corte interior.</p>
+  <div class="explore">
+    <div class="stage">
+      <div class="stage-head">
+        <div class="seg" role="group" aria-label="Vista">
+          <button id="v-ext" aria-pressed="false" data-view="ext">Exterior</button>
+          <button id="v-int" aria-pressed="true" data-view="int">Interior (corte lateral)</button>
+        </div>
+        <span class="hint">Torre media ATX. Esquema didáctico, medidas orientativas.</span>
+      </div>
+      <div class="drawing" id="drawing"></div>
+      <div class="chips" id="chips" aria-label="Todas las zonas"></div>
+      <div class="progress" id="progress"></div>
+    </div>
+    <aside class="ficha" id="ficha" aria-live="polite">
+      <div class="empty">Selecciona una zona del dibujo o un nombre de la lista.</div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= 2 COMPRENDE ================= -->
+<section class="panel" id="comprende" role="tabpanel" aria-labelledby="tab-comprende">
+  <h2>Qué es un chasis y qué formatos hay</h2>
+  <p class="intro">El chasis (caja o torre) es la estructura metálica que sujeta y protege los componentes, canaliza el aire y da acceso a los conectores. No hace nada por sí mismo, pero decide qué cabe, cómo se refrigera y lo cómodo que será mantener el equipo.</p>
+
+  <h3>Formatos de placa que admite (a escala)</h3>
+  <div class="formats" id="formats"></div>
+
+  <div class="cols">
+    <div class="card"><h3>Tipos de caja</h3>
+      <ul>
+        <li><b>Torre completa (full tower):</b> admite E-ATX, radiadores de 420 mm y muchas bahías. Más de 500 mm de alto.</li>
+        <li><b>Torre media (mid tower):</b> la más habitual. ATX, GPU hasta 330–400 mm, radiador 360 delante o arriba.</li>
+        <li><b>Mini torre / micro-ATX:</b> compacta, admite mATX y Mini-ITX. Menos ventiladores y GPU más cortas.</li>
+        <li><b>SFF / Mini-ITX:</b> menos de 20 litros. Fuente SFX, disipadores bajos, GPU de 2 ranuras. Cada milímetro cuenta.</li>
+        <li><b>Doble cámara:</b> la fuente y los discos van en una cámara trasera; la delantera queda limpia y con cristal. Mucho espacio para radiadores.</li>
+        <li><b>Airflow:</b> frontal de malla y filtros grandes. Prioriza el caudal de aire sobre el silencio.</li>
+      </ul>
+    </div>
+    <div class="card"><h3>Lo que dice la hoja de especificaciones</h3>
+      <ul>
+        <li><b>Formatos de placa:</b> ATX / mATX / Mini-ITX (a veces E-ATX hasta 280 mm).</li>
+        <li><b>Longitud máxima de GPU:</b> en mm, normalmente con y sin ventiladores frontales.</li>
+        <li><b>Altura máxima del disipador de CPU:</b> en mm, desde la placa hasta el panel lateral.</li>
+        <li><b>Longitud máxima de la fuente:</b> en mm, con y sin la jaula de discos.</li>
+        <li><b>Soporte de ventiladores:</b> posiciones y tamaños (120 / 140 mm) por panel.</li>
+        <li><b>Soporte de radiador:</b> 120 / 240 / 280 / 360 mm por posición.</li>
+        <li><b>Bahías:</b> número de 3,5" y 2,5".</li>
+        <li><b>E/S frontal:</b> USB-A, USB-C, audio. Y el volumen en litros y el peso.</li>
+      </ul>
+    </div>
+    <div class="card"><h3>Materiales y detalles que importan</h3>
+      <ul>
+        <li><b>Acero SPCC</b> de 0,6 a 0,8 mm: rigidez y peso. Aluminio en cajas premium.</li>
+        <li><b>Vidrio templado</b> de 3–4 mm: pesa y no admite golpes en las esquinas. Con tornillos de mano o bisagra.</li>
+        <li><b>Malla</b> con paso de 1–1,5 mm: deja pasar aire y frena parte del polvo.</li>
+        <li><b>Separadores (standoffs)</b> roscados de 6,5 mm: elevan la placa para que no toque la bandeja.</li>
+        <li><b>Pasacables con goma</b> y espacio de 20–30 mm tras la bandeja para el cableado.</li>
+        <li><b>Toma de tierra:</b> el chasis conecta la masa de la fuente. Sin él, el equipo no queda protegido igual frente a ESD.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 RELACIONA ================= -->
+<section class="panel" id="relaciona" role="tabpanel" aria-labelledby="tab-relaciona">
+  <h2>¿Cabe? Compatibilidades físicas</h2>
+  <p class="intro">Elige un chasis y los componentes que quieres montar. Comprobamos las cuatro medidas que fallan en la vida real: longitud de la GPU, altura del disipador, radiador y longitud de la fuente. Las cifras son las que aparecen en cualquier hoja de especificaciones.</p>
+  <div class="compat">
+    <div class="card form">
+      <label for="c-case">Chasis</label>
+      <select id="c-case"></select>
+      <label for="c-mobo">Placa base</label>
+      <select id="c-mobo"></select>
+      <label for="c-gpu">Tarjeta gráfica</label>
+      <select id="c-gpu"></select>
+      <label for="c-cooler">Refrigeración de CPU</label>
+      <select id="c-cooler"></select>
+      <label for="c-radpos">Posición del radiador (si es AIO)</label>
+      <select id="c-radpos"><option value="top">Superior</option><option value="front">Frontal</option></select>
+      <label for="c-psu">Fuente de alimentación</label>
+      <select id="c-psu"></select>
+      <div class="spec" id="casespec"></div>
+    </div>
+    <div class="result" id="compat-result"></div>
+  </div>
+</section>
+
+<!-- ================= 4 PRACTICA ================= -->
+<section class="panel" id="practica" role="tabpanel" aria-labelledby="tab-practica">
+  <h2>Flujo de aire</h2>
+  <p class="intro">El aire frío debe entrar por delante y por abajo, recoger el calor de la GPU y la CPU y salir por detrás y por arriba. Prueba las configuraciones típicas o pulsa cada ventilador para cambiarlo: entrada → salida → apagado.</p>
+  <div class="airgrid">
+    <div class="stage">
+      <div class="stage-head">
+        <div class="presets" id="presets" role="group" aria-label="Configuraciones"></div>
+      </div>
+      <div class="drawing" id="airdrawing"></div>
+      <div class="legend"><span><i style="background:var(--in)"></i>Entrada de aire</span><span><i style="background:var(--out)"></i>Salida de aire</span><span><i style="background:var(--surface-2);border:1px dashed var(--muted)"></i>Ventilador sin montar</span></div>
+    </div>
+    <aside class="diag" aria-live="polite">
+      <header><div class="kicker">Diagnóstico</div><h3 id="air-title">Configuración</h3></header>
+      <div class="body">
+        <div class="kv" id="air-kv"></div>
+        <div id="air-msgs"></div>
+        <div class="reto">
+          <b>Reto: monta el equipo del cliente</b>
+          Lleva un AIO de 240 mm arriba, una GPU que se calienta y va a estar en un taller con polvo. Quiere que entre más aire del que sale. Configura los ventiladores y comprueba.
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="check-air">Comprobar reto</button><button class="btn sec" id="reset-air">Limpiar</button></div>
+          <div id="reto-fb"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= 5 COMPRUEBA ================= -->
+<section class="panel" id="comprueba" role="tabpanel" aria-labelledby="tab-comprueba">
+  <h2>Comprueba lo que sabes</h2>
+  <p class="intro">Seis preguntas cortas y un caso real. Cada respuesta correcta suma un punto; el reto de flujo de aire vale otro. La puntuación se guarda en este navegador para que puedas repetir.</p>
+  <div class="quiz" id="quiz"></div>
+  <div class="survival" id="survival">
+    <h3 style="margin-top:0">Survival: "se calienta y está lleno de polvo"</h3>
+    <div class="case">Un cliente trae una torre media de hace unos años. Frontal de plástico cerrado sin malla, un único ventilador trasero, sin filtros. La GPU se pone a 90 °C jugando y la CPU hace throttling. Dentro hay una capa de polvo y los cables de la fuente cruzan por delante de la gráfica.</div>
+    <div id="sv-steps"></div>
+  </div>
+  <div class="final" id="final"></div>
+</section>
+
+<footer>Material didáctico propio para Aeducar · UD2 Componentes · Dibujos esquemáticos sin marcas. Las medidas de los componentes de ejemplo son orientativas y tomadas de hojas de especificaciones habituales.</footer>
+</div>
+
+<script>
+/* ==================================================================
+   DATOS
+   ================================================================== */
+const ZONES = {
+  frontal:{n:"Panel frontal (malla)",k:"Exterior",
+    que:"Es la cara delantera del chasis. En cajas de tipo airflow es una malla metálica; en cajas cerradas es plástico o cristal con rendijas laterales.",
+    donde:"Delante de los ventiladores frontales. Se desmonta tirando de él o con pestañas para limpiar el filtro.",
+    ves:"Paso de malla de 1–1,5 mm, logotipo, a veces un filtro magnético detrás. La E/S frontal suele ir en el borde superior.",
+    av:"Frontal cerrado = poco caudal aunque haya tres ventiladores. Si la malla está tapada de polvo, las temperaturas suben 5–10 °C.",dato:"Hueco típico: 3×120 mm o 2×140 mm"},
+  cristal:{n:"Panel lateral de cristal",k:"Exterior",
+    que:"Vidrio templado de 3–4 mm que cierra el lateral y deja ver el interior. Sustituye a la chapa lateral clásica.",
+    donde:"Lado izquierdo (mirando de frente). Se sujeta con tornillos de mano en la parte trasera o con bisagra e imanes.",
+    ves:"Tinte gris o transparente, cantos pulidos, gomas antivibración. No deja pasar aire.",
+    av:"Nunca apoyar sobre una esquina: rompe. Las cajas con cristal dependen totalmente del frontal, techo y suelo para respirar.",dato:"Espesor: 3–4 mm templado"},
+  trasera:{n:"Parte trasera",k:"Exterior / interior",
+    que:"Panel fijo con los huecos normalizados: escudo de E/S de la placa, ranuras de expansión, ventilador trasero y toma de la fuente.",
+    donde:"Detrás. Las posiciones coinciden con la norma ATX, por eso cualquier placa ATX encaja en cualquier caja ATX.",
+    ves:"Hueco del I/O shield de 158×44 mm, 7 ranuras de expansión, ventilador de 120/140 mm y hueco de la fuente arriba o abajo.",
+    av:"Si el I/O shield no encaja, la placa está desplazada o falta un standoff. Ranuras troqueladas: una vez rotas, no se pueden volver a tapar.",dato:"7 ranuras · paso 20,32 mm"},
+  superior:{n:"Parte superior",k:"Exterior",
+    que:"Techo del chasis. Normalmente ventilado para montar ventiladores o un radiador como salida de aire caliente.",
+    donde:"Encima de la placa base. Entre el techo y el borde superior de la placa hay 30–60 mm libres.",
+    ves:"Rejilla con filtro magnético, posiciones para 2–3 ventiladores, a veces la E/S frontal.",
+    av:"Un radiador arriba puede chocar con la RAM o el disipador si la caja tiene poco margen. Techo cerrado = calor acumulado en la zona de la CPU.",dato:"Radiador 240/280/360 según modelo"},
+  patas:{n:"Patas y antivibración",k:"Exterior",
+    que:"Elevan la caja del suelo para que la fuente y los ventiladores inferiores puedan tomar aire.",
+    donde:"En las cuatro esquinas de la base. Con gomas para no transmitir vibración al mueble.",
+    ves:"Altura de 20–35 mm. Debajo, el filtro deslizante de la fuente.",
+    av:"Caja sobre moqueta o sin patas: la fuente se ahoga y el filtro se tapa en semanas. Vibración = tornillos sueltos o goma perdida.",dato:"Altura: 20–35 mm"},
+  psu:{n:"Fuente de alimentación",k:"Interior",
+    que:"Convierte los 230 V de la red en 12 V, 5 V y 3,3 V para el equipo. No forma parte del chasis, pero su hueco sí.",
+    donde:"Abajo y atrás, bajo la cubierta. Su ventilador mira hacia abajo y toma aire del exterior por el filtro de la base.",
+    ves:"Formato ATX de 150×86 mm de sección y 140–200 mm de largo. Cuatro tornillos traseros, toma IEC C14 e interruptor.",
+    av:"Montarla con el ventilador hacia arriba en una caja con cubierta cerrada la asfixia. Una fuente larga puede no caber si hay jaula de discos.",dato:"ATX: 150×86 mm · largo 140–200 mm"},
+  shroud:{n:"Cubierta de la fuente (PSU shroud)",k:"Interior",
+    que:"Chapa que separa la cámara inferior (fuente, discos, cables) de la principal. Estética y también funcional: ordena el flujo de aire.",
+    donde:"Sobre la fuente, a lo ancho de toda la base. A veces con posiciones para ventiladores o soportes de SSD encima.",
+    ves:"Recorte delantero para radiador frontal, pasacables para los cables de la GPU, huecos para SSD de 2,5\".",
+    av:"Si la cubierta llega hasta el frontal, un radiador de 360 delante puede no caber. Los cables mal recogidos debajo bloquean el aire de la fuente.",dato:"Altura cámara inferior: 90–110 mm"},
+  placa:{n:"Placa base y bandeja",k:"Interior",
+    que:"La placa se atornilla a la bandeja del chasis mediante separadores roscados (standoffs). La bandeja lleva los pasacables y el hueco para el disipador por detrás.",
+    donde:"Lateral derecho del chasis, ocupando casi toda la cámara principal. El I/O queda arriba y atrás.",
+    ves:"Patrón de agujeros ATX: 9 tornillos para ATX, 6 para mATX, 4 para Mini-ITX. Recorte grande detrás del socket.",
+    av:"Un standoff sobrante debajo de la placa la cortocircuita: no arranca o se apaga. Tornillos demasiado apretados curvan la placa.",dato:"ATX 305×244 · mATX 244×244 · ITX 170×170"},
+  vfront:{n:"Ventiladores frontales",k:"Interior · flujo",
+    que:"Principal entrada de aire. Aspiran aire del exterior a través del frontal y el filtro y lo empujan hacia la GPU y la CPU.",
+    donde:"Detrás del panel frontal, fijados a la chapa con cuatro tornillos o a un soporte extraíble.",
+    ves:"Tamaños 120 o 140 mm. La flecha lateral del marco indica sentido de giro y de aire. Conector 3 pines (voltaje) o 4 pines (PWM).",
+    av:"Si se montan al revés funcionan como salida y la caja queda en presión negativa: entra polvo por todas las rendijas. Ruido = rodamiento o cable tocando las aspas.",dato:"3×120 mm o 2×140 mm · 800–1500 rpm"},
+  vrear:{n:"Ventilador trasero",k:"Interior · flujo",
+    que:"Salida de aire caliente justo detrás del disipador de la CPU. Casi todas las cajas lo traen de serie.",
+    donde:"Arriba y atrás, al lado del escudo de E/S de la placa.",
+    ves:"120 o 140 mm. Agujeros alargados para ajustar la altura. Debe expulsar hacia fuera (flecha hacia la rejilla).",
+    av:"Es el primero que se ensucia por dentro. Si es el único ventilador, el equipo depende de las rendijas del frontal para tomar aire.",dato:"1×120/140 mm"},
+  vtop:{n:"Ventiladores superiores",k:"Interior · flujo",
+    que:"Salida secundaria. Aprovechan que el aire caliente sube. También es la posición habitual para el radiador de un AIO.",
+    donde:"Bajo el techo, entre este y la placa. Con radiador, el conjunto ocupa 27 + 25 mm de grosor.",
+    ves:"2 o 3 posiciones de 120/140 mm. Filtro magnético por encima.",
+    av:"Configurarlos como entrada suele empeorar: luchan contra la convección y meten aire hacia el disipador de la CPU. Si sopla hacia dentro sobre un radiador, el aire caliente del radiador cae sobre la RAM.",dato:"2×120 / 2×140 / 3×120 mm"},
+  vbottom:{n:"Ventilador inferior",k:"Interior · flujo",
+    que:"Entrada extra que alimenta directamente a la GPU con aire frío del exterior.",
+    donde:"En la base, delante de la fuente, con filtro deslizante debajo. Necesita que la caja tenga patas altas.",
+    ves:"Posición de 120 mm. Solo existe en cajas sin jaula de discos delante o con cubierta corta.",
+    av:"Sin filtro, mete todo el polvo del suelo. Con la caja sobre moqueta no aspira nada.",dato:"1–2×120 mm (opcional)"},
+  radiador:{n:"Radiador AIO",k:"Interior · flujo",
+    que:"Intercambiador del kit de refrigeración líquida cerrada. Los ventiladores lo atraviesan para enfriar el líquido que viene de la CPU.",
+    donde:"Arriba (como salida) o en el frontal (como entrada). Los tubos deben llegar hasta el socket sin tensión.",
+    ves:"Longitud 120/240/280/360 mm según ventiladores; grosor 27–30 mm más los 25 mm de los ventiladores.",
+    av:"Delante entra aire ya templado a la GPU. Arriba, con la bomba por encima del radiador, aparecen burbujas y ruido: mejor tubos hacia abajo o radiador más alto que la bomba.",dato:"Grosor total: 52–55 mm"},
+  cooler:{n:"Disipador de CPU (altura)",k:"Interior",
+    que:"Torre de aluminio con tubos de calor y ventilador. Su altura se mide desde la placa hasta la parte más alta.",
+    donde:"Sobre el socket. Sobresale hacia el panel lateral: es la medida que choca con el cristal.",
+    ves:"Torres de 150–170 mm; perfil bajo de 40–70 mm para SFF. Ventilador de 120/140 mm que a veces choca con la RAM alta.",
+    av:"Si la altura supera la del chasis, el cristal no cierra. Un disipador sin anclar bien = temperatura disparada al primer minuto.",dato:"Altura típica: 155–165 mm"},
+  gpu:{n:"Tarjeta gráfica (espacio)",k:"Interior",
+    que:"El componente más largo del equipo. El chasis debe dejar sitio entre las ranuras traseras y los ventiladores frontales.",
+    donde:"En la primera ranura PCIe x16, colgando de la placa. Sus ventiladores miran hacia la cubierta de la fuente.",
+    ves:"Longitud 240–360 mm, 2 a 4 ranuras de grosor, cable de alimentación que necesita 30–40 mm extra si sale por el lateral.",
+    av:"Combado (sag) por el peso: usar soporte. Si la tarjeta roza el ventilador frontal, se pierde ese ventilador o hay que cambiar de caja.",dato:"Espacio en este chasis: 350 mm"},
+  discos:{n:"Bahías SSD / HDD",k:"Interior",
+    que:"Soportes para discos. Los de 3,5\" van en una jaula bajo la cubierta; los SSD de 2,5\" en bandejas sobre la cubierta o detrás de la placa.",
+    donde:"Cámara inferior (jaula) y bandeja trasera. Cerca de la fuente para acortar los cables SATA de alimentación.",
+    ves:"HDD 3,5\": 147×101×26 mm. SSD 2,5\": 100×70×7 mm. Los M.2 van directamente en la placa, no en bahías.",
+    av:"La jaula limita la longitud de la fuente. Un HDD sin los cuatro tornillos vibra y hace ruido; si el disco no aparece, revisa el cable de datos y la alimentación.",dato:"2×3,5\" + 2×2,5\" típico"},
+  filtros:{n:"Filtros antipolvo",k:"Exterior · flujo",
+    que:"Mallas finas de nailon que frenan el polvo en todas las entradas de aire.",
+    donde:"Frontal (detrás del panel), base (deslizante bajo la fuente) y techo (magnético). Solo en entradas; en las salidas no hacen falta.",
+    ves:"Marco de plástico con imanes o guías. Filtro sucio = gris uniforme.",
+    av:"Limpiar cada 1–3 meses según el entorno. Un filtro saturado hace más daño que no tener filtro. Con presión negativa el polvo entra por donde no hay filtro.",dato:"Limpieza: 1–3 meses"},
+  pasacables:{n:"Pasacables y gestión de cableado",k:"Interior",
+    que:"Aberturas con goma en la bandeja para llevar los cables por detrás y que no crucen la cámara principal.",
+    donde:"Borde delantero de la bandeja (24 pines, SATA), borde superior (EPS de la CPU) y en la cubierta (cables de la GPU).",
+    ves:"Espacio de 20–30 mm detrás de la bandeja, puntos de anclaje para bridas, canal con velcros en cajas modernas.",
+    av:"Cables delante de la GPU rompen el flujo y pueden tocar un ventilador. Un cable EPS que no llega porque no se pasó antes de montar la placa: obliga a desmontar.",dato:"Espacio trasero: 20–30 mm"},
+  slots:{n:"Ranuras de expansión (slots)",k:"Interior · trasera",
+    que:"Siete aberturas traseras alineadas con las ranuras PCIe de la placa. Ahí se atornilla el soporte (bracket) de cada tarjeta.",
+    donde:"Parte trasera, bajo el escudo de E/S. En cajas con soporte vertical hay una segunda fila girada 90°.",
+    ves:"Tapas atornilladas o troqueladas. Tornillos de 6-32 o de mano.",
+    av:"Tarjeta sin atornillar = se sale del PCIe con el peso y pierde vídeo. Perfil bajo (79 mm) necesita bracket corto.",dato:"7 slots · 20,32 mm cada uno"},
+  fpanel:{n:"Conectores del panel frontal",k:"Exterior ↔ interior",
+    que:"Botón de encendido, reset, LEDs, USB y audio del frontal. Van por cables hasta la placa base.",
+    donde:"Botones y puertos en el borde superior del frontal; sus cables terminan en los cabezales F_PANEL, USB 3.0 (19 pines), USB-C (Key-A) y HD_AUDIO de la placa.",
+    ves:"Conectores de 2 pines etiquetados PWR_SW, RESET_SW, PWR_LED, HDD_LED. El USB 3.0 es un bloque azul de 19 pines con una esquina cegada.",
+    av:"Si el equipo no arranca al pulsar, prueba a puentear PWR_SW con un destornillador: si arranca, el fallo es del botón o del cable. LED que no enciende: polaridad invertida.",dato:"F_PANEL · USB 19 pines · HD_AUDIO"}
+};
+const ZONE_ORDER=["frontal","cristal","superior","trasera","patas","fpanel","filtros","vfront","vrear","vtop","vbottom","radiador","placa","cooler","gpu","psu","shroud","discos","pasacables","slots"];
+const ZONES_EXT=["frontal","cristal","superior","patas","fpanel","filtros"];
+
+/* ==================================================================
+   DIBUJO: helpers
+   ================================================================== */
+const svgHead=(vb)=>`<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Esquema del chasis">
+<defs>
+ <pattern id="mesh" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="var(--steel-2)"/><circle cx="3" cy="3" r="1.6" fill="var(--bg)"/></pattern>
+ <pattern id="fins" width="6" height="8" patternUnits="userSpaceOnUse"><rect width="6" height="8" fill="var(--steel)"/><rect width="6" height="2" fill="var(--steel-ink)" opacity=".6"/></pattern>
+ <pattern id="slats" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="var(--steel-2)"/><rect x="0" y="3" width="10" height="3" fill="var(--bg)"/></pattern>
+</defs>`;
+
+function fan(id,x,y,w,h,label){
+  // marco fino visto de lado + eje + dos aspas
+  const cx=x+w/2, cy=y+h/2;
+  const vertical=h>w;
+  const blade = vertical
+    ? `<path class="fan-blade" d="M${cx} ${y+6} L${cx} ${y+h-6}"/><path class="fan-blade" d="M${x+5} ${cy-h*0.28} Q${cx} ${cy-h*0.16} ${x+w-5} ${cy-h*0.28}"/><path class="fan-blade" d="M${x+5} ${cy+h*0.28} Q${cx} ${cy+h*0.16} ${x+w-5} ${cy+h*0.28}"/>`
+    : `<path class="fan-blade" d="M${x+6} ${cy} L${x+w-6} ${cy}"/><path class="fan-blade" d="M${cx-w*0.28} ${y+5} Q${cx-w*0.16} ${cy} ${cx-w*0.28} ${y+h-5}"/><path class="fan-blade" d="M${cx+w*0.28} ${y+5} Q${cx+w*0.16} ${cy} ${cx+w*0.28} ${y+h-5}"/>`;
+  const lbl = label ? (vertical
+    ? `<text class="lbl" x="${cx}" y="${y+h+12}" text-anchor="middle" font-size="9">${label}</text>`
+    : `<text class="lbl" x="${x-4}" y="${cy+3}" text-anchor="end" font-size="9">${label}</text>`) : "";
+  return `<g class="fan" data-fan="${id}"><rect class="fan-frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="3"/>${blade}<circle class="fan-hub" cx="${cx}" cy="${cy}" r="3.2"/>${lbl}</g>`;
+}
+function zone(id,inner,hitShape){
+  const z=ZONES[id];
+  return `<g class="zone" data-zone="${id}" tabindex="0" role="button" aria-label="${z.n}"><title>${z.n}</title>${inner}${hitShape}</g>`;
+}
+const hitRect=(x,y,w,h,rx=3)=>`<rect class="hit" x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"/>`;
+
+/* ---------- INTERIOR ---------- */
+function interiorSVG(opts={}){
+  const air=!!opts.air; const st=opts.states||{};
+  let s=svgHead("0 0 660 760");
+  // carcasa
+  s+=`<rect class="case-shell" x="40" y="30" width="560" height="680" rx="6"/>`;
+  s+=`<rect class="case-inner" x="98" y="72" width="464" height="638"/>`;
+  // patas
+  s+=`<rect class="darkpart" x="72" y="710" width="60" height="16" rx="3"/><rect class="darkpart" x="508" y="710" width="60" height="16" rx="3"/>`;
+  // bandeja placa (tray)
+  s+=`<rect class="steel-lt" x="180" y="100" width="380" height="430"/>`;
+  // pasacables en bandeja
+  const grom=(x,y,w,h)=>`<rect class="darkpart" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>`;
+  s+= air? "" : zone("pasacables", grom(206,160,16,70)+grom(206,260,16,70)+grom(206,400,16,70)+grom(300,536,90,10), hitRect(198,150,32,330)+hitRect(292,530,106,22));
+  // cubierta PSU
+  s+=`<rect class="steel" x="262" y="530" width="300" height="180"/>`;
+  // cámara inferior contenido
+  const psu=`<rect class="darkpart" x="370" y="566" width="180" height="104" rx="3"/><rect class="steel-lt" x="380" y="576" width="160" height="84" rx="2"/><circle cx="460" cy="618" r="30" fill="none" stroke="var(--steel-ink)" stroke-width="1.4"/><text class="lbl" x="460" y="653" text-anchor="middle">ATX 150×86</text>`;
+  const cage=`<rect class="darkpart" x="270" y="560" width="92" height="140" rx="3"/><rect class="steel-lt" x="276" y="580" width="80" height="30" rx="2"/><rect class="steel-lt" x="276" y="630" width="80" height="30" rx="2"/><text class="lbl" x="316" y="600" text-anchor="middle">3,5"</text><text class="lbl" x="316" y="650" text-anchor="middle">3,5"</text>`;
+  const ssd=`<rect class="darkpart" x="380" y="504" width="120" height="8" rx="2"/><rect class="darkpart" x="380" y="516" width="120" height="8" rx="2"/><text class="lbl" x="440" y="498" text-anchor="middle">2×SSD 2,5"</text>`;
+  if(air){ s+=psu; }
+  else{
+    s+=zone("shroud", `<rect class="steel" x="262" y="530" width="300" height="14"/>`, hitRect(262,528,300,18));
+    s+=zone("psu", psu, hitRect(366,562,188,112));
+    s+=zone("discos", cage+ssd, hitRect(266,556,100,148)+hitRect(376,490,128,38));
+  }
+  // placa base
+  const mobo=`<rect class="pcb" x="230" y="130" width="293" height="366" rx="3"/>
+    <rect class="pcb-2" x="330" y="136" width="30" height="12"/><text class="lbl" x="366" y="146" text-anchor="start">EPS 8p</text>
+    <rect class="pcb-2" x="508" y="330" width="13" height="80"/><text class="lbl" x="514" y="424" text-anchor="middle">24p</text>
+    <rect class="pcb-2" x="458" y="150" width="8" height="160"/><rect class="pcb-2" x="470" y="150" width="8" height="160"/><rect class="pcb-2" x="482" y="150" width="8" height="160"/><rect class="pcb-2" x="494" y="150" width="8" height="160"/><text class="lbl" x="480" y="324" text-anchor="middle">DDR5</text>
+    <rect class="darkpart" x="390" y="295" width="40" height="34" rx="2"/><text class="lbl" x="410" y="341" text-anchor="middle">chipset</text>
+    <rect class="pcb-2" x="250" y="318" width="90" height="10"/><text class="lbl" x="295" y="313" text-anchor="middle">M.2</text>
+    <rect class="darkpart" x="280" y="362" width="110" height="7"/><text class="lbl" x="335" y="358" text-anchor="middle" fill="var(--text)">PCIe x16</text>
+    <text class="lbl" x="376" y="248" text-anchor="middle" transform="rotate(0)"></text>`;
+  s+= air? mobo : zone("placa", mobo, hitRect(230,130,293,366));
+  // disipador CPU
+  const cooler=`<rect x="340" y="160" width="100" height="110" fill="url(#fins)" stroke="var(--steel-ink)" stroke-width="1.5"/><rect class="darkpart" x="338" y="186" width="104" height="10"/><rect class="darkpart" x="338" y="230" width="104" height="10"/><text class="lbl" x="390" y="288" text-anchor="middle">torre 160 mm</text>`;
+  s+= air? cooler : zone("cooler", cooler, hitRect(336,156,108,118));
+  // GPU
+  const gpuBody=`<rect class="darkpart" x="170" y="372" width="390" height="110" rx="4"/><rect class="pcb" x="176" y="378" width="378" height="98" rx="3"/>`+[250,345,440].map(cx=>`<circle cx="${cx}" cy="427" r="36" fill="var(--dark)" stroke="var(--steel-ink)" stroke-width="1.4"/><circle cx="${cx}" cy="427" r="26" fill="none" stroke="var(--steel-ink)" stroke-width="1"/><circle cx="${cx}" cy="427" r="6" fill="var(--steel-ink)"/>`).join("")+`<rect class="steel-lt" x="548" y="368" width="12" height="118"/><text class="lbl-dark" x="500" y="392" text-anchor="middle">GPU</text>`;
+  s+= air? gpuBody : zone("gpu", gpuBody, hitRect(168,368,394,118,4));
+  // cota espacio GPU (solo explora)
+  if(!air){ s+=`<g class="dimg"><path class="dim" d="M144 350 L560 350"/><path class="dim" d="M144 344 L144 356"/><path class="dim" d="M560 344 L560 356"/><text class="dim-t" x="148" y="346" text-anchor="start">GPU: 350 mm libres</text></g>`; }
+  // conectores panel frontal (cabezal)
+  const fp=`<rect class="pcb-2" x="240" y="482" width="60" height="10"/><text class="lbl" x="270" y="478" text-anchor="middle">F_PANEL</text>`;
+  s+= air? "" : zone("fpanel", fp, hitRect(236,466,68,30));
+  // radiador + ventiladores superiores
+  const rad=`<rect x="226" y="74" width="306" height="26" fill="url(#fins)" stroke="var(--steel-ink)" stroke-width="1.5"/><rect class="darkpart" x="226" y="74" width="14" height="26"/><rect class="darkpart" x="518" y="74" width="14" height="26"/><text class="lbl" x="379" y="92" text-anchor="middle" fill="var(--text)">radiador 240</text>`;
+  const topFans=fan("t1",230,102,144,28,"120")+fan("t2",384,102,144,28,"120");
+  if(air){ s+=rad+`<g class="fanset">${topFans}</g>`; }
+  else { s+=zone("radiador",rad,hitRect(224,72,310,30)); s+=zone("vtop",topFans,hitRect(228,100,302,32)); }
+  // ventiladores frontales
+  const frontFans=fan("f1",106,100,34,144,"120")+fan("f2",106,250,34,144,"120")+fan("f3",106,400,34,144,"120");
+  s+= air? `<g class="fanset">${frontFans}</g>` : zone("vfront",frontFans,hitRect(104,98,38,448));
+  // ventilador trasero
+  const rearFan=fan("r",524,130,34,168,"140");
+  s+= air? `<g class="fanset">${rearFan}</g>` : zone("vrear",rearFan,hitRect(522,128,38,172));
+  // ventilador inferior
+  const botFan=fan("b1",110,680,144,28,"120");
+  s+= air? `<g class="fanset">${botFan}</g>` : zone("vbottom",botFan,hitRect(108,678,148,32));
+  // panel frontal (malla)
+  const front=`<rect class="mesh" x="40" y="30" width="58" height="680" rx="6"/>`;
+  s+= air? front : zone("frontal",front,hitRect(40,30,58,680,6));
+  // techo con rejilla
+  const top=`<rect class="mesh" x="200" y="30" width="360" height="42"/>`;
+  s+= air? top : zone("superior",top,hitRect(200,30,360,42));
+  // trasera: I/O, slots, toma AC
+  const rear=`<rect class="darkpart" x="562" y="138" width="36" height="112" rx="2"/><text class="lbl" x="580" y="196" text-anchor="middle" transform="rotate(-90 580 196)" fill="var(--steel)">I/O</text>
+    <rect x="562" y="610" width="36" height="44" fill="var(--dark)" stroke="var(--steel-ink)"/><text class="lbl" x="580" y="668" text-anchor="middle">AC</text>
+    <rect class="darkpart" x="562" y="130" width="36" height="8" opacity=".0"/>`;
+  const slots=`<rect x="562" y="360" width="36" height="170" fill="url(#slats)" stroke="var(--steel-ink)" stroke-width="1.2"/><text class="lbl" x="580" y="445" text-anchor="middle" transform="rotate(-90 580 445)">7 slots</text>`;
+  if(air){ s+=rear+slots; }
+  else{ s+=zone("trasera",rear,hitRect(560,30,40,680,6)); s+=zone("slots",slots,hitRect(560,356,40,178)); }
+  // filtros
+  const filt=`<path class="filter" d="M101 90 L101 556"/><path class="filter" d="M105 716 L262 716"/><path class="filter" d="M366 716 L556 716"/><path class="filter" d="M204 68 L556 68"/>`;
+  s+= air? filt : zone("filtros",filt,hitRect(96,86,10,474)+hitRect(100,710,166,12)+hitRect(360,710,200,12)+hitRect(200,62,360,12));
+  // patas (zona)
+  if(!air) s+=zone("patas",``,hitRect(66,706,72,24)+hitRect(502,706,72,24));
+  // etiquetas orientación
+  s+=`<text class="lbl" x="69" y="748" text-anchor="middle">DELANTE</text><text class="lbl" x="580" y="748" text-anchor="middle">DETRÁS</text>`;
+  if(air) s+=`<g id="arrows"></g><g id="hotspots"></g>`;
+  s+=`</svg>`;
+  return s;
+}
+
+/* ---------- EXTERIOR ---------- */
+function exteriorSVG(){
+  let s=svgHead("0 0 660 760");
+  // FRONTAL
+  s+=`<text class="lbl" x="160" y="26" text-anchor="middle">VISTA FRONTAL</text>`;
+  s+=`<rect class="case-shell" x="60" y="40" width="200" height="660" rx="6"/>`;
+  s+=zone("patas", `<rect class="darkpart" x="72" y="700" width="50" height="16" rx="3"/><rect class="darkpart" x="198" y="700" width="50" height="16" rx="3"/>`, hitRect(66,696,62,24)+hitRect(192,696,62,24));
+  // E/S frontal
+  const io=`<rect class="steel-lt" x="68" y="48" width="184" height="30" rx="3"/>
+    <circle cx="90" cy="63" r="8" fill="var(--dark)" stroke="var(--steel-ink)"/><circle cx="90" cy="63" r="3" fill="var(--accent)"/>
+    <circle cx="110" cy="63" r="3.5" fill="var(--dark)"/>
+    <rect x="128" y="57" width="16" height="10" fill="var(--in)" stroke="var(--steel-ink)"/><rect x="150" y="57" width="16" height="10" fill="var(--in)" stroke="var(--steel-ink)"/>
+    <rect x="176" y="58" width="16" height="8" rx="4" fill="var(--dark)" stroke="var(--steel-ink)"/>
+    <circle cx="212" cy="63" r="4" fill="var(--ok)" stroke="var(--steel-ink)"/><circle cx="230" cy="63" r="4" fill="var(--out)" stroke="var(--steel-ink)"/>
+    <text class="lbl" x="90" y="92" text-anchor="middle">power</text><text class="lbl" x="147" y="92" text-anchor="middle">USB-A</text><text class="lbl" x="184" y="92" text-anchor="middle">USB-C</text><text class="lbl" x="221" y="92" text-anchor="middle">audio</text>`;
+  s+=zone("fpanel", io, hitRect(66,46,188,50));
+  // malla + ventiladores detrás
+  const mesh=`<rect class="mesh" x="68" y="100" width="184" height="590" rx="3"/>`+[190,350,510].map(cy=>`<circle cx="160" cy="${cy}" r="66" fill="none" stroke="var(--steel-ink)" stroke-width="1.2" opacity=".55"/><circle cx="160" cy="${cy}" r="14" fill="var(--steel-ink)" opacity=".4"/>`).join("");
+  s+=zone("frontal", mesh, hitRect(68,100,184,590));
+  s+=zone("filtros", `<path class="filter" d="M74 106 L246 106 L246 684 L74 684 Z"/>`, hitRect(70,102,10,586)+hitRect(240,102,10,586));
+
+  // LATERAL
+  s+=`<text class="lbl" x="450" y="26" text-anchor="middle">VISTA LATERAL (cristal)</text>`;
+  s+=`<rect class="case-shell" x="300" y="40" width="300" height="660" rx="6"/>`;
+  s+=zone("patas", `<rect class="darkpart" x="316" y="700" width="60" height="16" rx="3"/><rect class="darkpart" x="524" y="700" width="60" height="16" rx="3"/>`, hitRect(310,696,72,24)+hitRect(518,696,72,24));
+  s+=zone("superior", `<rect class="mesh" x="360" y="46" width="200" height="22"/><path class="filter" d="M362 70 L558 70"/>`, hitRect(356,44,208,30));
+  // interior tenue tras el cristal
+  s+=`<g opacity=".28"><rect class="pcb" x="410" y="130" width="160" height="300"/><rect class="darkpart" x="340" y="330" width="230" height="70"/><rect class="steel" x="320" y="520" width="262" height="110"/><rect class="fan-frame" x="322" y="120" width="16" height="380"/></g>`;
+  const glass=`<rect class="glass" x="320" y="80" width="262" height="550" rx="3"/><path d="M340 600 L520 100" stroke="var(--surface)" stroke-width="10" opacity=".35"/><path d="M360 610 L540 110" stroke="var(--surface)" stroke-width="3" opacity=".35"/>
+    <circle cx="590" cy="100" r="5" fill="var(--steel-ink)"/><circle cx="590" cy="610" r="5" fill="var(--steel-ink)"/><text class="lbl" x="451" y="660" text-anchor="middle">vidrio templado 4 mm · tornillos de mano</text>`;
+  s+=zone("cristal", glass, hitRect(320,80,262,550));
+  s+=`<text class="lbl" x="310" y="748" text-anchor="start">← DELANTE</text><text class="lbl" x="590" y="748" text-anchor="end">DETRÁS →</text>`;
+  s+=`</svg>`;
+  return s;
+}
+
+/* ==================================================================
+   EXPLORA: interacción
+   ================================================================== */
+const drawing=document.getElementById("drawing");
+const ficha=document.getElementById("ficha");
+const chips=document.getElementById("chips");
+const progress=document.getElementById("progress");
+let view="int", selected=null;
+let visited=new Set(); try{ visited=new Set(JSON.parse(localStorage.getItem("ud2chasis_visited")||"[]")); }catch(e){}
+
+function renderExplore(){
+  drawing.innerHTML = view==="int"? interiorSVG() : exteriorSVG();
+  drawing.querySelectorAll(".zone").forEach(g=>{
+    g.addEventListener("click",()=>select(g.dataset.zone));
+    g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();select(g.dataset.zone);} });
+  });
+  renderChips(); paintSelection();
+}
+function renderChips(){
+  chips.innerHTML="";
+  ZONE_ORDER.forEach(id=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=ZONES[id].n; b.setAttribute("aria-pressed", id===selected?"true":"false");
+    if(visited.has(id)) b.style.borderColor="var(--accent)";
+    b.addEventListener("click",()=>{
+      const inExt=ZONES_EXT.includes(id), inInt=!["cristal"].includes(id);
+      if(view==="ext" && !inExt) setView("int"); else if(view==="int" && !inInt) setView("ext");
+      select(id);
+    });
+    chips.appendChild(b);
+  });
+  progress.textContent=`Zonas vistas: ${visited.size} / ${ZONE_ORDER.length}`;
+}
+function select(id){
+  selected=id; visited.add(id);
+  try{ localStorage.setItem("ud2chasis_visited",JSON.stringify([...visited])); }catch(e){}
+  const z=ZONES[id];
+  ficha.innerHTML=`<header><div class="kicker">${z.k}</div><h3>${z.n}</h3></header>
+   <div class="blocks">
+    <div class="blk"><b>Qué es</b>${z.que}</div>
+    <div class="blk"><b>Dónde está</b>${z.donde}</div>
+    <div class="blk"><b>Qué ves / qué datos da</b>${z.ves}${z.dato?`<br><span class="dato">${z.dato}</span>`:""}</div>
+    <div class="blk"><b>Averías y configuraciones</b>${z.av}</div>
+   </div>`;
+  paintSelection(); renderChips();
+  if(window.matchMedia("(max-width:880px)").matches) ficha.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function paintSelection(){
+  const svg=drawing.querySelector("svg"); if(!svg) return;
+  svg.classList.toggle("dimmed", !!selected);
+  svg.querySelectorAll(".zone").forEach(g=>g.classList.toggle("sel", g.dataset.zone===selected));
+}
+function setView(v){ view=v; document.getElementById("v-ext").setAttribute("aria-pressed", v==="ext"); document.getElementById("v-int").setAttribute("aria-pressed", v==="int"); renderExplore(); }
+document.getElementById("v-ext").addEventListener("click",()=>setView("ext"));
+document.getElementById("v-int").addEventListener("click",()=>setView("int"));
+renderExplore();
+
+/* ==================================================================
+   COMPRENDE: formatos a escala
+   ================================================================== */
+const FORMATS=[
+  {n:"Mini-ITX",w:170,h:170,holes:4,ram:2,pcie:1,t:"Un solo PCIe x16, 2 ranuras de RAM. Para equipos compactos (SFF) y HTPC."},
+  {n:"Micro-ATX",w:244,h:244,holes:6,ram:4,pcie:3,t:"Cuatro ranuras de RAM y 2–3 ranuras de expansión. La opción equilibrada en oficina."},
+  {n:"ATX",w:305,h:244,holes:9,ram:4,pcie:5,t:"El estándar de torre media. Hasta 7 ranuras de expansión, más conectores y fases de alimentación."},
+  {n:"E-ATX",w:305,h:330,holes:9,ram:8,pcie:7,t:"Más ancha que ATX. Estaciones de trabajo. Solo cabe en cajas que lo indiquen (hasta 280–330 mm)."}
+];
+document.getElementById("formats").innerHTML=FORMATS.map(f=>{
+  const sc=0.6, W=330*sc, H=305*sc; const w=f.w*sc, h=f.h*sc; // ojo: en la placa "w" es alto (305) y "h" ancho (244) vistos de lado
+  const bw=f.h*sc, bh=f.w*sc; const x=(W-bw)/2+10, y=(H-bh)+10;
+  let holes="";
+  const hx=[x+8,x+bw/2,x+bw-8], hy=[y+8,y+bh/2,y+bh-8];
+  const pts = f.holes===4?[[0,0],[2,0],[0,2],[2,2]] : f.holes===6?[[0,0],[1,0],[2,0],[0,2],[1,2],[2,2]] : [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[0,2],[1,2],[2,2]];
+  pts.forEach(p=>holes+=`<circle cx="${hx[p[0]]}" cy="${hy[p[1]]}" r="2.5" fill="var(--steel-ink)"/>`);
+  let ram=""; for(let i=0;i<Math.min(f.ram,4);i++) ram+=`<rect x="${x+bw-30-i*7}" y="${y+14}" width="4" height="${Math.min(80,bh-40)}" fill="var(--pcb-2)"/>`;
+  let pcie=""; for(let i=0;i<f.pcie;i++){ const py=y+bh-30-i*12; if(py>y+40) pcie+=`<rect x="${x+16}" y="${py}" width="${i%2?40:60}" height="4" fill="var(--dark)"/>`; }
+  return `<div class="fmt"><svg viewBox="0 0 ${W+20} ${H+20}" aria-label="${f.n}"><rect x="10" y="10" width="${W}" height="${H}" fill="none" stroke="var(--line-2)" stroke-dasharray="3 3"/><rect class="pcb" x="${x}" y="${y}" width="${bw}" height="${bh}" rx="2"/>${holes}${ram}${pcie}<rect x="${x+bw*0.4}" y="${y+18}" width="26" height="26" fill="var(--dark)"/></svg>
+  <h4>${f.n}</h4><div class="m">${f.w} × ${f.h} mm · ${f.holes} tornillos</div><p>${f.t}</p></div>`;
+}).join("");
+
+/* ==================================================================
+   RELACIONA: compatibilidad
+   ================================================================== */
+const CASES=[
+  {id:"mid",n:"Torre media ATX clásica",mobo:["ITX","mATX","ATX"],gpu:330,gpuNoFan:360,cooler:165,radTop:240,radFront:360,psu:180,psuCage:160,cage:true,topClear:55},
+  {id:"air",n:"Torre media airflow",mobo:["ITX","mATX","ATX"],gpu:380,gpuNoFan:400,cooler:170,radTop:360,radFront:360,psu:200,psuCage:180,cage:true,topClear:60},
+  {id:"dual",n:"Doble cámara",mobo:["ITX","mATX","ATX","EATX"],gpu:420,gpuNoFan:420,cooler:175,radTop:360,radFront:360,psu:220,psuCage:220,cage:false,topClear:75},
+  {id:"matx",n:"Mini torre micro-ATX",mobo:["ITX","mATX"],gpu:300,gpuNoFan:320,cooler:155,radTop:0,radFront:240,psu:160,psuCage:140,cage:true,topClear:0},
+  {id:"sff",n:"SFF Mini-ITX (~15 L)",mobo:["ITX"],gpu:305,gpuNoFan:305,cooler:70,radTop:0,radFront:0,radSide:240,psu:130,psuCage:130,cage:false,topClear:0,sfx:true}
+];
+const MOBOS=[{id:"ITX",n:"Mini-ITX 170×170"},{id:"mATX",n:"Micro-ATX 244×244"},{id:"ATX",n:"ATX 305×244"},{id:"EATX",n:"E-ATX 305×330"}];
+const GPUS=[
+  {n:"Gráfica integrada (sin tarjeta)",len:0},
+  {n:"Gama de entrada, 1 ventilador · 170 mm",len:170},
+  {n:"Gama media compacta, 2 ventiladores · 242 mm",len:242},
+  {n:"Gama media, 3 ventiladores · 285 mm",len:285},
+  {n:"Gama alta, 3 ventiladores · 322 mm",len:322},
+  {n:"Tope de gama, 3,5 ranuras · 358 mm",len:358,side:true}
+];
+const COOLERS=[
+  {n:"Disipador de serie · 45 mm",h:45},
+  {n:"Perfil bajo · 65 mm",h:65},
+  {n:"Torre simple 120 mm · 155 mm",h:155},
+  {n:"Doble torre 140 mm · 168 mm",h:168},
+  {n:"AIO 240 mm",aio:240},
+  {n:"AIO 280 mm",aio:280},
+  {n:"AIO 360 mm",aio:360}
+];
+const PSUS=[
+  {n:"SFX 450 W · 100 mm",len:100,sfx:true},
+  {n:"SFX-L 750 W · 130 mm",len:130,sfx:true},
+  {n:"ATX 650 W · 140 mm",len:140},
+  {n:"ATX 850 W · 160 mm",len:160},
+  {n:"ATX 1200 W · 180 mm",len:180},
+  {n:"ATX 1600 W · 200 mm",len:200}
+];
+const $=id=>document.getElementById(id);
+function fill(sel,arr,def){ sel.innerHTML=arr.map((a,i)=>`<option value="${i}" ${i===def?"selected":""}>${a.n}</option>`).join(""); }
+fill($("c-case"),CASES,0); fill($("c-mobo"),MOBOS,2); fill($("c-gpu"),GPUS,3); fill($("c-cooler"),COOLERS,2); fill($("c-psu"),PSUS,3);
+["c-case","c-mobo","c-gpu","c-cooler","c-radpos","c-psu"].forEach(id=>$(id).addEventListener("change",compat));
+
+function bar(val,max,unit="mm"){
+  const over=val>max; const pct=Math.min(100, val/ (Math.max(max,val)*1.05) *100); const lim=Math.min(100, max/(Math.max(max,val)*1.05)*100);
+  return `<div class="bar"><i class="${over?"over":""}" style="width:${pct}%"></i><span class="lim" style="left:${lim}%"></span></div><div class="bar-l"><span>componente: ${val} ${unit}</span><span>límite: ${max} ${unit}</span></div>`;
+}
+function row(state,title,text,barHtml=""){ const ico=state==="ok"?"✓":state==="warn"?"!":"✕"; return `<div class="row ${state}"><div class="ico">${ico}</div><div><h4>${title}</h4><p>${text}</p>${barHtml}</div></div>`; }
+
+function compat(){
+  const c=CASES[$("c-case").value], m=MOBOS[$("c-mobo").value], g=GPUS[$("c-gpu").value], k=COOLERS[$("c-cooler").value], p=PSUS[$("c-psu").value], pos=$("c-radpos").value;
+  $("casespec").innerHTML=`<b>${c.n}</b><br>Placas: ${c.mobo.join(" / ")}<br>GPU: ${c.gpu} mm${c.gpuNoFan!==c.gpu?` (${c.gpuNoFan} sin vent. frontales)`:""}<br>Disipador: ${c.cooler} mm<br>Radiador: ${c.radTop?`arriba ${c.radTop}`:"arriba —"} · ${c.radFront?`delante ${c.radFront}`:"delante —"}${c.radSide?` · lateral ${c.radSide}`:""}<br>Fuente: ${c.sfx?"SFX/SFX-L":"ATX"} hasta ${c.psu} mm${c.cage?` (${c.psuCage} con jaula HDD)`:""}`;
+  let out="";
+  // placa
+  if(c.mobo.includes(m.id)) out+=row("ok","Placa base","Formato admitido. Los agujeros de los standoffs coinciden con el patrón ATX.");
+  else out+=row("bad","Placa base",`Este chasis no admite ${m.n.split(" ")[0]}. Los taladros y el hueco de E/S no coinciden.`);
+  // gpu
+  if(g.len===0) out+=row("ok","Tarjeta gráfica","Sin tarjeta dedicada: usarás las salidas de vídeo de la placa. La E/S trasera debe quedar accesible.");
+  else{
+    const extra=g.side?35:0; const need=g.len+extra;
+    if(need<=c.gpu-15) out+=row("ok","Tarjeta gráfica",`Cabe con margen de ${c.gpu-need} mm respecto a los ventiladores frontales.${g.side?" Incluye 35 mm para el cable 12V-2x6 lateral.":""}`,bar(need,c.gpu));
+    else if(need<=c.gpu) out+=row("warn","Tarjeta gráfica",`Cabe muy justo (${c.gpu-need} mm). El cable de alimentación puede quedar forzado. Comprueba la ficha del fabricante.`,bar(need,c.gpu));
+    else if(need<=c.gpuNoFan) out+=row("warn","Tarjeta gráfica",`Solo cabe si retiras los ventiladores frontales (límite ${c.gpuNoFan} mm sin ellos). Pierdes la entrada principal de aire.`,bar(need,c.gpu));
+    else out+=row("bad","Tarjeta gráfica",`No cabe: necesita ${need} mm y el chasis admite ${c.gpu} mm. Elige una tarjeta más corta u otro chasis.`,bar(need,c.gpu));
+    if(c.sfx && g.len>0 && g.n.includes("3,5")) out+=row("bad","Grosor de la tarjeta","En este SFF solo caben tarjetas de hasta 3 ranuras de grosor.");
+  }
+  // cooler
+  if(k.aio){
+    const lim = pos==="top"? c.radTop : c.radFront;
+    const where = pos==="top"?"arriba":"delante";
+    if(!lim && c.radSide) out+=row(k.aio<=c.radSide?"warn":"bad","Radiador AIO",k.aio<=c.radSide?`Este chasis no admite radiador ${where}, pero sí uno lateral de ${c.radSide} mm. Cambia la posición al montarlo.`:`No admite radiador ${where} y el lateral solo llega a ${c.radSide} mm.`);
+    else if(!lim) out+=row("bad","Radiador AIO",`Este chasis no tiene posición de radiador ${where}.`);
+    else if(k.aio<=lim){
+      let t=`Radiador de ${k.aio} mm ${where}: admitido (máximo ${lim} mm).`;
+      let st="ok";
+      if(pos==="top" && c.topClear<60) { t+=` Con solo ${c.topClear} mm entre techo y placa, el conjunto radiador + ventiladores (52–55 mm) puede rozar la RAM alta o el bloque EPS.`; st="warn"; }
+      if(pos==="front") t+=" Delante actúa como entrada: la GPU recibirá aire ya templado por el radiador.";
+      out+=row(st,"Radiador AIO",t,bar(k.aio,lim));
+    } else out+=row("bad","Radiador AIO",`Radiador de ${k.aio} mm ${where}: no cabe (máximo ${lim} mm).`,bar(k.aio,lim));
+  } else {
+    if(k.h<=c.cooler-10) out+=row("ok","Altura del disipador",`${k.h} mm frente a ${c.cooler} mm disponibles. El panel lateral cierra sin problema.`,bar(k.h,c.cooler));
+    else if(k.h<=c.cooler) out+=row("warn","Altura del disipador",`Cabe por ${c.cooler-k.h} mm. Algunos fabricantes miden hasta la chapa, no hasta el cristal: verifica.`,bar(k.h,c.cooler));
+    else out+=row("bad","Altura del disipador",`${k.h} mm supera los ${c.cooler} mm del chasis. El panel lateral no cerrará.`,bar(k.h,c.cooler));
+  }
+  // psu
+  if(c.sfx && !p.sfx) out+=row("bad","Fuente de alimentación","Este SFF solo admite fuentes SFX o SFX-L. Una ATX (150×86 mm de sección) no entra en el hueco.");
+  else if(!c.sfx && p.sfx) out+=row("warn","Fuente de alimentación","Fuente SFX en hueco ATX: necesita el adaptador de chapa que suele venir con la fuente. Funciona, pero sobra espacio.");
+  else{
+    const lim=c.cage?c.psuCage:c.psu;
+    if(p.len<=lim-20) out+=row("ok","Fuente de alimentación",`Longitud ${p.len} mm, límite ${lim} mm${c.cage?" con la jaula de discos montada":""}. Queda sitio para doblar los cables.`,bar(p.len,lim));
+    else if(p.len<=lim) out+=row("warn","Fuente de alimentación",`Cabe, pero apenas quedan ${lim-p.len} mm para los conectores modulares. Los cables saldrán forzados.`,bar(p.len,lim));
+    else if(c.cage && p.len<=c.psu) out+=row("warn","Fuente de alimentación",`Solo cabe si retiras la jaula de discos de 3,5" (límite ${c.psu} mm sin jaula). Perderás las bahías HDD.`,bar(p.len,lim));
+    else out+=row("bad","Fuente de alimentación",`${p.len} mm supera el máximo de ${c.psu} mm. Busca una fuente más corta o un chasis mayor.`,bar(p.len,lim));
+  }
+  $("compat-result").innerHTML=out;
+}
+compat();
+
+/* ==================================================================
+   PRACTICA: flujo de aire
+   ================================================================== */
+const FANS={f1:"Frontal 1",f2:"Frontal 2",f3:"Frontal 3",r:"Trasero",t1:"Superior 1",t2:"Superior 2",b1:"Inferior"};
+const GEOM={ // punto medio del ventilador + dirección "hacia dentro" del chasis
+  f1:{x:123,y:172,dir:[1,0],len:120,span:"v"},f2:{x:123,y:322,dir:[1,0],len:120,span:"v"},f3:{x:123,y:472,dir:[1,0],len:120,span:"v"},
+  r:{x:541,y:214,dir:[-1,0],len:110,span:"v"},
+  t1:{x:302,y:116,dir:[0,1],len:90,span:"h"},t2:{x:456,y:116,dir:[0,1],len:90,span:"h"},
+  b1:{x:182,y:694,dir:[0,-1],len:120,span:"h"}
+};
+const PRESETS=[
+  {n:"Clásica",s:{f1:"in",f2:"in",f3:"in",r:"out",t1:"off",t2:"off",b1:"off"}},
+  {n:"Frontal + inferior entrada",s:{f1:"in",f2:"in",f3:"in",r:"out",t1:"off",t2:"off",b1:"in"}},
+  {n:"Arriba y atrás salida",s:{f1:"in",f2:"in",f3:"in",r:"out",t1:"out",t2:"out",b1:"off"}},
+  {n:"Solo trasero (caja barata)",s:{f1:"off",f2:"off",f3:"off",r:"out",t1:"off",t2:"off",b1:"off"}},
+  {n:"Frontal al revés (error)",s:{f1:"out",f2:"out",f3:"out",r:"out",t1:"off",t2:"off",b1:"off"}},
+  {n:"Libre (pulsa los ventiladores)",s:null}
+];
+let states={...PRESETS[0].s};
+const airdrawing=$("airdrawing");
+airdrawing.innerHTML=interiorSVG({air:true});
+const airSvg=airdrawing.querySelector("svg");
+airSvg.querySelectorAll(".fan").forEach(g=>{
+  g.classList.add("fan-click"); g.setAttribute("tabindex","0"); g.setAttribute("role","button");
+  const cyc=()=>{ const id=g.dataset.fan; states[id]= states[id]==="in"?"out": states[id]==="out"?"off":"in"; setPreset(5,false); renderAir(); };
+  g.addEventListener("click",cyc); g.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();cyc();} });
+});
+const presetsEl=$("presets");
+PRESETS.forEach((p,i)=>{ const b=document.createElement("button"); b.className="chip"; b.textContent=p.n; b.dataset.i=i; b.setAttribute("aria-pressed", i===0?"true":"false"); b.addEventListener("click",()=>{ if(p.s) states={...p.s}; setPreset(i,true); renderAir(); }); presetsEl.appendChild(b); });
+function setPreset(i){ presetsEl.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.i===i))); }
+
+function arrowPath(x1,y1,x2,y2,cls){
+  const dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy), ux=dx/L, uy=dy/L;
+  const hx=x2-ux*8, hy=y2-uy*8; const px=-uy*5, py=ux*5;
+  return `<path class="arrow flow-${cls}" d="M${x1} ${y1} L${hx} ${hy}"/><polygon class="head-${cls}" points="${x2},${y2} ${hx+px},${hy+py} ${hx-px},${hy-py}"/>`;
+}
+function renderAir(){
+  let arrows="", hot="";
+  let nIn=0,nOut=0;
+  for(const id in GEOM){
+    const g=airSvg.querySelector(`[data-fan="${id}"]`); const st=states[id]||"off";
+    g.classList.remove("fan-state-in","fan-state-out","fan-state-off"); g.classList.add("fan-state-"+st);
+    g.setAttribute("aria-label",`${FANS[id]}: ${st==="in"?"entrada":st==="out"?"salida":"sin montar"}`);
+    if(st==="off") continue;
+    if(st==="in") nIn++; else nOut++;
+    const ge=GEOM[id]; const d = st==="in"? ge.dir : [-ge.dir[0],-ge.dir[1]];
+    const offs=[-40,0,40];
+    offs.forEach(o=>{
+      const ox = ge.span==="v"? 0 : o, oy = ge.span==="v"? o : 0;
+      const sx=ge.x - d[0]*ge.len/2 + ox, sy=ge.y - d[1]*ge.len/2 + oy;
+      const ex=ge.x + d[0]*ge.len/2 + ox, ey=ge.y + d[1]*ge.len/2 + oy;
+      arrows+=arrowPath(sx,sy,ex,ey,st);
+    });
+  }
+  // zonas calientes si no hay salida arriba/atrás
+  const topOut = states.t1==="out"||states.t2==="out"; const rearOut=states.r==="out";
+  if(!topOut && !rearOut) hot+=`<rect class="hot" x="230" y="100" width="330" height="200" rx="20"/>`;
+  const frontIn=["f1","f2","f3"].filter(k=>states[k]==="in").length;
+  if(frontIn===0 && states.b1!=="in") hot+=`<rect class="hot" x="170" y="360" width="390" height="130" rx="20"/>`;
+  airSvg.querySelector("#arrows").innerHTML=arrows; airSvg.querySelector("#hotspots").innerHTML=hot;
+  // diagnóstico
+  const pres = nIn>nOut?"Positiva":nIn<nOut?"Negativa":"Equilibrada";
+  const presTxt = nIn>nOut?"entra más aire del que sale: el sobrante escapa por las rendijas y el polvo solo entra por los filtros":nIn<nOut?"sale más aire del que entra: el chasis aspira polvo por cualquier rendija sin filtro":"lo que entra sale: ideal si las entradas llevan filtro";
+  $("air-title").textContent = presetsEl.querySelector('[aria-pressed="true"]')?.textContent || "Configuración";
+  $("air-kv").innerHTML=`<b>Entradas</b><span>${nIn}</span><b>Salidas</b><span>${nOut}</span><b>Presión</b><span>${pres}</span>`;
+  let msgs=[];
+  if(nIn===0&&nOut===0) msgs.push(["bad","Sin ventiladores: solo refrigera la fuente y el disipador de la CPU. Temperaturas altas garantizadas."]);
+  if(["f1","f2","f3"].some(k=>states[k]==="out")) msgs.push(["bad","Ventilador frontal como salida: el frontal es la única cara con filtro grande, debe ser entrada. Comprueba la flecha del marco."]);
+  if(states.r==="in") msgs.push(["warn","Trasero como entrada: sopla aire del exterior contra el disipador, que expulsa en sentido contrario. Se anulan."]);
+  if(["t1","t2"].some(k=>states[k]==="in")) msgs.push(["warn","Superior como entrada: el aire caliente sube; obligarlo a bajar empeora la CPU. Con radiador arriba, calienta la RAM."]);
+  if(states.b1==="out") msgs.push(["warn","Inferior como salida: expulsa hacia el suelo y levanta el polvo que después aspiran las entradas."]);
+  if(!topOut && !rearOut && (nIn>0)) msgs.push(["bad","Ninguna salida arriba ni atrás: el aire caliente de la CPU se queda en la parte alta (zona roja)."]);
+  if(frontIn===0 && states.b1!=="in" && nOut>0) msgs.push(["warn","La GPU no recibe aire directo: depende del aire que se cuele por el frontal."]);
+  if(pres==="Negativa" && nIn>0) msgs.push(["warn",`Presión negativa: ${presTxt}.`]);
+  if(pres==="Positiva") msgs.push(["ok",`Presión positiva: ${presTxt}.`]);
+  if(pres==="Equilibrada" && nIn>0) msgs.push(["ok",`Presión equilibrada: ${presTxt}.`]);
+  if(frontIn>=2 && rearOut && !["f1","f2","f3","t1","t2","b1"].some(k=>states[k]==="in"&&false)) {
+    if(frontIn>=2 && rearOut && !msgs.some(m=>m[0]==="bad")) msgs.push(["ok","Recorrido correcto: entra por delante, cruza GPU y CPU y sale por detrás" + (topOut?" y por arriba.":".")]);
+  }
+  $("air-msgs").innerHTML=msgs.map(m=>`<div class="msg ${m[0]}">${m[1]}</div>`).join("");
+}
+renderAir();
+
+/* Reto flujo */
+let score={quiz:{},air:false}; try{ const s=JSON.parse(localStorage.getItem("ud2chasis_score")||"null"); if(s) score=s; }catch(e){}
+function saveScore(){ try{ localStorage.setItem("ud2chasis_score",JSON.stringify(score)); }catch(e){} updateScore(); }
+function total(){ return Object.values(score.quiz).filter(Boolean).length + (score.air?1:0); }
+function updateScore(){ $("scoreval").textContent=total(); renderFinal(); }
+$("check-air").addEventListener("click",()=>{
+  const frontIn=["f1","f2","f3"].filter(k=>states[k]==="in").length; const nIn=Object.values(states).filter(v=>v==="in").length, nOut=Object.values(states).filter(v=>v==="out").length;
+  const topOut = states.t1==="out"&&states.t2==="out"; const frontOut=["f1","f2","f3"].some(k=>states[k]==="out");
+  let ok = topOut && frontIn>=2 && nIn>nOut && !frontOut && states.t1!=="in" && states.t2!=="in";
+  let fb;
+  if(ok){ fb=["ok","Correcto. El radiador de 240 arriba expulsa el calor de la CPU, entran al menos dos frontales y la presión es positiva: el polvo del taller solo entra por los filtros. +1 punto."]; score.air=true; saveScore(); }
+  else{
+    const why=[]; if(!topOut) why.push("los dos ventiladores del radiador superior deben ser salida"); if(frontIn<2) why.push("faltan entradas frontales (mínimo dos)"); if(nIn<=nOut) why.push("la presión no es positiva: añade entradas o quita salidas"); if(frontOut) why.push("hay un frontal invertido");
+    fb=["bad","Todavía no: "+why.join("; ")+"."];
+  }
+  $("reto-fb").innerHTML=`<div class="msg ${fb[0]}">${fb[1]}</div>`;
+});
+$("reset-air").addEventListener("click",()=>{ for(const k in states) states[k]="off"; setPreset(5); renderAir(); $("reto-fb").innerHTML=""; });
+
+/* ==================================================================
+   COMPRUEBA
+   ================================================================== */
+const QUIZ=[
+  {q:"Tienes una mini torre micro-ATX. ¿Qué placa NO podrás montar?",o:["Mini-ITX 170×170","Micro-ATX 244×244","ATX 305×244","Cualquiera de las tres cabe"],a:2,e:"La ATX mide 305 mm de alto y sus taladros no coinciden. Una caja mATX admite mATX y, por ser más pequeña, también Mini-ITX."},
+  {q:"Un chasis tiene tres ventiladores frontales de entrada y uno trasero de salida. ¿Qué presión tiene y qué consecuencia?",o:["Negativa: aspira polvo por las rendijas","Positiva: el aire sobrante sale por las rendijas y el polvo entra solo por los filtros","Equilibrada: no importa dónde estén los filtros","Depende de las rpm, no del número"],a:1,e:"Más caudal de entrada que de salida = presión positiva. Como las entradas llevan filtro, el interior se mantiene más limpio."},
+  {q:"La gráfica mide 336 mm. La hoja del chasis dice: GPU 330 mm (360 mm sin ventiladores frontales). ¿Qué haces?",o:["Cabe, 6 mm no importan","No cabe de ningún modo","Cabe si retiro los ventiladores frontales, pero pierdo la entrada principal de aire: mejor otro chasis o una gráfica más corta","Monto la gráfica en vertical y ya está"],a:2,e:"Las medidas del fabricante son límites reales. Quitar los frontales resuelve el hueco pero arruina el flujo de aire; en una tarjeta que consume mucho no es buena idea."},
+  {q:"El equipo no arranca al pulsar el botón del frontal. Puenteas los dos pines PWR_SW del cabezal F_PANEL y arranca. ¿Dónde está el fallo?",o:["En la fuente de alimentación","En el botón o el cable del panel frontal","En la placa base","En el interruptor trasero de la fuente"],a:1,e:"Si al puentear arranca, la placa y la fuente funcionan. El fallo está en el recorrido botón → cable → conector."},
+  {q:"Montas un AIO de 360 mm en el frontal como entrada. ¿Qué efecto tiene sobre la gráfica?",o:["Ninguno, el radiador no calienta el aire","Recibe aire ya templado por el radiador de la CPU","Recibe más aire frío que sin radiador","La gráfica deja de funcionar por la humedad"],a:1,e:"El aire que entra atraviesa el radiador y sale unos grados más caliente. La GPU trabaja algo peor; por eso muchos montan el radiador arriba como salida."},
+  {q:"Al abrir un equipo ves un separador (standoff) de más bajo la placa, donde no hay agujero. ¿Qué síntoma puede producir?",o:["Nada, es metal contra metal","Cortocircuito: no arranca o se apaga solo","Solo afecta a la estética","Se calienta la RAM"],a:1,e:"El standoff toca pistas de la cara inferior de la placa y las pone a masa. Es una de las averías de montaje más habituales."}
+];
+const quizEl=$("quiz");
+QUIZ.forEach((it,i)=>{
+  const d=document.createElement("div"); d.className="q"; d.id="q"+i;
+  d.innerHTML=`<div class="n">PREGUNTA ${i+1}</div><h4>${it.q}</h4><div class="opts">${it.o.map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join("")}</div><div class="fbwrap"></div>`;
+  quizEl.appendChild(d);
+  d.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    if(d.dataset.done) return; d.dataset.done="1";
+    const j=+b.dataset.j; const ok=j===it.a;
+    d.querySelectorAll(".opt").forEach(x=>{ if(+x.dataset.j===it.a) x.classList.add("right"); else if(+x.dataset.j===j) x.classList.add("wrong"); });
+    d.querySelector(".fbwrap").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correcto. ":"No. "}${it.e}</div>`;
+    score.quiz["q"+i]=ok; saveScore();
+  }));
+  if(score.quiz["q"+i]!==undefined){ d.dataset.done="1"; d.querySelectorAll(".opt").forEach(x=>{ if(+x.dataset.j===it.a) x.classList.add("right"); }); d.querySelector(".fbwrap").innerHTML=`<div class="fb ${score.quiz["q"+i]?"ok":"bad"}">${score.quiz["q"+i]?"Ya respondida correctamente. ":"Ya respondida (incorrecta). "}${it.e}</div>`; }
+});
+
+const SV=[
+  {q:"1. ¿Qué compruebas primero, sin herramientas?",o:["Reinstalar el sistema operativo","El sentido del ventilador trasero (flecha del marco) y si el frontal deja pasar aire","Cambiar la fuente por una de más potencia","Subir todos los ventiladores al 100 % en la BIOS"],a:1,e:"Antes de gastar dinero: el trasero debe expulsar y el frontal cerrado explica la falta de entrada. Es un problema de flujo, no de potencia."},
+  {q:"2. Solución de flujo de aire más razonable y barata:",o:["Cambiar el chasis por uno airflow con frontal de malla y filtros, o si se conserva, añadir dos ventiladores frontales de entrada con filtro y dejar el trasero como salida","Añadir dos ventiladores superiores como entrada","Quitar el panel lateral y dejarlo abierto","Poner un ventilador trasero más grande"],a:0,e:"Hay que crear una entrada filtrada y con recorrido: delante → GPU/CPU → detrás. Dejarlo abierto llena de polvo el interior y anula cualquier flujo dirigido."},
+  {q:"3. Los cables de la fuente cruzan por delante de la gráfica. ¿Qué haces?",o:["Nada, los cables no calientan","Pasarlos por detrás de la bandeja por los pasacables y fijarlos con bridas, dejando libre el recorrido frontal → GPU","Cortarlos a medida","Sujetarlos con cinta aislante a la gráfica"],a:1,e:"Los cables obstruyen el aire y pueden tocar un ventilador. Detrás de la bandeja hay 20–30 mm precisamente para eso."},
+  {q:"4. Última comprobación antes de entregar:",o:["Limpiar filtros y rejillas, verificar que las temperaturas bajan en carga y explicar al cliente cada cuánto limpiar el filtro","Aplicar más pasta térmica a la GPU","Desactivar el throttling en la BIOS","Poner el equipo directamente sobre la moqueta para que no vibre"],a:0,e:"Se cierra la intervención midiendo (temperaturas en carga) y con mantenimiento preventivo: filtros cada 1–3 meses. Sobre moqueta la fuente se ahoga."}
+];
+const svEl=$("sv-steps");
+SV.forEach((it,i)=>{
+  const d=document.createElement("div"); d.className="sstep q"; d.id="sv"+i; d.style.border="0"; d.style.padding="0";
+  d.innerHTML=`<h4>${it.q}</h4><div class="opts">${it.o.map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join("")}</div><div class="fbwrap"></div>`;
+  svEl.appendChild(d);
+  d.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    if(d.dataset.done) return; d.dataset.done="1";
+    const j=+b.dataset.j; const ok=j===it.a;
+    d.querySelectorAll(".opt").forEach(x=>{ if(+x.dataset.j===it.a) x.classList.add("right"); else if(+x.dataset.j===j) x.classList.add("wrong"); });
+    d.querySelector(".fbwrap").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?"Correcto. ":"No. "}${it.e}</div>`;
+    score.quiz["sv"+i]=ok; saveScore();
+  }));
+  if(score.quiz["sv"+i]!==undefined){ d.dataset.done="1"; d.querySelectorAll(".opt").forEach(x=>{ if(+x.dataset.j===it.a) x.classList.add("right"); }); d.querySelector(".fbwrap").innerHTML=`<div class="fb ${score.quiz["sv"+i]?"ok":"bad"}">${it.e}</div>`; }
+});
+// puntuación máxima: 6 preguntas + 4 pasos = 10 puntos del test; el reto de aire se muestra aparte
+function renderFinal(){
+  const answered=Object.keys(score.quiz).length, max=QUIZ.length+SV.length;
+  const pts=Object.values(score.quiz).filter(Boolean).length;
+  $("scorebox").innerHTML=`Puntos <b>${pts+(score.air?1:0)}</b> / ${max+1}`;
+  if(answered===0 && !score.air){ $("final").innerHTML=""; return; }
+  let txt = answered<max? `${answered} de ${max} respondidas.` : pts>=8? "Dominas el chasis: sabes leer una hoja de especificaciones y montar un flujo de aire con sentido." : pts>=5? "Vas bien. Repasa compatibilidades y flujo de aire en los pasos 3 y 4 y vuelve a intentarlo." : "Vuelve a Explora y lee las fichas de ventiladores, filtros y GPU. Luego repite.";
+  $("final").innerHTML=`<div class="big">${pts+(score.air?1:0)} / ${max+1}</div><div class="hint">${txt}${score.air?" Reto de flujo de aire superado.":" El reto de flujo de aire (paso 4) suma un punto más."}</div><button class="btn sec" id="reset-all">Borrar respuestas</button>`;
+  $("reset-all").addEventListener("click",()=>{ score={quiz:{},air:false}; try{localStorage.removeItem("ud2chasis_score");}catch(e){} location.reload(); });
+}
+updateScore();
+
+/* ==================================================================
+   PESTAÑAS
+   ================================================================== */
+const tabs=[...document.querySelectorAll('.steps [role="tab"]')];
+function show(id){
+  tabs.forEach(t=>t.setAttribute("aria-selected", String(t.dataset.panel===id)));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active", p.id===id));
+  try{ history.replaceState(null,"","#"+id); }catch(e){}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.panel)));
+const h=(location.hash||"").replace("#",""); if(["explora","comprende","relaciona","practica","comprueba"].includes(h)) show(h);
+</script>
+
+</body>
+</html>

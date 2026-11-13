@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ficha: start, enable, active — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.45;font-size:18px}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:18px 20px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.7rem}
+.top p{margin:.2em 0;opacity:.95}
+.k{font-family:Consolas,monospace;color:#ffd28a;font-size:.85rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 20px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{margin:.1em 0 .4em;color:var(--navy);font-size:1.25rem}
+.lights{display:flex;gap:14px;flex-wrap:wrap}
+.light{flex:1;min-width:210px;border-radius:14px;padding:14px;text-align:center;color:#fff;transition:background .25s}
+.light small{display:block;font-size:.8rem;opacity:.9;letter-spacing:.04em}
+.light b{display:block;font-size:2rem;margin:.1em 0}
+.light i{display:block;font-style:normal;font-size:.9rem;opacity:.95}
+.on{background:var(--green)}.off{background:#7b8794}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+button{font:inherit;font-weight:700;border:none;border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--navy);color:#fff}
+button.now{background:var(--navy2)}
+button.boot{background:var(--orange)}
+button.reset{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+button:focus-visible{outline:3px solid #ffd28a}
+.log{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:10px 14px;font-family:Consolas,"Courier New",monospace;font-size:.92rem;min-height:150px;max-height:260px;overflow:auto}
+.log .c{color:#ffd28a}.log .o{color:#8fd19e}.log .n{color:#9fb3c8}
+table{width:100%;border-collapse:collapse;margin:.4em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr.cur td{background:#fff1d6;font-weight:700}
+code{font-family:Consolas,monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+.seg{display:inline-flex;border:2px solid var(--navy);border-radius:999px;overflow:hidden;margin-left:8px}
+.seg button{border-radius:0;background:#fff;color:var(--navy);padding:4px 14px}
+.seg button.sel{background:var(--navy);color:#fff}
+.frase{background:var(--navy);color:#fff;border-radius:14px;padding:14px 20px;font-size:1.25rem;font-weight:700;text-align:center;margin:0 0 20px}
+.muted{color:var(--muted);font-size:.9rem}
+@media print{body{background:#fff}.btns,.seg{display:none}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="k">&gt; module ISO 0369 · UD2 · RA2.c</div>
+  <h1>start, enable, active: ¿en qué se diferencian?</h1>
+  <p>Ficha para proyectar · Prueba el simulador y observa los dos indicadores.</p>
+</div></div>
+<div class="wrap">
+
+<div class="grid" style="margin-bottom:0">
+<div class="card">
+  <h2>Dos preguntas distintas</h2>
+  <table>
+    <tr><th></th><th>Pregunta</th><th id="h-l">Linux</th></tr>
+    <tr><td><b>ACTIVO</b></td><td>¿Corre <b>ahora mismo</b>?</td><td id="t-a"><code>systemctl is-active x</code></td></tr>
+    <tr><td><b>HABILITADO</b></td><td>¿Arrancará <b>al reiniciar</b>?</td><td id="t-e"><code>systemctl is-enabled x</code></td></tr>
+  </table>
+  <p class="muted">Cada comando cambia <b>una</b> de las dos cosas (salvo <code>--now</code>, que cambia las dos).</p>
+</div>
+<div class="card">
+  <h2>Qué cambia cada comando</h2>
+  <table id="tbl">
+    <tr><th>Comando</th><th>Ahora</th><th>Al reiniciar</th></tr>
+  </table>
+</div>
+</div>
+
+<div class="card" style="margin:16px 0">
+  <h2>Simulador <span class="seg"><button id="bl" class="sel">Linux</button><button id="bw">Windows</button></span></h2>
+  <div class="lights">
+    <div class="light" id="la"><small id="qa">¿CORRE AHORA?</small><b id="va">—</b><i id="ia"></i></div>
+    <div class="light" id="le"><small id="qe">¿ARRANCARÁ AL REINICIAR?</small><b id="ve">—</b><i id="ie"></i></div>
+  </div>
+  <div class="btns" id="btns"></div>
+  <div class="log" id="log"></div>
+</div>
+
+<div class="grid" style="margin-top:0">
+<div class="card">
+  <h2>Las cuatro combinaciones</h2>
+  <table id="combo">
+    <tr><th>Ahora</th><th>Habilitado</th><th>Al reiniciar…</th></tr>
+    <tr data-s="1,1"><td>activo</td><td>sí</td><td>vuelve a arrancar</td></tr>
+    <tr data-s="1,0"><td>activo</td><td>no</td><td><b>no vuelve</b></td></tr>
+    <tr data-s="0,1"><td>parado</td><td>sí</td><td><b>vuelve</b></td></tr>
+    <tr data-s="0,0"><td>parado</td><td>no</td><td>no arranca</td></tr>
+  </table>
+  <p class="muted">La fila resaltada es el estado actual del simulador.</p>
+</div>
+<div class="card">
+  <h2>Cómo se demuestra de verdad</h2>
+  <pre style="background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:10px 14px;font-size:.9rem;margin:.3em 0">sudo systemctl disable --now apache2
+systemctl is-enabled apache2   # disabled
+sudo reboot
+systemctl is-active apache2    # inactive
+ss -tlnp | grep :80            # (vacío)</pre>
+  <p>Solo <b>reiniciando</b> se comprueba lo que promete «habilitado». Tras el reinicio se pega la salida en la práctica.</p>
+</div>
+</div>
+
+<div class="frase">start cambia lo que pasa ahora · enable cambia lo que pasará al reiniciar · y se comprueba reiniciando.</div>
+
+</div>
+<script>
+(function(){
+ var os='L',st={a:0,e:1};
+ var CMD={
+  L:[['start','start','now'],['stop','stop','now'],['enable','enable',''],['disable','disable',''],['enable --now','enable --now','now'],['disable --now','disable --now','now']],
+  W:[['Start-Service','start','now'],['Stop-Service','stop','now'],['Set-Service -StartupType Automatic','enable',''],['Set-Service -StartupType Disabled','disable',''],['Automatic + Start-Service','enable --now','now'],['Disabled + Stop-Service','disable --now','now']]
+ };
+ var LAB={L:{a:['active','inactive'],e:['enabled','disabled'],qa:'¿CORRE AHORA? (is-active)',qe:'¿ARRANCARÁ AL REINICIAR? (is-enabled)',ia:'is-active',ie:'is-enabled'},
+          W:{a:['Running','Stopped'],e:['Automatic','Disabled'],qa:'¿CORRE AHORA? (Status)',qe:'¿ARRANCARÁ AL REINICIAR? (StartType)',ia:'Status',ie:'StartType'}};
+ var SERV='apache2';
+ var logEl=document.getElementById('log');
+ function add(cls,t){var d=document.createElement('div');d.className=cls;d.textContent=t;logEl.appendChild(d);logEl.scrollTop=logEl.scrollHeight;}
+ function prompt_(c){return os==='L'?'$ sudo systemctl '+c+' '+SERV:'PS> '+c+' '+SERV;}
+ function render(){
+  var L=LAB[os];
+  var A=st.a?L.a[0]:L.a[1],E=st.e?L.e[0]:L.e[1];
+  var la=document.getElementById('la'),le=document.getElementById('le');
+  la.className='light '+(st.a?'on':'off');le.className='light '+(st.e?'on':'off');
+  document.getElementById('va').textContent=A;document.getElementById('ve').textContent=E;
+  document.getElementById('qa').textContent=L.qa;document.getElementById('qe').textContent=L.qe;
+  document.getElementById('ia').textContent=st.a?'corre ahora':'no corre ahora';
+  document.getElementById('ie').textContent=st.e?'arrancará al reiniciar':'no arrancará al reiniciar';
+  [].forEach.call(document.querySelectorAll('#combo tr[data-s]'),function(r){r.classList.toggle('cur',r.dataset.s===st.a+','+st.e);});
+ }
+ function table(){
+  var t=document.getElementById('tbl');while(t.rows.length>1)t.deleteRow(1);
+  var rows=[['start','sí','no'],['stop','sí','no'],['enable','no','sí'],['disable','no','sí'],['enable --now','sí','sí'],['disable --now','sí','sí']];
+  rows.forEach(function(r,i){var tr=t.insertRow();var c=CMD[os][i][0];tr.innerHTML='<td><code>'+c+'</code></td><td>'+r[1]+'</td><td>'+r[2]+'</td>';});
+ }
+ function buttons(){
+  var b=document.getElementById('btns');b.innerHTML='';
+  CMD[os].forEach(function(c){var x=document.createElement('button');x.textContent=c[0];if(c[2])x.className='now';x.onclick=function(){act(c[1],c[0]);};b.appendChild(x);});
+  var r=document.createElement('button');r.className='boot';r.textContent='↻ Reiniciar equipo';r.onclick=function(){act('reboot','reboot');};b.appendChild(r);
+  var z=document.createElement('button');z.className='reset';z.textContent='Reiniciar simulador';z.onclick=function(){st={a:0,e:1};logEl.innerHTML='';add('n','# Estado inicial: parado (inactive) pero habilitado (enabled)');render();};b.appendChild(z);
+ }
+ function act(k,label){
+  if(k==='reboot'){add('c',os==='L'?'$ sudo reboot':'PS> Restart-Computer');st.a=st.e;add('n','… el equipo reinicia …');}
+  else{
+   add('c',prompt_(label));
+   if(k==='start')st.a=1;
+   if(k==='stop')st.a=0;
+   if(k==='enable')st.e=1;
+   if(k==='disable')st.e=0;
+   if(k==='enable --now'){st.e=1;st.a=1;}
+   if(k==='disable --now'){st.e=0;st.a=0;}
+  }
+  var L=LAB[os];
+  if(os==='L'){add('o','$ systemctl is-active '+SERV+'   → '+(st.a?'active':'inactive'));add('o','$ systemctl is-enabled '+SERV+'  → '+(st.e?'enabled':'disabled'));}
+  else{add('o','PS> (Get-Service '+SERV+').Status     → '+(st.a?'Running':'Stopped'));add('o','PS> (Get-Service '+SERV+').StartType  → '+(st.e?'Automatic':'Disabled'));}
+  render();
+ }
+ function setOS(o){os=o;document.getElementById('bl').className=o==='L'?'sel':'';document.getElementById('bw').className=o==='W'?'sel':'';
+  document.getElementById('h-l').textContent=o==='L'?'Linux':'Windows';
+  document.getElementById('t-a').innerHTML=o==='L'?'<code>systemctl is-active x</code>':'<code>Get-Service x</code> → <b>Status</b>';
+  document.getElementById('t-e').innerHTML=o==='L'?'<code>systemctl is-enabled x</code>':'<code>Get-Service x</code> → <b>StartType</b>';
+  SERV=o==='L'?'apache2':'Spooler';st={a:0,e:1};logEl.innerHTML='';add('n','# Estado inicial: parado pero habilitado');table();buttons();render();}
+ document.getElementById('bl').onclick=function(){setOS('L')};
+ document.getElementById('bw').onclick=function(){setOS('W')};
+ setOS('L');
+})();
+</script>
+</body>
+</html>

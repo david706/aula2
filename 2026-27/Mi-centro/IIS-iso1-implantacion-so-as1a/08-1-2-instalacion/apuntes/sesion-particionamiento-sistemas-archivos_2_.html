@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sesión · Particionamiento y sistemas de archivos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5;
+    --cream-panel:#FFFFFF;
+    --navy:#182A45;
+    --navy-2:#24385A;
+    --orange:#E0813C;
+    --orange-dark:#B85F22;
+    --ink:#22282F;
+    --ink-soft:#5B6470;
+    --line:#DDD5C2;
+    --ok:#3E7A52;
+    --warn:#B4472B;
+    --deep:#182A45;
+    --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21;
+      --cream-panel:#20252D;
+      --navy:#EDE7D9;
+      --navy-2:#C9CFDA;
+      --ink:#EDEBE3;
+      --ink-soft:#A9AFB9;
+      --line:#333A44;
+      --orange:#E79458;
+      --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21;
+    --cream-panel:#20252D;
+    --navy:#EDE7D9;
+    --navy-2:#C9CFDA;
+    --ink:#EDEBE3;
+    --ink-soft:#A9AFB9;
+    --line:#333A44;
+    --orange:#E79458;
+    --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px 80px;}
+  code, .mono, .stepcmd, table.compat th, .badge, .duration{
+    font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    background:var(--deep);
+    color:var(--on-deep);
+    padding:56px 24px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:260px; height:260px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 70%);
+    opacity:.35;
+  }
+  .hero-inner{max-width:920px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow-row{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+    margin-bottom:22px;
+  }
+  .pill{
+    border:1px solid rgba(243,239,229,.35);
+    color:var(--on-deep);
+    padding:5px 12px;
+    border-radius:999px;
+    font-size:.78rem;
+    letter-spacing:.02em;
+  }
+  .pill.solid{
+    background:var(--orange);
+    border-color:var(--orange);
+    color:#241305;
+    font-weight:600;
+  }
+  h1{
+    font-size:clamp(1.9rem, 4vw, 2.7rem);
+    line-height:1.12;
+    margin:0 0 14px;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+  .hero-sub{
+    max-width:58ch;
+    color:#D9D2BE;
+    font-size:1.05rem;
+    margin:0;
+  }
+  .hero-meta{
+    display:flex; flex-wrap:wrap; gap:28px;
+    margin-top:32px;
+    padding-top:24px;
+    border-top:1px solid rgba(243,239,229,.2);
+  }
+  .hero-meta div{min-width:120px;}
+  .hero-meta .label{
+    font-size:.72rem;
+    color:#B8AF97;
+    margin-bottom:4px;
+  }
+  .hero-meta .val{
+    font-size:1rem;
+    font-weight:600;
+    color:var(--on-deep);
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:48px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{
+    display:flex; align-items:baseline; gap:14px;
+    margin-bottom:24px;
+  }
+  .sec-num{
+    font-family:"IBM Plex Mono",monospace;
+    color:var(--orange-dark);
+    font-weight:600;
+    font-size:.95rem;
+  }
+  h2{
+    font-size:1.5rem;
+    margin:0;
+    color:var(--navy);
+    font-weight:700;
+  }
+  h3{
+    font-size:1.08rem;
+    color:var(--navy);
+    margin:0 0 10px;
+    font-weight:600;
+  }
+  p{color:var(--ink);margin:0 0 12px;}
+  .lede{color:var(--ink-soft);font-size:1rem;max-width:68ch;}
+
+  /* ---------- OBJETIVOS ---------- */
+  .obj-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+  .obj-list li{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--cream-panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+  }
+  .obj-list .n{
+    flex:0 0 auto;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:var(--deep);
+    color:var(--on-deep);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.75rem; font-weight:700;
+    font-family:"IBM Plex Mono",monospace;
+  }
+
+  /* ---------- TEORIA: MBR/GPT cards ---------- */
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;}
+  @media(max-width:680px){.duo{grid-template-columns:1fr;}}
+  .card{
+    background:var(--cream-panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .card .tag{
+    display:inline-block;
+    font-family:"IBM Plex Mono",monospace;
+    font-size:.72rem;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:6px;
+    margin-bottom:10px;
+  }
+  .tag.mbr{background:#EADFC5;color:#6B4E1C;}
+  .tag.gpt{background:#DCE7DE;color:#2A5A3B;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .tag.mbr{background:#453923;color:#E9C98D;}
+    :root:not([data-theme="light"]) .tag.gpt{background:#243A2C;color:#9FD6AF;}
+  }
+  :root[data-theme="dark"] .tag.mbr{background:#453923;color:#E9C98D;}
+  :root[data-theme="dark"] .tag.gpt{background:#243A2C;color:#9FD6AF;}
+
+  .disk-diagram{
+    display:flex; height:34px; border-radius:6px; overflow:hidden;
+    margin:14px 0; border:1px solid var(--line);
+  }
+  .disk-diagram span{display:block;height:100%;}
+  .mbr-diagram .p1{background:#C98A46;width:28%;}
+  .mbr-diagram .p2{background:#D9A876;width:22%;}
+  .mbr-diagram .p3{background:#E7C79E;width:20%;}
+  .mbr-diagram .ext{
+    width:30%; background:repeating-linear-gradient(45deg,#EFE1CB,#EFE1CB 6px,#E3D2B3 6px,#E3D2B3 12px);
+  }
+  .gpt-diagram span{background:#5F8A6E; width:8.3%;}
+  .gpt-diagram span:nth-child(even){background:#7BA789;}
+
+  ul.feat{margin:0;padding-left:18px;color:var(--ink);}
+  ul.feat li{margin-bottom:6px;}
+  ul.feat b{color:var(--navy-2);}
+
+  table.compat{
+    width:100%; border-collapse:collapse;
+    background:var(--cream-panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    font-size:.92rem;
+  }
+  table.compat th, table.compat td{
+    text-align:left; padding:11px 14px; border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.compat thead th{
+    background:var(--deep); color:var(--on-deep);
+    font-size:.75rem; letter-spacing:.02em; font-weight:600;
+  }
+  table.compat tbody tr:last-child td{border-bottom:none;}
+  table.compat tbody th{color:var(--navy);font-weight:600;background:transparent;font-family:"Space Grotesk";font-size:.95rem;}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);}
+
+  /* ---------- PRACTICA: timeline ---------- */
+  .phase-head{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--deep); color:var(--on-deep);
+    padding:14px 18px; border-radius:10px 10px 0 0;
+  }
+  .phase-head .ph-title{font-weight:600;}
+  .phase-head .ph-time{
+    font-family:"IBM Plex Mono",monospace; font-size:.82rem;
+    background:rgba(243,239,229,.15); padding:4px 10px; border-radius:6px;
+  }
+  .phase-body{
+    border:1px solid var(--line); border-top:none;
+    border-radius:0 0 10px 10px;
+    padding:6px 18px 18px;
+    margin-bottom:30px;
+    background:var(--cream-panel);
+  }
+  .step{
+    display:grid; grid-template-columns:30px 1fr; gap:12px;
+    padding:16px 0; border-top:1px dashed var(--line);
+  }
+  .step:first-child{border-top:none;}
+  .step .dot{
+    width:30px;height:30px;border-radius:50%;
+    background:var(--orange); color:#241305;
+    font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:.8rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .step h4{margin:0 0 6px;font-size:.98rem;color:var(--navy);font-weight:600;}
+  .step p{margin:0 0 8px;font-size:.93rem;color:var(--ink-soft);}
+  .term{
+    background:#1B1F27; color:#DCE4E8;
+    border-radius:8px; padding:12px 14px;
+    font-family:"IBM Plex Mono",monospace; font-size:.83rem;
+    overflow-x:auto; white-space:pre;
+    border:1px solid #2C3341;
+  }
+  .term .c{color:#8FB99A;}
+  .term .p{color:#E7B97E;}
+  .callout{
+    display:flex; gap:10px; align-items:flex-start;
+    background:#F7E6DC; border:1px solid #E7C4AF;
+    color:#6B3418; border-radius:10px; padding:12px 14px;
+    font-size:.9rem; margin-top:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    .callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}
+  }
+  :root[data-theme="dark"] .callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}
+
+  /* ---------- RUBRICA ---------- */
+  .scrollx table.rubric{min-width:640px;}
+  table.rubric{
+    width:100%; border-collapse:collapse;
+    background:var(--cream-panel);
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+    font-size:.86rem;
+  }
+  table.rubric th, table.rubric td{
+    padding:12px 13px; border:1px solid var(--line); vertical-align:top;
+  }
+  table.rubric thead th{
+    background:var(--deep); color:var(--on-deep); font-weight:600; font-size:.78rem;
+  }
+  table.rubric td.crit{font-weight:600; color:var(--navy); background:transparent; width:19%;}
+  table.rubric td.weight{
+    font-family:"IBM Plex Mono",monospace; color:var(--orange-dark); font-weight:600;
+    text-align:center; width:9%;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    max-width:920px;margin:0 auto;padding:30px 24px 50px;
+    color:var(--ink-soft); font-size:.85rem;
+  }
+  .print-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--deep); color:var(--on-deep);
+    border:none; padding:10px 18px; border-radius:8px;
+    font-family:"Space Grotesk"; font-size:.88rem; font-weight:600;
+    cursor:pointer;
+  }
+  @media print{
+    header.hero::after{display:none;}
+    .print-btn{display:none;}
+    section{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow-row">
+      <span class="pill solid">Módulo ISO · 0369</span>
+      <span class="pill">1º ASIR</span>
+      <span class="pill">Bloque 1 · Fundamentos</span>
+    </div>
+    <h1>Particionamiento y sistemas de archivos</h1>
+    <p class="hero-sub">Sesión doble: de la teoría de tablas de particiones (MBR/GPT) a la práctica de creación, formateo y montaje de particiones con fdisk y GParted.</p>
+    <div class="hero-meta">
+      <div><div class="label">DURACIÓN TOTAL</div><div class="val">≈ 90 min</div></div>
+      <div><div class="label">TEORÍA</div><div class="val">15 min</div></div>
+      <div><div class="label">PRÁCTICA GUIADA</div><div class="val">60 min</div></div>
+      <div><div class="label">MODALIDAD</div><div class="val">VM Linux + GUI</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- OBJETIVOS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>Objetivos de aprendizaje</h2></div>
+    <ul class="obj-list">
+      <li><span class="n">1</span><div>Distinguir las tablas de particiones <b>MBR</b> y <b>GPT</b>, identificando sus límites técnicos y cuándo usar cada una.</div></li>
+      <li><span class="n">2</span><div>Comparar los sistemas de archivos <b>FAT32</b>, <b>NTFS</b> y <b>ext4</b> según su compatibilidad, límites y funciones (journaling, permisos).</div></li>
+      <li><span class="n">3</span><div>Crear, modificar y eliminar particiones en un disco virtual mediante <span class="mono">fdisk</span> desde la línea de comandos.</div></li>
+      <li><span class="n">4</span><div>Repetir el mismo proceso con <b>GParted</b> en entorno gráfico y contrastar ambos flujos de trabajo.</div></li>
+      <li><span class="n">5</span><div>Formatear particiones con distintos sistemas de archivos y montarlas correctamente en el árbol de directorios.</div></li>
+    </ul>
+  </section>
+
+  <!-- TEORIA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Teoría — 15 min</h2></div>
+    <p class="lede">Antes de tocar el terminal, el alumnado debe entender qué información guarda una tabla de particiones y por qué el sistema de archivos elegido condiciona la compatibilidad del dispositivo.</p>
+
+    <h3 style="margin-top:26px;">MBR frente a GPT</h3>
+    <div class="duo">
+      <div class="card">
+        <span class="tag mbr">MBR · Master Boot Record</span>
+        <div class="disk-diagram mbr-diagram">
+          <span class="p1"></span><span class="p2"></span><span class="p3"></span><span class="ext"></span>
+        </div>
+        <ul class="feat">
+          <li>Sector de arranque de <b>512 bytes</b>, esquema ligado a la BIOS clásica.</li>
+          <li>Máximo <b>4 particiones primarias</b>, o 3 primarias + 1 extendida con particiones lógicas dentro.</li>
+          <li>Direccionamiento de 32 bits: límite práctico de <b>2 TiB</b> por disco.</li>
+          <li>Sin redundancia: si se daña el sector de arranque, se pierde la tabla completa.</li>
+          <li>Máxima compatibilidad con hardware y sistemas antiguos.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag gpt">GPT · GUID Partition Table</span>
+        <div class="disk-diagram gpt-diagram">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <ul class="feat">
+          <li>Estándar asociado a <b>UEFI</b>, aunque puede leerse desde BIOS en modo compatibilidad.</li>
+          <li>Hasta <b>128 particiones</b> por defecto en Windows, sin distinguir primarias/extendidas.</li>
+          <li>Direccionamiento de 64 bits: soporta discos de tamaños muy superiores a los 2 TiB.</li>
+          <li><b>Redundante</b>: guarda una copia de la tabla al final del disco y checksums CRC32 de verificación.</li>
+          <li>Estándar recomendado para discos e instalaciones actuales.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Sistemas de archivos: FAT32, NTFS y ext4</h3>
+    <div class="scrollx">
+      <table class="compat">
+        <thead>
+          <tr><th>Característica</th><th>FAT32</th><th>NTFS</th><th>ext4</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Origen / SO nativo</th>
+            <td>MS-DOS / Windows antiguo</td>
+            <td>Windows</td>
+            <td>GNU/Linux</td>
+          </tr>
+          <tr>
+            <th>Tamaño máx. de archivo</th>
+            <td>4 GiB</td>
+            <td>Sin límite práctico</td>
+            <td>16 TiB</td>
+          </tr>
+          <tr>
+            <th>Journaling</th>
+            <td>No</td>
+            <td>Sí</td>
+            <td>Sí</td>
+          </tr>
+          <tr>
+            <th>Permisos / ACL</th>
+            <td>No</td>
+            <td>Sí (ACL completas)</td>
+            <td>Sí (permisos POSIX)</td>
+          </tr>
+          <tr>
+            <th>Compatibilidad</th>
+            <td>Universal (USB, cámaras, consolas)</td>
+            <td>Lectura/escritura nativa solo en Windows; en Linux vía <span class="mono">ntfs-3g</span></td>
+            <td>No legible de forma nativa en Windows</td>
+          </tr>
+          <tr>
+            <th>Uso típico en el aula</th>
+            <td>Memorias USB de intercambio</td>
+            <td>Partición del sistema Windows</td>
+            <td>Partición del sistema GNU/Linux</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PRACTICA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Práctica guiada — 60 min</h2></div>
+    <p class="lede">Escenario: una máquina virtual GNU/Linux (Debian o Ubuntu, con entorno gráfico) con un <b>segundo disco virtual de 20 GiB</b> sin usar, añadido expresamente para la práctica. Trabajad siempre sobre ese disco, nunca sobre el disco del sistema.</p>
+
+    <div class="callout">⚠️ Antes de empezar: comprobad con <span class="mono">lsblk</span> qué dispositivo es el disco de pruebas (por ejemplo <span class="mono">/dev/sdb</span>). Cualquier operación de particionado sobre el disco equivocado puede destruir el sistema operativo de la VM.</div>
+
+    <div style="margin-top:26px;">
+      <div class="phase-head"><span class="ph-title">Fase A · Línea de comandos con fdisk</span><span class="ph-time">≈ 30 min</span></div>
+      <div class="phase-body">
+
+        <div class="step">
+          <span class="dot">1</span>
+          <div>
+            <h4>Identificar el disco de pruebas</h4>
+            <p>Listad los discos disponibles y localizad el de 20 GiB sin particiones.</p>
+            <div class="term">$ <span class="c">lsblk</span>
+$ <span class="c">sudo fdisk -l</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">2</span>
+          <div>
+            <h4>Entrar en fdisk y crear la tabla de particiones</h4>
+            <p>Abrid fdisk sobre el disco de pruebas y cread una tabla MBR nueva con <span class="mono">o</span>.</p>
+            <div class="term">$ <span class="c">sudo fdisk /dev/sdb</span>
+Command (m for help): <span class="p">o</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">3</span>
+          <div>
+            <h4>Crear tres particiones primarias</h4>
+            <p>Con <span class="mono">n</span> cread: una de 5 GiB, otra de 8 GiB y una tercera con el espacio restante.</p>
+            <div class="term">Command (m for help): <span class="p">n</span>
+Partition type: <span class="p">p</span>
+Partition number: <span class="p">1</span>
+First sector: <span class="p">(Enter)</span>
+Last sector: <span class="p">+5G</span>
+
+<span class="c"># Repetir para la partición 2 (+8G) y la partición 3 (resto del disco)</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">4</span>
+          <div>
+            <h4>Marcar la tercera partición como swap</h4>
+            <p>Con <span class="mono">t</span> cambiad el tipo de la partición 3 al código <span class="mono">82</span> (Linux swap).</p>
+            <div class="term">Command (m for help): <span class="p">t</span>
+Partition number: <span class="p">3</span>
+Hex code: <span class="p">82</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">5</span>
+          <div>
+            <h4>Escribir los cambios en el disco</h4>
+            <p>Nada se aplica hasta confirmar con <span class="mono">w</span>. Verificad después con <span class="mono">lsblk</span>.</p>
+            <div class="term">Command (m for help): <span class="p">w</span>
+$ <span class="c">lsblk /dev/sdb</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">6</span>
+          <div>
+            <h4>Formatear cada partición con un sistema de archivos distinto</h4>
+            <p>Partición 1 → ext4, partición 2 → FAT32, partición 3 → swap.</p>
+            <div class="term">$ <span class="c">sudo mkfs.ext4 /dev/sdb1</span>
+$ <span class="c">sudo mkfs.vfat -F32 /dev/sdb2</span>
+$ <span class="c">sudo mkswap /dev/sdb3</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">7</span>
+          <div>
+            <h4>Montar y comprobar</h4>
+            <p>Cread puntos de montaje y montad cada partición; confirmad con <span class="mono">df -h</span>.</p>
+            <div class="term">$ <span class="c">sudo mkdir -p /mnt/datos /mnt/usb</span>
+$ <span class="c">sudo mount /dev/sdb1 /mnt/datos</span>
+$ <span class="c">sudo mount /dev/sdb2 /mnt/usb</span>
+$ <span class="c">df -h</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="phase-head"><span class="ph-title">Fase B · Entorno gráfico con GParted</span><span class="ph-time">≈ 25 min</span></div>
+      <div class="phase-body">
+
+        <div class="step">
+          <span class="dot">1</span>
+          <div>
+            <h4>Deshacer la práctica anterior</h4>
+            <p>Desmontad las particiones y eliminad la tabla de particiones del disco (o usad un segundo disco virtual limpio si preferís comparar en paralelo).</p>
+            <div class="term">$ <span class="c">sudo umount /mnt/datos /mnt/usb</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">2</span>
+          <div>
+            <h4>Abrir GParted y seleccionar el disco</h4>
+            <p>Instalad la herramienta si no está disponible y seleccionad el disco de pruebas en el desplegable superior derecho.</p>
+            <div class="term">$ <span class="c">sudo apt install gparted</span>
+$ <span class="c">sudo gparted</span></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">3</span>
+          <div>
+            <h4>Crear una tabla de particiones nueva, esta vez GPT</h4>
+            <p>Menú <em>Dispositivo → Crear tabla de particiones…</em> y elegid <span class="mono">gpt</span> en lugar de <span class="mono">msdos</span>, para comprobar la diferencia frente al MBR anterior.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">4</span>
+          <div>
+            <h4>Recrear las tres particiones de forma visual</h4>
+            <p>Botón derecho sobre el espacio sin asignar → <em>Nueva</em>. Definid tamaño y sistema de archivos (ext4, fat32, linux-swap) para cada una, igual que hicisteis por CLI.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <span class="dot">5</span>
+          <div>
+            <h4>Aplicar y verificar</h4>
+            <p>Las operaciones quedan en cola hasta pulsar el ✓ (<em>Aplicar todas las operaciones</em>). Comparad el resultado con lo obtenido en la Fase A: ¿qué ha sido más rápido? ¿qué ha sido más claro?</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RUBRICA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Rúbrica de evaluación</h2></div>
+    <p class="lede">Cuatro criterios con el mismo peso (25% cada uno). Se evalúa sobre la entrega de una captura de <span class="mono">lsblk -f</span> del resultado final y la observación directa durante la práctica.</p>
+    <div class="scrollx">
+      <table class="rubric">
+        <thead>
+          <tr><th>Criterio</th><th>Peso</th><th>Insuficiente (0–4)</th><th>Adecuado (5–7)</th><th>Excelente (8–10)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="crit">Comprensión teórica MBR/GPT y sistemas de archivos</td>
+            <td class="weight">25%</td>
+            <td>No distingue MBR de GPT ni las diferencias entre FAT32, NTFS y ext4.</td>
+            <td>Identifica las diferencias principales con algún error menor.</td>
+            <td>Explica con precisión límites, compatibilidad y casos de uso de cada opción.</td>
+          </tr>
+          <tr>
+            <td class="crit">Corrección técnica por CLI (fdisk)</td>
+            <td class="weight">25%</td>
+            <td>No completa el particionado o lo hace sobre el disco incorrecto.</td>
+            <td>Crea las particiones correctamente con ayuda puntual del docente.</td>
+            <td>Completa todo el flujo (crear, tipar, formatear, montar) de forma autónoma y verificada.</td>
+          </tr>
+          <tr>
+            <td class="crit">Corrección técnica por GUI (GParted)</td>
+            <td class="weight">25%</td>
+            <td>No logra recrear el esquema de particiones en GParted.</td>
+            <td>Recrea el esquema con alguna incidencia menor sin aplicar.</td>
+            <td>Recrea el esquema con GPT y aplica los cambios sin errores.</td>
+          </tr>
+          <tr>
+            <td class="crit">Autonomía y resolución de incidencias</td>
+            <td class="weight">25%</td>
+            <td>Necesita que el docente resuelva cada incidencia por el alumno.</td>
+            <td>Resuelve incidencias sencillas consultando ayuda (<span class="mono">man</span>, compañeros).</td>
+            <td>Diagnostica y corrige errores propios (dispositivo equivocado, tipo de partición, montaje) sin ayuda.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:18px;">Material de apoyo docente · Bloque 1, Módulo ISO (0369) — Implantación de Sistemas Operativos · 1º ASIR.</p>
+</footer>
+
+</body>
+</html>

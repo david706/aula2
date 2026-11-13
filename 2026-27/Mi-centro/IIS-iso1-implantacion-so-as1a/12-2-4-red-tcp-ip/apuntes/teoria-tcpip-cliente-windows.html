@@ -1,0 +1,208 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #005a9e; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Teoría · Windows</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Red TCP/IP en un cliente Windows 11</h2>
+</div>
+
+<div style="background: #e6f1fa; border-left: 5px solid #005a9e; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Objetivo:</strong> configurar la red TCP/IP de un cliente Windows 11 (IP, máscara, puerta de enlace y DNS) de forma gráfica y por comandos, comprobar que funciona y diagnosticar los errores típicos.</p>
+</div>
+
+<!-- 1 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">1. Los cuatro datos (igual que en Linux)</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 22%;">Dato</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Para qué sirve</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 28%;">Cómo lo llama Windows</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>IP</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Identifica al equipo. No se puede repetir en la misma red.</td><td style="padding: 8px; border: 1px solid #ccc;">Dirección IPv4</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Máscara</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Indica quién es vecino. Windows la muestra en decimal.</td><td style="padding: 8px; border: 1px solid #ccc;">Máscara de subred (<code>255.255.255.0</code>) o Longitud del prefijo de subred (<code>24</code>)</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>Puerta de enlace</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Por dónde se sale de la red. Solo una.</td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace predeterminada</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>DNS</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Traduce nombres a IP.</td><td style="padding: 8px; border: 1px solid #ccc;">Servidores DNS (preferido y alternativo)</td></tr>
+</table>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">Resumen rápido: clases de IP, públicas y privadas</h4>
+<p style="margin-top: 4px;">Las IPv4 se agrupaban en <strong>clases</strong> según el primer número. Hoy se usa CIDR (la máscara puede ser cualquiera), pero las clases siguen usándose para hablar de las redes.</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2b88d8; color: #fff;">
+    <th style="padding: 7px; border: 1px solid #ccc;">Clase</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Primer número</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Máscara por defecto</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Rango privado</th>
+  </tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>A</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">1 – 126</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/8 · 255.0.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>10.0.0.0</code> – <code>10.255.255.255</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>B</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">128 – 191</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/16 · 255.255.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>172.16.0.0</code> – <code>172.31.255.255</code></td></tr>
+  <tr style="background: #fff4d6;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>C</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">192 – 223</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/24 · 255.255.255.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>192.168.0.0</code> – <code>192.168.255.255</code></td></tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">D</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">224 – 239</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;" colspan="2">Multidifusión (multicast): un emisor, varios receptores</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">E</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">240 – 255</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;" colspan="2">Experimental, no se usa</td></tr>
+</table>
+<ul>
+  <li><strong>IP privada:</strong> solo vale dentro de una red local. No circula por Internet y se puede repetir en otras empresas. Para salir a Internet, el router la traduce a su IP pública (<strong>NAT</strong>).</li>
+  <li><strong>IP pública:</strong> única en todo Internet. La asigna el proveedor (ISP). Ejemplo: <code>8.8.8.8</code>.</li>
+  <li><strong>Direcciones especiales:</strong> <code>127.0.0.1</code> loopback (el propio equipo; por eso el 127 no está en la clase A) · <code>169.254.x.x</code> APIPA (sin DHCP) · <code>0.0.0.0</code> «cualquier red» (ruta por defecto) · <code>255.255.255.255</code> difusión.</li>
+</ul>
+<p>Nuestra red <code>192.168.100.0/24</code> es <strong>privada de clase C</strong>.</p>
+
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">2. Nuestro escenario</h3>
+<p>La máquina Windows 11 tiene dos adaptadores en VirtualBox. Windows los llama <strong>Ethernet</strong> y <strong>Ethernet 2</strong> (el nombre puede variar):</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Adaptador</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Nombre en Windows</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Configuración</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">1 · NAT</td><td style="padding: 8px; border: 1px solid #ccc;">Ethernet</td><td style="padding: 8px; border: 1px solid #ccc;">Automática (DHCP). Da Internet. <strong>No se toca.</strong></td></tr>
+  <tr style="background: #fff4d6;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>2 · Red interna <code>ferreteria</code></strong></td><td style="padding: 8px; border: 1px solid #ccc;"><strong>Ethernet 2</strong></td><td style="padding: 8px; border: 1px solid #ccc;">IP <code>192.168.100.51</code> · máscara <code>255.255.255.0</code> · <strong>sin puerta de enlace</strong> · DNS <code>8.8.8.8</code> y <code>8.8.4.4</code></td></tr>
+</table>
+<p>Equipos de la red interna: Ubuntu Server <code>.10</code>, Windows Server <code>.11</code>, Ubuntu Desktop <code>.50</code>, Windows 11 <code>.51</code>.</p>
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>La puerta de enlace la da el NAT.</strong> En «Ethernet 2» se deja vacía. Si pones una, Windows tendrá dos rutas por defecto y puedes perder Internet. En una oficina real con una sola tarjeta sí pondrías la del router (por ejemplo <code>192.168.100.1</code>).</p>
+</div>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">2.1 ¿Cómo sé cuál es «Ethernet 2»?</h4>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">ipconfig /all</pre>
+<ul>
+  <li>El adaptador del <strong>NAT</strong> tiene una IP <code>10.0.2.x</code> y puerta de enlace <code>10.0.2.2</code>.</li>
+  <li>El de la <strong>red interna</strong>, sin configurar, muestra una IP <code>169.254.x.x</code>.</li>
+</ul>
+<p><strong>¿Qué es 169.254.x.x?</strong> Es <strong>APIPA</strong>: una dirección que Windows se asigna a sí mismo cuando el adaptador está en DHCP y no encuentra ningún servidor DHCP. Significa «activo pero sin configurar».</p>
+
+<!-- 3 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">3. Configurar con la interfaz gráfica</h3>
+<p><strong>Opción A · Configuración de Windows 11</strong></p>
+<ol>
+  <li>Inicio → <strong>Configuración</strong> → <strong>Red e Internet</strong> → <strong>Ethernet</strong> → elige <strong>Ethernet 2</strong>.</li>
+  <li>En <strong>Asignación de IP</strong> pulsa <strong>Editar</strong> → <strong>Manual</strong> → activa <strong>IPv4</strong>.</li>
+  <li>Dirección IP: <code>192.168.100.51</code> · Máscara de subred: <code>255.255.255.0</code> · Puerta de enlace: <strong>vacía</strong>.</li>
+  <li>DNS preferido: <code>8.8.8.8</code> · DNS alternativo: <code>8.8.4.4</code> → <strong>Guardar</strong>.</li>
+  <li>En <strong>Asignación de servidor DNS</strong>, si no se ha cambiado, pulsa Editar y pon los mismos DNS.</li>
+</ol>
+<p><strong>Opción B · Panel clásico</strong> (más rápido): <kbd>Win</kbd>+<kbd>R</kbd> → <code>ncpa.cpl</code> → clic derecho en <strong>Ethernet 2</strong> → Propiedades → <strong>Protocolo de Internet versión 4 (TCP/IPv4)</strong> → Propiedades → «Usar la siguiente dirección IP» y «Usar las siguientes direcciones de servidor DNS».</p>
+
+<!-- 4 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">4. Configurar por comandos</h3>
+<p>Los comandos que cambian la red necesitan una consola <strong>como administrador</strong>: clic derecho en Inicio → <strong>Terminal (Administrador)</strong>.</p>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">4.1 Con <code>netsh</code> (CMD o PowerShell)</h4>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">netsh interface ipv4 set address name="Ethernet 2" static 192.168.100.51 255.255.255.0
+netsh interface ipv4 set dnsservers name="Ethernet 2" static 8.8.8.8 primary
+netsh interface ipv4 add dnsservers name="Ethernet 2" 8.8.4.4 index=2
+netsh interface ipv4 show config name="Ethernet 2"</pre>
+<p style="font-size: 13px; color: #555;">Fíjate: después de la máscara no ponemos puerta de enlace. En una red con router sería: <code>... static 192.168.100.51 255.255.255.0 192.168.100.1</code>. Para volver a DHCP: <code>netsh interface ipv4 set address name="Ethernet 2" dhcp</code>.</p>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">4.2 Con PowerShell</h4>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">Get-NetAdapter                                         <span style="color: #7fbf7f;"># nombres de los adaptadores</span>
+New-NetIPAddress -InterfaceAlias "Ethernet 2" -IPAddress 192.168.100.51 -PrefixLength 24
+Set-DnsClientServerAddress -InterfaceAlias "Ethernet 2" -ServerAddresses 8.8.8.8,8.8.4.4
+Get-NetIPConfiguration -InterfaceAlias "Ethernet 2"</pre>
+<p style="font-size: 13px; color: #555;">En PowerShell la máscara se escribe como prefijo (<code>24</code>). La puerta de enlace se añadiría con <code>-DefaultGateway</code>; aquí no la ponemos.</p>
+
+<!-- 5 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">5. Permitir el ping entrante</h3>
+<p>El <strong>Firewall de Windows</strong> bloquea por defecto las peticiones de ping que llegan de otros equipos. Como la red interna no tiene salida a Internet, Windows la clasifica como «Red no identificada» (pública) y la protege. Resultado: Windows puede hacer ping a Ubuntu, pero <strong>Ubuntu no recibe respuesta de Windows</strong>.</p>
+<p>Para permitirlo (consola de administrador):</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px;">netsh advfirewall firewall add rule name="Ping ferreteria" protocol=icmpv4:8,any dir=in action=allow remoteip=192.168.100.0/24</pre>
+<p style="font-size: 13px; color: #555;">Solo abrimos el ping (ICMP tipo 8) y solo para equipos de la red de la ferretería. No se desactiva el firewall.</p>
+
+<!-- 6 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">6. Comprobar que funciona</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qué compruebo</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Resultado correcto</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ipconfig /all</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP, máscara, DHCP, DNS</td><td style="padding: 8px; border: 1px solid #ccc;">En Ethernet 2: <code>DHCP habilitado: no</code>, <code>192.168.100.51</code>, <code>255.255.255.0</code>, DNS <code>8.8.8.8</code> y <code>8.8.4.4</code>, puerta de enlace vacía</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>route print -4</code></td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace</td><td style="padding: 8px; border: 1px solid #ccc;">En «Rutas activas», <strong>una sola</strong> fila <code>0.0.0.0 0.0.0.0 10.0.2.2</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;">Llego al servidor</td><td style="padding: 8px; border: 1px solid #ccc;"><code>Respuesta desde 192.168.100.10</code> · <code>(0% perdidos)</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;">Salgo a Internet</td><td style="padding: 8px; border: 1px solid #ccc;"><code>(0% perdidos)</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code></td><td style="padding: 8px; border: 1px solid #ccc;">Resuelvo nombres</td><td style="padding: 8px; border: 1px solid #ccc;"><code>Nombre: google.com</code> y sus direcciones</td></tr>
+</table>
+<ul>
+  <li>En Windows <code>ping</code> envía 4 paquetes y para solo. Para más: <code>ping -n 10</code>; continuo: <code>ping -t</code> (se para con Ctrl+C).</li>
+  <li><code>nslookup</code> puede decir <em>«Respuesta no autoritativa»</em>: es normal, significa que responde un DNS que no es el dueño del dominio.</li>
+  <li>Otros comandos útiles: <code>ipconfig /flushdns</code> (borra la caché DNS), <code>arp -a</code> (IP y MAC de los vecinos), <code>tracert 8.8.8.8</code> (por dónde pasan los paquetes).</li>
+</ul>
+
+<!-- 7 -->
+<h3 style="color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 4px;">7. Errores típicos y cómo resolverlos</h3>
+
+<p><strong>Error 1 · IP 169.254.x.x en Ethernet 2.</strong> El adaptador sigue en automático (DHCP) y no hay servidor DHCP en la red interna. <strong>Solución:</strong> configura la IP manualmente.</p>
+
+<p><strong>Error 2 · Se configuró el adaptador equivocado.</strong> Pusiste la IP fija en «Ethernet» (NAT). <strong>Qué verás:</strong> se pierde Internet y Ethernet 2 sigue con 169.254.x.x. <strong>Solución:</strong> devuelve «Ethernet» a automático (<code>netsh interface ipv4 set address name="Ethernet" dhcp</code> y <code>netsh interface ipv4 set dnsservers name="Ethernet" dhcp</code>) y configura Ethernet 2.</p>
+
+<p><strong>Error 3 · Puerta de enlace en la red interna.</strong> <strong>Qué verás:</strong> <code>route print -4</code> muestra <strong>dos</strong> filas <code>0.0.0.0</code>. Internet funciona mal o no funciona. <strong>Solución:</strong> borra la puerta de enlace de Ethernet 2 (déjala vacía en la interfaz gráfica, o <code>Remove-NetRoute -InterfaceAlias "Ethernet 2" -DestinationPrefix 0.0.0.0/0</code>).</p>
+
+<p><strong>Error 4 · «La operación solicitada requiere elevación».</strong> Ejecutaste <code>netsh</code> o PowerShell sin permisos. <strong>Solución:</strong> abre <strong>Terminal (Administrador)</strong>.</p>
+
+<p><strong>Error 5 · Nombre del adaptador mal escrito.</strong> <code>netsh</code> o PowerShell no encuentran «Ethernet2» (sin espacio) o «ethernet 2». <strong>Solución:</strong> copia el nombre exacto de <code>Get-NetAdapter</code> y ponlo entre comillas.</p>
+
+<p><strong>Error 6 · <code>New-NetIPAddress</code> dice que la dirección ya existe.</strong> Ya había una IP configurada. <strong>Solución:</strong> quítala antes y repite:</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px;">Remove-NetIPAddress -InterfaceAlias "Ethernet 2" -AddressFamily IPv4 -Confirm:$false</pre>
+
+<p><strong>Error 7 · Ubuntu no recibe respuesta al hacer ping a Windows.</strong> Pero Windows sí llega a Ubuntu. <strong>Causa:</strong> el firewall de Windows bloquea el ping entrante. <strong>Solución:</strong> la regla del apartado 5.</p>
+
+<p><strong>Error 8 · Ping a 8.8.8.8 sí, a google.com no.</strong> Falla el <strong>DNS</strong>. Revisa los DNS con <code>ipconfig /all</code> y prueba <code>ipconfig /flushdns</code>.</p>
+
+<p><strong>Error 9 · «Conflicto de dirección IP» / estado «Duplicado».</strong> Otra máquina tiene <code>192.168.100.51</code>. <code>ipconfig /all</code> muestra la IP con <code>(Duplicado)</code>. <strong>Solución:</strong> comprueba con <code>arp -a</code> qué MAC tiene esa IP y corrige la IP de una de las dos máquinas.</p>
+
+<p><strong>Error 10 · Máscara incorrecta.</strong> Por ejemplo <code>255.255.0.0</code>. Puede seguir funcionando entre los equipos de la ferretería, pero la configuración es incorrecta: el equipo cree que tiene 65.534 vecinos. <strong>Solución:</strong> <code>255.255.255.0</code>.</p>
+
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Escalera de diagnóstico (Windows):</strong></p>
+  <table style="border-collapse: collapse; width: 100%; margin: 8px 0 0 0;">
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">1. <code>ipconfig /all</code> → ¿IP correcta y no 169.254?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → adaptador, configuración manual</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">2. <code>ping 192.168.100.10</code> → ¿llego a mi red?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → IP, máscara, adaptador 2 en VirtualBox</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">3. <code>ping 8.8.8.8</code> → ¿salgo a Internet?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → <code>route print -4</code>, adaptador NAT</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">4. <code>nslookup google.com</code> → ¿resuelvo nombres?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → DNS</td></tr>
+  </table>
+</div>
+
+<!-- 8 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">8. Linux y Windows, cara a cara</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Tarea</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Ubuntu</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Windows 11</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ver IP</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip a</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>ipconfig /all</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ver rutas</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip route</code> / <code>route -n</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>route print -4</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ver DNS</td><td style="padding: 8px; border: 1px solid #ccc;"><code>resolvectl dns</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>ipconfig /all</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Configurar</td><td style="padding: 8px; border: 1px solid #ccc;">Archivo YAML de Netplan</td><td style="padding: 8px; border: 1px solid #ccc;">Configuración / <code>netsh</code> / PowerShell</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ping</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4</code> (si no, no para)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping</code> (4 por defecto)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Vecinos (IP-MAC)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip neigh</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>arp -a</code></td></tr>
+</table>
+
+<!-- 9 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">9. Comprueba lo que has aprendido</h3>
+<p>Intenta responder antes de abrir cada pregunta para ver la solución.</p>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">1. Ethernet 2 muestra <code>169.254.12.7</code>. ¿Qué significa?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> APIPA: el adaptador está en DHCP y no ha encontrado servidor DHCP.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">2. ¿Qué comando muestra la puerta de enlace en Windows?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>route print -4</code> (o <code>ipconfig</code>).</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">3. Escribe el comando <code>netsh</code> para poner <code>192.168.100.51/24</code> sin puerta de enlace en «Ethernet 2».</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>netsh interface ipv4 set address name="Ethernet 2" static 192.168.100.51 255.255.255.0</code></div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">4. Desde Ubuntu no hay respuesta al ping a Windows, pero desde Windows sí hay respuesta de Ubuntu. ¿Por qué?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> El firewall de Windows bloquea el ping entrante.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">5. <code>route print -4</code> muestra dos filas <code>0.0.0.0</code>. ¿Qué error se ha cometido?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Se ha puesto puerta de enlace en la red interna.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">6. Di la clase y si es pública o privada: <code>10.0.5.3</code>, <code>172.20.1.1</code>, <code>8.8.8.8</code>.</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>10.0.5.3</code> clase A privada · <code>172.20.1.1</code> clase B privada · <code>8.8.8.8</code> clase A pública.</div>
+</details>
+
+</div>
