@@ -1,0 +1,1131 @@
+<div style="font-family:Arial,Helvetica,sans-serif;max-width:1000px;color:#222;">
+<div style="background:#1f4e79;color:#fff;padding:16px 20px;border-radius:8px;margin-bottom:10px;"><h1 style="margin:0;font-size:1.6em;color:#fff;">Repaso RA2 – Ferretería Aragón</h1><p style="margin:6px 0 0;color:#dce6f1;">Repaso para el examen del RA2 · Windows Server y Linux (Vitalinux)</p></div>
+<div style="background:#f3f3f3;border:1px solid #d0d0d0;border-radius:6px;padding:10px 16px;margin:14px 0;"><p style="margin:4px 0;font-weight:bold;color:#1f4e79;">Índice</p><ol style="margin:4px 0 4px 18px;padding:0;"><li style="margin:2px 0;"><a href="#sec1" style="color:#1f4e79;">Antes de empezar</a></li><li style="margin:2px 0;"><a href="#sec2" style="color:#1f4e79;">Windows 1. Usuarios y grupos</a></li><li style="margin:2px 0;"><a href="#sec3" style="color:#1f4e79;">Windows 2. Directivas de contraseña y bloqueo</a></li><li style="margin:2px 0;"><a href="#sec4" style="color:#1f4e79;">Windows 3. Carpetas compartidas y permisos NTFS</a></li><li style="margin:2px 0;"><a href="#sec5" style="color:#1f4e79;">Windows 4. Perfiles, servicios y software</a></li><li style="margin:2px 0;"><a href="#sec6" style="color:#1f4e79;">Linux 1. Usuarios y grupos</a></li><li style="margin:2px 0;"><a href="#sec7" style="color:#1f4e79;">Linux 2. Contraseñas y bloqueo</a></li><li style="margin:2px 0;"><a href="#sec8" style="color:#1f4e79;">Linux 3. Permisos</a></li><li style="margin:2px 0;"><a href="#sec9" style="color:#1f4e79;">Linux 4. Perfiles, servicios y software</a></li><li style="margin:2px 0;"><a href="#sec10" style="color:#1f4e79;">Linux 5. Redirecciones (stdin, stdout, stderr) y tuberías</a></li><li style="margin:2px 0;"><a href="#sec11" style="color:#1f4e79;">Windows frente a Linux</a></li><li style="margin:2px 0;"><a href="#sec12" style="color:#1f4e79;">Ejemplos tipo examen</a></li><li style="margin:2px 0;"><a href="#sec13" style="color:#1f4e79;">Autoevaluación para el examen</a></li></ol></div><h2 id="sec1" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Antes de empezar</h2>
+<p style="line-height:1.55;margin:8px 0;">Estos apuntes te sirven para preparar el examen del RA2 y están pensados para seguirlos en este orden:</p>
+<ol>
+<li style="margin:4px 0;line-height:1.5;"><strong>Lee la idea clave</strong> de cada bloque. Es la explicación con una comparación sencilla: si la entiendes, los comandos tienen sentido.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>Mira la tabla de comandos.</strong> No hace falta memorizarla de golpe: úsala como consulta.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>Reproduce el ejemplo comentado</strong> en tu equipo, línea a línea, y compara la salida con lo que se explica.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>Repasa el recuadro «Para el examen, recuerda».</strong> Son los fallos más típicos y lo que más se pregunta.</li>
+<li style="margin:4px 0;line-height:1.5;">Cuando hayas terminado la teoría, <strong>resuelve los ejemplos tipo examen</strong> del final: primero en papel y sin apuntes, como en el examen, y después compruébalos en el equipo.</li>
+<li style="margin:4px 0;line-height:1.5;">Por último, <strong>marca la autoevaluación</strong>. Lo que no puedas marcar es lo que te toca repasar antes del examen.</li>
+</ol>
+<p style="line-height:1.55;margin:8px 0;"><strong>Escenario.</strong> La ferretería Aragón tiene un servidor Windows Server (<strong>srv-win</strong>, 192.168.100.11), un cliente Windows (<strong>pc-win</strong>) y los puestos de trabajo con <strong>Vitalinux</strong>. La plantilla y sus grupos son los mismos en los dos sistemas:</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Usuario</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Puesto</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Grupo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">ana</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Administrativa</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">contabilidad</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">marta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Gerente</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">direccion</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">carlos</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Mozo de almacén</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">almacen</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">luis</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Becario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">becarios</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">pedro</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Becario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">becarios</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Cómo trabajar.</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><strong>Windows</strong>: los comandos se ejecutan en srv-win, en CMD como Administrador.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>Linux</strong>: los comandos se ejecutan en el terminal de Vitalinux con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Las carpetas compartidas de srv-win también se pueden comprobar desde Vitalinux (lo verás en Windows 3).</li>
+<li style="margin:4px 0;line-height:1.5;">En los ejemplos tipo examen, escribe primero la respuesta sin mirar los apuntes, como en el examen. Después comprueba en el equipo que funciona.</li>
+</ul>
+<h2 id="sec2" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Windows 1. Usuarios y grupos</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Una cuenta de usuario es como la tarjeta de acceso de cada trabajador, y un grupo es como un departamento de la ferretería. En lugar de dar llaves a cada persona, se le dan al departamento: quien entra en el grupo recibe automáticamente sus permisos.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">La regla de oro: <strong>los permisos se dan a grupos, no a usuarios.</strong> Así, si entra otra administrativa, basta con meterla en el grupo contabilidad.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Tipos de cuenta.</strong> En un servidor independiente las cuentas son <em>locales</em> (solo valen en ese equipo). En un dominio son cuentas de Active Directory y se gestionan con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user /domain</code> o con la consola <em>Usuarios y equipos de Active Directory</em>. En esta práctica trabajamos con cuentas locales.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Grupos integrados que conviene conocer:</strong> Administradores, Usuarios, Invitados y Usuarios de escritorio remoto. Todo usuario nuevo entra automáticamente en <em>Usuarios</em>.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué quiero hacer</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">CMD</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">PowerShell</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver todos los usuarios</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-LocalUser</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana Contraseña /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalUser -Name ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver el detalle de un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-LocalUser ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Desactivar o activar</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana /active:no</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Disable-LocalUser ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Borrar un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana /delete</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Remove-LocalUser ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup becarios /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalGroup becarios</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Añadir miembros</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup becarios luis pedro /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Add-LocalGroupMember becarios -Member luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Ver los miembros</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup becarios</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-LocalGroupMember becarios</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Opciones útiles de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code>:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/fullname:"Ana López"</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/comment:"Contabilidad"</code>: nombre completo y descripción.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/logonpasswordchg:yes</code>: obliga a cambiar la contraseña en el siguiente inicio de sesión.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/expires:31/12/2026</code>: fecha en que caduca la cuenta (no la contraseña). Útil para becarios.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/times:L-V,08:00-15:00</code>: horario en el que puede iniciar sesión.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana *</code>: pide la contraseña sin mostrarla en pantalla.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ojo con las tildes.</strong> Usa nombres de grupo sin tilde ni espacios (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">direccion</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">almacen</code>). Así evitas problemas de codificación en la consola y en los scripts.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Para comprobar a qué grupos pertenece quien ha iniciado sesión:</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">whoami /groups</code>. Los cambios de grupo no se aplican hasta que el usuario vuelve a iniciar sesión (o se reconecta a la carpeta compartida).</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado: dar de alta a ana en contabilidad.</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">net localgroup contabilidad /add                          (1. creo el departamento)
+net user ana Ferreteria.2026 /add /fullname:"Ana López"   (2. creo la cuenta)
+net localgroup contabilidad ana /add                      (3. meto a ana en su departamento)
+net user ana                                              (4. compruebo: en "Miembros del grupo local" debe salir *contabilidad)
+</code></pre>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> es para usuarios y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup</code>, para grupos.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/add</code> crea o añade y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/delete</code> borra o quita.</li>
+<li style="margin:4px 0;line-height:1.5;">Los permisos se dan a grupos, nunca a usuarios sueltos.</li>
+<li style="margin:4px 0;line-height:1.5;">Termina siempre con una comprobación (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user &lt;usuario&gt;</code>).</li>
+</ul>
+</blockquote>
+<h3 style="color:#1f4e79;border-bottom:2px solid #1f4e79;padding-bottom:3px;margin:20px 0 10px;font-size:1.15em;">¿<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalUser</code>? Depende de tu PowerShell</h3>
+<p style="line-height:1.55;margin:8px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup</code> funcionan <strong>siempre</strong>: en CMD y en cualquier versión de PowerShell. Los cmdlets <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalUser</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Add-LocalGroupMember</code> y similares dependen de la versión de PowerShell que abras. Compruébala con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">$PSVersionTable.PSVersion</code>.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Consola</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Versión</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">¿Funciona <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalUser</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Windows PowerShell (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">powershell.exe</code>, la azul que trae Windows Server)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">5.1</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Sí, directamente</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">PowerShell 7 (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">pwsh.exe</code>, la negra que se instala aparte)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">7.x</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">No a la primera: da el error <em>Could not load type 'Microsoft.PowerShell.Telemetry.Internal.TelemetryAPI'</em></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">PowerShell de 32 bits en un Windows de 64 bits</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">—</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">No: el módulo no está disponible</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">En PowerShell 7 se arregla cargando el módulo en modo compatibilidad. Hay que hacerlo <strong>cada vez que abras la consola</strong>:</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">Import-Module Microsoft.PowerShell.LocalAccounts -UseWindowsPowerShell
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado con cmdlets</strong> (en PowerShell 5.1, o en la 7 después del <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Import-Module</code>):</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">$clave = Read-Host -AsSecureString "Contraseña"                         # 1. pide la contraseña sin mostrarla
+New-LocalUser -Name luis -Password $clave -FullName "Luis" `
+   -Description "Becario" -AccountExpires (Get-Date "2027-06-30")      # 2. crea la cuenta con caducidad
+New-LocalGroup -Name becarios -Description "Alumnado en practicas"   # 3. crea el grupo
+Add-LocalGroupMember -Group becarios -Member luis, pedro              # 4. añade a los becarios (pedro ya debe existir)
+Get-LocalGroupMember becarios                                        # 5. compruebo
+</code></pre>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">New-LocalUser</code> no acepta la contraseña como texto normal: necesita un <em>SecureString</em>. Por eso se usa <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Read-Host -AsSecureString</code> (o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ConvertTo-SecureString "Ferreteria.2026" -AsPlainText -Force</code>).</li>
+<li style="margin:4px 0;line-height:1.5;">Si usas <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> <strong>dentro de PowerShell</strong> y la contraseña tiene <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">$</code>, ponla entre comillas simples (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">'Clave$2026'</code>). Si no, PowerShell la toma por una variable.</li>
+</ul>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong> si no sabes qué PowerShell tendrás, usa <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup</code>, que funcionan en todas. Si te piden cmdlets y estás en PowerShell 7, empieza por el <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Import-Module ... -UseWindowsPowerShell</code>.</p>
+</blockquote>
+<h2 id="sec3" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Windows 2. Directivas de contraseña y bloqueo</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Las directivas son las normas de la empresa para las contraseñas: cuántos caracteres deben tener, cada cuánto hay que cambiarlas y qué pasa si alguien intenta adivinarlas. En Windows se configuran una sola vez y valen para <strong>todas</strong> las cuentas del equipo.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">Las directivas de cuenta se aplican a <strong>todas</strong> las cuentas del equipo. Se consultan y se cambian con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code>; si lo ejecutas sin opciones, muestra la configuración actual.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Opción de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code></th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué controla</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Ejemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/minpwlen:n</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Longitud mínima de la contraseña</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/minpwlen:8</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/maxpwage:d</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Días hasta que la contraseña caduca (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">unlimited</code> = nunca)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/maxpwage:60</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/minpwage:d</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Días que hay que esperar para volver a cambiarla</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/minpwage:1</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/uniquepw:n</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Contraseñas anteriores que no se pueden repetir (máx. 24)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/uniquepw:5</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutthreshold:n</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Intentos fallidos antes de bloquear la cuenta (0 = nunca)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutthreshold:3</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutduration:min</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Minutos que dura el bloqueo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutduration:15</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutwindow:min</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Minutos tras los que se pone a cero el contador de fallos</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/lockoutwindow:15</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Se pueden combinar varias opciones en un solo comando: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts /minpwlen:8 /maxpwage:60 /uniquepw:5</code>. La ventana de observación (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">lockoutwindow</code>) <strong>no puede ser mayor</strong> que la duración del bloqueo.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Lo que <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> NO hace: la complejidad.</strong> Se activa en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">secpol.msc</code> → Directivas de cuenta → Directiva de contraseñas → <em>La contraseña debe cumplir los requisitos de complejidad</em>. En Windows Server viene activada por defecto. Una contraseña compleja:</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">tiene al menos 6 caracteres;</li>
+<li style="margin:4px 0;line-height:1.5;">no contiene el nombre de la cuenta;</li>
+<li style="margin:4px 0;line-height:1.5;">mezcla al menos 3 de estos 4 tipos: mayúsculas, minúsculas, números y símbolos.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Cómo comprobar que las directivas funcionan:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><em>Contraseña no válida</em>: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana abc</code> devuelve el <strong>error 2245</strong> (la contraseña no cumple la directiva).</li>
+<li style="margin:4px 0;line-height:1.5;"><em>Bloqueo</em>: si fallas la contraseña más veces que el umbral, aparece el <strong>error 1909</strong> (la cuenta está bloqueada). Para desbloquearla, espera a que pase la duración o desmarca <em>La cuenta está bloqueada</em> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">lusrmgr.msc</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">La cuenta <em>Administrador</em> integrada no se bloquea por defecto. Haz las pruebas con un usuario normal.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado: comprobar que la norma funciona.</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">net accounts /minpwlen:8         (1. pongo la norma: mínimo 8 caracteres)
+net accounts                     (2. compruebo que aparece "Longitud mínima de contraseña: 8")
+net user ana abc                 (3. intento romperla: Error de sistema 2245)
+net user ana Ferreteria.2026     (4. con una contraseña válida funciona)
+</code></pre>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> sin opciones muestra la configuración actual.</li>
+<li style="margin:4px 0;line-height:1.5;">La complejidad <strong>no</strong> se configura con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code>, sino en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">secpol.msc</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Un umbral de bloqueo 0 significa que la cuenta no se bloquea nunca.</li>
+<li style="margin:4px 0;line-height:1.5;">Haz las pruebas de bloqueo con un usuario normal, no con Administrador.</li>
+</ul>
+</blockquote>
+<h2 id="sec4" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Windows 3. Carpetas compartidas y permisos NTFS</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Para llegar por la red a un archivo hay que pasar dos puertas: la del edificio (el permiso de recurso compartido) y la de la oficina (el permiso NTFS). Aunque la primera puerta te deje pasar con llave maestra, si la segunda solo te deja mirar, solo podrás mirar. <strong>Siempre manda la puerta más estricta.</strong></p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">A una carpeta compartida se accede a través de <strong>dos capas de permisos</strong>, y por la red siempre gana <strong>la más restrictiva</strong>.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;"></th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Permisos de recurso compartido</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Permisos NTFS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Cuándo se aplican</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Solo al acceder por la red</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Siempre: en local y por la red</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Niveles</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Lectura, Cambiar, Control total</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Control total (F), Modificar (M), Lectura y ejecución (RX), Lectura (R), Escritura (W)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Comando</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net share</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">icacls</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Herencia a subcarpetas</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">No</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Sí, con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">(OI)(CI)</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Cómo se combinan:</strong></p>
+<ol>
+<li style="margin:4px 0;line-height:1.5;">Dentro de cada capa se <strong>suman</strong> los permisos de todos los grupos del usuario.</li>
+<li style="margin:4px 0;line-height:1.5;">Una <strong>denegación</strong> expresa gana siempre a un permiso concedido.</li>
+<li style="margin:4px 0;line-height:1.5;">Entre las dos capas gana <strong>la más restrictiva</strong>. Por ejemplo, Control total en el recurso compartido + Lectura en NTFS = solo <strong>Lectura</strong> por la red.</li>
+</ol>
+<p style="line-height:1.55;margin:8px 0;"><strong>Compartir con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net share</code>:</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">net share Contabilidad=C:\Ferreteria\Contabilidad /grant:contabilidad,CHANGE /grant:direccion,READ
+net share                      (lista los recursos compartidos)
+net share Contabilidad         (muestra el detalle)
+net share Contabilidad /delete (deja de compartir; la carpeta no se borra)
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;">Un nombre de recurso que termina en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">$</code> (por ejemplo, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Perfiles$</code>) es un <strong>recurso oculto</strong>: funciona igual, pero no aparece al explorar el servidor.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Permisos NTFS: lo básico.</strong> De NTFS solo vimos una introducción, así que para el examen basta con esto:</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">Los permisos NTFS se ven y se cambian en <em>Propiedades de la carpeta → pestaña Seguridad → Editar</em>: se añade el grupo y se marcan los permisos.</li>
+<li style="margin:4px 0;line-height:1.5;">Los niveles más habituales son Control total, Modificar, Lectura y ejecución y Lectura.</li>
+<li style="margin:4px 0;line-height:1.5;">Por defecto, las carpetas <strong>heredan</strong> los permisos de la carpeta en la que están.</li>
+<li style="margin:4px 0;line-height:1.5;">Por comandos, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">icacls C:\Ferreteria\Contabilidad</code> muestra los permisos y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">icacls C:\Ferreteria\Contabilidad /grant contabilidad:M</code> da Modificar a un grupo. Las letras son F (Control total), M (Modificar), RX (Lectura y ejecución) y R (Lectura).</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Comprobar desde pc-win:</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">net use Z: \\192.168.100.11\Contabilidad /user:srv-win\ana *
+echo prueba &gt; Z:\prueba.txt
+net use Z: /delete
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;">Windows solo permite <strong>una identidad por servidor</strong>. Si te conectas como otro usuario sin borrar antes la conexión anterior, aparece el <strong>error 1219</strong>. Comprueba las conexiones abiertas con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net use</code> y bórralas antes de cambiar de usuario.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Comprobar desde Vitalinux:</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">smbclient -L //192.168.100.11 -U ana                (lista los recursos compartidos)
+smbclient //192.168.100.11/Contabilidad -U ana      (entra; dentro: ls, put, get, exit)
+sudo mount -t cifs //192.168.100.11/Contabilidad /mnt/conta -o username=ana
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;">También puedes escribir <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">smb://192.168.100.11/Contabilidad</code> en la barra de direcciones del gestor de archivos. Para montar con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">mount -t cifs</code> hace falta el paquete <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">cifs-utils</code>, y la carpeta <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/mnt/conta</code> tiene que existir. Si en Windows no tienes permiso, aquí aparece <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">NT_STATUS_ACCESS_DENIED</code>.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">El permiso de recurso compartido solo cuenta cuando se accede por la red. El NTFS cuenta siempre.</li>
+<li style="margin:4px 0;line-height:1.5;">Por la red gana el más restrictivo de los dos.</li>
+<li style="margin:4px 0;line-height:1.5;">Compartir: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net share Nombre=Ruta /grant:grupo,CHANGE</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Para cambiar de usuario en el cliente, primero <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net use * /delete</code>.</li>
+</ul>
+</blockquote>
+<h2 id="sec5" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Windows 4. Perfiles, servicios y software</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> El <strong>perfil</strong> es la mesa de trabajo de cada usuario (escritorio, documentos y configuración), que Windows le prepara al entrar. Un <strong>servicio</strong> es como el vigilante de seguridad: trabaja en segundo plano aunque no haya nadie con la sesión iniciada. <strong>winget</strong> es una tienda de aplicaciones que se maneja con comandos.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;"><strong>Perfiles de usuario.</strong> El perfil es la carpeta con el escritorio, los documentos y la configuración de cada usuario. Se crea en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">C:\Users\&lt;usuario&gt;</code> la primera vez que el usuario inicia sesión, y su configuración se guarda en el archivo <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">NTUSER.DAT</code>.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Tipo de perfil</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Dónde está</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Característica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Local</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">En el propio equipo (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">C:\Users</code>)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Solo existe en ese equipo</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Móvil</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">En una carpeta compartida del servidor</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Sigue al usuario en cualquier equipo</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Obligatorio</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">En el servidor, con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">NTUSER.DAT</code> renombrado a <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">NTUSER.MAN</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">El usuario no puede guardar cambios</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Opciones de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code> relacionadas:</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/profilepath:\\srv-win\Perfiles$\ana</code>: ruta del perfil móvil.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/homedir:C:\Personal\ana</code>: carpeta particular del usuario.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/scriptpath:inicio.bat</code>: script que se ejecuta al iniciar sesión.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Servicios.</strong> Un servicio es un programa que se ejecuta en segundo plano aunque no haya nadie con la sesión iniciada. Su tipo de inicio puede ser Automático, Manual o Deshabilitado. Se gestionan con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">services.msc</code> o por comandos:</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué quiero hacer</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">CMD</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">PowerShell</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver su estado</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc query Spooler</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-Service Spooler</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Ver su configuración</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc qc Spooler</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-Service Spooler | Select *</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Cambiar el tipo de inicio</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc config Spooler start= disabled</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Set-Service Spooler -StartupType Disabled</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Iniciar o detener</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net start Spooler</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net stop Spooler</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Start-Service</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Stop-Service</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">En <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc config</code> hay que dejar <strong>un espacio después del igual</strong>: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start= auto</code>. Sin ese espacio, el comando falla. Servicios típicos: <em>Spooler</em> (cola de impresión), <em>wuauserv</em> (Windows Update) y <em>LanmanServer</em> (Servidor; sin él no se puede compartir nada).</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Software con winget:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget search 7zip</code>: busca un programa.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget install --id 7zip.7zip -e</code>: lo instala usando el identificador exacto.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget list</code>: muestra los programas instalados.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget upgrade</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget upgrade --all</code>: muestra o instala las actualizaciones.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget uninstall --id 7zip.7zip</code>: lo desinstala.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Windows Update en el servidor.</strong> En Windows Server se configura con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sconfig</code> (opción <em>Configuración de Windows Update</em>: automática, solo descarga o manual) o con la directiva <em>Configurar actualizaciones automáticas</em> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">gpedit.msc</code>. En un servidor no conviene que se reinicie solo en horario de trabajo.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">El perfil se crea la primera vez que el usuario inicia sesión. Si es obligatorio, lleva <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">NTUSER.MAN</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">En <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc config</code> va un espacio después del igual: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start= disabled</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Hay tres tipos de inicio: Automático, Manual y Deshabilitado.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget upgrade --all</code> actualiza todos los programas.</li>
+</ul>
+</blockquote>
+<h2 id="sec6" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Linux 1. Usuarios y grupos</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> En Linux todo es un fichero de texto: los usuarios están apuntados en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/passwd</code>, como en una lista de la plantilla, y los grupos en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/group</code>. Comandos como <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">groupadd</code> lo único que hacen es escribir por ti en esas listas.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">La idea es la misma que en Windows: los permisos se dan a grupos. La diferencia es que en Linux todo se guarda en archivos de texto que puedes leer.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Archivo</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué guarda</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Formato de cada línea</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/passwd</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Los usuarios</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ana:x:1001:1001:Ana:/home/ana:/bin/bash</code> (usuario, UID, GID, comentario, carpeta personal, shell)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/shadow</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Las contraseñas cifradas y sus fechas</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Solo lo puede leer root</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/group</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Los grupos y sus miembros</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">becarios:x:1005:luis,pedro</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">El UID 0 es <strong>root</strong>. Los UID por debajo de 1000 son cuentas del sistema y los usuarios normales empiezan en 1000.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué quiero hacer</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Comando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Crear un usuario con carpeta personal y bash</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo useradd -m -s /bin/bash -c "Ana" ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear un usuario de forma interactiva</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo adduser ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ponerle o cambiarle la contraseña</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo passwd ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo groupadd becarios</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Añadir a un grupo secundario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -aG becarios luis</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo gpasswd -a luis becarios</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Quitar de un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo gpasswd -d luis becarios</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Bloquear o desbloquear una cuenta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -L ana</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -U ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Fecha de caducidad de la cuenta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -e 2027-06-30 luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Borrar un usuario y su carpeta personal</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo userdel -r ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Ver los grupos de un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">id luis</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">groups luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver los miembros de un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">getent group becarios</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Cuidado con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">usermod -G</code> sin la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-a</code>.</strong> Sin la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-a</code>, el usuario queda <strong>solo</strong> en los grupos que escribes y sale de todos los demás. Pon siempre <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-aG</code>.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Grupo principal y secundarios.</strong> En Vitalinux, como en Ubuntu, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd</code> crea un grupo principal con el mismo nombre que el usuario. Los grupos de departamento (contabilidad, becarios…) se añaden como <strong>secundarios</strong>. Igual que en Windows, el cambio de grupo no se aplica hasta que el usuario vuelve a iniciar sesión.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado: dar de alta a ana en contabilidad.</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">sudo groupadd contabilidad                          # 1. creo el departamento
+sudo useradd -m -s /bin/bash -c "Ana López" ana     # 2. creo la cuenta con su carpeta personal
+sudo passwd ana                                     # 3. le pongo la contraseña (useradd no lo hace)
+sudo usermod -aG contabilidad ana                   # 4. la meto en su departamento
+id ana                                              # 5. compruebo: debe salir "contabilidad" entre sus grupos
+</code></pre>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">La <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-m</code> crea la carpeta personal. Sin ella, el usuario no tiene <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/home/ana</code>.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd</code> no pone contraseña: después hay que usar <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">passwd</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Siempre <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-aG</code>, nunca solo <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-G</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Para comprobarlo, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">id usuario</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">getent group grupo</code>.</li>
+</ul>
+</blockquote>
+<h2 id="sec7" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Linux 2. Contraseñas y bloqueo</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Windows aplica una norma de contraseñas igual para todos (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code>). Linux permite poner una caducidad distinta a cada usuario (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage</code>). El resto de normas (longitud, complejidad y bloqueo) están en ficheros de configuración.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">La gran diferencia con Windows es que en Linux <strong>la caducidad se configura usuario a usuario</strong> con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage</code>, mientras que <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> la aplica a todo el equipo a la vez.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Opción de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage</code></th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué hace</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Equivale en Windows a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage -l ana</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Muestra las fechas y caducidades de la cuenta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-M 60</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">La contraseña caduca a los 60 días</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/maxpwage:60</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-m 1</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Hay que esperar 1 día para volver a cambiarla</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/minpwage:1</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-W 7</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Avisa 7 días antes de que caduque</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">—</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-E 2027-06-30</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">La <strong>cuenta</strong> caduca en esa fecha</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user /expires</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-d 0</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Obliga a cambiar la contraseña en el próximo inicio de sesión</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/logonpasswordchg:yes</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Ejemplo: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chage -M 60 -m 1 -W 7 ana</code>.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Valores por defecto para los usuarios nuevos:</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">PASS_MAX_DAYS</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">PASS_MIN_DAYS</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">PASS_WARN_AGE</code> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/login.defs</code>. Solo afectan a los usuarios que se creen <strong>después</strong> de cambiarlos.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Longitud, complejidad e historial</strong> (los gestiona PAM):</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/security/pwquality.conf</code>: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">minlen = 8</code> para la longitud mínima y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">minclass = 3</code> para exigir 3 tipos de carácter. Necesita el paquete <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">libpam-pwquality</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Historial: añade <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">remember=5</code> a la línea de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">pam_pwhistory</code> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/pam.d/common-password</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Si root cambia la contraseña de otro usuario, ve el aviso <em>BAD PASSWORD</em>, pero Linux le deja ponerla igualmente. Para probar las reglas, cambia la contraseña <strong>como el propio usuario</strong>: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">su - ana</code> y después <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">passwd</code>.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Bloqueo tras varios intentos fallidos</strong> (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">pam_faillock</code>, en las versiones recientes):</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/security/faillock.conf</code>: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">deny = 3</code> para bloquear tras 3 fallos y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">unlock_time = 900</code> para que el bloqueo dure 15 minutos (en segundos).</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo faillock --user pedro</code> muestra los intentos fallidos y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo faillock --user pedro --reset</code> desbloquea la cuenta.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Bloquear una cuenta a mano:</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo passwd -l ana</code> (o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">usermod -L</code>) y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo passwd -u ana</code> para desbloquearla. <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo passwd -S ana</code> muestra su estado: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">L</code> = bloqueada y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">P</code> = con contraseña válida.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage -l usuario</code> siempre para comprobar.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-M</code> = caducidad máxima, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-m</code> = vigencia mínima, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-W</code> = días de aviso, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-E</code> = caducidad de la cuenta y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-d 0</code> = cambio obligatorio.</li>
+<li style="margin:4px 0;line-height:1.5;">Lo que cambies en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/login.defs</code> solo afecta a los usuarios nuevos.</li>
+<li style="margin:4px 0;line-height:1.5;">root puede saltarse las reglas de contraseña: pruébalas como el propio usuario.</li>
+</ul>
+</blockquote>
+<h2 id="sec8" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Linux 3. Permisos</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Cada archivo tiene una ficha con tres casillas: dueño, grupo y resto. En cada casilla hay tres interruptores: leer (r), escribir (w) y ejecutar o entrar (x). Cada interruptor vale un número (r = 4, w = 2, x = 1), y sumando los de cada casilla sale el permiso en octal.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;">Cada archivo y cada carpeta tienen un <strong>propietario</strong>, un <strong>grupo</strong> y permisos para tres tipos de usuario: el propietario (u), el grupo (g) y el resto (o). Se ven con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code>:</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">drwxrwx--- 2 root contabilidad 4096 nov 18 10:00 contabilidad
+|└u┘└g┘└o┘   propietario  grupo
+</code></pre>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Permiso</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Valor</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">En un archivo</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">En una carpeta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">r</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">4</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Leer el contenido</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Listar lo que contiene</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">w</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">2</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Modificarlo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear y borrar archivos dentro</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">x</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">1</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ejecutarlo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Entrar en ella (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">cd</code>)</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Los permisos en octal se calculan sumando: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">rwx</code> = 7, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">r-x</code> = 5, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">---</code> = 0. Por ejemplo, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">770</code> = todo para el propietario y el grupo, y nada para el resto.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué quiero hacer</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Comando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Cambiar el propietario y el grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chown root:contabilidad /srv/contabilidad</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Cambiar solo el grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chgrp contabilidad /srv/contabilidad</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Permisos en octal</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chmod 770 /srv/contabilidad</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Permisos en modo simbólico</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chmod g+w,o-rwx /srv/contabilidad</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Aplicarlo a todo lo que hay dentro</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Añadir <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-R</code> (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod -R</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chown -R</code>)</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Permisos especiales:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><strong>setgid en una carpeta</strong> (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod 2770</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod g+s</code>): los archivos nuevos heredan el grupo de la carpeta y no el del usuario que los crea. Es imprescindible en las carpetas de departamento. En <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code> aparece una <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">s</code> en lugar de la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">x</code> del grupo.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>Sticky bit</strong> (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod 1777</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod +t</code>): cada usuario solo puede borrar sus propios archivos. Es lo que tiene <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/tmp</code>, y en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code> aparece una <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">t</code> al final.</li>
+<li style="margin:4px 0;line-height:1.5;"><strong>umask</strong>: indica qué permisos se quitan a lo que se crea. Con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">umask 022</code>, los archivos se crean con 644 y las carpetas con 755. Con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">027</code>, con 640 y 750.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>ACL: cuando un solo grupo no basta.</strong> Con los permisos clásicos, una carpeta solo tiene un grupo. Si direccion también necesita leer la carpeta de contabilidad, se usan ACL (paquete <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">acl</code>):</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">sudo setfacl -m g:direccion:rx /srv/contabilidad        (añade lectura para direccion)
+sudo setfacl -d -m g:direccion:rx /srv/contabilidad     (por defecto para lo que se cree dentro)
+getfacl /srv/contabilidad                               (ver las ACL)
+sudo setfacl -x g:direccion /srv/contabilidad           (quitarla)
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;">Si una carpeta tiene ACL, en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code> aparece un <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">+</code> al final de los permisos: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">drwxrws---+</code>.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado: pasar de letras a número.</strong></p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;"></th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Dueño</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Grupo</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Resto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Letras</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">rwx</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">r-x</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">---</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Suma</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">4+2+1</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">4+0+1</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">0+0+0</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Octal</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">7</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">5</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">0</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Resultado: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod 750</code>. El dueño puede hacerlo todo, el grupo puede entrar y leer, y el resto no puede hacer nada.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">En una carpeta, la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">x</code> es la que permite entrar. Sin ella, la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">r</code> sirve de poco.</li>
+<li style="margin:4px 0;line-height:1.5;">Receta de carpeta de departamento: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chown root:grupo</code> + <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod 2770</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Si un segundo grupo necesita acceso, se añade con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">setfacl -m g:grupo:rx</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Comprueba siempre con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -ld carpeta</code> (y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">getfacl</code> si hay ACL).</li>
+</ul>
+</blockquote>
+<h2 id="sec9" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Linux 4. Perfiles, servicios y software</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code> es la «maleta de bienvenida» que recibe cada usuario nuevo, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl</code> es el mando a distancia de los servicios y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt</code> es la tienda de software de Linux.</p>
+</blockquote>
+<p style="line-height:1.55;margin:8px 0;"><strong>Perfil de usuario.</strong> En Linux, el perfil es la carpeta personal <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/home/&lt;usuario&gt;</code>. Cuando creas un usuario con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd -m</code>, se copia en ella el contenido de <strong><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code></strong>, la plantilla con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">.bashrc</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">.profile</code> y los archivos que quieras que tenga todo usuario nuevo. Si pones un archivo en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code>, lo tendrán todos los usuarios que crees a partir de entonces, pero no los que ya existen. Equivale más o menos al perfil <em>Default</em> de Windows.</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;">Los valores por defecto de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd</code> (shell, carpeta base…) están en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/default/useradd</code>, y se ven con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd -D</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">Cambiar la carpeta personal: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -d /home/nueva -m ana</code> (la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-m</code> mueve el contenido).</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Servicios con systemctl:</strong></p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué quiero hacer</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Comando</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Equivale en Windows a</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver su estado</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl status ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc query</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Iniciar, detener o reiniciar</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo systemctl start</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">stop</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">restart ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net start</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net stop</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Arrancar o no con el sistema</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo systemctl enable</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">disable ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start= auto</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start= demand</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Que no pueda arrancar de ninguna forma</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo systemctl mask ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start= disabled</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">¿Arranca con el sistema?</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl is-enabled ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc qc</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Ver todos los servicios</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl list-units --type=service</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-Service</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Ver los mensajes del servicio</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">journalctl -u ssh</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Visor de eventos</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">El servicio de impresión en Linux es <strong>cups</strong> (el equivalente a <em>Spooler</em>), y el de compartir carpetas con Windows es <strong>smbd</strong> (Samba).</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Software con apt</strong> (el equivalente a winget):</p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt update</code>: actualiza la lista de paquetes. Hazlo siempre primero.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt upgrade</code>: instala las actualizaciones disponibles.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt search 7zip</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt install p7zip-full</code>: buscar e instalar.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt remove p7zip-full</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt purge p7zip-full</code>: desinstalar; <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">purge</code> borra también la configuración.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt list --installed</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">dpkg -l</code>: programas instalados.</li>
+<li style="margin:4px 0;line-height:1.5;">Las actualizaciones automáticas las hace el paquete <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">unattended-upgrades</code>.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;">En los centros, Vitalinux instala el software y las actualizaciones de forma centralizada con <strong>Migasfree</strong>. Para el examen, lo que hay que saber manejar es <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt</code>.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">start</code> arranca el servicio ahora y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">enable</code> hace que arranque con el sistema: son cosas distintas.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl disable --now</code> lo detiene y lo quita del arranque a la vez.</li>
+<li style="margin:4px 0;line-height:1.5;">Siempre <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt update</code> antes de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt install</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt upgrade</code>.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code> solo afecta a los usuarios que se creen después de cambiarlo.</li>
+</ul>
+</blockquote>
+<h2 id="sec10" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Linux 5. Redirecciones (stdin, stdout, stderr) y tuberías</h2>
+<blockquote style="background:#e8f2fc;border-left:6px solid #2e75b6;margin:12px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>💡 Idea clave.</strong> Todo programa tiene tres «tubos»: uno por el que le entran datos y dos por los que saca resultados. Redirigir es cambiar a dónde va cada tubo, por ejemplo a un fichero en vez de a la pantalla. Una tubería (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">|</code>) conecta la salida de un comando con la entrada del siguiente, como en una cadena de montaje.</p>
+</blockquote>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Canal</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Número</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Por defecto</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Para qué sirve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">stdin (entrada estándar)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">0</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Teclado</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Los datos que recibe el comando</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">stdout (salida estándar)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">1</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Pantalla</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">El resultado normal</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">stderr (salida de errores)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">2</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Pantalla</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Los mensajes de error</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">Como stdout y stderr salen los dos por la pantalla, parecen lo mismo, pero se pueden separar.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Símbolo</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Qué hace</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Ejemplo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Manda stdout a un fichero; si ya existe, <strong>lo sobrescribe</strong></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls /home &gt; usuarios.txt</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;&gt;</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Manda stdout a un fichero <strong>añadiendo</strong> al final</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">date &gt;&gt; usuarios.txt</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Manda los errores (stderr) a un fichero</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">find / -name "*.ods" 2&gt; errores.txt</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;/dev/null</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Tira los errores a la «papelera»</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">find / -name "*.ods" 2&gt;/dev/null</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt; f 2&gt;&amp;1</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Manda la salida y los errores al mismo fichero</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt update &gt; apt.log 2&gt;&amp;1</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&lt;</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Lee la entrada (stdin) de un fichero en vez del teclado</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">wc -l &lt; /etc/passwd</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">|</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Tubería: la salida de un comando es la entrada del siguiente</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">cat /etc/passwd | wc -l</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">tee</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Muestra en pantalla <strong>y</strong> guarda en un fichero a la vez</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo apt upgrade | tee upgrade.log</code></td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;"><strong>Comandos que se usan mucho en tuberías:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">grep texto</code>: solo deja pasar las líneas que contienen ese texto (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-i</code> no distingue mayúsculas y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-c</code> cuenta las líneas).</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">cut -d: -f1</code>: corta cada línea por los <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">:</code> y se queda con la columna 1.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sort</code>: ordena. <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">uniq</code> quita las líneas repetidas que están seguidas.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">wc -l</code>: cuenta las líneas.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">head -n 5</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">tail -n 5</code>: las 5 primeras o las 5 últimas líneas.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Ejemplo comentado: listados de la plantilla.</strong></p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">cut -d: -f1 /etc/passwd | sort &gt; usuarios.txt   # nombres de usuario, ordenados, guardados en un fichero
+grep -c /bin/bash /etc/passwd                    # cuántos usuarios tienen bash como shell
+grep becarios /etc/group | cut -d: -f4           # miembros del grupo becarios: luis,pedro
+ls -l /srv | grep almacen                        # solo la línea de la carpeta almacen
+id ana &gt;&gt; evidencia.txt                          # añado la comprobación al fichero de evidencias
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;"><strong>En Windows funciona casi igual.</strong> En CMD también existen <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;&gt;</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">|</code>, y el equivalente de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">grep</code> es <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">findstr</code>. Por ejemplo, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts | findstr /i bloqueo</code> o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana &gt; evidencia.txt</code>. Es una forma muy cómoda de guardar las salidas reales para Aeducar.</p>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Para el examen, recuerda:</strong></p>
+<ul>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;</code> borra lo que había y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;&gt;</code> añade al final.</li>
+<li style="margin:4px 0;line-height:1.5;">stdout es el canal 1 y stderr el 2: <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;</code> solo captura los errores.</li>
+<li style="margin:4px 0;line-height:1.5;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;/dev/null</code> sirve para no ver los «Permiso denegado» de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">find</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">En <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt; fichero 2&gt;&amp;1</code> el orden importa: primero la salida al fichero y después los errores al mismo sitio.</li>
+</ul>
+</blockquote>
+<h2 id="sec11" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Windows frente a Linux</h2>
+<p style="line-height:1.55;margin:8px 0;">Si te sabes la tarea en un sistema, esta tabla te da el comando del otro.</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Tarea</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Windows Server</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Linux (Vitalinux)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Crear un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana Clave /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo useradd -m -s /bin/bash ana</code> + <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo passwd ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Crear un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup becarios /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo groupadd becarios</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Añadir a un grupo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup becarios luis /add</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -aG becarios luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Ver los grupos de un usuario</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user luis</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">whoami /groups</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">id luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Caducidad de la cuenta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user luis /expires:30/06/2027</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chage -E 2027-06-30 luis</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Caducidad de la contraseña</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts /maxpwage:60</code> (para todos)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo chage -M 60 ana</code> (por usuario)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Longitud mínima</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts /minpwlen:8</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">minlen = 8</code> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">pwquality.conf</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Bloqueo tras fallos</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts /lockoutthreshold:3</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">deny = 3</code> en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">faillock.conf</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Desactivar una cuenta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana /active:no</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sudo usermod -L ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Dar permisos a una carpeta</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">icacls carpeta /grant grupo:(OI)(CI)M</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chown</code> + <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod</code> (o <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">setfacl</code>)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Que lo nuevo herede los permisos</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">(OI)(CI)</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">setgid (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">g+s</code>) y ACL por defecto (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-d</code>)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Varios grupos con permisos distintos</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Varias entradas en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">icacls</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">ACL con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">setfacl</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Plantilla de perfil</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Perfil <em>Default</em></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Carpeta del perfil</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">C:\Users\ana</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/home/ana</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Gestionar servicios</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc</code> / <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">Get-Service</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">Instalar software</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget install</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt install</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Actualizar todo</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget upgrade --all</code></td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;"><code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt update &amp;&amp; apt upgrade</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="sec12" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Ejemplos tipo examen</h2>
+<p style="line-height:1.55;margin:8px 0;">Estas preguntas tienen el mismo estilo que las del examen. Resuélvelas primero en papel, sin apuntes, y después compruébalas en el equipo. Copia en Aeducar las respuestas y la salida real de las comprobaciones.</p>
+<h3 style="color:#1f4e79;border-bottom:2px solid #1f4e79;padding-bottom:3px;margin:20px 0 10px;font-size:1.15em;">Ejemplo resuelto</h3>
+<blockquote style="background:#fff6db;border-left:6px solid #e0a800;margin:14px 0;padding:10px 14px;border-radius:4px;">
+<p style="line-height:1.55;margin:8px 0;"><strong>📌 Enunciado (Linux).</strong> Crea el grupo <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">almacen</code> y métele a carlos. Prepara la carpeta <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/srv/almacen</code> para que los miembros del grupo puedan crear y modificar archivos, los archivos nuevos pertenezcan al grupo <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">almacen</code> y nadie más pueda entrar.</p>
+</blockquote>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">sudo groupadd almacen
+sudo usermod -aG almacen carlos
+sudo mkdir -p /srv/almacen
+sudo chown root:almacen /srv/almacen
+sudo chmod 2770 /srv/almacen
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;"><strong>Por qué:</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">770</code> da todo al propietario y al grupo y nada al resto. El <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2</code> delante activa el setgid, para que lo que se cree dentro sea del grupo almacen.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Comprobación:</strong> <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -ld /srv/almacen</code> muestra <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">drwxrws--- root almacen</code>. Como carlos (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">su - carlos</code>), <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">touch /srv/almacen/prueba</code> funciona y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code> muestra el archivo con el grupo almacen. Como ana, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls /srv/almacen</code> da <em>Permiso denegado</em>.</p>
+<h3 style="color:#1f4e79;border-bottom:2px solid #1f4e79;padding-bottom:3px;margin:20px 0 10px;font-size:1.15em;">Para resolver en clase</h3>
+<ol>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows)</strong> Escribe los comandos para crear el grupo <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">becarios</code> y los usuarios luis y pedro, con contraseña inicial, cuentas que caduquen el 30/06/2027 y metidos en el grupo. ¿Con qué comando compruebas que la caducidad está bien?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows)</strong> La ferretería quiere contraseñas de al menos 8 caracteres que caduquen a los 45 días, que no se puedan repetir las 4 últimas y que la cuenta se bloquee 20 minutos tras 5 intentos fallidos. Escribe los comandos. ¿Qué requisito típico de seguridad <strong>no</strong> puedes configurar con ese comando y dónde se configura?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows)</strong> Calcula qué puede hacer el usuario <strong>por la red</strong> en cada caso y justifícalo:</p>
+<table style="border-collapse:collapse;width:100%;margin:10px 0 14px;font-size:0.95em;">
+<thead>
+<tr>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Caso</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Permiso de recurso compartido</th>
+<th style="background:#dce6f1;color:#1f4e79;border:1px solid #9bb3cf;padding:6px 8px;text-align:left;">Permiso NTFS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">a) luis (becarios)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">Todos: Control total</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">becarios: Lectura</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">b) carlos (almacen)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">almacen: Lectura</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;background:#f5f8fc;">almacen: Modificar</td>
+</tr>
+<tr>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">c) marta (direccion)</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">direccion: Cambiar</td>
+<td style="border:1px solid #c8d3e0;padding:6px 8px;vertical-align:top;">direccion: Control total</td>
+</tr>
+</tbody>
+</table>
+<p style="line-height:1.55;margin:8px 0;">En el caso b), ¿cambia algo si carlos trabaja sentado en el propio servidor?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows + Vitalinux)</strong> Comparte <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">C:\Ferreteria\Contabilidad</code> con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net share</code> de forma que contabilidad pueda modificar y direccion solo leer. ¿Qué tendrías que comprobar además en la pestaña Seguridad (NTFS) para que funcione? Después escribe cómo comprobarías desde Vitalinux que pedro no puede entrar y qué mensaje esperas ver.</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Linux)</strong> Interpreta estas dos líneas:</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">pedro:x:1005:1005:Pedro becario:/home/pedro:/bin/bash
+-rw-r----- 1 ana contabilidad 2048 nov 18 factura.ods
+</code></pre>
+<p style="line-height:1.55;margin:8px 0;">¿Qué UID tiene pedro y cuál es su carpeta personal? ¿Qué permisos tiene <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">factura.ods</code> en octal? ¿Puede ana modificarlo? ¿Y un miembro de contabilidad? ¿Y marta, si no está en contabilidad?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Linux)</strong> Haz que la contraseña de ana caduque cada 60 días con aviso 7 días antes y que tenga que cambiarla al iniciar sesión la próxima vez. Haz también que la cuenta de luis caduque el 30/06/2027. ¿Cómo lo compruebas?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Linux)</strong> Prepara <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/srv/contabilidad</code> para que contabilidad lea y escriba, direccion solo lea, nadie más entre y los archivos nuevos sean del grupo contabilidad. <em>Pista: con chmod solo no basta.</em></p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows + Linux)</strong> En srv-win, el servicio de impresión no debe arrancar nunca. En Vitalinux, el servicio <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ssh</code> no debe arrancar al iniciar el equipo. Escribe los comandos y cómo comprobar cada uno. ¿Qué diferencia hay entre <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl disable</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl mask</code>?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Teoría)</strong> Explica la diferencia entre un perfil local, uno móvil y uno obligatorio en Windows. ¿Qué es <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code> en Linux? Si añades un archivo a <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code>, ¿lo verán los usuarios que ya existen?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Teoría)</strong> ¿Qué significa cada uno de estos errores y en qué situación aparece: 2245, 1909, 1219 y 5 (Acceso denegado)?</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Linux)</strong> Escribe los comandos para: a) guardar en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">usuarios.txt</code> los nombres de todos los usuarios del sistema ordenados alfabéticamente; b) mostrar cuántos usuarios tienen <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/bin/bash</code> como shell; c) añadir la fecha actual al final de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">usuarios.txt</code> sin borrar lo que ya tiene.</p>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Linux)</strong> Explica qué hace cada línea y a dónde va a parar la salida normal y la de errores:</p>
+<pre style="background:#1e1e1e;color:#e8e8e8;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.9em;line-height:1.45;margin:10px 0;"><code style="font-family:Consolas,'Courier New',monospace;background:none;color:inherit;">find /etc -name "*.conf" 2&gt;/dev/null | wc -l
+sudo apt update &gt; apt.log 2&gt;&amp;1
+grep becarios /etc/group | cut -d: -f4
+</code></pre>
+</li>
+<li style="margin:4px 0;line-height:1.5;">
+<p style="line-height:1.55;margin:8px 0;"><strong>(Windows)</strong> Guarda en <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">evidencia.txt</code> la salida de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> y después añade al mismo fichero la salida de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user ana</code>. Escribe también un comando que muestre solo las líneas de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> que hablan del bloqueo.</p>
+</li>
+</ol>
+<h2 id="sec13" style="color:#ffffff;background:#1f4e79;padding:8px 12px;border-radius:6px;margin:28px 0 12px;font-size:1.35em;">Autoevaluación para el examen</h2>
+<p style="line-height:1.55;margin:8px 0;">Marca solo lo que sepas hacer <strong>sin mirar los apuntes</strong>. Lo que quede sin marcar es lo que tienes que repasar antes del examen.</p>
+<p style="line-height:1.55;margin:8px 0;"><strong>Windows Server</strong></p>
+<ul style="list-style:none;padding-left:6px;">
+<li style="margin:4px 0;line-height:1.5;">☐ Crear, modificar, desactivar y borrar usuarios con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net user</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Crear grupos, añadir miembros y quitarlos con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net localgroup</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Configurar todas las opciones de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net accounts</code> y saber dónde se activa la complejidad.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Reconocer los errores 2245, 1909, 1219 y 5.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Compartir con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net share</code> y dar permisos NTFS básicos (pestaña Seguridad).</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Calcular el permiso efectivo entre recurso compartido y NTFS.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Comprobar el acceso desde pc-win (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">net use</code>) y desde Vitalinux (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">smbclient</code>).</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Distinguir entre perfil local, móvil y obligatorio.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Gestionar servicios con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sc</code> y software con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">winget</code>.</li>
+</ul>
+<p style="line-height:1.55;margin:8px 0;"><strong>Linux (Vitalinux)</strong></p>
+<ul style="list-style:none;padding-left:6px;">
+<li style="margin:4px 0;line-height:1.5;">☐ Crear usuarios y grupos con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">useradd</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">groupadd</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">usermod -aG</code>, y saber por qué se pone la <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">-a</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Leer una línea de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/passwd</code> y de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/group</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Configurar la caducidad de contraseñas y cuentas con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chage</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Saber dónde se configuran la longitud mínima (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">pwquality.conf</code>) y el bloqueo (<code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">faillock.conf</code>).</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Interpretar <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">ls -l</code> y pasar los permisos de letras a octal y al revés.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Usar <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chown</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">chmod</code>, setgid y sticky bit.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Dar permisos a un segundo grupo con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">setfacl</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Explicar para qué sirve <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/skel</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Gestionar servicios con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">systemctl</code> y software con <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">apt</code>.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Usar <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">&gt;&gt;</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">2&gt;/dev/null</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">|</code>, y explicar qué son stdin, stdout y stderr.</li>
+<li style="margin:4px 0;line-height:1.5;">☐ Encadenar <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">grep</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">cut</code>, <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">sort</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">wc</code> para sacar información de <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/passwd</code> y <code style="font-family:Consolas,'Courier New',monospace;background:#eef1f5;color:#a3195b;padding:1px 4px;border-radius:3px;font-size:0.92em;">/etc/group</code>.</li>
+</ul>
+
+</div>

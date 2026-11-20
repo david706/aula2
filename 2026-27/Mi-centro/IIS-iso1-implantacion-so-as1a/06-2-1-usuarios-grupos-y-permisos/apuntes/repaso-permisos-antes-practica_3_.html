@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repaso exprés: permisos en Linux — antes de la práctica</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6;--code:#1e2a35}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.top-in{max-width:940px;margin:0 auto}
+.top-pre{font-family:Consolas,"Courier New",monospace;font-size:.82rem;opacity:.85}
+.top h1{margin:.2em 0;font-size:1.9rem}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 11px;font-size:.82rem}
+.wrap{max-width:940px;margin:0 auto;padding:18px 16px 60px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin:16px 0}
+.card h2{margin:0 0 .4em;color:var(--navy);font-size:1.4rem}
+.card h3{color:var(--navy);margin:1.1em 0 .4em;font-size:1.08rem}
+code{font-family:Consolas,"Courier New",monospace;background:#eef1f4;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:var(--code);color:#e8f0f7;border-radius:10px;padding:14px 16px;overflow:auto;font-size:.9rem;line-height:1.5;font-family:Consolas,"Courier New",monospace}
+pre b{color:#ffd28a}pre i{color:#8fd3a6;font-style:normal}
+.big{font-family:Consolas,"Courier New",monospace;font-size:2rem;font-weight:700;letter-spacing:.06em;color:var(--navy);margin:8px 0}
+.big .u{color:var(--orange)}.big .g{color:var(--navy2)}.big .o{color:var(--green)}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+.warn{background:#fff4e5;border-left:5px solid var(--orange);border-radius:10px;padding:10px 14px;margin:10px 0}
+.danger{background:#fbe9e6;border-left:5px solid var(--red);border-radius:10px;padding:10px 14px;margin:10px 0}
+.ok{background:#e6f3ea;border-left:5px solid var(--green);border-radius:10px;padding:10px 14px;margin:10px 0}
+.info{background:#eef3f8;border-left:5px solid var(--navy2);border-radius:10px;padding:10px 14px;margin:10px 0}
+.q{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0;cursor:pointer;background:#fff}
+.q .ans{display:none;margin-top:8px;color:var(--navy);border-top:1px dashed var(--line);padding-top:8px}
+.q.open .ans{display:block}
+.q small{color:var(--muted)}
+.steps{counter-reset:s;list-style:none;padding:0}
+.steps li{counter-increment:s;position:relative;padding-left:44px;margin:10px 0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--orange);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.muted{color:var(--muted);font-size:.9rem}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+@media print{.top{background:var(--navy) !important;-webkit-print-color-adjust:exact}.q .ans{display:block}}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in">
+  <div class="top-pre">&gt; module ISO 0369 · UD2 · RA2 · lectura previa (10 min)</div>
+  <h1>Repaso exprés: permisos en Linux</h1>
+  <div>Lo que vimos ayer, condensado en lo que vas a necesitar hoy en la máquina. Léelo antes de abrir el entrenador y la práctica.</div>
+  <div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">10 minutos</span><span class="pill">Las preguntas azules se despliegan al hacer clic</span></div>
+</div></div>
+
+<div class="wrap">
+
+<div class="card">
+  <h2>1 · Hoy, en una frase</h2>
+  <p>Ayer aprendiste <b>quién eres</b> en el sistema (usuario, UID, grupo principal y secundarios). Hoy decides <b>qué puede tocar cada quién</b>. Todo archivo y carpeta de Linux lleva pegada una etiqueta de tres partes: <b>dueño</b>, <b>grupo</b> y <b>permisos</b>. Tu trabajo como administrador es poner la etiqueta correcta y, sobre todo, <b>comprobarla</b> con otro usuario.</p>
+</div>
+
+<div class="card">
+  <h2>2 · Leer una línea de <code>ls -l</code></h2>
+<pre>$ ls -l informe.txt
+-rw-r-----  1 ana contabilidad 4096 oct  7 09:10 informe.txt
+<i>│└┬┘└┬┘└┬┘   └┬┘ └────┬─────┘</i>
+<i>│ u   g   o  dueño   grupo</i>
+<i>└ tipo: - archivo · d directorio · l enlace</i></pre>
+  <div class="big"><span class="u">rw-</span><span class="g">r--</span><span class="o">---</span> &nbsp;=&nbsp; <span class="u">6</span><span class="g">4</span><span class="o">0</span></div>
+  <p>Tres tríos, siempre en este orden: <b>u</b>ser (dueño), <b>g</b>roup (grupo), <b>o</b>thers (el resto). Cada trío suma <b>r=4, w=2, x=1</b>.</p>
+  <table>
+    <tr><th>Letra</th><th>En un archivo</th><th>En un directorio</th></tr>
+    <tr><td><b>r</b> (4)</td><td>ver el contenido (<code>cat</code>, <code>less</code>)</td><td>listar los nombres (<code>ls</code>)</td></tr>
+    <tr><td><b>w</b> (2)</td><td>modificarlo</td><td>crear, borrar o renombrar <b>lo que hay dentro</b></td></tr>
+    <tr><td><b>x</b> (1)</td><td>ejecutarlo como programa</td><td>entrar (<code>cd</code>) y llegar a lo que hay dentro</td></tr>
+  </table>
+  <div class="warn"><b>La trampa n.º 1:</b> en un directorio, <code>r</code> sin <code>x</code> deja ver los nombres pero no abrir nada; <code>x</code> sin <code>r</code> deja entrar si sabes el nombre exacto pero no listar. Para una carpeta "normal" <b>r y x van siempre juntos</b>.</div>
+</div>
+
+<div class="card">
+  <h2>3 · La regla que decide todo: solo cuenta UN trío</h2>
+  <p>Cuando intentas hacer algo, Linux se hace una sola pregunta, en este orden, y se queda con la primera respuesta:</p>
+  <ol class="steps">
+    <li>¿Eres <b>root</b>? → puedes (casi) todo. Fin.</li>
+    <li>¿Eres el <b>dueño</b>? → se usa el trío <b>u</b>. Fin. <span class="muted">Aunque g u o sean más generosos, no se miran.</span></li>
+    <li>¿Estás en el <b>grupo</b> del archivo? → se usa el trío <b>g</b>. Fin.</li>
+    <li>Si no, eres "otros" → trío <b>o</b>.</li>
+  </ol>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 <code>-r--rw-rw- ana contabilidad datos.txt</code>. Ana está en contabilidad. ¿Puede Ana escribir? <small>(clic)</small>
+    <div class="ans"><b>No.</b> Ana es la dueña, así que se usa el trío u (<code>r--</code>) y se acabó. Que el grupo y otros tengan w no importa. Es la pregunta favorita de examen.</div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 Acabas de hacer <code>usermod -aG contabilidad pedro</code> y Pedro sigue sin poder entrar en la carpeta del grupo. <small>(clic)</small>
+    <div class="ans">Los grupos se cargan <b>al iniciar sesión</b>. Pedro tiene que salir y volver a entrar (o usar <code>su - pedro</code>). Compruébalo con <code>id pedro</code>.</div></div>
+</div>
+
+<div class="card">
+  <h2>4 · Los comandos que vas a teclear hoy</h2>
+  <div class="cols">
+    <div>
+<pre><b># permisos</b>
+chmod 640 informe.txt          <i># octal</i>
+chmod g+w informe.txt          <i># añadir</i>
+chmod o-rx carpeta/            <i># quitar</i>
+chmod u=rwx,g=rx,o= script.sh  <i># fijar exacto</i>
+chmod -R 750 /srv/proyecto     <i># recursivo</i>
+<b># dueño y grupo (root)</b>
+sudo chown ana:contabilidad informe.txt
+sudo chgrp contabilidad carpeta/
+<b># comprobar como otro usuario</b>
+sudo -u pedro ls /srv/contabilidad
+sudo -u pedro bash             <i># shell como pedro; exit para salir</i>
+su - ana                       <i># sesión completa de ana</i></pre>
+    </div>
+    <div>
+      <table>
+        <tr><th>Octal</th><th>Simbólico</th><th>Para qué</th></tr>
+        <tr><td>644</td><td>rw-r--r--</td><td>archivo normal</td></tr>
+        <tr><td>755</td><td>rwxr-xr-x</td><td>script, carpeta pública</td></tr>
+        <tr><td>700</td><td>rwx------</td><td>carpeta privada</td></tr>
+        <tr><td>600</td><td>rw-------</td><td>claves, contraseñas</td></tr>
+        <tr><td>770</td><td>rwxrwx---</td><td>carpeta de equipo</td></tr>
+        <tr><td>777</td><td>rwxrwxrwx</td><td><b>casi nunca</b></td></tr>
+      </table>
+      <div class="danger"><b>777 no es una solución, es un parche.</b> En la práctica, resolver algo con 777 vale 0 en esa misión. La pregunta correcta siempre es: "¿cuál es el permiso <b>mínimo</b> que cumple el requisito?"</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>5 · umask: cómo nacen los archivos</h2>
+  <p>Cuando creas algo, no eliges sus permisos: salen de una resta. <b>Archivos: 666 − umask. Directorios: 777 − umask.</b> (Los archivos nunca nacen ejecutables.)</p>
+  <table>
+    <tr><th>umask</th><th>archivo nuevo</th><th>directorio nuevo</th><th>Cuándo</th></tr>
+    <tr><td>022</td><td>644</td><td>755</td><td>valor por defecto en Ubuntu</td></tr>
+    <tr><td>027</td><td>640</td><td>750</td><td>"otros no ven nada": lo que pide la práctica</td></tr>
+    <tr><td>077</td><td>600</td><td>700</td><td>todo privado</td></tr>
+    <tr><td>002</td><td>664</td><td>775</td><td>carpetas de equipo donde el grupo debe escribir</td></tr>
+  </table>
+  <div class="info">Es una resta <b>bit a bit</b>, no aritmética: 666 − 027 = 640 (no 639). Si en el entrenador te sale un resultado raro, piensa en quitar letras, no en restar números. Y <code>umask</code> en el terminal solo dura esa sesión: para hacerlo permanente va en <code>~/.bashrc</code>.</div>
+</div>
+
+<div class="card">
+  <h2>6 · Los tres bits especiales (hoy sí los usas)</h2>
+  <table>
+    <tr><th>Bit</th><th>Octal</th><th>Se ve</th><th>Qué hace</th><th>Hoy lo usas en</th></tr>
+    <tr><td><b>SGID</b></td><td>2xxx</td><td><code>drwxrw<b>s</b>---</code></td><td>Lo que se crea dentro <b>hereda el grupo</b> de la carpeta</td><td>carpeta de departamento (<code>chmod 2770</code>)</td></tr>
+    <tr><td><b>Sticky</b></td><td>1xxx</td><td><code>drwxrwxrw<b>t</b></code></td><td>Cada uno solo borra <b>lo suyo</b>, aunque todos tengan w</td><td>buzón de entregas (<code>chmod 1777</code>), igual que <code>/tmp</code></td></tr>
+    <tr><td><b>SUID</b></td><td>4xxx</td><td><code>-rw<b>s</b>r-xr-x</code></td><td>El programa corre con los permisos del <b>dueño</b></td><td>solo para auditar (<code>passwd</code>, <code>sudo</code>). Nunca en tus scripts.</td></tr>
+  </table>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 Ves <code>drwxrws--T</code>. ¿Qué significan la <code>s</code> y la <code>T</code> mayúscula? <small>(clic)</small>
+    <div class="ans"><code>s</code> minúscula en g: SGID puesto y el grupo tiene x (correcto). <code>T</code> mayúscula: sticky puesto pero "otros" no tiene x. Mayúscula = "el bit está, pero falta la x debajo". A veces es exactamente lo que quieres (carpeta cerrada a otros con sticky); otras veces es un error de chmod.</div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 Luis tiene <code>w</code> en <code>/srv/buzon</code> y no puede borrar <code>factura_ana.txt</code>. ¿Por qué? <small>(clic)</small>
+    <div class="ans">Porque borrar depende de la <b>carpeta</b>, no del archivo, y la carpeta tiene <b>sticky bit</b>: solo el dueño del archivo, el dueño de la carpeta o root pueden borrar. Sin sticky, Luis podría borrarlo aunque el archivo fuera <code>600</code> de Ana.</div></div>
+</div>
+
+<div class="card">
+  <h2>7 · ACL: cuando "un dueño y un grupo" se queda corto</h2>
+  <p>Marta (dirección) tiene que leer la carpeta de contabilidad, pero no es de contabilidad y no queremos meterla en el grupo. Con u/g/o no hay forma limpia. Solución: una <b>ACL</b>, que añade permisos a un usuario o grupo concreto.</p>
+<pre>setfacl -m u:marta:rx /srv/contabilidad          <i># marta entra y lista</i>
+setfacl -m u:marta:r  /srv/contabilidad/balance.txt
+setfacl -d -m u:marta:r /srv/contabilidad        <i># ACL por defecto: la heredan los archivos nuevos</i>
+getfacl /srv/contabilidad                        <i># ver</i>
+ls -l  →  drwxrws---<b>+</b>                          <i># el + avisa de que hay ACL</i></pre>
+  <div class="info">Guárdate esta idea para cuando volváis a Windows: en NTFS <b>todo</b> son ACL, con herencia por defecto. Lo que hoy es "la excepción" en Linux allí es la norma.</div>
+</div>
+
+<div class="card">
+  <h2>8 · Cómo trabajamos hoy</h2>
+  <ol class="steps">
+    
+    <li><b>Práctica 3</b> en tu Ubuntu Server (resto de la sesión y la siguiente). Ocho misiones sobre la empresa "Ferretería Aragón". En cada una: configuras, <b>compruebas con otro usuario</b>, pegas la salida real del terminal y marcas la casilla. Las pistas están plegadas: intenta primero sin abrirlas. Al acabar, <b>informe PDF</b> a Aeducar.</li>
+    
+  </ol>
+ 
+  <p class="muted">Tu progreso se guarda en el navegador del equipo en el que trabajas. Si cambias de ordenador, el marcador y las evidencias no te siguen: termina la práctica en el mismo PC o guarda las evidencias en un archivo de texto.</p>
+</div>
+
+<div class="card">
+  <h2>9 · Antes de empezar, contesta mentalmente</h2>
+  <div class="q" onclick="this.classList.toggle('open')">¿Qué es <code>750</code> en letras? ¿Y <code>rw-rw-r--</code> en número? <small>(clic)</small><div class="ans"><code>rwxr-x---</code> · <code>664</code></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">Quiero una carpeta donde el grupo <code>ventas</code> trabaje, lo nuevo herede el grupo y nadie más entre. ¿Comando? <small>(clic)</small><div class="ans"><code>chgrp ventas /srv/ventas && chmod 2770 /srv/ventas</code></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">Con <code>umask 027</code>, ¿cómo nace <code>mkdir pruebas</code>? <small>(clic)</small><div class="ans"><code>750</code> → <code>drwxr-x---</code></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">¿Cómo compruebas "como pedro" sin cerrar tu sesión? <small>(clic)</small><div class="ans"><code>sudo -u pedro cat /srv/publico/normas.txt</code> (o <code>sudo -u pedro bash</code> y luego <code>whoami</code> para asegurarte)</div></div>
+  <p class="muted">Si las cuatro te han salido, abre el entrenador. Si alguna no, vuelve a la sección que toca: son dos minutos.</p>
+</div>
+
+</div>
+</body>
+</html>

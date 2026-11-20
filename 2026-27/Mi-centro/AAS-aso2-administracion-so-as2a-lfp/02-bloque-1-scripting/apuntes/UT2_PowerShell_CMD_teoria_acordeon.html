@@ -1,0 +1,595 @@
+<div style="font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.55;color:#1a1a1a;">
+<h1 style="font-size:1.55em;color:#fff;background:linear-gradient(90deg,#0d6efd,#5b2be0);padding:.5em .7em;border-radius:8px;margin:0 0 .6em;">UT2 · Scripting en Windows: CMD y PowerShell</h1>
+<p><strong>Módulo:</strong> 0374 Administración de Sistemas Operativos · 2º ASIR
+<strong>Resultado de aprendizaje:</strong> RA7 — Utiliza lenguajes de guiones en sistemas operativos, describiendo su aplicación y administrando servicios del sistema operativo (20 %)</p>
+<h2 style="font-size:1.2em;color:#0d6efd;margin-top:1em;">Propuesta didáctica</h2>
+<p>En la UT1 aprendiste a programar guiones en Bash. En esta unidad trasladamos esa lógica a Windows con dos intérpretes: <strong>CMD</strong>, el intérprete clásico, que sigue presente en miles de scripts de inicio de sesión y de mantenimiento, y <strong>PowerShell</strong>, el lenguaje de administración actual de Windows, que además funciona en Linux y macOS (PowerShell 7).</p>
+<p>La idea clave de la unidad: <strong>Bash y CMD trabajan con texto; PowerShell trabaja con objetos.</strong></p>
+
+<h2 style="font-size:1.25em;color:#fff;background:#0d6efd;padding:.4em .7em;border-radius:7px;margin:1.6em 0 .6em;">Bloque 1 · CMD: ficheros por lotes</h2>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.1 Estructura de un fichero .bat</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">@echo off
+rem Esto es un comentario
+:: Esto también (más habitual)
+setlocal
+echo Hola, %USERNAME%. Hoy es %DATE%.
+endlocal
+</code></pre>
+<table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Elemento</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Función</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">@echo off</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">No muestra cada orden antes de ejecutarla</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">rem</code> / <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">::</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Comentarios</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">setlocal</code> / <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">endlocal</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Las variables creadas no "escapan" del script</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">exit /b n</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Termina el script (o la subrutina) devolviendo el código <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">n</code></td>
+</tr>
+</tbody>
+</table></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.2 Variables</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">set nombre=Ana
+echo %nombre%
+
+set /a total=5*3+2
+set /a contador+=1
+
+set /p edad=Introduce tu edad: 
+</code></pre>
+<ul>
+<li><strong>Sin espacios alrededor del <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">=</code></strong>: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">set a = 1</code> crea la variable <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">"a "</code> con valor <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">" 1"</code>.</li>
+<li><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">set /a</code> hace aritmética entera. <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">set /p</code> lee del teclado.</li>
+<li>Variables de entorno útiles: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%USERNAME%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%COMPUTERNAME%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%USERPROFILE%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%DATE%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%TIME%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%ERRORLEVEL%</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%LOGONSERVER%</code>.</li>
+<li>Subcadenas: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%DATE:~6,4%</code> extrae 4 caracteres desde la posición 6. El formato de la fecha <strong>depende del idioma del sistema</strong>.</li>
+</ul></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.3 Parámetros</summary><div style="padding:.3em 1em 1em;"><table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Parámetro</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Significado</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Equivalente Bash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%0</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Nombre del script</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$0</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%1</code> … <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%9</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Argumentos</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$1</code> … <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$9</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%*</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Todos los argumentos</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$*</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%~1</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Argumento 1 sin comillas</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">—</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%~nx0</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Nombre y extensión del script</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">basename $0</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">shift</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Desplaza los argumentos</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">shift</code></td>
+</tr>
+</tbody>
+</table></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.4 Condicionales</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">if &quot;%~1&quot;==&quot;&quot; (
+    echo Uso: %~nx0 nombre
+    exit /b 1
+)
+
+if /i &quot;%respuesta%&quot;==&quot;s&quot; echo Has dicho que sí
+
+if exist &quot;C:\Datos\&quot; (echo La carpeta existe) else (echo No existe)
+
+if %edad% GEQ 18 echo Mayor de edad
+
+if errorlevel 1 echo La última orden falló
+</code></pre>
+<p>Operadores numéricos: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">EQU</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">NEQ</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">LSS</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">LEQ</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">GTR</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">GEQ</code>. <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">/i</code> ignora mayúsculas.</p>
+<p>⚠️ <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">if errorlevel 1</code> significa "errorlevel <strong>mayor o igual</strong> que 1", no "igual a 1".</p></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.5 Bucles con `for`</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">:: Recorrer ficheros (en un script, la variable lleva %%)
+for %%f in (*.txt) do echo Encontrado: %%f
+
+:: Contador: inicio, incremento, fin
+for /l %%i in (1,1,10) do echo Línea %%i
+
+:: Leer un fichero por campos
+for /f &quot;tokens=1,2 delims=;&quot; %%a in (usuarios.csv) do echo Usuario %%a, grupo %%b
+
+:: Recorrer la salida de un comando
+for /f &quot;skip=1&quot; %%u in ('wmic useraccount get name') do echo %%u
+</code></pre></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.6 Expansión retardada</summary><div style="padding:.3em 1em 1em;"><p>CMD sustituye <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">%variable%</code> <strong>una sola vez, al leer el bloque entero</strong>. Dentro de un <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">for</code> o un <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">if (...)</code> el valor no cambia:</p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">@echo off
+setlocal enabledelayedexpansion
+set /a total=0
+for %%f in (*.txt) do (
+    set /a total+=1
+    echo !total!: %%f
+)
+echo Total: %total%
+</code></pre>
+<p>Con <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">enabledelayedexpansion</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">!total!</code> se evalúa en cada vuelta.</p></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.7 Saltos y subrutinas</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">@echo off
+call :saludar Ana
+call :saludar Luis
+exit /b 0
+
+:saludar
+echo Hola, %~1
+exit /b 0
+</code></pre>
+<p><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">goto etiqueta</code> salta sin volver; <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">call :etiqueta</code> ejecuta y vuelve (como una función).</p></div></details>
+<details style="border:1px solid #0d6efd44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#0d6efd14;color:#0d6efd;font-weight:600;font-size:1.02em;list-style:none;">▸ 1.8 Comandos de administración habituales</summary><div style="padding:.3em 1em 1em;"><table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Tarea</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Comando</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Usuarios</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net user</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net user ana P@ss123 /add</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net localgroup Administradores ana /add</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Servicios</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">sc query spooler</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net start spooler</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net stop spooler</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Unidades de red</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">net use H: \\SRV01\datos /persistent:no</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Copias</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">robocopy origen destino /E</code> (código de salida &lt; 8 = correcto)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Red</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ipconfig /all</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ping -n 2 8.8.8.8</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Tareas programadas</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">schtasks /create /tn Copia /tr "C:\Scripts\copia.bat" /sc daily /st 02:00</code></td>
+</tr>
+</tbody>
+</table>
+<h3 style="font-size:1.05em;color:#0d6efd;margin:1em 0 .3em;">Ejemplo completo: copia de seguridad con fecha</h3>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-bat">@echo off
+setlocal
+:: copia.bat - Copia una carpeta a C:\Backups con la fecha en el nombre
+:: Uso: copia.bat carpeta_origen
+
+if &quot;%~1&quot;==&quot;&quot; (
+    echo Uso: %~nx0 carpeta_origen
+    exit /b 1
+)
+if not exist &quot;%~1\&quot; (
+    echo ERROR: la carpeta &quot;%~1&quot; no existe
+    exit /b 2
+)
+
+:: Fecha en formato AAAAMMDD (sistema en español: dd/mm/aaaa)
+set &quot;fecha=%DATE:~6,4%%DATE:~3,2%%DATE:~0,2%&quot;
+set &quot;destino=C:\Backups\%~n1_%fecha%&quot;
+
+robocopy &quot;%~1&quot; &quot;%destino%&quot; /E /NFL /NDL /NJH /NJS
+if %ERRORLEVEL% GEQ 8 (
+    echo ERROR en la copia
+    exit /b 3
+)
+echo Copia creada en %destino%
+endlocal
+exit /b 0
+</code></pre></div></details>
+<h2 style="font-size:1.25em;color:#fff;background:#1a9e5f;padding:.4em .7em;border-radius:7px;margin:1.6em 0 .6em;">Bloque 2 · PowerShell: fundamentos</h2>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.1 Qué es PowerShell</summary><div style="padding:.3em 1em 1em;"><ul>
+<li><strong>Windows PowerShell 5.1</strong> viene instalado en Windows (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">powershell.exe</code>).</li>
+<li><strong>PowerShell 7</strong> es multiplataforma y de código abierto (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">pwsh</code>). Funciona en Windows, Linux y macOS.</li>
+<li>Editor recomendado: <strong>Visual Studio Code</strong> con la extensión <em>PowerShell</em> (resaltado, depurador, ayuda).</li>
+<li>Scripts: extensión <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">.ps1</code>. Módulos: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">.psm1</code>.</li>
+</ul></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.2 Cmdlets: verbo-sustantivo</summary><div style="padding:.3em 1em 1em;"><p>Todos los comandos siguen el patrón <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Verbo-Sustantivo</code>: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Process</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Stop-Service</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">New-Item</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Remove-LocalUser</code>.</p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-Verb                              # verbos aprobados
+Get-Command -Noun *Service*           # comandos que trabajan con servicios
+Get-Command -Verb Get -Module NetTCPIP
+Get-Help Get-Service -Examples        # ejemplos de uso
+Get-Help Get-Service -Online          # documentación web
+Update-Help                           # descarga la ayuda (como administrador)
+Get-Alias ls, dir, cd, cat            # alias heredados de CMD y Bash
+</code></pre>
+<p>Con estos cuatro comandos (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Command</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Help</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Member</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Alias</code>) puedes descubrir todo lo demás sin memorizar.</p></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.3 El pipeline de objetos</summary><div style="padding:.3em 1em 1em;"><p>En Bash, por la tubería viaja <strong>texto</strong>, y hay que recortarlo con <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">grep</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">cut</code> o <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">awk</code>. En PowerShell viajan <strong>objetos</strong> con propiedades y métodos.</p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell"># Bash:        ps aux --sort=-%cpu | head -5
+# PowerShell:
+Get-Process | Sort-Object CPU -Descending | Select-Object -First 5 Name, Id, CPU
+</code></pre>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-Service | Get-Member                       # ¿qué propiedades y métodos tiene?
+Get-Service | Where-Object Status -eq 'Running'
+Get-Service | Where-Object { $_.Status -eq 'Stopped' -and $_.StartType -eq 'Automatic' }
+Get-ChildItem C:\Windows -File | Measure-Object Length -Sum -Average
+Get-Process | Export-Csv procesos.csv -NoTypeInformation
+Import-Csv usuarios.csv | Format-Table
+</code></pre>
+<p><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$_</code> (o <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$PSItem</code>) es el objeto que está pasando por la tubería en ese momento.</p>
+<table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Cmdlet</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Función</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Parecido en Bash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Where-Object</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Filtrar</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">grep</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Select-Object</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Elegir propiedades o primeros N</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">cut</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">head</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Sort-Object</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Ordenar</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">sort</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Measure-Object</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Contar, sumar, media</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">wc</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">awk</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ForEach-Object</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Hacer algo con cada objeto</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">xargs</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">while read</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Format-Table</code> / <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Format-List</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Presentar en pantalla</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">column</code></td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ Los <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Format-*</code> van <strong>siempre al final</strong>: convierten los objetos en texto de presentación.</p></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.4 Variables y tipos</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">$nombre = &quot;Ana&quot;
+$edad = 20
+[int]$numero = Read-Host &quot;Introduce un número&quot;   # fuerza el tipo
+$pi = [math]::PI
+$hoy = Get-Date
+$hoy.DayOfWeek
+$nombre.GetType()      # ¿de qué tipo es?
+$nombre.ToUpper()
+$nombre.Length
+</code></pre>
+<p>Tipos habituales: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[int]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[double]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[string]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[bool]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[datetime]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[array]</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[hashtable]</code>.</p>
+<p>⚠️ <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Read-Host</code> <strong>siempre devuelve texto</strong>. Sin conversión, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">"3" + "4"</code> da <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">"34"</code>.</p>
+<p><strong>Comillas:</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">$usuario = &quot;Ana&quot;
+&quot;Hola, $usuario&quot;                 # Hola, Ana  (dobles: interpolan)
+'Hola, $usuario'                 # Hola, $usuario  (simples: literal)
+&quot;Tienes $($edad + 1) años&quot;       # $( ) evalúa una expresión dentro de la cadena
+</code></pre>
+<p><strong>Variables automáticas útiles:</strong> <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$args</code> (argumentos), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$?</code> (¿funcionó el último comando?), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$LASTEXITCODE</code> (código de salida de un programa externo), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$PSVersionTable</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$IsWindows</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$IsLinux</code> (PowerShell 7), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$env:USERNAME</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$env:PATH</code>.</p></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.5 Operadores</summary><div style="padding:.3em 1em 1em;"><table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Tipo</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Operadores</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Aritméticos</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">+ - * / %</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Asignación</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">= += -= *= /= ++ --</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Comparación</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-eq -ne -gt -ge -lt -le</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Texto</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-like</code> (comodines <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">*</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">?</code>), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-match</code> (expresiones regulares), <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-replace</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Colecciones</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-contains</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-in</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Lógicos</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-and -or -not !</code></td>
+</tr>
+</tbody>
+</table>
+<p>Las comparaciones <strong>no distinguen mayúsculas</strong> por defecto; para distinguirlas se usa el prefijo <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">c</code>: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-ceq</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-clike</code>.</p>
+<p>⚠️ <strong><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">&gt;</code> no compara, redirige a un fichero.</strong> <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">if ($a &gt; 5)</code> crea un fichero llamado <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">5</code>.</p></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.6 Entrada y salida</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">$ciudad = Read-Host &quot;¿Dónde vives?&quot;
+$clave  = Read-Host &quot;Contraseña&quot; -AsSecureString
+Write-Host &quot;Texto en pantalla&quot; -ForegroundColor Green   # solo pantalla
+Write-Output &quot;Esto va al pipeline&quot;                      # se puede redirigir o capturar
+Write-Warning &quot;Aviso&quot;
+Write-Error &quot;Algo ha fallado&quot;
+&quot;línea&quot; | Out-File informe.txt -Append
+</code></pre></div></details>
+<details style="border:1px solid #1a9e5f44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#1a9e5f14;color:#1a9e5f;font-weight:600;font-size:1.02em;list-style:none;">▸ 2.7 Ejecutar scripts: la política de ejecución</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-ExecutionPolicy -List
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\mi_script.ps1               # siempre con ruta: .\ en la carpeta actual
+Unblock-File .\descargado.ps1
+</code></pre>
+<table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Política</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Qué permite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Restricted</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Ningún script (defecto en clientes Windows)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">RemoteSigned</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Scripts locales sí; descargados solo si están firmados</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">AllSigned</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Solo scripts firmados</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Unrestricted</code> / <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Bypass</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Todo (no recomendado)</td>
+</tr>
+</tbody>
+</table>
+<p>La política <strong>no es una barrera de seguridad</strong> sino una protección contra ejecuciones accidentales.</p></div></details>
+<h2 style="font-size:1.25em;color:#fff;background:#b5179e;padding:.4em .7em;border-radius:7px;margin:1.6em 0 .6em;">Bloque 3 · Control de flujo, colecciones, funciones y módulos</h2>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.1 Condicionales</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">if ($nota -ge 9) {
+    &quot;Sobresaliente&quot;
+} elseif ($nota -ge 5) {
+    &quot;Aprobado&quot;
+} else {
+    &quot;Suspenso&quot;
+}
+
+switch ($opcion) {
+    1       { &quot;Has elegido uno&quot; }
+    2       { &quot;Has elegido dos&quot; }
+    default { &quot;Opción no válida&quot; }
+}
+
+switch -Wildcard ($fichero) {
+    &quot;*.log&quot; { &quot;Registro&quot; }
+    &quot;*.ps1&quot; { &quot;Script&quot; }
+}
+</code></pre></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.2 Bucles</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">for ($i = 1; $i -le 10; $i++) { &quot;Vuelta $i&quot; }
+
+foreach ($f in Get-ChildItem *.txt) { $f.Name }
+
+Get-ChildItem *.txt | ForEach-Object { $_.Name }   # versión pipeline
+
+$n = 0
+while ($n -lt 5) { $n++ }
+
+do {
+    $r = Read-Host &quot;¿Seguir? (s/n)&quot;
+} until ($r -eq 'n')     # también existe do { } while ( )
+</code></pre>
+<p><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">break</code> sale del bucle, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">continue</code> salta a la siguiente vuelta, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">exit n</code> termina el script.</p></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.3 Arrays y tablas hash</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">$dias = @(&quot;lunes&quot;, &quot;martes&quot;, &quot;miércoles&quot;)
+$dias[0]            # lunes
+$dias[-1]           # último
+$dias += &quot;jueves&quot;
+$dias.Count
+&quot;martes&quot; -in $dias  # True
+
+$usuario = @{ Nombre = &quot;Ana&quot;; Grupo = &quot;ASIR2&quot;; Edad = 20 }
+$usuario.Nombre
+$usuario[&quot;Grupo&quot;]
+$usuario.Telefono = &quot;600000000&quot;     # añadir clave
+$usuario.Keys
+$usuario.ContainsKey(&quot;Edad&quot;)
+
+# Objeto personalizado: ideal para informes y CSV
+[PSCustomObject]@{ Equipo = $env:COMPUTERNAME; Fecha = Get-Date }
+</code></pre></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.4 Parámetros del script</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell"># media.ps1
+param(
+    [Parameter(Mandatory)]
+    [double[]]$Numeros
+)
+$media = ($Numeros | Measure-Object -Average).Average
+&quot;La media es $media&quot;
+</code></pre>
+<p>Uso: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">.\media.ps1 -Numeros 4,7,9</code>. PowerShell pide el parámetro si falta, y valida el tipo.</p></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.5 Funciones</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">function Get-Saludo {
+    param(
+        [Parameter(Mandatory)][string]$Nombre,
+        [ValidateRange(0,23)][int]$Hora = (Get-Date).Hour
+    )
+    if ($Hora -lt 14) { &quot;Buenos días, $Nombre&quot; }
+    else              { &quot;Buenas tardes, $Nombre&quot; }
+}
+
+Get-Saludo -Nombre Ana
+Get-Saludo Luis -Hora 20
+</code></pre>
+<ul>
+<li>Todo lo que se "suelta" en la función se devuelve (no solo lo que va tras <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">return</code>).</li>
+<li>Usa nombres <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Verbo-Sustantivo</code> con verbos de <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Verb</code>.</li>
+<li>Las variables de la función son locales; <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$script:contador</code> accede a la del script.</li>
+</ul></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.6 Ayuda basada en comentarios (documentación)</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">function Get-Saludo {
+&lt;#
+.SYNOPSIS
+    Devuelve un saludo según la hora.
+.DESCRIPTION
+    Saluda con &quot;Buenos días&quot; antes de las 14:00 y &quot;Buenas tardes&quot; después.
+.PARAMETER Nombre
+    Persona a la que se saluda.
+.EXAMPLE
+    Get-Saludo -Nombre Ana
+#&gt;
+    param([Parameter(Mandatory)][string]$Nombre)
+    ...
+}
+</code></pre>
+<p>Con esto, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Get-Help Get-Saludo -Full</code> muestra tu documentación como la de cualquier cmdlet. <strong>Es obligatorio en todos los scripts entregados</strong> (CE9).</p></div></details>
+<details style="border:1px solid #b5179e44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#b5179e14;color:#b5179e;font-weight:600;font-size:1.02em;list-style:none;">▸ 3.7 Módulos: tu propia librería de funciones</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell"># Utilidades.psm1
+function Test-EsPar { param([int]$N) $N % 2 -eq 0 }
+function Get-LetraDNI { param([int]$Numero) 'TRWAGMYFPDXBNJZSQVHLCKE'[$Numero % 23] }
+Export-ModuleMember -Function Test-EsPar, Get-LetraDNI
+</code></pre>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell"># programa.ps1
+Import-Module &quot;$PSScriptRoot\Utilidades.psm1&quot;
+Get-LetraDNI 12345678
+Get-Command -Module Utilidades
+</code></pre>
+<p>Módulos del sistema que usarás en el curso: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Microsoft.PowerShell.LocalAccounts</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">NetTCPIP</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ScheduledTasks</code>, <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ActiveDirectory</code> (UT4). Busca más con <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Find-Module</code> en la PowerShell Gallery.</p></div></details>
+<h2 style="font-size:1.25em;color:#fff;background:#e8590c;padding:.4em .7em;border-radius:7px;margin:1.6em 0 .6em;">Bloque 4 · Depuración, errores y administración del sistema</h2>
+<details style="border:1px solid #e8590c44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#e8590c14;color:#e8590c;font-weight:600;font-size:1.02em;list-style:none;">▸ 4.1 Depurar scripts (CE2)</summary><div style="padding:.3em 1em 1em;"><table style="border-collapse:collapse;width:100%;margin:.8em 0;font-size:.93em;">
+<thead>
+<tr>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Herramienta</th>
+<th style="border:1px solid #c9d4e5;padding:6px 9px;background:#e7f0ff;color:#08306b;text-align:left;">Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Set-StrictMode -Version Latest</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Error si usas variables sin inicializar o propiedades inexistentes</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Set-PSDebug -Trace 1</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Muestra cada línea al ejecutarse (como <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">bash -x</code>)</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Write-Verbose</code> + <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">[CmdletBinding()]</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Mensajes que solo aparecen con <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-Verbose</code></td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;"><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Set-PSBreakpoint -Script x.ps1 -Line 12</code></td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Detiene la ejecución en una línea</td>
+</tr>
+<tr>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">VS Code (F9 y F5)</td>
+<td style="border:1px solid #c9d4e5;padding:6px 9px;text-align:left;vertical-align:top;">Puntos de interrupción, ver variables, paso a paso</td>
+</tr>
+</tbody>
+</table>
+<p>En CMD: quitar <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">@echo off</code> para ver cada orden, y <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">echo</code> / <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">pause</code> en puntos clave.</p></div></details>
+<details style="border:1px solid #e8590c44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#e8590c14;color:#e8590c;font-weight:600;font-size:1.02em;list-style:none;">▸ 4.2 Control de errores</summary><div style="padding:.3em 1em 1em;"><pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">try {
+    Get-Content C:\no\existe.txt -ErrorAction Stop
+}
+catch [System.Management.Automation.ItemNotFoundException] {
+    Write-Warning &quot;El fichero no existe&quot;
+}
+catch {
+    Write-Error &quot;Error inesperado: $($_.Exception.Message)&quot;
+}
+finally {
+    &quot;Esto se ejecuta siempre&quot;
+}
+</code></pre>
+<ul>
+<li>Muchos cmdlets dan errores <em>no terminantes</em>: <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">try/catch</code> no los captura si no añades <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-ErrorAction Stop</code>.</li>
+<li><code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$Error[0]</code> es el último error. En programas externos, comprueba <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">$LASTEXITCODE</code>.</li>
+</ul></div></details>
+<details style="border:1px solid #e8590c44;border-radius:7px;margin:.5em 0;overflow:hidden;"><summary style="cursor:pointer;padding:.6em .9em;background:#e8590c14;color:#e8590c;font-weight:600;font-size:1.02em;list-style:none;">▸ 4.3 Administración del sistema</summary><div style="padding:.3em 1em 1em;"><p><strong>Servicios (CE5)</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-Service | Where-Object Status -eq Running
+Get-Service Spooler | Select-Object Name, Status, StartType
+Stop-Service Spooler
+Start-Service Spooler
+Restart-Service Spooler -Force
+Set-Service Spooler -StartupType Manual
+</code></pre>
+<p><strong>Procesos</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 5
+Stop-Process -Name notepad
+</code></pre>
+<p><strong>Usuarios y grupos locales</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-LocalUser
+$clave = Read-Host &quot;Contraseña&quot; -AsSecureString
+New-LocalUser -Name &quot;alumno01&quot; -Password $clave -FullName &quot;Alumno 01&quot;
+Add-LocalGroupMember -Group &quot;Usuarios&quot; -Member &quot;alumno01&quot;
+Disable-LocalUser -Name &quot;alumno01&quot;
+</code></pre>
+<p><strong>Ficheros, red y registros de eventos</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">Get-ChildItem C:\Datos -Recurse -Filter *.docx
+Copy-Item C:\Datos D:\Copia -Recurse
+Test-Path C:\Datos
+Get-NetIPAddress -AddressFamily IPv4
+Get-NetAdapter
+Test-Connection 8.8.8.8 -Count 2
+Get-WinEvent -LogName System -MaxEvents 20
+Get-CimInstance Win32_LogicalDisk -Filter &quot;DriveType=3&quot;
+</code></pre>
+<p><strong>Tareas programadas (CE6)</strong></p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code class="language-powershell">$accion   = New-ScheduledTaskAction -Execute &quot;powershell.exe&quot; `
+            -Argument &quot;-NoProfile -ExecutionPolicy Bypass -File C:\Scripts\copia.ps1&quot;
+$disparo  = New-ScheduledTaskTrigger -Daily -At 2am
+Register-ScheduledTask -TaskName &quot;CopiaDiaria&quot; -Action $accion -Trigger $disparo `
+    -User &quot;SYSTEM&quot; -RunLevel Highest
+Get-ScheduledTask CopiaDiaria
+</code></pre>
+<p>(La planificación de tareas se estudia a fondo en la UT7, RA3.)</p>
+<h1>media.ps1</h1>
+<p>$entrada = Read-Host "Introduce números separados por comas"
+$lista = $entrada.Split(",")
+foreach ($n in $lista) {
+    $suma = $suma + $n
+}
+$media = $suma / $lista.Count
+if ($media &gt; 5) {
+    Write-Host "Media alta: $media"
+else {
+    Write-Host "Media baja: $media"
+}</p>
+<pre style="background:#1e1e2e;color:#e6e6e6;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:.9em;"><code style="font-family:Consolas,Monaco,monospace;color:#e6e6e6;">
+**AC213 · Interpretar y adaptar un script del sistema** (3 puntos · CE3, CE4)
+
+```powershell
+param([int]$Umbral = 20)
+Get-CimInstance Win32_LogicalDisk -Filter &quot;DriveType=3&quot; | ForEach-Object {
+    $libre = [math]::Round($_.FreeSpace / $_.Size * 100, 1)
+    if ($libre -lt $Umbral) {
+        Write-Warning &quot;$($_.DeviceID) solo tiene $libre % libre&quot;
+    }
+}
+</code></pre>
+<p>a) Explica qué hace cada línea y qué es <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">DriveType=3</code>. b) Adáptalo para que, además del aviso, añada una línea a <code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">C:\Logs\discos.csv</code> con fecha, unidad y porcentaje libre (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">Export-Csv -Append</code>). c) Añade ayuda basada en comentarios.</p>
+<p><strong>AC214 · Vigilante de servicios</strong> (3 puntos · CE5, CE6)
+Script que reciba una lista de servicios como parámetro (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">-Servicios Spooler, W32Time</code>), compruebe su estado, arranque los detenidos, registre cada acción en un fichero de log y devuelva el código de salida 1 si alguno no pudo arrancarse. Prográmalo para que se ejecute cada hora.</p>
+<p><strong>PR202 · Informe del equipo</strong> (10 puntos · CE1, CE5, CE9)
+Genera un informe HTML (<code style="font-family:Consolas,Monaco,monospace;background:#eef1f5;color:#b5179e;padding:1px 5px;border-radius:4px;">ConvertTo-Html</code>) con: nombre del equipo, sistema operativo, IP y adaptadores de red, discos con espacio libre, 5 procesos con más memoria, servicios automáticos detenidos y los últimos 10 errores del registro System.</p></div></details>
+</div>

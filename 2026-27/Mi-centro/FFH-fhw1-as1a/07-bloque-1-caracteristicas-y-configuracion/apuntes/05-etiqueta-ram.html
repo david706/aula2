@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Etiqueta de la RAM</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root { color-scheme:dark; --bg:#0b0d12; --panel:#151922; --panel2:#1c2230; --line:#2a3242; --ink:#e6e9ef; --muted:#9aa4b5; --amber:#f2b632; --amber2:#ffd36b; --ok:#3ddc84; --warn:#ff8a3d; --bad:#ff5a5a; --blue:#4da3ff; --font-ui:"Segoe UI",Roboto,Arial,sans-serif; --font-mono:Consolas,"Courier New",monospace; }
+  * { box-sizing:border-box; } [hidden]{display:none!important}
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-ui); }
+  .wrap { max-width:1100px; margin:0 auto; padding-block:14px 40px; padding-inline:16px; }
+  .intro { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:space-between; margin-bottom:14px; }
+  .intro h1 { margin:0; font-size:22px; text-wrap:balance; } .intro p { margin:4px 0 0; color:var(--muted); max-width:66ch; font-size:14px; }
+  .progress { font-family:var(--font-mono); font-size:13px; color:var(--amber2); border:1px solid var(--line); padding:6px 10px; border-radius:6px; background:var(--panel); }
+  h2.sec { font-size:18px; margin:26px 0 6px; color:var(--amber); }
+  p.lead { color:var(--muted); margin:0 0 10px; max-width:72ch; font-size:14px; line-height:1.5; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  .card svg { width:100%; height:auto; display:block; max-width:100%; }
+  .hs { cursor:pointer; } .hs rect,.hs path,.hs circle { transition:filter .15s; } .hs:hover rect,.hs:hover path { filter:brightness(1.3); }
+  .hs.done > rect:first-child { stroke:var(--ok); stroke-width:1.5; }
+  .lb { font-family:var(--font-mono); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } @media (max-width:760px){ .two{grid-template-columns:1fr} }
+  .calc { display:grid; gap:10px; }
+  .calc .row { display:flex; flex-wrap:wrap; gap:12px; align-items:end; }
+  .calc label { font-size:13px; display:flex; flex-direction:column; gap:4px; }
+  .calc input, .calc select { background:#0b0d12; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:4px 6px; font-family:var(--font-mono); font-size:13px; }
+  .calc input[type=number] { width:84px; text-align:right; }
+  .out { font-family:var(--font-mono); font-size:13px; line-height:1.7; color:var(--muted); } .out b { color:var(--amber2); } .out .ok { color:var(--ok); } .out .bad { color:var(--bad); } .out .warn { color:var(--warn); }
+  table.t { border-collapse:collapse; width:100%; font-size:13px; font-family:var(--font-mono); font-variant-numeric:tabular-nums; } .t th,.t td { border:1px solid var(--line); padding:6px 8px; text-align:center; } .t th { color:var(--amber); } .t td:first-child { text-align:left; font-weight:600; }
+  .tw { overflow-x:auto; }
+  .seg { display:flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; width:max-content; max-width:100%; margin-bottom:10px; }
+  .seg button { font-family:inherit; font-size:13px; border:0; background:var(--panel2); color:var(--muted); padding:7px 14px; cursor:pointer; } .seg button.on { background:var(--amber); color:#1a1200; font-weight:600; }
+  .dec { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; }
+  .dec div { background:#0b0d12; border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:12.5px; line-height:1.45; } .dec b { display:block; font-family:var(--font-mono); color:var(--amber2); font-size:13px; }
+  .gloss { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; } .g { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.45; } .g b { color:var(--amber); font-family:var(--font-mono); }
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:20; }
+  .modal .mc { background:var(--panel); border:1px solid var(--amber); border-radius:10px; max-width:720px; width:100%; max-height:90vh; overflow:auto; padding:18px 20px; }
+  .modal h2 { margin:0 0 4px; font-size:19px; color:var(--amber); } .modal .where { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .modal p,.modal li { font-size:14px; line-height:1.55; } .modal p { margin:8px 0; max-width:68ch; } .modal ul { margin:6px 0 6px 18px; padding:0; }
+  .modal .foot { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .btn { font-family:inherit; font-size:12.5px; border:1px solid var(--line); background:#1f2633; color:var(--ink); border-radius:4px; padding:5px 10px; cursor:pointer; }
+  .tag { display:inline-block; font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--amber2); margin-right:4px; }
+</style>
+
+<div class="wrap">
+<div class="intro">
+  <div><h1>La etiqueta de un módulo de RAM, número a número</h1>
+  <p>Un módulo DDR4 y otro DDR5 con su pegatina real. Pulsa cada campo para saber qué mide, cómo se calcula y qué pasa si no coincide con la placa. Después, decodifica cualquier etiqueta que encuentres en el taller.</p></div>
+  <div class="progress" id="progress">Campos vistos: 0 / 18</div>
+</div>
+
+<h2 class="sec">0 · Formatos y muescas: cómo saber qué módulo tienes sin leer la etiqueta</h2>
+<p class="lead">Cada generación cambia la posición de la muesca y el número de contactos, y DDR4 además tiene el borde curvado. Pulsa cada módulo. Las medidas están a escala entre sí.</p>
+<div class="card">
+<svg viewBox="0 0 700 330" class="lb" role="img" aria-label="Comparativa de bordes de contactos de módulos DDR3, DDR4, DDR5, SO-DIMM DDR4 y SO-DIMM DDR5">
+  <rect x="0" y="0" width="700" height="330" rx="8" fill="#12151c"/>
+  <!-- DDR3 DIMM 240 -->
+  <g class="hs" data-c="fmt3"><rect x="20" y="24" width="533" height="34" rx="2" fill="#1e5a3a"/><rect x="20" y="50" width="533" height="8" fill="#c9a227"/><rect x="291" y="48" width="6" height="12" fill="#12151c"/><text x="560" y="40" font-size="9" fill="#e6e9ef">DDR3 DIMM · 240 pines · 133,35 mm</text><text x="560" y="52" font-size="8" fill="#9aa4b5">muesca casi centrada · borde recto · 1,5 V</text><text x="24" y="38" font-size="8" fill="#9aa4b5">DDR3</text></g>
+  <!-- DDR4 DIMM 288, curved edge -->
+  <g class="hs" data-c="fmt4"><rect x="20" y="82" width="533" height="34" rx="2" fill="#1e5a3a"/><path d="M20 108 Q 286 122 553 108 L553 116 L20 116 Z" fill="#c9a227"/><path d="M20 108 Q 286 122 553 108" stroke="#ffd36b" stroke-width="1" fill="none"/><rect x="258" y="106" width="6" height="12" fill="#12151c"/><text x="560" y="98" font-size="9" fill="#e6e9ef">DDR4 DIMM · 288 pines · 133,35 mm</text><text x="560" y="110" font-size="8" fill="#9aa4b5">muesca descentrada (lado izq.) · borde curvado · 1,2 V</text><text x="24" y="96" font-size="8" fill="#9aa4b5">DDR4</text></g>
+  <!-- DDR5 DIMM 288 -->
+  <g class="hs" data-c="fmt5"><rect x="20" y="140" width="533" height="34" rx="2" fill="#1a1a1a"/><rect x="20" y="166" width="533" height="8" fill="#c9a227"/><rect x="238" y="164" width="6" height="12" fill="#12151c"/><rect x="266" y="148" width="18" height="12" fill="#222" stroke="#4da3ff"/><text x="560" y="156" font-size="9" fill="#e6e9ef">DDR5 DIMM · 288 pines · 133,35 mm</text><text x="560" y="168" font-size="8" fill="#9aa4b5">muesca más a la izquierda · borde recto · PMIC · 1,1 V</text><text x="24" y="154" font-size="8" fill="#9aa4b5">DDR5</text></g>
+  <!-- SO-DIMM DDR4 260 -->
+  <g class="hs" data-c="fmtso4"><rect x="20" y="210" width="277" height="34" rx="2" fill="#1e5a3a"/><rect x="20" y="236" width="277" height="8" fill="#c9a227"/><rect x="83" y="234" width="6" height="12" fill="#12151c"/><text x="306" y="226" font-size="9" fill="#e6e9ef">SO-DIMM DDR4 · 260 pines · 69,6 mm</text><text x="306" y="238" font-size="8" fill="#9aa4b5">portátil / mini-PC · muesca a ~1/4 · borde recto</text><text x="24" y="224" font-size="8" fill="#9aa4b5">SO-DIMM DDR4</text></g>
+  <!-- SO-DIMM DDR5 262 -->
+  <g class="hs" data-c="fmtso5"><rect x="20" y="268" width="277" height="34" rx="2" fill="#1a1a1a"/><rect x="20" y="294" width="277" height="8" fill="#c9a227"/><rect x="118" y="292" width="6" height="12" fill="#12151c"/><rect x="150" y="276" width="14" height="10" fill="#222" stroke="#4da3ff"/><text x="306" y="284" font-size="9" fill="#e6e9ef">SO-DIMM DDR5 · 262 pines · 69,6 mm</text><text x="306" y="296" font-size="8" fill="#9aa4b5">muesca más al centro · PMIC · sustituto: CAMM2 / LPCAMM2</text><text x="24" y="282" font-size="8" fill="#9aa4b5">SO-DIMM DDR5</text></g>
+  <text x="20" y="322" font-size="8" fill="#9aa4b5">Regla rápida: contactos curvados = DDR4. Mismo largo y 288 pines pero muesca distinta = DDR4 vs DDR5. Módulo corto = SO-DIMM (portátil).</text>
+</svg>
+</div>
+
+<h2 class="sec">1 · Módulo DDR4 UDIMM</h2>
+<div class="card">
+<svg viewBox="0 0 700 200" class="lb" role="img" aria-label="Módulo DDR4 con etiqueta">
+  <rect x="0" y="0" width="700" height="200" rx="8" fill="#12151c"/>
+  <!-- PCB -->
+  <rect x="20" y="40" width="660" height="110" rx="3" fill="#1e5a3a"/>
+  <!-- chips -->
+  <g fill="#111" stroke="#333"><rect x="30" y="52" width="60" height="30"/><rect x="100" y="52" width="60" height="30"/><rect x="170" y="52" width="60" height="30"/><rect x="240" y="52" width="60" height="30"/><rect x="400" y="52" width="60" height="30"/><rect x="470" y="52" width="60" height="30"/><rect x="540" y="52" width="60" height="30"/><rect x="610" y="52" width="60" height="30"/></g>
+  <g class="hs" data-c="spd"><rect x="330" y="56" width="26" height="14" fill="#222" stroke="#f2b632"/><text x="343" y="66" text-anchor="middle" font-size="7" fill="#ffd36b">SPD</text></g>
+  <!-- contacts -->
+  <g class="hs" data-c="pins"><rect x="20" y="150" width="660" height="12" fill="#c9a227"/><g stroke="#8a6d1f" stroke-width="1" id="d4pins"></g><rect x="356" y="150" width="6" height="12" fill="#1e5a3a"/><text x="359" y="176" text-anchor="middle" font-size="8" fill="#9aa4b5">muesca (288 pines, DDR4)</text></g>
+  <!-- label -->
+  <rect x="120" y="92" width="460" height="48" rx="2" fill="#f4f4f4"/>
+  <g class="hs" data-c="brand"><rect x="126" y="96" width="90" height="18" fill="#f4f4f4"/><text x="130" y="109" font-size="10" font-weight="700" fill="#111">MEMORIX</text></g>
+  <g class="hs" data-c="cap"><rect x="220" y="96" width="50" height="18" fill="#f4f4f4"/><text x="222" y="109" font-size="10" font-weight="700" fill="#111">16GB</text></g>
+  <g class="hs" data-c="rank"><rect x="272" y="96" width="46" height="18" fill="#f4f4f4"/><text x="274" y="109" font-size="10" fill="#111">1Rx8</text></g>
+  <g class="hs" data-c="pc"><rect x="322" y="96" width="92" height="18" fill="#f4f4f4"/><text x="324" y="109" font-size="10" fill="#111">PC4-25600</text></g>
+  <g class="hs" data-c="ddr"><rect x="416" y="96" width="76" height="18" fill="#f4f4f4"/><text x="418" y="109" font-size="10" font-weight="700" fill="#111">DDR4-3200</text></g>
+  <g class="hs" data-c="ecc"><rect x="496" y="96" width="80" height="18" fill="#f4f4f4"/><text x="498" y="109" font-size="9" fill="#111">Non-ECC UDIMM</text></g>
+  <g class="hs" data-c="cl"><rect x="126" y="118" width="110" height="18" fill="#f4f4f4"/><text x="130" y="131" font-size="10" fill="#111">CL16-18-18-38</text></g>
+  <g class="hs" data-c="volt"><rect x="240" y="118" width="46" height="18" fill="#f4f4f4"/><text x="242" y="131" font-size="10" fill="#111">1.35V</text></g>
+  <g class="hs" data-c="xmp"><rect x="290" y="118" width="70" height="18" fill="#f4f4f4"/><text x="292" y="131" font-size="9" fill="#111">XMP 2.0</text></g>
+  <g class="hs" data-c="pn"><rect x="364" y="118" width="212" height="18" fill="#f4f4f4"/><text x="366" y="131" font-size="8" fill="#333">P/N MX4U3200C16-16G · S/N 2604A0123 · Made in Taiwan</text></g>
+  <text x="20" y="30" font-size="10" fill="#f2b632">DDR4 · 288 pines · muesca descentrada · 1,2 V nominal (1,35 V con XMP)</text>
+</svg>
+</div>
+
+<h2 class="sec">2 · Módulo DDR5 UDIMM</h2>
+<div class="card">
+<svg viewBox="0 0 700 200" class="lb" role="img" aria-label="Módulo DDR5 con etiqueta">
+  <rect x="0" y="0" width="700" height="200" rx="8" fill="#12151c"/>
+  <rect x="20" y="40" width="660" height="110" rx="3" fill="#1a1a1a"/>
+  <g fill="#0b0d12" stroke="#333"><rect x="30" y="52" width="55" height="30"/><rect x="92" y="52" width="55" height="30"/><rect x="154" y="52" width="55" height="30"/><rect x="216" y="52" width="55" height="30"/><rect x="430" y="52" width="55" height="30"/><rect x="492" y="52" width="55" height="30"/><rect x="554" y="52" width="55" height="30"/><rect x="616" y="52" width="55" height="30"/></g>
+  <g class="hs" data-c="pmic"><rect x="300" y="52" width="40" height="30" fill="#222" stroke="#4da3ff"/><text x="320" y="70" text-anchor="middle" font-size="7" fill="#4da3ff">PMIC</text></g>
+  <g class="hs" data-c="spd"><rect x="350" y="56" width="26" height="14" fill="#222" stroke="#f2b632"/><text x="363" y="66" text-anchor="middle" font-size="7" fill="#ffd36b">SPD</text></g>
+  <g class="hs" data-c="pins"><rect x="20" y="150" width="660" height="12" fill="#c9a227"/><rect x="326" y="150" width="6" height="12" fill="#1a1a1a"/><text x="329" y="176" text-anchor="middle" font-size="8" fill="#9aa4b5">muesca en otro sitio (288 pines, DDR5): no entra en una ranura DDR4</text></g>
+  <rect x="120" y="92" width="460" height="48" rx="2" fill="#f4f4f4"/>
+  <g class="hs" data-c="brand"><rect x="126" y="96" width="90" height="18" fill="#f4f4f4"/><text x="130" y="109" font-size="10" font-weight="700" fill="#111">MEMORIX</text></g>
+  <g class="hs" data-c="cap"><rect x="220" y="96" width="50" height="18" fill="#f4f4f4"/><text x="222" y="109" font-size="10" font-weight="700" fill="#111">32GB</text></g>
+  <g class="hs" data-c="rank"><rect x="272" y="96" width="46" height="18" fill="#f4f4f4"/><text x="274" y="109" font-size="10" fill="#111">2Rx8</text></g>
+  <g class="hs" data-c="pc"><rect x="322" y="96" width="92" height="18" fill="#f4f4f4"/><text x="324" y="109" font-size="10" fill="#111">PC5-48000</text></g>
+  <g class="hs" data-c="ddr"><rect x="416" y="96" width="76" height="18" fill="#f4f4f4"/><text x="418" y="109" font-size="10" font-weight="700" fill="#111">DDR5-6000</text></g>
+  <g class="hs" data-c="ecc"><rect x="496" y="96" width="80" height="18" fill="#f4f4f4"/><text x="498" y="109" font-size="9" fill="#111">Non-ECC UDIMM</text></g>
+  <g class="hs" data-c="cl"><rect x="126" y="118" width="110" height="18" fill="#f4f4f4"/><text x="130" y="131" font-size="10" fill="#111">CL30-38-38-96</text></g>
+  <g class="hs" data-c="volt"><rect x="240" y="118" width="46" height="18" fill="#f4f4f4"/><text x="242" y="131" font-size="10" fill="#111">1.35V</text></g>
+  <g class="hs" data-c="xmp"><rect x="290" y="118" width="70" height="18" fill="#f4f4f4"/><text x="292" y="131" font-size="9" fill="#111">XMP 3.0 / EXPO</text></g>
+  <g class="hs" data-c="pn"><rect x="364" y="118" width="212" height="18" fill="#f4f4f4"/><text x="366" y="131" font-size="8" fill="#333">P/N MX5U6000C30-32G · S/N 2605B0456 · Made in Taiwan</text></g>
+  <text x="20" y="30" font-size="10" fill="#f2b632">DDR5 · 288 pines · muesca desplazada · 1,1 V nominal · regulador (PMIC) en el propio módulo · ECC interno (on-die) siempre</text>
+</svg>
+</div>
+
+<h2 class="sec">3 · Decodificador: escribe lo que pone en la pegatina</h2>
+<p class="lead">Introduce los datos de un módulo real (o elige un ejemplo) y la calculadora te dice ancho de banda, latencia real en nanosegundos y si encaja en la placa elegida.</p>
+<div class="card calc">
+  <div class="seg" id="ex"><button data-e="0" class="on">DDR4-3200 CL16</button><button data-e="1">DDR4-2133 CL15 (OEM)</button><button data-e="2">DDR5-6000 CL30</button><button data-e="3">DDR5-4800 CL40 (JEDEC)</button><button data-e="4">SO-DIMM DDR4-2666 CL19</button></div>
+  <div class="row">
+    <label>Tipo <select id="type"><option>DDR3</option><option selected>DDR4</option><option>DDR5</option></select></label>
+    <label>Velocidad (MT/s) <input type="number" id="mts" value="3200" step="1"></label>
+    <label>CL <input type="number" id="clv" value="16" step="1"></label>
+    <label>tRCD-tRP-tRAS <input type="text" id="sub" value="18-18-38" style="width:110px"></label>
+    <label>Capacidad (GB) <input type="number" id="gb" value="16"></label>
+    <label>Rank / organización <input type="text" id="rk" value="1Rx8" style="width:70px"></label>
+    <label>Tensión (V) <input type="number" id="vv" value="1.35" step="0.01"></label>
+    <label>Formato <select id="ff"><option>UDIMM</option><option>SO-DIMM</option><option>RDIMM</option></select></label>
+    <label>ECC <select id="eccs"><option>Non-ECC</option><option>ECC</option></select></label>
+  </div>
+  <div class="dec" id="dec"></div>
+  <div class="row"><label>Placa de destino <select id="board"><option value="d4">Sobremesa DDR4 (4 × UDIMM, hasta DDR4-3200 JEDEC, XMP)</option><option value="d5">Sobremesa DDR5 (4 × UDIMM, hasta DDR5-5600 JEDEC, EXPO/XMP)</option><option value="so4">Portátil DDR4 (2 × SO-DIMM, DDR4-3200)</option><option value="srv">Servidor DDR4 (8 × RDIMM ECC)</option><option value="d3">Equipo antiguo DDR3 (2 × UDIMM 1600)</option></select></label></div>
+  <div class="out" id="fit"></div>
+</div>
+
+<h2 class="sec">4 · Compara dos módulos: ¿cuál es más rápido de verdad?</h2>
+<div class="card calc">
+  <div class="tw"><table class="t">
+    <tr><th></th><th>Módulo A</th><th>Módulo B</th></tr>
+    <tr><td>MT/s</td><td><input type="number" id="a_mts" value="3200"></td><td><input type="number" id="b_mts" value="3600"></td></tr>
+    <tr><td>CL</td><td><input type="number" id="a_cl" value="16"></td><td><input type="number" id="b_cl" value="18"></td></tr>
+    <tr><td>Ancho de banda por módulo</td><td id="a_bw"></td><td id="b_bw"></td></tr>
+    <tr><td>Reloj real (MHz)</td><td id="a_clk"></td><td id="b_clk"></td></tr>
+    <tr><td>Latencia CL en ns</td><td id="a_ns"></td><td id="b_ns"></td></tr>
+  </table></div>
+  <div class="out" id="cmp"></div>
+</div>
+
+<h2 class="sec">5 · Tabla de referencia JEDEC</h2>
+<div class="card"><div class="tw"><table class="t">
+  <tr><th>Nombre del módulo</th><th>Nombre del chip</th><th>MT/s</th><th>Reloj E/S</th><th>Ancho de banda</th><th>CL típico</th><th>Latencia CL</th><th>Tensión</th></tr>
+  <tr><td>PC3-12800</td><td>DDR3-1600</td><td>1600</td><td>800 MHz</td><td>12,8 GB/s</td><td>11</td><td>13,75 ns</td><td>1,5 V</td></tr>
+  <tr><td>PC4-17000</td><td>DDR4-2133</td><td>2133</td><td>1066 MHz</td><td>17,0 GB/s</td><td>15</td><td>14,06 ns</td><td>1,2 V</td></tr>
+  <tr><td>PC4-21300</td><td>DDR4-2666</td><td>2666</td><td>1333 MHz</td><td>21,3 GB/s</td><td>19</td><td>14,25 ns</td><td>1,2 V</td></tr>
+  <tr><td>PC4-25600</td><td>DDR4-3200</td><td>3200</td><td>1600 MHz</td><td>25,6 GB/s</td><td>22 (16 XMP)</td><td>13,75 ns (10,0)</td><td>1,2 V (1,35)</td></tr>
+  <tr><td>PC5-38400</td><td>DDR5-4800</td><td>4800</td><td>2400 MHz</td><td>38,4 GB/s</td><td>40</td><td>16,67 ns</td><td>1,1 V</td></tr>
+  <tr><td>PC5-44800</td><td>DDR5-5600</td><td>5600</td><td>2800 MHz</td><td>44,8 GB/s</td><td>46</td><td>16,43 ns</td><td>1,1 V</td></tr>
+  <tr><td>PC5-48000</td><td>DDR5-6000</td><td>6000</td><td>3000 MHz</td><td>48,0 GB/s</td><td>30 (EXPO)</td><td>10,0 ns</td><td>1,35 V</td></tr>
+</table></div>
+<p class="lead" style="margin-top:8px;font-size:12.5px">Regla: <b>PC-número = MT/s × 8</b> (8 bytes por transferencia, bus de 64 bits). Reloj real = MT/s ÷ 2 (DDR = dos transferencias por ciclo). Latencia en ns = CL × 2000 ÷ MT/s.</p>
+</div>
+
+<h2 class="sec">6 · Glosario</h2>
+<div class="gloss">
+  <div class="g"><b>MT/s vs MHz</b> Las etiquetas dicen "3200 MHz" pero son megatransferencias por segundo; el reloj es la mitad. Es marketing tolerado.</div>
+  <div class="g"><b>Doble canal</b> Dos módulos iguales en canales distintos (A2 + B2) duplican el ancho de banda: 2 × 25,6 = 51,2 GB/s. Un solo módulo de 32 GB es más lento que dos de 16.</div>
+  <div class="g"><b>Kit</b> Los módulos vendidos juntos están probados en pareja. Mezclar dos kits "iguales" comprados por separado funciona casi siempre, pero no está garantizado.</div>
+  <div class="g"><b>Mezclar velocidades</b> La placa baja todos los módulos al más lento y a los timings más flojos. Mezclar DDR4 y DDR5: imposible, la muesca no coincide.</div>
+  <div class="g"><b>Perfil JEDEC</b> Velocidad y timings estándar garantizados sin tocar nada. XMP/EXPO son perfiles "de fábrica" por encima de JEDEC que la placa aplica si el usuario los activa en la UEFI.</div>
+  <div class="g"><b>SO-DIMM</b> Módulo corto de portátil y mini-PC (260 pines DDR4, 262 DDR5). Mismos chips, distinto formato; no intercambiable con UDIMM.</div>
+  <div class="g"><b>RDIMM / LRDIMM</b> Con registro/buffer, para servidores con muchos módulos por canal. No funcionan en placas de sobremesa aunque sean DDR4 y encajen.</div>
+  <div class="g"><b>Disipador</b> Estético en la mayoría de módulos de sobremesa; los chips DDR4/5 a 1,35 V no lo necesitan. Puede chocar con disipadores de CPU grandes: mirar la altura (mm).</div>
+</div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="mc" role="dialog" aria-modal="true"><h2 id="mTitle"></h2><div class="where" id="mWhere"></div><div id="mBody"></div><div class="foot"><span id="mTags"></span><button class="btn" id="mClose">Cerrar (Esc)</button></div></div></div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const C={
+    fmt3:{t:"DDR3 DIMM (240 pines)", w:"Comparativa: primera fila", tags:["DDR3","240","1,5 V"], b:`<p>Generación 2007–2015. 240 contactos, muesca casi en el centro (un poco a la izquierda), borde recto. Tensión 1,5 V (DDR3L: 1,35 V, obligatoria en portátiles y CPU de bajo consumo desde 2013). Velocidades DDR3-1066 a 1866 (PC3-8500 a PC3-14900).</p><ul><li>Se distingue del DDR2 (también 240 pines) por la muesca en otra posición: no entran cruzados.</li><li>Todavía en muchos equipos de aula (Core 2ª–4ª gen, FM2). Se compra de segunda mano; no hay producción nueva relevante.</li></ul>`},
+    fmt4:{t:"DDR4 DIMM (288 pines, borde curvado)", w:"Comparativa: segunda fila", tags:["DDR4","288","curvo"], b:`<p>2014–hoy. 288 contactos, muesca claramente <b>descentrada</b> hacia un lado y, sobre todo, el <b>borde de contactos curvado</b>: los pines centrales sobresalen unas décimas más que los de los extremos. Se hizo para que el módulo entre con menos fuerza (menos pines tocando a la vez) sin perder presión de contacto. Es la forma más fácil de reconocer un DDR4 a simple vista: pon el módulo de canto y verás la "tripa".</p><ul><li>Tensión 1,2 V (1,35 V con XMP).</li><li>Misma longitud que DDR3 y DDR5 (133,35 mm), por eso hay que fijarse en la muesca y en el borde.</li></ul>`},
+    fmt5:{t:"DDR5 DIMM (288 pines, borde recto)", w:"Comparativa: tercera fila", tags:["DDR5","288","PMIC"], b:`<p>2021–hoy. También 288 contactos y 133,35 mm, pero la muesca está <b>más hacia la izquierda</b> que en DDR4 y el borde vuelve a ser <b>recto</b>. Un DDR5 no entra en una ranura DDR4 ni al revés, aunque a simple vista parezcan iguales.</p><ul><li>Lleva el regulador de tensión (PMIC) en el módulo, el chip SPD-hub con sensor de temperatura, y dos subcanales de 32 bits.</li><li>1,1 V nominal; ECC on-die de serie.</li><li>Truco de taller: si tienes dudas, la etiqueta dice PC5 o DDR5; si no hay etiqueta, busca el PMIC (chip cuadrado en el centro con condensadores alrededor).</li></ul>`},
+    fmtso4:{t:"SO-DIMM DDR4 (260 pines)", w:"Comparativa: cuarta fila", tags:["SO-DIMM","portátil","260"], b:`<p><b>Small Outline DIMM</b>: 69,6 mm de largo, para portátiles, mini-PC (NUC), algunos all-in-one y NAS. 260 contactos en DDR4 (204 en DDR3). Se inserta inclinado unos 30° y se baja hasta que los clips laterales lo sujetan.</p><ul><li>Los chips y velocidades son los mismos que en el DIMM; solo cambia el formato. Existe SO-DIMM DDR4-3200 CL22 igual que el de sobremesa.</li><li>Cada vez más portátiles llevan la RAM <b>soldada</b> (LPDDR4x/LPDDR5): no hay SO-DIMM y no se amplía. Mirar antes de comprar.</li><li>Un SO-DIMM cabe en un adaptador para ranura DIMM, pero no al revés.</li></ul>`},
+    fmtso5:{t:"SO-DIMM DDR5 (262 pines) y CAMM2", w:"Comparativa: quinta fila", tags:["SO-DIMM","DDR5","CAMM2"], b:`<p>262 contactos, muesca en otra posición que el DDR4 y PMIC en el módulo. Es el formato de los portátiles con DDR5 (2022–).</p><ul><li>Límite práctico: DDR5-5600; por encima el SO-DIMM da problemas de señal.</li><li>Sustituto en camino: <b>CAMM2</b> (DDR5) y <b>LPCAMM2</b> (LPDDR5X), un módulo plano atornillado que ocupa menos, va a más velocidad y permite ampliar portátiles finos que antes iban soldados. Ya lo montan algunas estaciones de trabajo portátiles.</li></ul>`},
+    brand:{t:"Marca y modelo", w:"Etiqueta: primera palabra", tags:["marketing"], b:`<p>La marca de la pegatina no siempre fabrica los chips: solo Samsung, SK Hynix y Micron producen las obleas; el resto (Kingston, Corsair, G.Skill, Crucial = Micron…) ensambla y prueba. Para saber qué chips lleva un módulo se mira el P/N en la base de datos del fabricante o con software como CPU-Z / Thaiphoon.</p>`},
+    cap:{t:"Capacidad (16GB / 32GB)", w:"Etiqueta: número seguido de GB", tags:["GB","densidad"], b:`<p>Gigabytes del módulo. Se forma con chips de cierta <b>densidad</b> (8 Gb, 16 Gb, 24 Gb por chip) repartidos en uno o dos lados. Un 16 GB 1Rx8 lleva 8 chips de 16 Gb (2 GB cada uno) en una sola cara.</p><ul><li>La placa tiene un máximo por ranura y total (p. ej. 32 GB × 4 = 128 GB en DDR4 de sobremesa; 48/64 GB por módulo en DDR5). Módulos de 24/48 GB (chips de 24 Gb) solo existen en DDR5 y necesitan UEFI actualizada.</li><li>Windows muestra menos que lo instalado: parte se reserva para la gráfica integrada.</li></ul>`},
+    rank:{t:"Rank y organización (1Rx8, 2Rx8, 1Rx16)", w:"Etiqueta: 1Rx8", tags:["rank","x8","x16"], b:`<p><b>1R / 2R</b>: número de <b>ranks</b>, es decir, de grupos de chips que forman un bus de 64 bits completo. 2R suele significar chips en las dos caras (double-sided) y rinde algo más (la CPU intercala accesos entre ranks).</p><p><b>x8 / x16</b>: bits que entrega cada chip. Con x8 hacen falta 8 chips para 64 bits; con x16, 4 chips. Los <b>x16</b> son módulos baratos con la mitad de chips: menos bancos, peor rendimiento y a veces incompatibles con placas antiguas. x4 es de servidor.</p><ul><li>Límite de la placa: p. ej. "2 ranks por canal máximo": dos módulos 2R por canal pueden no arrancar a plena velocidad.</li><li>En DDR5 cada módulo tiene dos subcanales de 32 bits: 1Rx8 sigue significando 8 chips.</li></ul>`},
+    pc:{t:"PC4-25600 / PC5-48000: ancho de banda", w:"Etiqueta: PC + generación + número", tags:["GB/s","JEDEC"], b:`<p>Nombre JEDEC del <b>módulo</b>. El número es el ancho de banda teórico en <b>MB/s</b>: 3200 MT/s × 8 bytes (bus de 64 bits) = <b>25 600 MB/s</b> = 25,6 GB/s por módulo. En doble canal, el doble.</p><ul><li>PC3 = DDR3, PC4 = DDR4, PC5 = DDR5.</li><li>A veces redondean: PC4-25600 y PC4-25600U (U = unbuffered) son lo mismo.</li><li>Truco: si en la pegatina solo ves el PC-número, divide entre 8 y tienes los MT/s.</li></ul>`},
+    ddr:{t:"DDR4-3200 / DDR5-6000: generación y velocidad", w:"Etiqueta: DDR + generación + MT/s", tags:["MT/s","generación"], b:`<p><b>DDR4 / DDR5</b>: generación. Cambia el número de pines, la muesca, la tensión y el protocolo: no son compatibles entre sí, y la placa solo admite una.</p><p><b>3200</b>: megatransferencias por segundo. Como DDR transfiere dos veces por ciclo de reloj, el reloj real es 1600 MHz. Los vendedores escriben "3200 MHz"; es incorrecto pero universal.</p><ul><li>Velocidades <b>JEDEC</b> (garantizadas sin tocar nada): DDR4 2133–3200, DDR5 4800–6400 (según CPU).</li><li>Por encima (DDR4-3600, DDR5-6000…) el módulo arranca a la velocidad JEDEC y hay que activar XMP/EXPO en la UEFI para que vaya a lo que dice la pegatina.</li><li>La CPU marca el máximo oficial (p. ej. Ryzen 5000: DDR4-3200; Core 14: DDR5-5600); más allá es overclock de memoria, estable en la práctica hasta cierto punto.</li></ul>`},
+    ecc:{t:"Non-ECC UDIMM: corrección de errores y formato", w:"Etiqueta: ECC/Non-ECC + UDIMM/RDIMM", tags:["ECC","UDIMM","RDIMM"], b:`<p><b>ECC</b>: chips extra (9 en vez de 8 por rank, o x72) que detectan y corrigen errores de un bit. Se usa en servidores y estaciones; necesita CPU y placa compatibles (Xeon, EPYC, algunos Ryzen Pro). <b>Non-ECC</b> es lo normal en sobremesa.</p><p>DDR5 lleva <b>ECC on-die</b> en todos los módulos: corrige errores dentro del chip, pero no en el bus. No es el ECC "de servidor" aunque el vendedor lo anuncie.</p><ul><li><b>UDIMM</b>: sin búfer, sobremesa. <b>RDIMM</b>: con registro, servidor. <b>LRDIMM</b>: load-reduced, servidores de gran capacidad. <b>SO-DIMM</b>: portátil.</li><li>Un RDIMM entra físicamente en una placa de sobremesa DDR4 y no arranca. Comprueba la letra.</li></ul>`},
+    cl:{t:"CL16-18-18-38: los timings", w:"Etiqueta: cuatro números separados por guiones", tags:["CL","tRCD","tRP","tRAS","latencia"], b:`<p>Ciclos de reloj que tarda la memoria en responder. <b>Menos es mejor</b>, pero solo comparable a la misma velocidad.</p><ul><li><b>CL (CAS Latency) 16</b>: ciclos entre pedir una columna y recibir el dato. El más importante.</li><li><b>tRCD 18</b>: ciclos para activar una fila antes de leer una columna.</li><li><b>tRP 18</b>: ciclos para cerrar una fila y abrir otra (precharge).</li><li><b>tRAS 38</b>: mínimo que una fila permanece abierta.</li></ul><p>Para pasar a tiempo real: <b>ns = CL × 2000 ÷ MT/s</b>. DDR4-3200 CL16 = 10 ns; DDR5-6000 CL30 = 10 ns también. Por eso "DDR5 tiene más latencia" es falso en ns: los números son mayores porque el reloj es más rápido.</p><p>Un módulo DDR4-3600 CL18 (10 ns) y uno DDR4-3200 CL16 (10 ns) tienen la misma latencia; el de 3600 tiene más ancho de banda. Gana el 3600.</p>`},
+    volt:{t:"1.35V: tensión de funcionamiento", w:"Etiqueta: voltios", tags:["VDD","XMP","1,2 V"], b:`<p>Tensión a la que el módulo alcanza la velocidad de la pegatina. Nominal JEDEC: DDR3 <b>1,5 V</b> (1,35 V en DDR3L), DDR4 <b>1,2 V</b>, DDR5 <b>1,1 V</b>. Si la etiqueta dice 1,35 V en DDR4 es que la velocidad indicada es un perfil XMP y la placa subirá la tensión al activarlo.</p><ul><li>En DDR5 la tensión la regula el <b>PMIC</b> del propio módulo, no la placa; por eso los DDR5 pueden dar 1,35–1,4 V sin que la placa lo soporte especialmente.</li><li>DDR3 de 1,5 V en un portátil que pide DDR3L (1,35 V): no arranca o daña la CPU. La etiqueta importa.</li></ul>`},
+    xmp:{t:"XMP / EXPO: perfiles por encima de JEDEC", w:"Etiqueta: XMP 2.0, XMP 3.0, EXPO", tags:["UEFI","perfil"], b:`<p>Perfiles guardados en el SPD con velocidad, timings y tensión probados por el fabricante del módulo. Sin activarlos, el módulo arranca al perfil JEDEC (p. ej. DDR4-2133 o DDR5-4800) aunque la pegatina diga 3200 o 6000.</p><ul><li><b>XMP</b> (Intel; 2.0 en DDR4, 3.0 en DDR5) y <b>EXPO</b> (AMD, DDR5). Las placas AMD leen XMP y las Intel leen EXPO en la mayoría de casos.</li><li>Se activa en la UEFI (EZ Mode: un botón; AMI clásica: Advanced → Memory Profile). En el simulador de la placa está en el panel "Perfil de memoria".</li><li>Si el equipo no arranca tras activarlo: CLR_CMOS y probar un perfil más bajo. Es la causa nº 1 de "no da vídeo" tras montar RAM nueva.</li></ul>`},
+    pn:{t:"P/N y S/N", w:"Etiqueta: línea pequeña", tags:["part number","garantía"], b:`<p><b>P/N</b> (part number) codifica todo el módulo; en muchos fabricantes se lee: MX4U3200C16-16G = DDR<b>4</b>, <b>U</b>DIMM, <b>3200</b> MT/s, <b>C16</b> = CL16, <b>16G</b> = 16 GB. Es lo que hay que buscar en la lista de compatibilidad (QVL) de la placa.</p><p><b>S/N</b>: unidad concreta, para garantía (la RAM suele tener garantía de por vida limitada). Si el S/N de la pegatina no coincide con el del SPD (se lee por software), el módulo fue manipulado.</p>`},
+    spd:{t:"Chip SPD", w:"Chip pequeño de 8 patillas en el módulo", tags:["EEPROM","I²C"], b:`<p><b>Serial Presence Detect</b>: memoria EEPROM de 256–1024 bytes con toda la ficha del módulo: fabricante, capacidad, organización, perfiles JEDEC y XMP/EXPO. La UEFI la lee por el bus I²C/SMBus en el POST y así configura el controlador de memoria sin que nadie teclee nada.</p><ul><li>Es lo que muestra CPU-Z en la pestaña SPD y lo que aparece en "Estado DRAM" del simulador UEFI.</li><li>En DDR5 el chip también lleva el sensor de temperatura y controla al PMIC (se llama SPD hub).</li><li>Un SPD corrupto = módulo que no se detecta o se detecta con datos absurdos.</li></ul>`},
+    pins:{t:"Contactos y muesca", w:"Borde inferior dorado", tags:["288 pines","keying"], b:`<p>Contactos dorados por las dos caras (DIMM = <i>dual inline</i>). Número por generación: DDR3 <b>240</b>, DDR4 <b>288</b>, DDR5 <b>288</b>; SO-DIMM: 204 / 260 / 262.</p><p>La <b>muesca</b> está en un sitio distinto en cada generación: es lo que impide meter un DDR5 en una ranura DDR4 aunque tengan los mismos 288 pines. DDR4 además tiene el borde curvado para que entre con menos fuerza.</p><ul><li>Se inserta con las dos pestañas de la ranura abiertas, empujando recto por los extremos hasta que cierran solas con un clic. Si hay que forzar, está al revés.</li><li>Contactos sucios u oxidados: goma de borrar blanca y alcohol isopropílico; es la reparación más rentable del taller.</li></ul>`},
+    pmic:{t:"PMIC (solo DDR5)", w:"Chip regulador en el centro del módulo", tags:["DDR5","tensión"], b:`<p><b>Power Management IC</b>: en DDR5 el módulo recibe 5 V de la placa y genera él mismo los 1,1 V (o 1,35 V con EXPO) que necesitan los chips. En DDR4 y anteriores lo hacía el VRM de la placa.</p><ul><li>Mejor regulación y menos ruido, pero el módulo calienta más y algunos PMIC "bloqueados" no dejan subir tensión para overclock.</li><li>Un módulo DDR5 sin PMIC funcional no arranca; es una avería nueva que DDR4 no tenía.</li></ul>`}
+  };
+  const seen=new Set(), N=Object.keys(C).length;
+  function upd(){ $("#progress").textContent=`Campos vistos: ${seen.size} / ${N}`; }
+  function open(id){ const c=C[id]; if(!c) return; $("#mTitle").textContent=c.t; $("#mWhere").textContent=c.w; $("#mBody").innerHTML=c.b; $("#mTags").innerHTML=c.tags.map(t=>`<span class="tag">${t}</span>`).join(""); $("#modal").hidden=false; $("#mClose").focus(); seen.add(id); upd(); $$(`[data-c="${id}"]`).forEach(e=>e.classList.add("done")); }
+  function close(){ $("#modal").hidden=true; }
+  $("#mClose").addEventListener("click",close); $("#modal").addEventListener("click",e=>{ if(e.target===$("#modal")) close(); }); document.addEventListener("keydown",e=>{ if(e.key==="Escape") close(); });
+  $$(".hs").forEach(el=>{ el.setAttribute("tabindex","0"); el.addEventListener("click",()=>open(el.dataset.c)); el.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(el.dataset.c);} }); });
+  let pl=""; for(let x=24;x<676;x+=4.6) pl+=`<line x1="${x}" y1="150" x2="${x}" y2="162"/>`; $("#d4pins").innerHTML=pl;
+
+  // decoder
+  const EX=[{type:"DDR4",mts:3200,cl:16,sub:"18-18-38",gb:16,rk:"1Rx8",v:1.35,ff:"UDIMM",ecc:"Non-ECC"},{type:"DDR4",mts:2133,cl:15,sub:"15-15-36",gb:8,rk:"1Rx16",v:1.2,ff:"UDIMM",ecc:"Non-ECC"},{type:"DDR5",mts:6000,cl:30,sub:"38-38-96",gb:32,rk:"2Rx8",v:1.35,ff:"UDIMM",ecc:"Non-ECC"},{type:"DDR5",mts:4800,cl:40,sub:"39-39-77",gb:16,rk:"1Rx8",v:1.1,ff:"UDIMM",ecc:"Non-ECC"},{type:"DDR4",mts:2666,cl:19,sub:"19-19-43",gb:8,rk:"1Rx8",v:1.2,ff:"SO-DIMM",ecc:"Non-ECC"}];
+  const JED={DDR3:{v:1.5,max:1600,pins:240,so:204,gen:3},DDR4:{v:1.2,max:3200,pins:288,so:260,gen:4},DDR5:{v:1.1,max:6400,pins:288,so:262,gen:5}};
+  const BOARDS={d4:{type:"DDR4",ff:"UDIMM",max:3200,ecc:false,slots:4,per:32},d5:{type:"DDR5",ff:"UDIMM",max:5600,ecc:false,slots:4,per:48},so4:{type:"DDR4",ff:"SO-DIMM",max:3200,ecc:false,slots:2,per:32},srv:{type:"DDR4",ff:"RDIMM",max:3200,ecc:true,slots:8,per:64},d3:{type:"DDR3",ff:"UDIMM",max:1600,ecc:false,slots:2,per:8}};
+  function load(i){ const e=EX[i]; $("#type").value=e.type; $("#mts").value=e.mts; $("#clv").value=e.cl; $("#sub").value=e.sub; $("#gb").value=e.gb; $("#rk").value=e.rk; $("#vv").value=e.v; $("#ff").value=e.ff; $("#eccs").value=e.ecc; $$("#ex button").forEach((b,j)=>b.classList.toggle("on",j===i)); dec(); }
+  $("#ex").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) load(+b.dataset.e); });
+  ["type","mts","clv","sub","gb","rk","vv","ff","eccs","board"].forEach(id=>$("#"+id).addEventListener("input",()=>{ $$("#ex button").forEach(b=>b.classList.remove("on")); dec(); }));
+  function dec(){
+    const type=$("#type").value, mts=+$("#mts").value||0, cl=+$("#clv").value||0, gb=+$("#gb").value||0, rk=$("#rk").value.trim(), v=+$("#vv").value||0, ff=$("#ff").value, ecc=$("#eccs").value;
+    const j=JED[type]; const bw=mts*8, clk=mts/2, ns=cl*2000/mts;
+    const m=rk.match(/(\d)R\s*x\s*(\d+)/i); const ranks=m?+m[1]:1, width=m?+m[2]:8; const chips=ranks*(64/width)*(ecc==="ECC"?1.125:1);
+    const sub=$("#sub").value.split("-").map(Number); const subns=sub.map(x=>(x*2000/mts).toFixed(1));
+    const jedec = mts<=j.max && v<=j.v+0.001;
+    $("#dec").innerHTML=`
+      <div><b>PC${j.gen}-${bw}</b>nombre JEDEC del módulo: ${mts} MT/s × 8 bytes = ${bw} MB/s = ${(bw/1000).toFixed(1)} GB/s por módulo (${(bw/500).toFixed(1)} GB/s en doble canal)</div>
+      <div><b>${type}-${mts}</b>reloj de E/S real: ${clk} MHz (DDR = 2 transferencias por ciclo)</div>
+      <div><b>CL${cl} = ${ns.toFixed(2)} ns</b>${cl} ciclos × (2000 ÷ ${mts}) ns · tRCD/tRP/tRAS: ${subns.join(" / ")} ns</div>
+      <div><b>${gb} GB · ${rk||"?"}</b>${ranks} rank${ranks>1?"s":""} de chips x${width} → ${chips} chip${chips>1?"s":""} de ${(gb*8/chips).toFixed(0)} Gb${ecc==="ECC"?" (incluye chip ECC)":""}</div>
+      <div><b>${v} V</b>${jedec?`dentro de JEDEC (${j.v} V, hasta ${j.max} MT/s): arranca así sin tocar nada`:`perfil <span style="color:var(--warn)">XMP/EXPO</span>: JEDEC es ${j.v} V / ≤ ${j.max} MT/s. Sin activarlo en la UEFI irá a la velocidad JEDEC más alta que soporte`}</div>
+      <div><b>${ff} · ${ecc}</b>${ff==="SO-DIMM"?j.so:j.pins} pines · ${ff==="RDIMM"?"con registro: solo servidor":ff==="SO-DIMM"?"formato portátil / mini-PC":"sin búfer: sobremesa"}${type==="DDR5"?" · ECC on-die interno además":""}</div>`;
+    const b=BOARDS[$("#board").value]; let out=[];
+    if(b.type!==type) out.push(`<span class="bad">✗ No entra: la placa es ${b.type} y el módulo ${type}. La muesca no coincide.</span>`);
+    else {
+      if(b.ff!==ff) out.push(`<span class="bad">✗ Formato: la placa necesita ${b.ff} y el módulo es ${ff}${ff==="RDIMM"&&b.ff==="UDIMM"?" (encaja pero no arranca)":""}.</span>`);
+      else out.push(`<span class="ok">✓ Generación y formato correctos (${type} ${ff}).</span>`);
+      if(b.ecc&&ecc!=="ECC") out.push(`<span class="bad">✗ El servidor exige ECC.</span>`); else if(!b.ecc&&ecc==="ECC") out.push(`<span class="warn">△ ECC en placa de sobremesa: suele funcionar como Non-ECC, sin corrección.</span>`);
+      if(gb>b.per) out.push(`<span class="bad">✗ ${gb} GB supera el máximo por ranura (${b.per} GB).</span>`);
+      if(mts>b.max) out.push(`<span class="warn">△ ${mts} MT/s supera lo oficial de la placa (${b.max}): arrancará a ${b.max} o menos; con XMP/EXPO activado puede ir a ${mts} si la CPU aguanta.</span>`); else out.push(`<span class="ok">✓ ${mts} MT/s dentro de lo que soporta la placa.</span>`);
+      if(width===16) out.push(`<span class="warn">△ Chips x16: módulo económico; algunas placas antiguas no lo reconocen y rinde algo menos.</span>`);
+      out.push(`Con ${b.slots} ranuras: hasta ${b.slots*Math.min(gb,b.per)} GB con este módulo; para doble canal instala 2 (o 4) iguales en A2/B2.`);
+    }
+    $("#fit").innerHTML=out.join("<br>");
+  }
+  load(0);
+
+  // compare
+  function cmp(){ const a={m:+$("#a_mts").value||1,c:+$("#a_cl").value||0}, b={m:+$("#b_mts").value||1,c:+$("#b_cl").value||0};
+    const f=(x)=>({bw:x.m*8/1000,clk:x.m/2,ns:x.c*2000/x.m}); const A=f(a),B=f(b);
+    $("#a_bw").textContent=A.bw.toFixed(1)+" GB/s"; $("#b_bw").textContent=B.bw.toFixed(1)+" GB/s"; $("#a_clk").textContent=A.clk; $("#b_clk").textContent=B.clk; $("#a_ns").textContent=A.ns.toFixed(2)+" ns"; $("#b_ns").textContent=B.ns.toFixed(2)+" ns";
+    let v; if(Math.abs(A.ns-B.ns)<0.3) v=`Latencia prácticamente igual (${A.ns.toFixed(1)} vs ${B.ns.toFixed(1)} ns): gana el de más ancho de banda, <b>${A.bw>B.bw?"A":B.bw>A.bw?"B":"ninguno"}</b>.`; else if((A.ns<B.ns)===(A.bw>B.bw)) v=`<b>${A.ns<B.ns?"A":"B"}</b> gana en las dos cosas: menos latencia y más ancho de banda.`; else v=`Compromiso: <b>${A.ns<B.ns?"A":"B"}</b> responde antes (${Math.min(A.ns,B.ns).toFixed(1)} ns) pero <b>${A.bw>B.bw?"A":"B"}</b> mueve más datos (${Math.max(A.bw,B.bw).toFixed(1)} GB/s). En juegos y CPU con poca caché suele pesar más la latencia; en vídeo y compresión, el ancho de banda. Diferencias por debajo del 5 % no se notan.`;
+    $("#cmp").innerHTML=v; }
+  ["a_mts","a_cl","b_mts","b_cl"].forEach(id=>$("#"+id).addEventListener("input",cmp)); cmp();
+})();
+</script>
+</body>
+</html>

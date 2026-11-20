@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini guía de Docker · Primeros pasos · 2.º DAM</title>
+  <style>
+    :root{--azul:#24364b;--verde:#247e74;--tinta:#1f2937;--papel:#fff;--fondo:#f4f7f6;--linea:#d7e0dd;--suave:#e3f2ef;--aviso:#fff4ce;--codigo:#17212b}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--fondo);color:var(--tinta);font:16px/1.55 Arial,Helvetica,sans-serif}
+    main{max-width:1000px;margin:28px auto;padding:0 18px 40px}
+    header{padding:32px;border-radius:18px;background:linear-gradient(135deg,var(--azul),var(--verde));color:#fff;box-shadow:0 12px 28px #24364b24}
+    h1{margin:0 0 8px;font-size:2rem;line-height:1.15}header p{margin:0;color:#eaf7f4}
+    nav,section{margin-top:20px;padding:24px;background:var(--papel);border:1px solid var(--linea);border-radius:14px}
+    nav ul{columns:2;margin-bottom:0}a{color:#176a62}
+    h2{margin:0 0 14px;color:var(--azul);font-size:1.4rem}h3{color:var(--azul);font-size:1.08rem}
+    code{font-family:Consolas,"Courier New",monospace}
+    pre{overflow:auto;padding:16px;border-radius:10px;background:var(--codigo);color:#edf7f4;line-height:1.45;white-space:pre}
+    .idea,.actividad,.aviso{padding:14px 16px;margin:14px 0;border-radius:10px}
+    .idea{background:var(--suave);border-left:5px solid var(--verde)}
+    .actividad{background:#edf1f7;border-left:5px solid var(--azul)}
+    .aviso{background:var(--aviso);border-left:5px solid #d59b13}
+    .paso{display:inline-block;margin-right:8px;padding:3px 9px;border-radius:999px;background:var(--verde);color:#fff;font-size:.82rem;font-weight:bold}
+    table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:10px;border:1px solid var(--linea);text-align:left;vertical-align:top}th{background:var(--azul);color:#fff}
+    details{margin:12px 0;border:1px solid var(--linea);border-radius:10px}summary{cursor:pointer;padding:14px 16px;color:var(--azul);font-weight:bold}.contenido{padding:0 16px 16px}
+    footer{text-align:center;color:#60706a;margin-top:24px;font-size:.9rem}
+    @media(max-width:650px){nav ul{columns:1}header{padding:24px}section,nav{padding:18px}}
+    @media print{body{background:#fff}main{max-width:none;margin:0}header,section,nav{box-shadow:none;break-inside:avoid}.contenido{display:block!important}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Mini guía de Docker</h1>
+    <p>Primeros pasos antes de desplegar Odoo · SGE · 2.º DAM · Ubuntu Server 24.04 y Windows 11</p>
+  </header>
+
+  <nav aria-label="Índice">
+    <h2>Recorrido</h2>
+    <ul>
+      <li><a href="#que-es">1. Qué es Docker</a></li>
+      <li><a href="#instalar">2. Ubuntu 24.04</a></li>
+      <li><a href="#windows">3. Windows 11</a></li>
+      <li><a href="#primero">4. Primer contenedor</a></li>
+      <li><a href="#nginx">5. Ciclo de vida</a></li>
+      <li><a href="#compose">6. Docker Compose</a></li>
+      <li><a href="#portainer">7. Portainer</a></li>
+      <li><a href="#reto">8. Reto y evidencias</a></li>
+    </ul>
+  </nav>
+
+  <section>
+    <h2>Organización recomendada</h2>
+    <table>
+      <thead><tr><th>Sesión</th><th>Duración</th><th>Trabajo</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>2 horas</td><td>Conceptos, instalación en Ubuntu o Windows, <code>hello-world</code>, Nginx y ciclo de vida.</td></tr>
+        <tr><td>2</td><td>2 horas</td><td>Compose “Hola mundo”, reinicio automático y primera visita a Portainer.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="que-es">
+    <h2><span class="paso">1</span>¿Qué es Docker?</h2>
+    <p>Docker permite ejecutar aplicaciones dentro de entornos aislados llamados <strong>contenedores</strong>. El contenedor incluye la aplicación y sus dependencias, pero comparte el núcleo del sistema operativo anfitrión.</p>
+    <table>
+      <thead><tr><th>Concepto</th><th>Explicación sencilla</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Imagen</strong></td><td>Plantilla preparada para crear contenedores.</td><td><code>nginx:alpine</code></td></tr>
+        <tr><td><strong>Contenedor</strong></td><td>Aplicación creada a partir de una imagen.</td><td><code>web-dam</code></td></tr>
+        <tr><td><strong>Puerto</strong></td><td>Permite acceder desde fuera al servicio.</td><td><code>8080:80</code></td></tr>
+        <tr><td><strong>Volumen</strong></td><td>Conserva datos fuera del contenedor.</td><td><code>portainer_data</code></td></tr>
+        <tr><td><strong>Registro</strong></td><td>Lugar desde el que descargamos imágenes.</td><td>Docker Hub</td></tr>
+      </tbody>
+    </table>
+    <div class="idea"><strong>Idea clave:</strong> una imagen es la plantilla; un contenedor es una instancia de esa plantilla funcionando.</div>
+    <h3>Docker frente a una máquina virtual</h3>
+    <table>
+      <thead><tr><th>Máquina virtual</th><th>Contenedor</th></tr></thead>
+      <tbody>
+        <tr><td>Incluye un sistema operativo completo.</td><td>Comparte el núcleo de Linux con el anfitrión.</td></tr>
+        <tr><td>Suele consumir más RAM y disco.</td><td>Suele arrancar rápido y consumir menos recursos.</td></tr>
+        <tr><td>Aislamiento a nivel de máquina.</td><td>Aislamiento a nivel de procesos.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="instalar">
+    <h2><span class="paso">2</span>Instalar Docker en Ubuntu 24.04</h2>
+    <pre><code>sudo apt update
+sudo apt install docker.io docker-compose-v2 -y
+sudo systemctl enable --now docker</code></pre>
+    <p>Añadimos nuestro usuario al grupo Docker:</p>
+    <pre><code>sudo usermod -aG docker "$USER"
+newgrp docker</code></pre>
+    <p>Comprobamos:</p>
+    <pre><code>docker --version
+docker compose version
+systemctl is-active docker
+systemctl is-enabled docker</code></pre>
+    <p>Los dos últimos comandos deben mostrar <code>active</code> y <code>enabled</code>.</p>
+    <div class="aviso"><strong>Si aparece “permission denied”:</strong> cierra la sesión de Ubuntu, vuelve a entrar y repite el comando. No soluciones permanentemente el problema utilizando siempre <code>sudo docker</code>.</div>
+  </section>
+
+  <section id="windows">
+    <h2><span class="paso">3</span>Instalar Docker en Windows 11</h2>
+    <div class="idea"><strong>En Windows utilizaremos Docker Desktop con WSL 2.</strong> WSL 2 proporciona el núcleo Linux que necesitan los contenedores Linux. Después, los comandos de Docker y Compose son prácticamente iguales que en Ubuntu.</div>
+    <h3>3.1 Requisitos</h3>
+    <ul>
+      <li>Windows 11 de 64 bits actualizado.</li>
+      <li>Virtualización Intel VT-x o AMD-V habilitada en BIOS/UEFI.</li>
+      <li>WSL 2 actualizado.</li>
+      <li>Al menos 8 GB de RAM; es preferible disponer de 16 GB.</li>
+    </ul>
+    <div class="aviso"><strong>Si Windows está dentro de VirtualBox:</strong> Docker Desktop necesita virtualización anidada. Para la práctica principal utilizaremos Ubuntu Server 24.04 en la MV; Windows se plantea como alternativa para un equipo físico.</div>
+    <h3>3.2 Instalar WSL 2</h3>
+    <p>Abre PowerShell como administrador:</p>
+    <pre><code>wsl --install
+wsl --update
+wsl --status</code></pre>
+    <p>Reinicia Windows cuando lo solicite. Si instala Ubuntu dentro de WSL, crea el usuario y la contraseña Linux al abrirlo por primera vez.</p>
+    <h3>3.3 Instalar Docker Desktop</h3>
+    <ol>
+      <li>Descarga Docker Desktop desde <a href="https://docs.docker.com/desktop/setup/install/windows-install/">la documentación oficial</a>.</li>
+      <li>Ejecuta el instalador y selecciona el motor basado en <strong>WSL 2</strong>.</li>
+      <li>Abre Docker Desktop y espera hasta que indique que el motor está funcionando.</li>
+      <li>En <strong>Settings → General</strong>, comprueba que está activo el motor WSL 2.</li>
+    </ol>
+    <h3>3.4 Comprobar desde PowerShell</h3>
+    <pre><code>docker version
+docker compose version
+docker run --name saludo-windows hello-world
+docker ps -a</code></pre>
+    <p>Para ejecutar Nginx desde Windows:</p>
+    <pre><code>docker run -d --name web-windows -p 8080:80 nginx:alpine</code></pre>
+    <p>Abre <code>http://localhost:8080</code>. Después practica:</p>
+    <pre><code>docker stop web-windows
+docker start web-windows
+docker logs web-windows
+docker rm -f web-windows</code></pre>
+    <div class="actividad"><strong>Comprobación:</strong> compara la salida de los comandos en PowerShell y en Ubuntu. La sintaxis básica es la misma porque en ambos casos hablamos con el motor de Docker.</div>
+  </section>
+
+  <section id="primero">
+    <h2><span class="paso">4</span>Primera imagen y primer contenedor</h2>
+    <p>Descargamos la imagen de prueba:</p>
+    <pre><code>docker pull hello-world</code></pre>
+    <p>Mostramos las imágenes disponibles:</p>
+    <pre><code>docker images</code></pre>
+    <p>Creamos y ejecutamos el contenedor:</p>
+    <pre><code>docker run --name saludo hello-world</code></pre>
+    <p>Comprobamos los contenedores:</p>
+    <pre><code>docker ps
+docker ps -a</code></pre>
+    <div class="actividad"><strong>Piensa:</strong> <code>saludo</code> aparece en <code>docker ps -a</code>, pero no en <code>docker ps</code>. La razón es que su tarea termina después de mostrar el mensaje.</div>
+  </section>
+
+  <section id="nginx">
+    <h2><span class="paso">5</span>Un contenedor que permanece activo</h2>
+    <pre><code>docker run -d \
+  --name web-dam \
+  -p 8080:80 \
+  nginx:alpine</code></pre>
+    <table>
+      <thead><tr><th>Elemento</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><code>-d</code></td><td>Ejecuta el contenedor en segundo plano.</td></tr>
+        <tr><td><code>--name web-dam</code></td><td>Asigna un nombre al contenedor.</td></tr>
+        <tr><td><code>-p 8080:80</code></td><td>Conecta el puerto 8080 de la MV con el 80 de Nginx.</td></tr>
+        <tr><td><code>nginx:alpine</code></td><td>Imagen utilizada.</td></tr>
+      </tbody>
+    </table>
+    <p>Prueba en el navegador:</p>
+    <pre><code>http://IP-DE-LA-MV:8080</code></pre>
+    <p>Practica el ciclo de vida:</p>
+    <pre><code>docker ps
+docker stop web-dam
+docker ps -a
+docker start web-dam
+docker logs web-dam
+docker restart web-dam</code></pre>
+    <p>Entramos temporalmente en el contenedor:</p>
+    <pre><code>docker exec -it web-dam sh
+ls /usr/share/nginx/html
+exit</code></pre>
+    <p>Al terminar:</p>
+    <pre><code>docker stop web-dam
+docker rm web-dam</code></pre>
+    <div class="idea"><code>docker rm</code> elimina el contenedor, pero no la imagen. Puedes comprobarlo de nuevo con <code>docker images</code>.</div>
+  </section>
+
+  <section id="compose">
+    <h2><span class="paso">6</span>Primer proyecto con Docker Compose</h2>
+    <p>Compose permite describir uno o varios servicios en un archivo <code>compose.yaml</code> y levantarlos con un solo comando.</p>
+    <details>
+      <summary>Crear los archivos en Windows</summary>
+      <div class="contenido">
+        <p>Desde PowerShell:</p>
+        <pre><code>mkdir "$HOME\docker-hola"
+cd "$HOME\docker-hola"
+notepad index.html
+notepad compose.yaml</code></pre>
+        <p>Guarda en esos archivos los mismos contenidos que aparecen a continuación. Los comandos <code>docker compose</code> posteriores son iguales en Windows y Ubuntu.</p>
+      </div>
+    </details>
+    <pre><code>mkdir -p ~/docker-hola
+cd ~/docker-hola
+nano index.html</code></pre>
+    <p>Contenido de <code>index.html</code>:</p>
+    <pre><code>&lt;!doctype html&gt;
+&lt;html lang="es"&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;title&gt;Hola Docker&lt;/title&gt;
+&lt;h1&gt;Hola mundo desde Docker Compose&lt;/h1&gt;
+&lt;p&gt;Alumno/a: nombre y apellidos&lt;/p&gt;</code></pre>
+    <p>Ahora creamos:</p>
+    <pre><code>nano compose.yaml</code></pre>
+    <p>Contenido:</p>
+    <pre><code>services:
+  web:
+    image: nginx:alpine
+    container_name: hola-compose
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html:ro</code></pre>
+    <p>Validamos y arrancamos:</p>
+    <pre><code>docker compose config
+docker compose up -d
+docker compose ps
+docker compose logs --tail=20</code></pre>
+    <p>Abre <code>http://IP-DE-LA-MV:8080</code>.</p>
+    <table>
+      <thead><tr><th>Comando</th><th>Acción</th></tr></thead>
+      <tbody>
+        <tr><td><code>docker compose up -d</code></td><td>Crea e inicia el proyecto.</td></tr>
+        <tr><td><code>docker compose stop</code></td><td>Detiene sin eliminar.</td></tr>
+        <tr><td><code>docker compose start</code></td><td>Arranca de nuevo.</td></tr>
+        <tr><td><code>docker compose down</code></td><td>Detiene y elimina contenedor y red.</td></tr>
+      </tbody>
+    </table>
+    <div class="actividad"><strong>Prueba de rearranque:</strong> en Ubuntu ejecuta <code>sudo reboot</code>; en Windows, reinicia desde el menú Inicio y vuelve a abrir Docker Desktop si no se inicia automáticamente. Después comprueba con <code>docker ps</code> que la web ha arrancado gracias a <code>restart: unless-stopped</code>.</div>
+  </section>
+
+  <section id="portainer">
+    <h2><span class="paso">7</span>Conocer Portainer</h2>
+    <p>Portainer es una interfaz web para visualizar y administrar Docker. No sustituye los comandos: permite ver gráficamente las imágenes, contenedores, volúmenes, redes y registros.</p>
+    <pre><code>docker volume create portainer_data
+
+docker run -d \
+  --name portainer \
+  --restart=always \
+  -p 9443:9443 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce:lts</code></pre>
+    <details>
+      <summary>Comando equivalente en Windows PowerShell</summary>
+      <div class="contenido">
+        <p>Con Docker Desktop iniciado, ejecuta:</p>
+        <pre><code>docker volume create portainer_data
+docker run -d --name portainer --restart=always -p 9443:9443 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts</code></pre>
+        <p>Después abre <code>https://localhost:9443</code>.</p>
+      </div>
+    </details>
+    <p>Acceso:</p>
+    <pre><code>https://IP-DE-LA-MV:9443</code></pre>
+    <ol>
+      <li>Acepta el certificado autofirmado solamente en la red privada del laboratorio.</li>
+      <li>Crea el usuario administrador.</li>
+      <li>Selecciona el entorno local.</li>
+      <li>Localiza <code>hola-compose</code> y <code>portainer</code>.</li>
+      <li>Abre los registros del contenedor web.</li>
+    </ol>
+    <div class="aviso"><strong>Seguridad:</strong> montar <code>/var/run/docker.sock</code> permite a Portainer administrar todo Docker. Solo debe acceder personal autorizado.</div>
+  </section>
+
+  <section id="reto">
+    <h2><span class="paso">8</span>Reto final</h2>
+    <ol>
+      <li>Cambia el texto de la página y añade tu grupo.</li>
+      <li>Cambia el puerto exterior de <code>8080</code> a <code>8081</code>.</li>
+      <li>Ejecuta <code>docker compose up -d</code>.</li>
+      <li>Comprueba la web con <code>curl http://localhost:8081</code>.</li>
+      <li>Localiza el nuevo puerto desde Portainer.</li>
+      <li>Explica oralmente la diferencia entre imagen, contenedor y archivo Compose.</li>
+    </ol>
+    <h3>Evidencias</h3>
+    <ul>
+      <li>Salida de <code>docker images</code>.</li>
+      <li>Salida de <code>docker ps</code>.</li>
+      <li>Contenido de <code>compose.yaml</code>.</li>
+      <li>Web funcionando en el puerto 8081.</li>
+      <li>Portainer mostrando ambos contenedores.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Chuleta mínima</h2>
+    <pre><code>docker pull IMAGEN             # Descargar imagen
+docker images                  # Listar imágenes
+docker run ... IMAGEN          # Crear y ejecutar
+docker ps                      # Contenedores activos
+docker ps -a                   # Todos los contenedores
+docker stop NOMBRE             # Detener
+docker start NOMBRE            # Iniciar
+docker logs -f NOMBRE          # Ver registros
+docker exec -it NOMBRE sh      # Entrar
+docker rm NOMBRE               # Eliminar contenedor
+docker compose up -d           # Levantar proyecto
+docker compose ps              # Ver servicios
+docker compose down            # Retirar proyecto</code></pre>
+  </section>
+
+  <section>
+    <h2>Fuentes oficiales</h2>
+    <ul>
+      <li><a href="https://docs.docker.com/engine/install/ubuntu/">Instalar Docker Engine en Ubuntu</a></li>
+      <li><a href="https://docs.docker.com/desktop/setup/install/windows-install/">Instalar Docker Desktop en Windows</a></li>
+      <li><a href="https://docs.docker.com/desktop/features/wsl/">Docker Desktop y WSL 2</a></li>
+      <li><a href="https://docs.docker.com/reference/cli/docker/container/run/">Referencia de <code>docker run</code></a></li>
+      <li><a href="https://docs.docker.com/compose/gettingstarted/">Introducción oficial a Docker Compose</a></li>
+      <li><a href="https://docs.portainer.io/start/install-ce/server/docker/linux">Instalar Portainer CE en Linux</a></li>
+    </ul>
+  </section>
+
+  <footer>SGE · 2.º DAM · Mini guía de Docker · Ubuntu Server 24.04 y Windows 11</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Libro de estilos académico · Aeducar / ASIR Auditor</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:#f6f7f5;
+    color:#1f2937;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size:16px;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:980px;
+    margin:0 auto;
+    padding:28px 18px 48px;
+  }
+  .hero{
+    background:#24364b;
+    color:#fff;
+    padding:28px;
+    border-radius:16px;
+    margin-bottom:22px;
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:28px;
+    line-height:1.2;
+  }
+  .hero p{margin:0;color:#e7edf2}
+  h2{
+    color:#24364b;
+    font-size:22px;
+    margin:28px 0 10px;
+    padding-bottom:6px;
+    border-bottom:2px solid #247e74;
+  }
+  h3{
+    color:#247e74;
+    font-size:18px;
+    margin:18px 0 8px;
+  }
+  p{margin:8px 0 12px}
+  .card{
+    background:#fff;
+    border:1px solid #dce2e5;
+    border-radius:12px;
+    padding:18px;
+    margin:14px 0;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:14px;
+  }
+  .tag{
+    display:inline-block;
+    background:#eaf6f2;
+    color:#185f57;
+    border:1px solid #bcded6;
+    border-radius:999px;
+    padding:4px 10px;
+    font-size:13px;
+    font-weight:bold;
+    margin:2px 4px 2px 0;
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    margin:12px 0 18px;
+  }
+  th{
+    background:#24364b;
+    color:#fff;
+    text-align:left;
+    padding:10px;
+  }
+  td{
+    border:1px solid #dce2e5;
+    padding:10px;
+    vertical-align:top;
+  }
+  .note{
+    background:#eaf6f2;
+    border-left:5px solid #247e74;
+    padding:14px 16px;
+    margin:16px 0;
+  }
+  .warn{
+    background:#fff7dd;
+    border-left:5px solid #d49b14;
+    padding:14px 16px;
+    margin:16px 0;
+  }
+  code{
+    font-family:Consolas,"Courier New",monospace;
+    background:#eef1f3;
+    padding:2px 5px;
+    border-radius:4px;
+  }
+  ul{margin-top:8px}
+  li{margin:5px 0}
+  .footer{
+    margin-top:28px;
+    color:#5f6b76;
+    font-size:14px;
+  }
+  @media (max-width:640px){
+    .hero{padding:20px}
+    .hero h1{font-size:23px}
+    h2{font-size:20px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Libro de estilos académico</h1>
+    <p>Aeducar  · Referencia común para actividades, memorias, informes y materiales docentes</p>
+  </div>
+
+  <div class="note">
+    <strong>Objetivo:</strong> que el alumnado entregue documentos con una estructura común y que ASIR Auditor pueda comprobar esa misma norma de presentación.
+  </div>
+
+  <h2>1. Portada</h2>
+  <div class="card">
+    <p>La portada será obligatoria en trabajos, memorias e informes.</p>
+    <p>
+      <span class="tag">Título</span>
+      <span class="tag">Módulo</span>
+      <span class="tag">Alumno/a</span>
+      <span class="tag">Grupo</span>
+      <span class="tag">Curso</span>
+      <span class="tag">Fecha</span>
+    </p>
+    <p>Debe ser limpia, sin exceso de elementos decorativos y sin numeración visible.</p>
+  </div>
+
+  <h2>2. Índice</h2>
+  <div class="card">
+    <p>Se incluirá al inicio cuando el documento tenga varios apartados.</p>
+    <ul>
+      <li>Debe reflejar los títulos principales y secundarios.</li>
+      <li>Se recomienda no superar tres niveles de profundidad.</li>
+      <li>La numeración debe ser coherente: <strong>1 · 1.1 · 1.1.1</strong>.</li>
+    </ul>
+  </div>
+
+  <h2>3. Cuerpo del documento</h2>
+  <table>
+    <tr><th>Elemento</th><th>Norma</th></tr>
+    <tr><td>Fuente</td><td>Arial, Times, calibri11 pt</td></tr>
+    <tr><td>Interlineado</td><td>1,15</td></tr>
+    <tr><td>Alineación</td><td>Preferentemente justificada o alineada a la izquierda de forma uniforme</td></tr>
+    <tr><td>Márgenes</td><td>Entre 2 y 2,5 cm</td></tr>
+    <tr><td>Párrafos</td><td>Breves, bien separados y centrados en una idea principal</td></tr>
+  </table>
+
+  <h2>4. Títulos y jerarquía</h2>
+  <table>
+    <tr><th>Nivel</th><th>Formato recomendado</th></tr>
+    <tr><td>Título principal</td><td>Arial, Times, calibri · 16 pt · negrita</td></tr>
+    <tr><td>Título secundario</td><td>Arial, Times, calibri · 13 pt · negrita</td></tr>
+    <tr><td>Subapartado</td><td>Arial, Times, calibri 11 pt · negrita</td></tr>
+  </table>
+
+  <div class="warn">
+    <strong>Importante:</strong> no cambiar de estilo de título a mitad del documento. La jerarquía visual debe mantenerse en todo el trabajo.
+  </div>
+
+  <h2>5. Párrafos, listas y destacados</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Párrafos</h3>
+      <p>Una idea principal por párrafo. Evitar bloques excesivamente largos.</p>
+    </div>
+    <div class="card">
+      <h3>Listas</h3>
+      <p>Usarlas cuando ayuden a organizar pasos, requisitos o elementos.</p>
+    </div>
+    <div class="card">
+      <h3>Negritas</h3>
+      <p>Reservarlas para conceptos clave. No convertir todo el texto en destacado.</p>
+    </div>
+  </div>
+
+  <h2>6. Capturas, figuras y tablas</h2>
+  <div class="card">
+    <ul>
+      <li>Las capturas deben ser legibles y tener relación directa con la explicación.</li>
+      <li>Las figuras y tablas deben estar numeradas.</li>
+      <li>Debe añadirse un título o pie descriptivo.</li>
+      <li>Cuando proceda, se indicará la fuente.</li>
+      <li>No se considera suficiente añadir una captura sin explicar qué demuestra.</li>
+    </ul>
+  </div>
+
+  <h2>7. Código y comandos</h2>
+  <div class="card">
+    <p>El código, comandos y salidas de consola utilizarán una fuente monoespaciada como <code>Consolas</code> o <code>Courier New</code>.</p>
+    <p>Siempre que sea necesario, deben acompañarse de una explicación breve sobre su función o resultado.</p>
+  </div>
+
+  <h2>8. Citas y referencias · APA 7</h2>
+  <div class="card">
+    <p><strong>Paráfrasis:</strong> (Apellido, año)</p>
+    <p><strong>Cita narrativa:</strong> Apellido (año)</p>
+    <p><strong>Cita textual:</strong> (Apellido, año, p. 25)</p>
+  </div>
+
+  <table>
+    <tr><th>Tipo</th><th>Modelo básico</th></tr>
+    <tr>
+      <td>Libro</td>
+      <td>Apellido, N. (Año). <em>Título del libro</em>. Editorial.</td>
+    </tr>
+    <tr>
+      <td>Artículo</td>
+      <td>Apellido, N. (Año). Título del artículo. <em>Revista, volumen</em>(número), páginas. DOI/URL</td>
+    </tr>
+    <tr>
+      <td>Web</td>
+      <td>Autor o entidad. (Año, mes día). <em>Título de la página</em>. Sitio web. URL</td>
+    </tr>
+  </table>
+
+  <h2>9. Referencias finales</h2>
+  <div class="card">
+    <ul>
+      <li>Se incluirá una sección final titulada <strong>Referencias</strong>.</li>
+      <li>Las entradas estarán ordenadas alfabéticamente.</li>
+      <li>Se utilizará sangría francesa cuando el formato lo permita.</li>
+      <li>Se incluirán DOI o URL cuando corresponda.</li>
+    </ul>
+  </div>
+
+ 
+  <p class="footer">Versión base · Libro de estilos común para Aeducar y ASIR Auditor.</p>
+
+</div>
+</body>
+</html>

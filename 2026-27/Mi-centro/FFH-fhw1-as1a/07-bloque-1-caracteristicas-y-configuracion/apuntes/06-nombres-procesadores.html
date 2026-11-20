@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nombres de Procesadores</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root { color-scheme:dark; --bg:#0b0d12; --panel:#151922; --panel2:#1c2230; --line:#2a3242; --ink:#e6e9ef; --muted:#9aa4b5; --amber:#f2b632; --amber2:#ffd36b; --ok:#3ddc84; --warn:#ff8a3d; --bad:#ff5a5a; --blue:#4da3ff; --font-ui:"Segoe UI",Roboto,Arial,sans-serif; --font-mono:Consolas,"Courier New",monospace; }
+  * { box-sizing:border-box; } [hidden]{display:none!important}
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-ui); }
+  .wrap { max-width:1100px; margin:0 auto; padding-block:14px 40px; padding-inline:16px; }
+  .intro h1 { margin:0; font-size:22px; text-wrap:balance; } .intro p { margin:4px 0 12px; color:var(--muted); max-width:70ch; font-size:14px; line-height:1.5; }
+  h2.sec { font-size:18px; margin:26px 0 6px; color:var(--amber); }
+  p.lead { color:var(--muted); margin:0 0 10px; max-width:72ch; font-size:14px; line-height:1.5; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .fam { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .fam button, .ex button { font-family:var(--font-mono); font-size:12px; border:1px solid var(--line); background:var(--panel2); color:var(--muted); border-radius:6px; padding:6px 10px; cursor:pointer; }
+  .fam button.on { border-color:var(--amber); color:var(--amber2); background:#2a2410; }
+  .ex { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; } .ex button.on { border-color:var(--blue); color:#bfe0ff; }
+  .name { display:flex; flex-wrap:wrap; gap:4px; align-items:flex-end; padding:14px 10px; background:#0b0d12; border:1px solid var(--line); border-radius:8px; }
+  .seg { cursor:pointer; padding:6px 8px 4px; border-bottom:3px solid var(--line); border-radius:4px 4px 0 0; font-family:var(--font-mono); font-size:clamp(18px,3.6vw,30px); font-weight:600; transition:background .15s; position:relative; }
+  .seg:hover, .seg.on { background:var(--panel2); }
+  .seg small { display:block; font-size:10px; font-weight:400; color:var(--muted); font-family:var(--font-ui); letter-spacing:.3px; }
+  .seg.c0{border-color:#4da3ff} .seg.c1{border-color:#3ddc84} .seg.c2{border-color:#f2b632} .seg.c3{border-color:#ff8a3d} .seg.c4{border-color:#c084fc} .seg.c5{border-color:#ff5a5a} .seg.c6{border-color:#22d3ee}
+  .expl { margin-top:12px; padding:12px 14px; border:1px solid var(--line); border-left:4px solid var(--amber); border-radius:6px; background:var(--panel2); font-size:14px; line-height:1.55; min-height:80px; }
+  .expl b.t { display:block; color:var(--amber); font-size:15px; margin-bottom:4px; }
+  .expl ul { margin:6px 0 0 18px; padding:0; }
+  .specs { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin-top:12px; }
+  .specs div { background:#0b0d12; border:1px solid var(--line); border-radius:6px; padding:8px 10px; font-size:12.5px; line-height:1.4; } .specs b { display:block; color:var(--amber2); font-family:var(--font-mono); font-size:13px; }
+  .tw { overflow-x:auto; }
+  table.t { border-collapse:collapse; width:100%; font-size:12.5px; font-family:var(--font-mono); } .t th,.t td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; } .t th { color:var(--amber); white-space:nowrap; } .t td:first-child { font-weight:600; white-space:nowrap; }
+  .gloss { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; } .g { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.45; } .g b { color:var(--amber); font-family:var(--font-mono); }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:14px; } @media (max-width:760px){ .two{grid-template-columns:1fr} }
+  .arch { display:grid; grid-template-columns:1fr 1fr; gap:10px; } @media (max-width:640px){ .arch{grid-template-columns:1fr} }
+  .arch div { background:#0b0d12; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.5; } .arch h4 { margin:0 0 6px; color:var(--amber); font-family:var(--font-mono); font-size:14px; }
+  .progress { font-family:var(--font-mono); font-size:12.5px; color:var(--amber2); }
+</style>
+
+<div class="wrap">
+<div class="intro">
+  <h1>Cómo leer el nombre de un procesador</h1>
+  <p>Intel, AMD, NVIDIA, Apple, Qualcomm, MediaTek… cada fabricante codifica en el nombre la gama, la generación y variantes que cambian el precio y el uso. Elige una familia, un ejemplo real, y pulsa cada trozo del nombre.</p>
+</div>
+
+<div class="card">
+  <div class="fam" id="fam"></div>
+  <div class="ex" id="ex"></div>
+  <div class="name" id="name"></div>
+  <div class="expl" id="expl">Pulsa un trozo del nombre.</div>
+  <div class="specs" id="specs"></div>
+  <div class="progress" id="progress" style="margin-top:10px"></div>
+</div>
+
+<h2 class="sec">x86 frente a ARM: por qué un M4 y un Core i7 no se comparan por GHz</h2>
+<div class="card arch">
+  <div><h4>x86-64 (Intel, AMD)</h4>Arquitectura CISC de 1978 ampliada hasta hoy: instrucciones complejas y de longitud variable, compatibilidad con software de hace 30 años. Chips grandes, 65–250 W en sobremesa, 15–55 W en portátil. Se venden como <b>procesador suelto</b> que se monta en un zócalo (AM5, LGA 1851) o se suelda en portátiles. Windows, Linux y casi todo el software de PC están compilados para x86-64.</div>
+  <div><h4>ARM (Apple, Qualcomm, MediaTek, Samsung, Amazon Graviton…)</h4>Arquitectura RISC licenciada por Arm Ltd: instrucciones simples y de longitud fija, consumo muy bajo. Nadie compra "un ARM": cada fabricante diseña un <b>SoC</b> (System on Chip) con CPU, GPU, NPU, controlador de memoria y a veces la RAM en el mismo encapsulado, y lo suelda a la placa. Domina móviles, tablets, Mac desde 2020, Windows on ARM (Snapdragon X), Raspberry Pi y servidores cloud. El software x86 corre por traducción (Rosetta 2, Prism) con pérdida.</div>
+  <div><h4>Qué mirar en x86</h4>Núcleos P y E, hilos, frecuencia turbo, caché L3 (los X3D la triplican), TDP/PL2, generación (litografía), zócalo y gráfica integrada. Los GHz solo comparan chips de la misma generación.</div>
+  <div><h4>Qué mirar en ARM</h4>Configuración de núcleos (p. ej. 1+5+2: prime + performance + efficiency), nodo de fabricación (3 nm), GPU integrada, NPU en TOPS, memoria unificada (ancho de banda en GB/s), y sobre todo el rendimiento por vatio. Un M4 rinde como un Core i7 de portátil consumiendo un tercio.</div>
+</div>
+
+<h2 class="sec">Sufijos: la letra que cambia el precio</h2>
+<div class="two">
+<div class="card"><div class="tw"><table class="t">
+<tr><th>Intel</th><th>Significado</th></tr>
+<tr><td>K</td><td>Multiplicador desbloqueado (overclock); TDP alto (125 W)</td></tr>
+<tr><td>F</td><td>Sin gráfica integrada: obliga a tarjeta gráfica</td></tr>
+<tr><td>KF / KS</td><td>K sin iGPU / K seleccionado, aún más frecuencia</td></tr>
+<tr><td>T</td><td>Bajo consumo de sobremesa (35 W), equipos compactos de oficina</td></tr>
+<tr><td>H / HX</td><td>Portátil alto rendimiento 45 W / 55 W+ (HX = chip de sobremesa en portátil)</td></tr>
+<tr><td>U / P</td><td>Portátil ultrabajo 15 W / equilibrado 28 W</td></tr>
+<tr><td>V (Core Ultra 200V)</td><td>Lunar Lake: RAM soldada en el encapsulado, máxima autonomía</td></tr>
+<tr><td>E / N</td><td>Embebido industrial / Alder Lake-N solo núcleos E (mini-PC, Chromebook)</td></tr>
+</table></div></div>
+<div class="card"><div class="tw"><table class="t">
+<tr><th>AMD</th><th>Significado</th></tr>
+<tr><td>X</td><td>Frecuencias más altas y TDP mayor (105–170 W) que el modelo sin letra (65 W)</td></tr>
+<tr><td>X3D</td><td>3D V-Cache: caché L3 apilada (96–128 MB). El mejor para juegos</td></tr>
+<tr><td>G / GE</td><td>Con gráfica integrada potente (APU) / versión de 35 W</td></tr>
+<tr><td>F</td><td>Sin gráfica integrada (poco común)</td></tr>
+<tr><td>HX / HS / H</td><td>Portátil 55 W+ / 35 W fino / 45 W</td></tr>
+<tr><td>U</td><td>Portátil 15–28 W</td></tr>
+<tr><td>Ryzen AI 300 / PRO</td><td>Con NPU ≥ 40 TOPS (Copilot+) / gestión empresarial y ECC</td></tr>
+<tr><td>Threadripper / EPYC</td><td>Estación de trabajo (hasta 96 núcleos) / servidor (hasta 192)</td></tr>
+</table></div></div>
+</div>
+
+<h2 class="sec">Generaciones y zócalos (referencia rápida, sobremesa)</h2>
+<div class="card"><div class="tw"><table class="t">
+<tr><th>Año</th><th>Intel</th><th>Zócalo</th><th>RAM</th><th>AMD</th><th>Zócalo</th><th>RAM</th></tr>
+<tr><td>2017–19</td><td>Core 8ª–9ª gen (i7-9700K)</td><td>LGA 1151 v2</td><td>DDR4</td><td>Ryzen 1000–3000 (Zen–Zen 2)</td><td>AM4</td><td>DDR4</td></tr>
+<tr><td>2020–21</td><td>Core 10ª–11ª (i9-11900K)</td><td>LGA 1200</td><td>DDR4</td><td>Ryzen 5000 (Zen 3, 5800X3D)</td><td>AM4</td><td>DDR4</td></tr>
+<tr><td>2021–23</td><td>Core 12ª–14ª (i5-13600K): núcleos P + E</td><td>LGA 1700</td><td>DDR4 / DDR5</td><td>Ryzen 7000 (Zen 4, 7800X3D)</td><td>AM5</td><td>DDR5</td></tr>
+<tr><td>2024–25</td><td>Core Ultra 200S (Ultra 7 265K)</td><td>LGA 1851</td><td>DDR5</td><td>Ryzen 9000 (Zen 5, 9800X3D)</td><td>AM5</td><td>DDR5</td></tr>
+<tr><td>2026</td><td>Core Ultra 300 (Nova Lake)</td><td>LGA 1954</td><td>DDR5</td><td>Ryzen 10000 (Zen 6)</td><td>AM5</td><td>DDR5</td></tr>
+</table></div>
+<p class="lead" style="margin-top:8px;font-size:12.5px">AMD mantiene el zócalo varias generaciones (AM4: 2017–2022; AM5: 2022–2027+); Intel lo cambia cada dos. Es lo que decide si una placa admite una CPU nueva. Datos de 2026 orientativos: comprueba la lista de compatibilidad de la placa.</p></div>
+
+<h2 class="sec">Glosario</h2>
+<div class="gloss">
+  <div class="g"><b>Núcleos P / E</b> Intel desde 12ª gen y Core Ultra: núcleos de rendimiento (grandes, con o sin Hyper-Threading) y de eficiencia (pequeños, sin HT). "8P+16E" = 24 núcleos. Los E hacen el trabajo de fondo y las tareas multihilo.</div>
+  <div class="g"><b>big.LITTLE / DynamIQ</b> Lo mismo en ARM desde 2011: núcleos grandes (Cortex-X, Apple performance) y pequeños (Cortex-A5xx, Apple efficiency). Un "1+3+4" = 1 prime + 3 grandes + 4 pequeños.</div>
+  <div class="g"><b>TDP / PL1 / PL2</b> Potencia de diseño térmico. Intel: PL1 sostenido y PL2 pico (un 125 W puede consumir 253 W en turbo). AMD: TDP y PPT (105 W → 142 W). Determina el disipador y la fuente.</div>
+  <div class="g"><b>Nodo (nm)</b> Proceso de fabricación: Intel 7, Intel 3, TSMC N5/N4/N3/N2, Samsung 3GAP. Los "nm" ya no miden nada físico; solo sirven para comparar generaciones de una misma fundición.</div>
+  <div class="g"><b>NPU / TOPS</b> Unidad neuronal para IA local; se mide en billones de operaciones por segundo. Copilot+ pide 40 TOPS; M4 tiene 38, Snapdragon X Elite 45, Ryzen AI 9 50, Core Ultra 200V 48.</div>
+  <div class="g"><b>iGPU</b> Gráfica integrada en la CPU: Intel UHD / Xe / Arc, AMD Radeon 780M/890M, Apple GPU de 10–80 núcleos. Suficiente para oficina, vídeo y juegos ligeros; una "F" no la tiene.</div>
+  <div class="g"><b>SKU</b> Número de modelo dentro de la generación (el 700 en 13700K). Más alto = más núcleos/frecuencia; no significa una generación nueva.</div>
+  <div class="g"><b>Memoria unificada</b> En SoC ARM (Apple M, Snapdragon X) la RAM va en el encapsulado y la comparten CPU y GPU: no se amplía nunca y el ancho de banda es enorme (M4 Max: 546 GB/s frente a ~90 GB/s de DDR5 en doble canal).</div>
+</div>
+</div>
+
+<script>
+(function(){
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  // families → examples → segments [text, label, explanation]
+  const F=[
+   {f:"Intel Core (12ª–14ª gen)", ex:[
+    {n:"Intel Core i7-13700KF", specs:{"Núcleos":"8P + 8E = 16 (24 hilos)","Turbo":"5,4 GHz","Caché L3":"30 MB","TDP":"125 W (PL2 253 W)","Zócalo":"LGA 1700","iGPU":"no (F)","Año":"2022"}, s:[
+      ["Intel Core","Marca y familia","Core es la gama de consumo. Por debajo: Pentium/Celeron (hoy 'Intel Processor'); por encima: Xeon (servidor/estación). Desde 2023 la familia nueva se llama <b>Core Ultra</b> y la antigua 'Core' a secas sigue para gamas bajas."],
+      ["i7","Gama (tier)","i3 (4–8 núcleos, oficina), <b>i5</b> (6–14, equilibrio), <b>i7</b> (8–20, alto rendimiento), <b>i9</b> (tope). El número no dice generación: un i7 de 2015 pierde contra un i5 de 2023."],
+      ["13","Generación","13ª generación = Raptor Lake (2022). Es el dato más importante del nombre: define arquitectura, zócalo (LGA 1700) y tipo de RAM (DDR4/DDR5). 12 = Alder Lake, 14 = Raptor Lake Refresh."],
+      ["700","SKU","Posición dentro de la gama. 600 < 700 < 900. Un 13700 y un 13900 son la misma generación con distinto número de núcleos y frecuencia."],
+      ["KF","Sufijos","<b>K</b>: multiplicador desbloqueado, TDP 125 W, mejor turbo. <b>F</b>: sin gráfica integrada (más barato, necesita tarjeta). Juntos, KF = el mismo chip que el K pero sin iGPU. Sin letra = 65 W bloqueado."]
+    ]},
+    {n:"Intel Core i5-1235U", specs:{"Núcleos":"2P + 8E = 10 (12 hilos)","Turbo":"4,4 GHz","TDP":"15 W (PL2 55 W)","Formato":"BGA soldado (portátil)","iGPU":"Iris Xe 80 EU","Año":"2022"}, s:[
+      ["Intel Core","Marca y familia","Gama de consumo, versión portátil."],
+      ["i5","Gama","Gama media. En portátil los números de núcleos son distintos que en sobremesa: este i5 tiene 2 núcleos P y 8 E."],
+      ["12","Generación","12ª gen Alder Lake (2022). En portátil el nombre pasa a cuatro cifras: 12 + 35."],
+      ["35","SKU","Dentro de la 12ª gen: 15 (i3) < 35 (i5) < 55 (i7)."],
+      ["U","Sufijo","<b>U</b> = ultrabajo consumo, 15 W: ultrabooks, autonomía. Compara con P (28 W) y H (45 W). Un i5-1235U rinde bastante menos que un i5-12500H con el mismo 'i5'."]
+    ]}
+   ]},
+   {f:"Intel Core Ultra (2023–)", ex:[
+    {n:"Intel Core Ultra 7 265K", specs:{"Núcleos":"8P + 12E = 20 (sin HT)","Turbo":"5,5 GHz","TDP":"125 W (PL2 250 W)","Zócalo":"LGA 1851","NPU":"13 TOPS","Año":"2024 (Arrow Lake)"}, s:[
+      ["Intel Core Ultra","Marca y familia","Nueva nomenclatura desde 2023: desaparece la 'i'. Core Ultra = gamas con NPU y arquitectura nueva; 'Core' a secas (Core 5 120U) = derivados de generaciones anteriores."],
+      ["7","Gama","Ultra 5 / Ultra 7 / Ultra 9, equivalentes a i5 / i7 / i9."],
+      ["2","Serie / generación","<b>2</b> = segunda serie de Core Ultra: 200S (sobremesa, Arrow Lake), 200H/HX (portátil), 200V (Lunar Lake). La serie 1 (2023) fue Meteor Lake, solo portátil."],
+      ["65","SKU","Posición: 225 < 235 < 245 < 265 < 285."],
+      ["K","Sufijo","Desbloqueado, 125 W. La serie 200S quita el Hyper-Threading: 20 núcleos = 20 hilos. Nuevo zócalo LGA 1851 y solo DDR5."]
+    ]},
+    {n:"Intel Core Ultra 9 288V", specs:{"Núcleos":"4P + 4E","RAM":"32 GB LPDDR5X en el encapsulado","TDP":"17–30 W","NPU":"48 TOPS","iGPU":"Arc 140V","Año":"2024 (Lunar Lake)"}, s:[
+      ["Intel Core Ultra","Marca","Gama premium portátil."],["9","Gama","Tope de gama."],["2","Serie","Serie 200."],["88","SKU","El más alto de la serie V."],
+      ["V","Sufijo","<b>V</b> = Lunar Lake: la RAM va soldada dentro del encapsulado (16 o 32 GB, no ampliable), consumo mínimo y NPU de 48 TOPS. La respuesta de Intel al Apple M y al Snapdragon X."]
+    ]}
+   ]},
+   {f:"AMD Ryzen", ex:[
+    {n:"AMD Ryzen 7 7800X3D", specs:{"Núcleos":"8 (16 hilos)","Turbo":"5,0 GHz","Caché L3":"96 MB (32 + 64 3D V-Cache)","TDP":"120 W","Zócalo":"AM5","iGPU":"Radeon básica","Año":"2023"}, s:[
+      ["AMD Ryzen","Marca y familia","Ryzen = consumo (desde 2017). Por encima: Threadripper (estación) y EPYC (servidor). Por debajo: Athlon."],
+      ["7","Gama","Ryzen 3 / 5 / 7 / 9 como i3 / i5 / i7 / i9. Ryzen 7 = 8 núcleos casi siempre."],
+      ["7","Generación (serie)","Primera cifra del número: 7000 = Zen 4 (2022, AM5, DDR5). 5000 = Zen 3 (AM4, DDR4). 9000 = Zen 5 (2024, AM5). Ojo: 8000 en sobremesa son APU con gráfica y en portátil una mezcla de Zen 3 y 4."],
+      ["800","SKU","Dentro de la gama: 7600 < 7700 < 7800 < 7900 < 7950. Los 'x50' son el tope de cada gama."],
+      ["X3D","Sufijo","<b>X</b> = frecuencias altas. <b>3D</b> = 3D V-Cache: 64 MB de L3 extra apilados encima del chip. Triplica la caché y da el mejor rendimiento en juegos de cualquier CPU, con menos consumo. Peor en overclock y algo peor en aplicaciones."]
+    ]},
+    {n:"AMD Ryzen 9 9950X", specs:{"Núcleos":"16 (32 hilos)","Turbo":"5,7 GHz","Caché L3":"64 MB","TDP":"170 W (PPT 230 W)","Zócalo":"AM5","Nodo":"TSMC N4P","Año":"2024 (Zen 5)"}, s:[
+      ["AMD Ryzen","Marca","Consumo."],["9","Gama","Tope: 12–16 núcleos."],["9","Generación","9000 = Zen 5 (2024)."],["950","SKU","El 950 es el mayor de la serie."],
+      ["X","Sufijo","Frecuencias y TDP altos (170 W). El mismo chip sin X sería 65 W y un 5 % más lento. Sin gráfica dedicada no tiene 'F' porque los Ryzen 7000/9000 traen iGPU básica."]
+    ]},
+    {n:"AMD Ryzen AI 9 HX 370", specs:{"Núcleos":"4 Zen 5 + 8 Zen 5c = 12 (24 hilos)","NPU":"50 TOPS (XDNA 2)","iGPU":"Radeon 890M (16 CU)","TDP":"15–54 W","Año":"2024 (Strix Point, portátil)"}, s:[
+      ["AMD Ryzen AI","Marca y familia","Nomenclatura nueva 2024 para portátil con NPU ≥ 40 TOPS (Copilot+)."],["9","Gama","Ryzen AI 5 / 7 / 9."],
+      ["HX","Sufijo (delante)","AMD lo pone antes del número desde 2024: HX = 54 W alto rendimiento; sin HX = 28 W."],
+      ["370","Serie + SKU","<b>3</b> = tercera generación de Ryzen AI (Strix Point, Zen 5); <b>70</b> = posición. Cambió la lógica: ahora la primera cifra es la generación de Ryzen AI, no de Zen."]
+    ]}
+   ]},
+   {f:"NVIDIA GeForce", ex:[
+    {n:"NVIDIA GeForce RTX 4070 Ti SUPER", specs:{"Núcleos CUDA":"8448","VRAM":"16 GB GDDR6X, 256 bits","TBP":"285 W","Conector":"12VHPWR / 12V-2×6","Arquitectura":"Ada Lovelace","Año":"2024"}, s:[
+      ["NVIDIA GeForce","Marca y familia","GeForce = consumo/juegos. RTX Pro (antes Quadro) = profesional. Tesla/H100/B200 = centro de datos."],
+      ["RTX","Prefijo","<b>RTX</b> = con núcleos de trazado de rayos y tensor (DLSS), desde 2018. <b>GTX</b> = gamas antiguas o bajas sin RT (GTX 1650). Ya no se usa GTX en nuevas."],
+      ["40","Generación","Serie 40 = Ada Lovelace (2022–24). 30 = Ampere, 20 = Turing, 50 = Blackwell (2025). Salta de 10 en 10."],
+      ["70","Gama","50 < 60 < 70 < 80 < 90. La 60 es la gama media, la 90 el tope (y precio ×4)."],
+      ["Ti","Variante","<b>Ti</b> (Titanium) = versión mejorada de la misma gama, entre la 70 y la 80."],
+      ["SUPER","Variante","<b>Super</b> = revisión a mitad de generación con más núcleos o más VRAM al mismo precio. 4070 < 4070 Super < 4070 Ti < 4070 Ti Super < 4080."]
+    ]},
+    {n:"NVIDIA GeForce RTX 5090", specs:{"Núcleos CUDA":"21760","VRAM":"32 GB GDDR7, 512 bits","TBP":"575 W","Conector":"12V-2×6 (600 W)","Arquitectura":"Blackwell","Año":"2025"}, s:[
+      ["NVIDIA GeForce","Marca","Consumo."],["RTX","Prefijo","Con RT y tensor cores."],["50","Generación","Serie 50 = Blackwell (2025), PCIe 5.0, GDDR7, DLSS 4."],["90","Gama","Tope de gama: prácticamente un chip profesional. 575 W obligan a fuente ATX 3.1 de 1000 W+."]
+    ]}
+   ]},
+   {f:"AMD Radeon", ex:[
+    {n:"AMD Radeon RX 7800 XT", specs:{"Unidades de cómputo":"60 CU (3840 SP)","VRAM":"16 GB GDDR6, 256 bits","TBP":"263 W","Conector":"2 × 8 pin","Arquitectura":"RDNA 3","Año":"2023"}, s:[
+      ["AMD Radeon","Marca y familia","Radeon = gráficas AMD. Radeon Pro = profesional; Instinct = centro de datos."],
+      ["RX","Prefijo","RX = gama de juegos (desde 2016). RX = 'Radeon eXperience'; sin RX serían modelos OEM o integradas (Radeon 780M)."],
+      ["7","Generación","7000 = RDNA 3 (2022–23). 6000 = RDNA 2, 9000 = RDNA 4 (2025, la 9070 XT). Saltaron el 8000 en sobremesa."],
+      ["800","Gama","500 < 600 < 700 < 800 < 900. Comparable a NVIDIA 60/70/80 a grandes rasgos."],
+      ["XT","Variante","<b>XT</b> = versión superior de la misma gama; <b>XTX</b> = aún más (7900 XTX); <b>GRE</b> = recortada (7900 GRE). Sin letra = básica."]
+    ]}
+   ]},
+   {f:"Apple Silicon (M / A)", ex:[
+    {n:"Apple M4 Max", specs:{"CPU":"16 núcleos (12 P + 4 E)","GPU":"40 núcleos","NPU":"38 TOPS","Memoria":"36–128 GB unificada, 546 GB/s","Nodo":"TSMC N3E","Año":"2024"}, s:[
+      ["Apple","Marca","Diseña su propio SoC ARM desde el A4 (2010) y para Mac desde 2020. Fabricado por TSMC. Solo va en productos Apple; no se compra suelto."],
+      ["M","Familia","<b>M</b> = Mac, iPad Pro/Air. <b>A</b> = iPhone/iPad (A18 Pro). <b>S</b> = Watch. <b>R</b> = Vision Pro. Todos ARM de 64 bits con diseño propio de núcleos."],
+      ["4","Generación","M1 (2020, 5 nm) → M2 (2022) → M3 (2023, 3 nm) → M4 (2024) → M5 (2025). Cada una +15–25 % de CPU. El número es lo único que dice si es nuevo."],
+      ["Max","Nivel","Cuatro niveles por generación: <b>base</b> (MacBook Air, 8–10 núcleos), <b>Pro</b> (MacBook Pro 14/16, más GPU y memoria), <b>Max</b> (el doble de GPU y ancho de banda), <b>Ultra</b> (dos Max unidos, Mac Studio). Todos comparten la misma generación de núcleos: un M4 base y un M4 Max tienen núcleos iguales, cambia cuántos."]
+    ]},
+    {n:"Apple A18 Pro", specs:{"CPU":"6 núcleos (2 P + 4 E)","GPU":"6 núcleos","NPU":"35 TOPS","Memoria":"8 GB LPDDR5X","Nodo":"TSMC N3E","Año":"2024 (iPhone 16 Pro)"}, s:[
+      ["Apple","Marca","SoC propio."],["A","Familia","A = iPhone e iPad básicos. Los M derivan de los A: el M1 era un A14 ampliado."],["18","Generación","Una por año desde el A4 (2010): A18 = 2024, A19 = 2025."],["Pro","Nivel","Pro = un núcleo GPU más y más caché para los iPhone Pro; el A18 sin Pro va en el iPhone 16 básico."]
+    ]}
+   ]},
+   {f:"Qualcomm Snapdragon", ex:[
+    {n:"Qualcomm Snapdragon 8 Elite Gen 5", specs:{"CPU":"8 núcleos Oryon (2 prime 4,6 GHz + 6)","GPU":"Adreno","NPU":"Hexagon","Módem":"5G integrado","Nodo":"TSMC N3P","Año":"2025 (móviles gama alta 2026)"}, s:[
+      ["Qualcomm","Marca","Diseña SoC ARM para móviles, tablets, portátiles Windows, coches y XR. Fabrica TSMC/Samsung. Vende el chip a Samsung, Xiaomi, OnePlus… que lo montan."],
+      ["Snapdragon","Familia","Marca de todos sus SoC de consumo."],
+      ["8","Gama","<b>8</b> = tope de gama (móviles de 800–1500 €). <b>7</b> = gama alta-media, <b>6</b> = media, <b>4</b> = entrada. Antes eran tres cifras: 888, 865, 765, 480."],
+      ["Elite","Nivel","Desde 2024 el tope lleva núcleos <b>Oryon</b> diseñados por Qualcomm (no Cortex de Arm): se llama Elite. Los '8s Gen 3' o '8 Gen 3' llevan núcleos Cortex-X y son un escalón por debajo."],
+      ["Gen 5","Generación","Desde 2021 (8 Gen 1) numeran por generación en vez de por modelo: 8 Gen 1 → 8 Gen 2 → 8 Gen 3 → 8 Elite (Gen 4 implícita) → 8 Elite Gen 5 (2025)."]
+    ]},
+    {n:"Qualcomm Snapdragon X Elite X1E-80-100", specs:{"CPU":"12 núcleos Oryon","NPU":"45 TOPS","GPU":"Adreno X1","TDP":"23–80 W","Memoria":"LPDDR5X 8533 (soldada)","Año":"2024 (portátiles Copilot+)"}, s:[
+      ["Qualcomm Snapdragon","Marca","Ahora también en portátiles Windows."],["X","Familia","<b>X</b> = portátil Windows on ARM (2024). X Elite (12 núcleos) > X Plus (10 u 8) > X (8). En 2025 llegó la 2ª gen: X2 Elite."],
+      ["Elite","Nivel","El de 12 núcleos y más frecuencia."],
+      ["X1E-80-100","Código de SKU","X1 = 1ª gen; E = Elite; 80 = posición (78 < 80 < 84); 100 = variante. Es el equivalente al '13700K': el número real que hay que mirar en las especificaciones, porque todos se anuncian solo como 'X Elite'."]
+    ]}
+   ]},
+   {f:"MediaTek / Samsung / Google", ex:[
+    {n:"MediaTek Dimensity 9400", specs:{"CPU":"1 × Cortex-X925 + 3 × X4 + 4 × A720 (sin núcleos pequeños)","GPU":"Immortalis-G925","NPU":"NPU 890","Nodo":"TSMC N3E","Año":"2024"}, s:[
+      ["MediaTek","Marca","Taiwanesa; el mayor vendedor de SoC móviles en unidades. Usa núcleos Cortex de Arm de serie (no diseño propio), y suele ganar en relación rendimiento/precio."],
+      ["Dimensity","Familia","<b>Dimensity</b> = con 5G (desde 2019). <b>Helio</b> = 4G / gama baja (Helio G99). <b>Kompanio</b> = Chromebook y tablets."],
+      ["9","Gama","9000 = tope (compite con Snapdragon 8), 8000 = alta-media, 7000 = media, 6000 = entrada."],
+      ["400","Generación / SKU","9000 (2021) → 9200 → 9300 → 9400 (2024) → 9500 (2025). Aquí la centena avanza con cada generación; un 9300+ es una revisión."]
+    ]},
+    {n:"Samsung Exynos 2400", specs:{"CPU":"10 núcleos (1+2+3+4)","GPU":"Xclipse 940 (RDNA 3, AMD)","Nodo":"Samsung 4LPP+","Año":"2024 (Galaxy S24 en Europa)"}, s:[
+      ["Samsung","Marca","Samsung diseña y fabrica (es la única con fundición propia además de Intel). Sus Galaxy llevan Exynos en Europa y Snapdragon en EE. UU. según el año."],
+      ["Exynos","Familia","SoC ARM de Samsung con núcleos Cortex y GPU derivada de AMD RDNA desde 2022."],
+      ["2400","Generación","2100 (2021) → 2200 → 2400 (2024) → 2500 (2025). Saltaron el 2300."]
+    ]},
+    {n:"Google Tensor G4", specs:{"CPU":"8 núcleos (1 X4 + 3 A720 + 4 A520)","TPU":"IA propia","Fabricación":"Samsung 4 nm (G5: TSMC 3 nm)","Año":"2024 (Pixel 9)"}, s:[
+      ["Google","Marca","Diseña su SoC (con base Samsung hasta G4, TSMC desde G5) para los Pixel. Prioriza la IA (TPU) sobre el rendimiento bruto."],
+      ["Tensor","Familia","Nombre tomado de sus TPU de centro de datos."],
+      ["G4","Generación","G1 (2021) → G2 → G3 → G4 (2024) → G5 (2025)."]
+    ]}
+   ]},
+   {f:"Servidor / estación", ex:[
+    {n:"Intel Xeon 6 6980P", specs:{"Núcleos":"128 P (256 hilos)","Caché L3":"504 MB","TDP":"500 W","Memoria":"12 canales DDR5 / MRDIMM","Zócalo":"LGA 7529","Año":"2024 (Granite Rapids)"}, s:[
+      ["Intel Xeon","Familia","Servidor y estación: ECC, muchos canales de memoria, muchas líneas PCIe, fiabilidad. Xeon W = estación; Xeon 6 / Scalable = servidor."],
+      ["6","Generación","Xeon 6 (2024) sustituye a los 'Xeon Scalable 5ª gen'. Nomenclatura nueva."],
+      ["69","Gama y SKU","69xx = tope; 65xx, 67xx = medios."],["80","SKU","Posición."],
+      ["P","Sufijo","<b>P</b> = solo núcleos de rendimiento (Granite Rapids). <b>E</b> = solo núcleos eficientes (Sierra Forest, hasta 288 núcleos) para cloud."]
+    ]},
+    {n:"AMD EPYC 9755", specs:{"Núcleos":"128 Zen 5 (256 hilos)","Caché L3":"512 MB","TDP":"500 W","Memoria":"12 canales DDR5-6000","Zócalo":"SP5","Año":"2024 (Turin)"}, s:[
+      ["AMD EPYC","Familia","Servidor. Threadripper = estación (mismos chiplets, menos canales)."],["9","Generación (serie)","9000 = Zen 4/5 en SP5 (2022–). 7000 = Zen 2/3 en SP3."],
+      ["7","Gama","9004: 9 + gama: 9 (tope) > 7 > 5 > 3 > 1."],["55","SKU","Posición dentro de la gama."],
+      ["(sin letra)","Sufijo","<b>F</b> = alta frecuencia (pocos núcleos rápidos, para licencias por núcleo); <b>X</b> = 3D V-Cache (hasta 1152 MB de L3); <b>P</b> = solo 1 zócalo."]
+    ]}
+   ]}
+  ];
+  let fi=0, ei=0, seenSeg=new Set();
+  const COLS=7;
+  function renderFam(){ $("#fam").innerHTML=F.map((f,i)=>`<button class="${i===fi?'on':''}" data-i="${i}">${f.f}</button>`).join(""); }
+  function renderEx(){ $("#ex").innerHTML=F[fi].ex.map((e,i)=>`<button class="${i===ei?'on':''}" data-i="${i}">${e.n}</button>`).join(""); }
+  function renderName(){ const e=F[fi].ex[ei]; $("#name").innerHTML=e.s.map((s,i)=>`<span class="seg c${i%COLS}" data-i="${i}" tabindex="0">${s[0]}<small>${s[1]}</small></span>`).join(""); $("#specs").innerHTML=Object.entries(e.specs).map(([k,v])=>`<div><b>${k}</b>${v}</div>`).join(""); $("#expl").innerHTML="Pulsa un trozo del nombre para ver qué significa."; }
+  function show(i){ const e=F[fi].ex[ei]; const s=e.s[i]; $("#expl").innerHTML=`<b class="t">${s[0]} · ${s[1]}</b>${s[2]}`; $$("#name .seg").forEach((x,j)=>x.classList.toggle("on",j===i)); seenSeg.add(fi+"-"+ei+"-"+i); const tot=F.reduce((a,f)=>a+f.ex.reduce((b,e)=>b+e.s.length,0),0); $("#progress").textContent=`Trozos de nombre explicados: ${seenSeg.size} / ${tot}`; }
+  $("#fam").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; fi=+b.dataset.i; ei=0; renderFam(); renderEx(); renderName(); });
+  $("#ex").addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; ei=+b.dataset.i; renderEx(); renderName(); });
+  $("#name").addEventListener("click",e=>{ const s=e.target.closest(".seg"); if(s) show(+s.dataset.i); });
+  $("#name").addEventListener("keydown",e=>{ const s=e.target.closest(".seg"); if(s&&(e.key==="Enter"||e.key===" ")){ e.preventDefault(); show(+s.dataset.i);} });
+  renderFam(); renderEx(); renderName(); show(0);
+})();
+</script>
+</body>
+</html>

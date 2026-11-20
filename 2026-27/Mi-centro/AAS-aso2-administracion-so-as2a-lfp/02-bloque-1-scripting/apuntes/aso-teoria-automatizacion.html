@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Automatización de tareas · ASO</title>
+<style>
+  :root{
+    --paper:#F5F6F8; --card:#FFFFFF; --ink:#0F172A; --soft:#64748B; --line:#E2E8F0;
+    --indigo:#4338CA; --indigo-soft:#EEF2FF; --ambar:#B45309; --ambar-soft:#FEF3C7;
+    --verde:#0F766E; --verde-soft:#F0FDFA; --rojo:#DC2626; --rojo-soft:#FEF2F2;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+      --indigo-soft:#1E1B4B; --ambar-soft:#451A03; --verde-soft:#042F2E; --rojo-soft:#450A0A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0B1220; --card:#111C30; --ink:#E2E8F0; --soft:#94A3B8; --line:#22314A;
+    --indigo-soft:#1E1B4B; --ambar-soft:#451A03; --verde-soft:#042F2E; --rojo-soft:#450A0A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Iowan Old Style",Charter,"Georgia",serif;font-size:17px;line-height:1.65}
+  .wrap{max-width:760px;margin:0 auto;padding:48px 22px 90px}
+
+  .eyebrow{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px;color:var(--indigo);font-weight:600;margin-bottom:8px}
+  h1{font-size:36px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--soft);font-size:14.5px;margin:0 0 40px}
+
+  h2{font-size:23px;margin:48px 0 14px;letter-spacing:-.01em;border-bottom:2px solid var(--line);padding-bottom:8px}
+  h2 .num{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--soft);font-weight:600;font-size:14px;margin-right:8px}
+  h3{font-size:18.5px;margin:26px 0 8px}
+  p{margin:0 0 16px}
+  ul,ol{margin:0 0 16px;padding-left:24px}
+  li{margin-bottom:6px}
+  strong{color:var(--indigo)}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--indigo-soft);padding:1px 6px;border-radius:5px;font-size:14.5px;color:var(--ink)}
+  pre{background:#0B1220;color:#A5F3FC;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;padding:14px 16px;border-radius:10px;overflow-x:auto;margin:18px 0;line-height:1.5}
+  pre .com{color:#64748B}
+
+  .callout{border-radius:12px;padding:16px 18px;margin:22px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14.5px}
+  .callout p:last-child{margin-bottom:0}
+  .callout b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .def{background:var(--indigo-soft);border-left:4px solid var(--indigo)}
+  .def b{color:var(--indigo)}
+  .ejemplo{background:var(--verde-soft);border-left:4px solid var(--verde)}
+  .ejemplo b{color:var(--verde)}
+  .cuidado{background:var(--rojo-soft);border-left:4px solid var(--rojo)}
+  .cuidado b{color:var(--rojo)}
+
+  .campos{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:22px 0;text-align:center}
+  .campos .fila{display:flex;justify-content:center;gap:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;flex-wrap:wrap}
+  .campos .cel{background:var(--indigo-soft);color:var(--indigo);border-radius:8px;padding:8px 14px;font-weight:700;min-width:38px}
+  .campos .cel.cmd{background:var(--verde-soft);color:var(--verde)}
+  .campos .etq{display:flex;justify-content:center;gap:6px;margin-top:8px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:11px;color:var(--soft)}
+  .campos .etq div{min-width:38px}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11.5px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--line)}
+  td code{font-size:13.5px}
+  .scroll-x{overflow-x:auto}
+
+  .resumen{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:50px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14.5px}
+  .resumen h3{margin-top:0;font-family:inherit;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:var(--soft)}
+  .resumen ul{padding-left:20px;margin-bottom:0}
+
+  .pie-pagina{text-align:center;color:var(--soft);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:12.5px;margin-top:60px;padding-top:20px;border-top:1px solid var(--line)}
+  @media print{body{background:#fff;color:#000}.campos,.callout,.resumen,pre{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">ASO · 0374 · RA3</p>
+  <h1>Automatización de tareas</h1>
+  <p class="sub">Administración de Sistemas Operativos · 2º ASIR · Curso 26/27</p>
+
+  <p>Ayer vimos que un proceso vive y muere solo, con estados y un PCB que el sistema gestiona por su cuenta. Pero casi ningún proceso importante en un servidor nace porque alguien se ha sentado delante del teclado a lanzarlo: nace porque estaba <strong>programado</strong>. Las copias de seguridad, la rotación de logs, la comprobación de certificados que caducan, los informes nocturnos — todo eso ocurre porque alguien, en algún momento, dijo "esto hazlo tú solo, a esta hora, sin que yo tenga que acordarme".</p>
+
+  <div class="callout def">
+    <b>Definición</b>
+    <p>Automatizar una tarea del sistema es delegar en el propio sistema operativo la responsabilidad de ejecutar una acción en un momento determinado o de forma periódica, sin intervención humana en el momento de ejecutarse.</p>
+  </div>
+
+  <h2><span class="num">1</span>Por qué automatizar</h2>
+  <p>No es solo comodidad. Un administrador que ejecuta la copia de seguridad "cuando se acuerda" tiene, tarde o temprano, un día en que no se acuerda. La automatización aporta tres cosas que el trabajo manual no garantiza:</p>
+  <ul>
+    <li><strong>Regularidad:</strong> la tarea se ejecuta siempre, incluso los días en que nadie está mirando.</li>
+    <li><strong>Repetibilidad:</strong> se ejecuta exactamente igual cada vez, sin el "hoy lo hice un poco distinto".</li>
+    <li><strong>Trazabilidad:</strong> si registra su propia salida en un log, queda constancia de que se ejecutó y de si salió bien.</li>
+  </ul>
+
+  <h2><span class="num">2</span>cron: el clásico para tareas repetitivas</h2>
+  <p><code>cron</code> es el demonio que lleva décadas encargándose de esto en los sistemas tipo Unix. Cada usuario tiene su propio <strong>crontab</strong> (tabla de cron), una lista de líneas donde cada una dice cuándo y qué ejecutar.</p>
+
+  <div class="campos">
+    <div class="fila">
+      <div class="cel">*</div><div class="cel">*</div><div class="cel">*</div><div class="cel">*</div><div class="cel">*</div>
+      <div class="cel cmd">comando</div>
+    </div>
+    <div class="etq">
+      <div>minuto<br>0-59</div><div>hora<br>0-23</div><div>día mes<br>1-31</div><div>mes<br>1-12</div><div>día sem.<br>0-6</div>
+    </div>
+  </div>
+
+  <p>Un asterisco significa "cualquier valor". Cuando los cinco campos de una línea coinciden con la hora actual, cron lanza ese comando. Algunos ejemplos:</p>
+
+  <pre><span class="com"># todos los días a las 2:00 de la madrugada</span>
+0 2 * * *  /home/alumno/backup.sh
+
+<span class="com"># cada 15 minutos, todo el rato</span>
+*/15 * * * *  /usr/local/bin/comprobar-disco.sh
+
+<span class="com"># solo los lunes a las 8:00</span>
+0 8 * * 1  /usr/local/bin/informe-semanal.sh
+
+<span class="com"># el día 1 de cada mes a medianoche</span>
+0 0 1 * *  /usr/local/bin/rotar-logs.sh</pre>
+
+  <h3>Sin editor de texto: cargar cron por tubería</h3>
+  <p>En un sistema mínimo, sin GUI y a veces sin <code>nano</code> instalado, no siempre es cómodo abrir <code>crontab -e</code>. Una forma habitual de cargar una línea directamente es generarla con <code>echo</code> y enviarla por tubería:</p>
+  <pre>echo "0 2 * * * /home/alumno/backup.sh" | crontab -</pre>
+  <p>El guion final le dice a <code>crontab</code> que lea de la entrada estándar en vez de abrir un editor. <code>crontab -l</code> lista lo que hay programado para el usuario actual; <code>crontab -r</code> lo borra todo.</p>
+
+  <div class="callout cuidado">
+    <b>Cuidado</b>
+    <p>Un script que funciona perfectamente cuando lo lanzas tú a mano puede fallar por cron: cron ejecuta con un <code>PATH</code> mínimo y sin las variables de entorno de tu sesión interactiva. La regla de oro: usa siempre <strong>rutas absolutas</strong> dentro del script y de la línea de cron, tanto para el propio script como para cualquier comando que llame.</p>
+  </div>
+
+  <h2><span class="num">3</span>at: una sola vez, no una rutina</h2>
+  <p>Cuando la tarea no se repite — "reinicia el servicio dentro de una hora, cuando ya no haya nadie conectado" — cron es la herramienta equivocada: obligaría a programar algo y luego borrarlo. Para eso está <code>at</code>, pensado para ejecuciones puntuales futuras.</p>
+  <pre>at now + 5 minutes
+at&gt; /usr/local/bin/reiniciar-servicio.sh
+at&gt; &lt;Ctrl+D&gt;
+
+<span class="com"># ver lo que queda pendiente</span>
+atq
+
+<span class="com"># cancelar un trabajo por su número</span>
+atrm 3</pre>
+
+  <table>
+    <tr><th></th><th>cron</th><th>at</th></tr>
+    <tr><td>Repetición</td><td>Periódica, indefinida</td><td>Una sola vez</td></tr>
+    <tr><td>Uso típico</td><td>Backups, mantenimiento, informes</td><td>"Ejecuta esto dentro de X" puntual</td></tr>
+    <tr><td>Dónde se ve lo programado</td><td><code>crontab -l</code></td><td><code>atq</code></td></tr>
+  </table>
+
+  <h2><span class="num">4</span>La alternativa moderna: temporizadores de systemd</h2>
+  <p>En sistemas con <code>systemd</code>, cron tiene un sustituto más potente para servicios: los <strong>timers</strong>. Un timer no es más que una unidad de systemd que, en vez de arrancar por un evento normal, arranca a una hora o con una periodicidad determinada, y lanza otra unidad (un <code>.service</code>) cuando toca.</p>
+  <ul>
+    <li>Se integra con el resto de <code>systemd</code>: puedes ver sus logs con <code>journalctl</code> como cualquier otro servicio, en vez de perderlos en un correo que nadie lee.</li>
+    <li>Puede ejecutar la tarea pendiente si el equipo estuvo apagado a la hora prevista (con <code>Persistent=true</code>), algo que cron no hace de serie.</li>
+    <li>Se activa y se consulta con los mismos comandos que cualquier otro servicio.</li>
+  </ul>
+  <pre>systemctl list-timers                    <span class="com"># qué hay programado</span>
+sudo systemctl enable --now backup.timer  <span class="com"># activarlo ya y en cada arranque</span></pre>
+
+  <div class="callout ejemplo">
+    <b>Cuándo usar cada uno</b>
+    <p>En la práctica: <strong>cron</strong> para lo rápido y lo tuyo personal como usuario; <strong>timers de systemd</strong> cuando la tarea es realmente un servicio del sistema y quieres que se registre, se supervise y se reintente como cualquier otro; <strong>at</strong> cuando es un caso puntual que no volverá a repetirse.</p>
+  </div>
+
+  <h2><span class="num">5</span>Restricciones de seguridad</h2>
+  <p>No cualquier usuario debería poder programar lo que quiera. Dos archivos controlan quién puede usar cron:</p>
+  <ul>
+    <li><code>/etc/cron.allow</code>: si existe, <strong>solo</strong> los usuarios listados ahí pueden usar cron.</li>
+    <li><code>/etc/cron.deny</code>: si no existe <code>cron.allow</code>, esta lista bloquea a los usuarios que contenga; el resto puede usarlo.</li>
+  </ul>
+  <p>Además, cualquier tarea programada hereda los permisos del usuario que la lanza: una tarea de root mal escrita es tan peligrosa como un comando de root mal escrito a mano, con el agravante de que se repite sola.</p>
+
+  <div class="resumen">
+    <h3>Para quedarte con esto</h3>
+    <ul>
+      <li>cron programa tareas repetitivas con cinco campos de tiempo (minuto, hora, día de mes, mes, día de semana).</li>
+      <li>Sin editor de texto, una línea de cron se carga con <code>echo "..." | crontab -</code>.</li>
+      <li>at programa una única ejecución futura, no repetitiva.</li>
+      <li>Los timers de systemd son la alternativa moderna para servicios: se integran con journalctl y pueden recuperar ejecuciones perdidas.</li>
+      <li>Usa siempre rutas absolutas en lo que programes: cron no tiene tu entorno interactivo.</li>
+      <li><code>/etc/cron.allow</code> y <code>/etc/cron.deny</code> controlan quién puede programar tareas.</li>
+    </ul>
+  </div>
+
+  <p class="pie-pagina">ASO · Administración de Sistemas Operativos · RA3 · Práctica relacionada: bloque "Automatización de tareas" en ASO Survival</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador UEFI · Placa Base</title>
+<style>html,body{margin:0;padding:0;min-height:100%;}</style>
+</head>
+<body>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#0b0d12; --panel:#151922; --panel2:#1c2230; --line:#2a3242; --ink:#e6e9ef; --muted:#9aa4b5;
+    --amber:#f2b632; --amber2:#ffd36b; --ok:#3ddc84; --warn:#ff8a3d; --bad:#ff5a5a; --blue:#4da3ff;
+    --font-ui:"Segoe UI", Roboto, Arial, sans-serif; --font-mono:Consolas, "Courier New", monospace;
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  body { background:var(--bg); color:var(--ink); font-family:var(--font-ui); }
+  .switch { display:flex; gap:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; margin:0 0 12px; width:max-content; max-width:100%; }
+  .switch button { font-family:inherit; font-size:13px; border:0; background:var(--panel); color:var(--muted); padding:7px 14px; cursor:pointer; }
+  .switch button.on { background:var(--amber); color:#1a1200; font-weight:600; }
+
+  /* ---- AMI classic ---- */
+  .ami { font-family:var(--font-mono); background:#bfbfbf; color:#0000a8; border:1px solid #666; border-radius:6px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.5); font-size:13.5px; }
+  .ami .hdr { background:#0000a8; color:#fff; text-align:center; padding:6px 10px; font-weight:600; letter-spacing:.5px; }
+  .ami .tabs { display:flex; flex-wrap:wrap; background:#bfbfbf; border-bottom:2px solid #0000a8; }
+  .ami .tabs span { padding:5px 16px; cursor:pointer; }
+  .ami .tabs span.on { background:#0000a8; color:#fff; }
+  .ami .body { display:grid; grid-template-columns:1.5fr 1fr; min-height:340px; }
+  .ami .items { padding:10px 12px; border-right:2px solid #0000a8; }
+  .ami .items .sec { color:#0000a8; font-weight:600; margin:6px 0 4px; }
+  .ami .items .sec::before { content:"▶ "; }
+  .ami .row { display:grid; grid-template-columns:1fr auto; gap:12px; padding:2px 8px; cursor:pointer; }
+  .ami .row .v { color:#0000a8; }
+  .ami .row .v::before { content:"["; } .ami .row .v::after { content:"]"; }
+  .ami .row.sel { background:#0000a8; color:#fff; } .ami .row.sel .v { color:#fff; }
+  .ami .row.ro .v::before, .ami .row.ro .v::after { content:""; }
+  .ami .help { padding:10px 12px; color:#0000a8; line-height:1.5; }
+  .ami .help b { display:block; margin-bottom:6px; }
+  .ami .help .more { margin-top:10px; font-size:12px; color:#333; }
+  .ami .ftr { border-top:2px solid #0000a8; padding:6px 12px; display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:2px 12px; font-size:12px; }
+  .ami .ftr span b { color:#000; }
+  .ami .msg { background:#0000a8; color:#fff; padding:4px 12px; font-size:12px; min-height:24px; }
+  @media (max-width:640px) { .ami .body { grid-template-columns:1fr; } .ami .items { border-right:0; border-bottom:2px solid #0000a8; } }
+  .wrap { max-width:1100px; margin:0 auto; padding-block:14px 40px; padding-inline:16px; }
+
+  /* intro */
+  .intro { display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; justify-content:space-between; margin-bottom:12px; }
+  .intro h1 { margin:0; font-size:22px; letter-spacing:.5px; text-wrap:balance; }
+  .intro p { margin:4px 0 0; color:var(--muted); max-width:62ch; font-size:14px; }
+  .progress { font-family:var(--font-mono); font-size:13px; color:var(--amber2); border:1px solid var(--line); padding:6px 10px; border-radius:6px; background:var(--panel); }
+
+  /* BIOS chrome */
+  .bios { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--panel); box-shadow:0 20px 60px rgba(0,0,0,.5); }
+  .topbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; padding:10px 14px; background:linear-gradient(90deg,#3a0e14,#1a1218 45%,#151922); border-bottom:1px solid var(--line); }
+  .topbar .brand { font-weight:700; font-size:17px; letter-spacing:.5px; }
+  .topbar .mode { border:2px solid var(--bad); padding:2px 8px; border-radius:4px; font-weight:600; color:#ffd7d7; cursor:pointer; }
+  .topbar .clock { font-family:var(--font-mono); font-size:20px; color:#fff; margin-left:auto; }
+  .topbar .clock small { display:block; font-size:11px; color:var(--muted); }
+  .keys { display:flex; flex-wrap:wrap; gap:6px 14px; padding:6px 14px; font-size:12px; color:var(--muted); border-bottom:1px solid var(--line); background:#11141b; }
+  .keys span b { color:var(--ink); }
+
+  .grid { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:1px; background:var(--line); }
+  .cell { background:var(--panel); padding:12px 14px; min-height:110px; position:relative; cursor:pointer; outline:none; transition:background .15s; }
+  .cell:hover, .cell:focus-visible { background:var(--panel2); }
+  .cell.done::after { content:"✓ visto"; position:absolute; top:8px; right:10px; font-size:11px; color:var(--ok); font-family:var(--font-mono); }
+  .cell h3 { margin:0 0 6px; font-size:14px; color:var(--amber); font-weight:600; }
+  .cell .big { font-size:26px; font-weight:700; font-family:var(--font-mono); }
+  .cell .sub { color:var(--muted); font-size:12.5px; line-height:1.45; }
+  .cell.span2 { grid-column:span 2; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:12.5px; font-family:var(--font-mono); }
+  .kv .k { color:var(--muted); }
+  .na { color:#5f6979; }
+
+  .fans { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:8px; }
+  .fan { display:flex; align-items:center; gap:8px; font-size:12px; }
+  .fan svg { width:28px; height:28px; flex:none; }
+  .fan .spin { animation:spin 1.2s linear infinite; transform-origin:50% 50%; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (prefers-reduced-motion:reduce) { .fan .spin { animation:none; } }
+
+  .boot ul { list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .boot li { display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:6px; padding:7px 9px; background:#11141b; font-size:12.5px; cursor:grab; }
+  .boot li.drag { opacity:.5; }
+  .boot li .n { font-family:var(--font-mono); color:var(--amber); width:16px; }
+  .boot li .mv { margin-left:auto; display:flex; gap:4px; }
+  .boot button, .bar button, .q button, .modal button { font-family:inherit; font-size:12px; border:1px solid var(--line); background:#1f2633; color:var(--ink); border-radius:4px; padding:4px 8px; cursor:pointer; }
+  .boot button:hover, .bar button:hover, .q button:hover, .modal button:hover { border-color:var(--amber); }
+  .boot .msg { margin-top:8px; font-size:12px; font-family:var(--font-mono); min-height:16px; }
+
+  .bar { display:flex; flex-wrap:wrap; gap:8px 14px; justify-content:flex-end; padding:10px 14px; background:#11141b; border-top:1px solid var(--line); font-size:12.5px; }
+
+  /* fan curve */
+  .curve { width:100%; max-width:100%; height:auto; display:block; }
+  .curve .lbl { fill:var(--muted); font-size:9px; font-family:var(--font-mono); }
+  .curve .line { fill:none; stroke:var(--amber); stroke-width:1.6; }
+  .curve .grid { stroke:#2a3242; stroke-width:.6; }
+  .curve .pt { fill:var(--amber2); cursor:ns-resize; }
+
+  /* explanation modal */
+  .modal { position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:20; }
+  .modal .card { background:var(--panel); border:1px solid var(--amber); border-radius:10px; max-width:720px; width:100%; max-height:90vh; overflow:auto; padding:18px 20px; }
+  .modal h2 { margin:0 0 4px; font-size:19px; color:var(--amber); }
+  .modal .where { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .modal p { font-size:14px; line-height:1.55; margin:8px 0; max-width:68ch; }
+  .modal ul { font-size:14px; line-height:1.5; margin:6px 0 6px 18px; padding:0; }
+  .modal .foot { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .tag { display:inline-block; font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-radius:4px; padding:1px 6px; color:var(--amber2); margin-right:4px; }
+
+  /* board */
+  h2.sec { font-size:18px; margin:26px 0 6px; color:var(--amber); }
+  p.lead { color:var(--muted); margin:0 0 10px; max-width:70ch; font-size:14px; }
+  .board { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px; }
+  .board svg { width:100%; height:auto; display:block; max-width:100%; }
+  .hs { cursor:pointer; }
+  .hs rect, .hs circle, .hs path { transition:filter .15s; }
+  .hs:hover rect, .hs:hover circle, .hs:hover path, .hs.done rect, .hs.done circle { filter:brightness(1.35); }
+  .hs text { font-family:var(--font-mono); font-size:9px; fill:#0b0d12; pointer-events:none; font-weight:600; }
+  .hs .lbl { fill:var(--ink); font-size:8.5px; font-weight:400; }
+
+  /* checkpoints */
+  .quiz { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .q { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .q h4 { margin:0 0 8px; font-size:14px; }
+  .q .opts { display:flex; flex-direction:column; gap:6px; }
+  .q .opts button { text-align:left; padding:7px 10px; font-size:13px; }
+  .q .opts button.ok { border-color:var(--ok); color:var(--ok); }
+  .q .opts button.ko { border-color:var(--bad); color:var(--bad); }
+  .q .fb { font-size:12.5px; color:var(--muted); margin-top:8px; min-height:18px; line-height:1.45; }
+
+  @media (max-width:760px) { .grid { grid-template-columns:1fr 1fr; } .cell.span2 { grid-column:span 2; } }
+  @media (max-width:480px) { .grid { grid-template-columns:1fr; } .cell.span2 { grid-column:span 1; } .topbar .clock { margin-left:0; } }
+</style>
+
+<div class="wrap">
+
+<div class="intro">
+  <div>
+    <h1>Simulador UEFI · ¿qué hay detrás de cada panel?</h1>
+    <p>Esta pantalla imita el modo sencillo de una UEFI moderna. Cada panel muestra datos que la placa base lee de un componente físico. Pulsa un panel para ver qué componente es, dónde está en la placa y por qué importa.</p>
+  </div>
+  <div class="progress" id="progress">Componentes vistos: 0 / 10</div>
+</div>
+
+<div class="switch" role="tablist">
+  <button class="on" id="swUefi" role="tab">UEFI · EZ Mode (placa actual)</button>
+  <button id="swAmi" role="tab">BIOS clásica · AMI (misma placa)</button>
+</div>
+
+<div class="ami" id="ami" hidden>
+  <div class="hdr">BIOS SETUP UTILITY · American Megatrends compatible · Placa ATX X-Series</div>
+  <div class="tabs" id="amiTabs"></div>
+  <div class="body">
+    <div class="items" id="amiItems"></div>
+    <div class="help" id="amiHelp"></div>
+  </div>
+  <div class="msg" id="amiMsg">Usa ← → para cambiar de pestaña, ↑ ↓ para moverte, + / − para cambiar un valor, Enter para ver el componente.</div>
+  <div class="ftr">
+    <span><b>←→</b> Pestaña</span><span><b>↑↓</b> Elemento</span><span><b>+/−</b> Cambiar valor</span><span><b>Enter</b> Ver componente</span><span><b>F9</b> Valores óptimos</span><span><b>F10</b> Guardar y salir</span><span><b>Esc</b> Salir</span>
+  </div>
+</div>
+
+<div class="bios" id="bios">
+  <div class="topbar">
+    <span class="brand">UEFI Setup</span>
+    <span class="mode" data-c="firmware" tabindex="0">EZ Mode</span>
+    <span class="clock" id="clock">00:00<small id="date">—</small></span>
+  </div>
+  <div class="keys">
+    <span><b>F1</b> Ayuda</span><span><b>F5</b> Valores por defecto</span><span><b>F7</b> Modo avanzado</span><span><b>F8</b> Menú de arranque</span><span><b>F10</b> Guardar y salir</span><span><b>Esc</b> Cerrar</span>
+  </div>
+
+  <div class="grid">
+    <div class="cell" data-c="cpu" tabindex="0">
+      <h3>Información</h3>
+      <div class="kv">
+        <span class="k">Placa</span><span>ATX X-Series · UEFI ver. 2802</span>
+        <span class="k">CPU</span><span>8 núcleos / 16 hilos · zócalo AM5</span>
+        <span class="k">Velocidad</span><span id="cpuspeed">3600 MHz</span>
+        <span class="k">Memoria</span><span>16384 MB (DDR5 4800 MHz)</span>
+      </div>
+    </div>
+    <div class="cell" data-c="sensors" tabindex="0">
+      <h3>Temperatura CPU</h3>
+      <div class="big" id="cputemp">41 °C</div>
+      <div class="sub">Sensor digital dentro del procesador, leído por el chip Super I/O</div>
+    </div>
+    <div class="cell" data-c="vrm" tabindex="0">
+      <h3>Tensión CPU (VCore)</h3>
+      <div class="big">1.184 V</div>
+      <div class="sub">Temperatura de la placa: <b id="mbtemp">30 °C</b></div>
+    </div>
+
+    <div class="cell" data-c="ram" tabindex="0">
+      <h3>Estado DRAM</h3>
+      <div class="kv">
+        <span class="k">DIMM_A1</span><span class="na">N/A</span>
+        <span class="k">DIMM_A2</span><span>8192 MB DDR5 4800</span>
+        <span class="k">DIMM_B1</span><span class="na">N/A</span>
+        <span class="k">DIMM_B2</span><span>8192 MB DDR5 4800</span>
+      </div>
+    </div>
+    <div class="cell span2" data-c="storage" tabindex="0">
+      <h3>Almacenamiento</h3>
+      <div class="kv">
+        <span class="k">M.2_1 (NVMe)</span><span>SSD PCIe 4.0 ×4 · 1 TB</span>
+        <span class="k">SATA6G_1</span><span>HDD 3,5" · 4 TB</span>
+        <span class="k">SATA6G_2</span><span class="na">N/A</span>
+      </div>
+    </div>
+
+    <div class="cell" data-c="cmos" tabindex="0">
+      <h3>Perfil de memoria (XMP/EXPO)</h3>
+      <div class="kv"><span class="k">Estado</span><span id="xmp">Desactivado</span></div>
+      <div class="sub" style="margin-top:6px">Los ajustes se guardan en la NVRAM; la hora la mantiene la pila CMOS</div>
+    </div>
+    <div class="cell span2" data-c="fans" tabindex="0">
+      <h3>Ventiladores</h3>
+      <div class="fans" id="fans"></div>
+    </div>
+
+    <div class="cell span2" data-c="fans" tabindex="0" id="curvecell">
+      <h3>Curva del ventilador de CPU (arrastra los puntos)</h3>
+      <svg class="curve" viewBox="0 0 300 130" id="curve" aria-label="Curva de velocidad del ventilador frente a temperatura"></svg>
+    </div>
+    <div class="cell boot" data-c="boot" tabindex="0">
+      <h3>Prioridad de arranque</h3>
+      <div class="sub">Arrastra o usa las flechas. El firmware prueba los dispositivos en este orden.</div>
+      <ul id="bootlist"></ul>
+      <div class="msg" id="bootmsg"></div>
+    </div>
+
+    <div class="cell span2" data-c="chipset" tabindex="0">
+      <h3>Chipset y conectividad</h3>
+      <div class="kv">
+        <span class="k">PCIe ×16</span><span>Tarjeta gráfica · Gen 4</span>
+        <span class="k">USB</span><span>4 × USB 3.2 · 2 × USB-C · 4 × USB 2.0</span>
+        <span class="k">Red</span><span>2,5 GbE integrada</span>
+        <span class="k">Audio</span><span>Códec HD 7.1</span>
+      </div>
+    </div>
+    <div class="cell" data-c="firmware" tabindex="0">
+      <h3>Firmware</h3>
+      <div class="kv">
+        <span class="k">Chip UEFI</span><span>SPI flash 32 MB</span>
+        <span class="k">Secure Boot</span><span id="sb">Activado</span>
+        <span class="k">Actualizar</span><span>USB Flashback</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <button id="bDefault">Valores por defecto (F5)</button>
+    <button id="bSave">Guardar y salir (F10)</button>
+    <button id="bAdv" data-c="firmware">Modo avanzado (F7)</button>
+  </div>
+</div>
+
+<h2 class="sec">La placa base, componente a componente</h2>
+<p class="lead">Mismos componentes que en la pantalla de arriba, ahora en su sitio físico. Pulsa cada zona. Los que ya has abierto desde la UEFI aparecen iluminados.</p>
+<div class="board">
+<svg viewBox="0 0 640 520" role="img" aria-label="Esquema de una placa base ATX con sus componentes principales">
+  <defs>
+    <pattern id="tr" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 6h12M6 0v12" stroke="#1e4d3a" stroke-width=".5"/></pattern>
+  </defs>
+  <rect x="10" y="10" width="620" height="500" rx="8" fill="#12352a"/>
+  <rect x="10" y="10" width="620" height="500" rx="8" fill="url(#tr)"/>
+  <!-- mounting holes -->
+  <g fill="#0b0d12" stroke="#7a8a80" stroke-width="1">
+    <circle cx="28" cy="28" r="4"/><circle cx="612" cy="28" r="4"/><circle cx="28" cy="492" r="4"/><circle cx="612" cy="492" r="4"/><circle cx="320" cy="270" r="4"/>
+  </g>
+
+  <!-- rear I/O -->
+  <g class="hs" data-c="chipset"><rect x="14" y="40" width="42" height="200" rx="3" fill="#8e97a3"/><text x="35" y="145" transform="rotate(-90 35 145)" text-anchor="middle">PANEL E/S TRASERO</text></g>
+
+  <!-- VRM -->
+  <g class="hs" data-c="vrm"><rect x="70" y="40" width="200" height="34" rx="3" fill="#4d5a6a"/><text x="170" y="61" text-anchor="middle">VRM · FASES DE ALIMENTACIÓN</text></g>
+  <g class="hs" data-c="vrm"><rect x="70" y="84" width="34" height="140" rx="3" fill="#4d5a6a"/><text x="87" y="154" transform="rotate(-90 87 154)" text-anchor="middle">VRM</text></g>
+  <!-- EPS 8-pin -->
+  <g class="hs" data-c="vrm"><rect x="290" y="42" width="52" height="24" rx="2" fill="#2b2b2b" stroke="#777"/><text x="316" y="57" text-anchor="middle" style="fill:#ddd">EPS 8</text></g>
+
+  <!-- CPU socket -->
+  <g class="hs" data-c="cpu"><rect x="120" y="90" width="140" height="140" rx="4" fill="#c9cdd3"/><rect x="140" y="110" width="100" height="100" fill="#8f96a0"/><text x="190" y="165" text-anchor="middle">ZÓCALO CPU</text><text x="190" y="178" text-anchor="middle">AM5 / LGA</text></g>
+  <!-- CPU fan header -->
+  <g class="hs" data-c="fans"><rect x="276" y="96" width="30" height="12" fill="#e9e2c8"/><text x="291" y="120" text-anchor="middle" class="lbl">CPU_FAN</text></g>
+
+  <!-- DIMM slots -->
+  <g class="hs" data-c="ram">
+    <rect x="360" y="40" width="14" height="230" rx="2" fill="#3b3f47"/><rect x="380" y="40" width="14" height="230" rx="2" fill="#c8b04a"/>
+    <rect x="404" y="40" width="14" height="230" rx="2" fill="#3b3f47"/><rect x="424" y="40" width="14" height="230" rx="2" fill="#c8b04a"/>
+    <text x="399" y="160" transform="rotate(-90 399 160)" text-anchor="middle" style="fill:#e6e9ef">DIMM A1 · A2 · B1 · B2</text>
+  </g>
+
+  <!-- ATX 24 pin -->
+  <g class="hs" data-c="vrm"><rect x="470" y="60" width="26" height="110" rx="2" fill="#2b2b2b" stroke="#777"/><text x="483" y="118" transform="rotate(-90 483 118)" text-anchor="middle" style="fill:#ddd">ATX 24</text></g>
+
+  <!-- chipset -->
+  <g class="hs" data-c="chipset"><rect x="440" y="300" width="80" height="80" rx="4" fill="#5a6572"/><text x="480" y="336" text-anchor="middle">CHIPSET</text><text x="480" y="350" text-anchor="middle">(PCH)</text></g>
+
+  <!-- M.2 -->
+  <g class="hs" data-c="storage"><rect x="130" y="250" width="180" height="16" rx="2" fill="#6b7f95"/><text x="220" y="262" text-anchor="middle">M.2_1 NVMe (PCIe ×4)</text></g>
+
+  <!-- PCIe slots -->
+  <g class="hs" data-c="chipset">
+    <rect x="70" y="290" width="240" height="14" rx="2" fill="#2d3340" stroke="#9aa4b5" stroke-width=".8"/><text x="190" y="300" text-anchor="middle" style="fill:#e6e9ef">PCIe ×16 (GPU)</text>
+    <rect x="70" y="330" width="120" height="12" rx="2" fill="#2d3340" stroke="#9aa4b5" stroke-width=".8"/><text x="130" y="339" text-anchor="middle" style="fill:#e6e9ef">PCIe ×1</text>
+    <rect x="70" y="380" width="240" height="14" rx="2" fill="#2d3340" stroke="#9aa4b5" stroke-width=".8"/><text x="190" y="390" text-anchor="middle" style="fill:#e6e9ef">PCIe ×16 (×4 eléctrico)</text>
+  </g>
+
+  <!-- SATA -->
+  <g class="hs" data-c="storage">
+    <rect x="560" y="300" width="22" height="14" fill="#c0392b"/><rect x="560" y="320" width="22" height="14" fill="#c0392b"/><rect x="560" y="340" width="22" height="14" fill="#c0392b"/><rect x="560" y="360" width="22" height="14" fill="#c0392b"/>
+    <text x="571" y="392" text-anchor="middle" class="lbl">SATA ×4</text>
+  </g>
+
+  <!-- BIOS chip + flashback button -->
+  <g class="hs" data-c="firmware"><rect x="540" y="420" width="30" height="30" rx="2" fill="#1a1a1a" stroke="#9aa4b5"/><text x="555" y="438" text-anchor="middle" style="fill:#e6e9ef">UEFI</text><text x="555" y="468" text-anchor="middle" class="lbl">chip SPI</text></g>
+  <g class="hs" data-c="firmware"><circle cx="34" cy="262" r="8" fill="#4da3ff"/><text x="34" y="284" text-anchor="middle" class="lbl">FLASHBK</text></g>
+
+  <!-- CMOS battery -->
+  <g class="hs" data-c="cmos"><circle cx="380" cy="440" r="22" fill="#d9d9d9" stroke="#888"/><text x="380" y="444" text-anchor="middle">CR2032</text><text x="380" y="478" text-anchor="middle" class="lbl">pila CMOS · jumper CLR_CMOS</text></g>
+
+  <!-- Super I/O + sensors -->
+  <g class="hs" data-c="sensors"><rect x="460" y="420" width="44" height="30" rx="2" fill="#2a2f3a" stroke="#9aa4b5"/><text x="482" y="439" text-anchor="middle" style="fill:#e6e9ef">S-I/O</text><text x="482" y="468" text-anchor="middle" class="lbl">sensores y ventiladores</text></g>
+
+  <!-- fan headers -->
+  <g class="hs" data-c="fans"><rect x="600" y="60" width="18" height="10" fill="#e9e2c8"/><rect x="600" y="80" width="18" height="10" fill="#e9e2c8"/><text x="609" y="104" text-anchor="middle" class="lbl">CHA_FAN</text></g>
+
+  <!-- front panel -->
+  <g class="hs" data-c="boot"><rect x="120" y="470" width="120" height="20" rx="2" fill="#e9e2c8"/><text x="180" y="484" text-anchor="middle">F_PANEL (POWER · RESET · LED)</text></g>
+  <g class="hs" data-c="chipset"><rect x="270" y="470" width="60" height="20" rx="2" fill="#4da3ff"/><text x="300" y="484" text-anchor="middle">USB 3 int.</text></g>
+</svg>
+</div>
+
+<h2 class="sec">Actualizar el firmware sin arrancar: USB Flashback</h2>
+<p class="lead">Un microcontrolador aparte reescribe el chip UEFI desde un USB. No hace falta CPU, RAM ni abrir la caja: solo la fuente conectada. Sigue los tres pasos en orden.</p>
+<div class="fb" id="fb">
+  <div class="fbsteps">
+    <div class="fbstep" data-s="1"><div class="num">1</div><div><b>Preparar el USB</b><br>Pendrive en FAT32 con el archivo del firmware renombrado como pide el fabricante (p. ej. <code>PLACA.CAP</code>).<br><button id="fb1">Copiar y renombrar el archivo</button></div></div>
+    <div class="fbstep" data-s="2"><div class="num">2</div><div><b>Conectar en el puerto Flashback</b><br>Solo vale el puerto USB marcado del panel trasero; con el equipo apagado pero la fuente encendida.<br><button id="fb2" disabled>Conectar el USB al puerto marcado</button></div></div>
+    <div class="fbstep" data-s="3"><div class="num">3</div><div><b>Pulsar 3 segundos</b><br>El LED parpadea mientras escribe. Cuando se apaga, el firmware ya está actualizado. Si parpadea y no se apaga, el archivo es incorrecto.<br><button id="fb3" disabled>Mantener pulsado el botón</button></div></div>
+  </div>
+  <div class="fbpanel">
+    <svg viewBox="0 0 260 150" role="img" aria-label="Panel trasero con puerto y botón USB Flashback">
+      <rect x="10" y="10" width="240" height="130" rx="6" fill="#8e97a3"/>
+      <g fill="#1f2633"><rect x="30" y="30" width="24" height="12"/><rect x="30" y="48" width="24" height="12"/><rect x="70" y="30" width="24" height="12"/><rect x="70" y="48" width="24" height="12"/></g>
+      <rect x="110" y="30" width="44" height="30" fill="#0b0d12"/><text x="132" y="49" text-anchor="middle" font-size="8" fill="#8e97a3" font-family="monospace">RJ45</text>
+      <g fill="#1f2633"><rect x="30" y="80" width="24" height="12"/><rect x="30" y="98" width="24" height="12"/></g>
+      <rect id="fbport" x="70" y="80" width="24" height="12" fill="#1a4d8f" stroke="#4da3ff" stroke-width="1.5"/>
+      <text x="82" y="106" text-anchor="middle" font-size="7" fill="#0b0d12" font-family="monospace">FLASHBACK</text>
+      <g id="fbusb" opacity="0"><rect x="42" y="78" width="30" height="16" rx="2" fill="#d9d9d9"/><rect x="66" y="82" width="10" height="8" fill="#9aa4b5"/></g>
+      <circle id="fbbtn" cx="130" cy="86" r="9" fill="#2b2b2b" stroke="#111"/><text x="130" y="110" text-anchor="middle" font-size="7" fill="#0b0d12" font-family="monospace">BIOS BTN</text>
+      <circle id="fbled" cx="130" cy="120" r="4" fill="#333"/>
+      <g fill="#1f2633"><circle cx="190" cy="40" r="6"/><circle cx="210" cy="40" r="6"/><circle cx="230" cy="40" r="6"/><circle cx="190" cy="60" r="6"/><circle cx="210" cy="60" r="6"/><circle cx="230" cy="60" r="6"/></g>
+      <text x="210" y="80" text-anchor="middle" font-size="7" fill="#0b0d12" font-family="monospace">AUDIO</text>
+    </svg>
+    <div class="fblog" id="fblog">Estado: equipo apagado, fuente conectada. Chip UEFI versión 2802.</div>
+  </div>
+</div>
+<style>
+  .fb { display:grid; grid-template-columns:1.3fr 1fr; gap:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px; }
+  .fbsteps { display:flex; flex-direction:column; gap:10px; }
+  .fbstep { display:flex; gap:12px; font-size:13.5px; line-height:1.5; opacity:.55; }
+  .fbstep.act { opacity:1; } .fbstep.ok { opacity:1; } .fbstep.ok .num { background:var(--ok); color:#062; }
+  .fbstep .num { flex:none; width:26px; height:26px; border-radius:50%; background:var(--amber); color:#1a1200; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); }
+  .fbstep code { font-family:var(--font-mono); color:var(--amber2); }
+  .fbstep button { margin-top:6px; font-family:inherit; font-size:12.5px; border:1px solid var(--line); background:#1f2633; color:var(--ink); border-radius:4px; padding:5px 10px; cursor:pointer; }
+  .fbstep button:disabled { opacity:.4; cursor:not-allowed; }
+  .fbpanel svg { width:100%; height:auto; display:block; max-width:100%; }
+  .fblog { font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-top:8px; min-height:36px; line-height:1.5; }
+  @keyframes blink { 50% { fill:#4da3ff; } }
+  #fbled.busy { animation:blink .5s step-end infinite; }
+  @media (max-width:640px) { .fb { grid-template-columns:1fr; } }
+</style>
+
+<h2 class="sec">Checkpoints</h2>
+<p class="lead">Tres preguntas rápidas para comprobar que has entendido qué componente hay detrás de cada dato de la UEFI.</p>
+<div class="quiz" id="quiz"></div>
+
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h2 id="mTitle"></h2>
+    <div class="where" id="mWhere"></div>
+    <div id="mBody"></div>
+    <div class="foot">
+      <span id="mTags"></span>
+      <button id="mClose">Cerrar (Esc)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  // ---------- Content ----------
+  const C = {
+    cpu: {
+      t:"Zócalo y procesador (CPU)",
+      w:"Placa: centro-izquierda, rodeado por el VRM y junto a los DIMM · UEFI: panel Información",
+      b:`<p>El zócalo (<b>AM5</b> en AMD, <b>LGA 1700/1851</b> en Intel) es el conector donde encaja el procesador. Solo admite CPUs de su misma generación: el zócalo es lo primero que fija qué procesador puedes montar.</p>
+         <ul><li><b>Velocidad</b> (3600 MHz): frecuencia base del reloj de la CPU. La UEFI la lee del propio procesador en el POST.</li>
+         <li><b>Núcleos / hilos</b>: unidades de ejecución físicas y lógicas.</li>
+         <li>El disipador se atornilla sobre el zócalo; sin pasta térmica y ventilador la CPU se apaga por temperatura en segundos.</li></ul>
+         <p>En el modo avanzado se puede cambiar el multiplicador (overclock), activar la virtualización (SVM / VT-x) o limitar la potencia.</p>`,
+      tags:["RA1 · UT3","zócalo","POST"]
+    },
+    ram: {
+      t:"Ranuras DIMM y memoria RAM",
+      w:"Placa: cuatro ranuras largas a la derecha del zócalo · UEFI: panel Estado DRAM",
+      b:`<p>Cada ranura <b>DIMM</b> recibe un módulo de memoria. Las etiquetas <b>A1 A2 B1 B2</b> indican los dos <b>canales</b> del controlador de memoria (que hoy está dentro de la CPU, no en el chipset).</p>
+         <ul><li>Con dos módulos se ocupan <b>A2 y B2</b> (las ranuras coloreadas) para activar el <b>doble canal</b>: el ancho de banda se duplica.</li>
+         <li>La UEFI lee de cada módulo un chip llamado <b>SPD</b> que dice capacidad, frecuencia y latencias. Por eso aquí aparece "8192 MB DDR5 4800".</li>
+         <li>Un módulo mal insertado o incompatible hace que el POST se detenga con pitidos o LED de error DRAM.</li></ul>`,
+      tags:["RA1 · UT3","doble canal","SPD"]
+    },
+    storage: {
+      t:"Almacenamiento: M.2 NVMe y puertos SATA",
+      w:"Placa: ranura M.2 bajo el zócalo y bloque de 4 conectores SATA en el borde derecho · UEFI: panel Almacenamiento",
+      b:`<p>Dos formas de conectar discos:</p>
+         <ul><li><b>M.2 NVMe</b>: el SSD se atornilla directamente a la placa y habla <b>PCIe ×4</b> con la CPU. Es la vía más rápida (varios GB/s).</li>
+         <li><b>SATA 6 Gb/s</b>: cable de datos + cable de alimentación desde la fuente. Sirve para HDD, SSD de 2,5" y unidades ópticas. Tope teórico 600 MB/s.</li></ul>
+         <p>La UEFI enumera todo lo que detecta en cada puerto; si un disco no aparece aquí, el sistema operativo tampoco lo verá (cable, alimentación o puerto desactivado). El modo de la controladora SATA (<b>AHCI</b> / RAID) también se elige en el firmware.</p>`,
+      tags:["RA1 · UT3","NVMe","SATA","AHCI"]
+    },
+    vrm: {
+      t:"Alimentación: VRM, conector ATX 24 y EPS 8",
+      w:"Placa: fases con disipador alrededor del zócalo, conector ATX de 24 pines en el borde derecho y EPS de 8 pines arriba · UEFI: panel Tensión CPU",
+      b:`<p>La fuente entrega <b>12 V</b> por los conectores <b>ATX 24</b> (placa) y <b>EPS 8</b> (CPU). La CPU, en cambio, funciona a poco más de <b>1 V</b>.</p>
+         <ul><li>El <b>VRM</b> (regulador de tensión) convierte esos 12 V en el <b>VCore</b> (aquí 1,184 V) con varias <b>fases</b> que se reparten la corriente. Más fases y mejor disipador = menos calor y mayor estabilidad.</li>
+         <li>La "temperatura de la placa" suele ser un sensor cerca del VRM o del chipset.</li>
+         <li>Si olvidas el EPS de 8 pines, la placa enciende ventiladores pero no arranca: no hay alimentación para la CPU.</li></ul>`,
+      tags:["RA1 · UT3","VRM","ATX","fuente"]
+    },
+    fans: {
+      t:"Conectores de ventilador y curva de velocidad",
+      w:"Placa: cabezales de 4 pines CPU_FAN (junto al zócalo) y CHA_FAN (bordes) · UEFI: paneles Ventiladores y Curva",
+      b:`<p>Cada cabezal <b>4-pin</b> lleva: masa, +12 V, <b>tacómetro</b> (la placa lee las RPM) y <b>PWM</b> (la placa fija la velocidad).</p>
+         <ul><li><b>CPU_FAN</b> es obligatorio: si no detecta giro, la UEFI muestra "CPU Fan Error" y no arranca (se puede ignorar solo con refrigeración líquida).</li>
+         <li><b>N/A</b> en un cabezal significa que no hay nada conectado, no una avería.</li>
+         <li>La <b>curva</b> relaciona temperatura con porcentaje de velocidad. Arrastra los puntos arriba: menos ruido a baja temperatura, máximo caudal cuando la CPU se calienta.</li></ul>`,
+      tags:["RA1 · UT3","PWM","refrigeración"]
+    },
+    sensors: {
+      t:"Sensores y chip Super I/O",
+      w:"Placa: chip pequeño cerca del borde inferior · UEFI: panel Temperatura CPU",
+      b:`<p>La CPU lleva sensores térmicos internos; la placa añade el chip <b>Super I/O</b>, que centraliza los sensores de tensión y temperatura de la placa y controla los cabezales de ventilador.</p>
+         <ul><li>La UEFI y programas como HWiNFO leen estos datos por un bus interno (SMBus).</li>
+         <li>Temperaturas orientativas en reposo: CPU 30–45 °C, placa 25–35 °C. Por encima de 90–95 °C la CPU baja frecuencia (<i>throttling</i>) y después se apaga.</li></ul>`,
+      tags:["RA1 · UT3","Super I/O","diagnóstico"]
+    },
+    boot: {
+      t:"Prioridad de arranque y panel frontal",
+      w:"Placa: el orden vive en la NVRAM del firmware; el cabezal F_PANEL recibe los botones POWER y RESET de la caja · UEFI: panel Prioridad de arranque",
+      b:`<p>Tras el <b>POST</b>, el firmware recorre esta lista y arranca el primer dispositivo que tenga un cargador válido (con Secure Boot, además firmado).</p>
+         <ul><li>Para instalar un sistema operativo se pone el <b>USB</b> o el DVD delante del disco. Después conviene devolver el disco al primer puesto.</li>
+         <li>"Windows Boot Manager" o "ubuntu" son entradas UEFI que apuntan a la partición <b>EFI</b> del disco.</li>
+         <li><b>F8</b> abre un menú de arranque de una sola vez sin cambiar el orden guardado.</li></ul>`,
+      tags:["RA1 · UT4","POST","UEFI","instalación de SO"]
+    },
+    chipset: {
+      t:"Chipset (PCH), ranuras PCIe y panel trasero",
+      w:"Placa: chip bajo el disipador de la zona inferior derecha, ranuras PCIe a la izquierda, panel de E/S en el borde izquierdo · UEFI: panel Chipset y conectividad",
+      b:`<p>La CPU se comunica directamente con la RAM, la ranura <b>PCIe ×16</b> de la gráfica y el M.2 principal. Todo lo demás pasa por el <b>chipset</b>: USB, SATA, red, audio y las ranuras PCIe secundarias.</p>
+         <ul><li>Una ranura "×16" puede ser <b>×4 eléctrica</b>: tiene tamaño completo pero solo cuatro líneas de datos.</li>
+         <li>El chipset (X670, B650, Z790, B760…) fija cuántos puertos y de qué velocidad tiene la placa, y si permite overclock.</li>
+         <li>El <b>panel trasero</b> (rear I/O) agrupa USB, red, vídeo integrado y audio; el cabezal USB 3 interno lleva los puertos del frontal de la caja.</li></ul>`,
+      tags:["RA1 · UT2","PCIe","chipset"]
+    },
+    firmware: {
+      t:"Chip UEFI, Secure Boot y USB Flashback",
+      w:"Placa: chip SPI de 8 patillas junto al chipset y botón Flashback en el panel trasero · UEFI: panel Firmware y botón Modo avanzado",
+      b:`<p>El <b>firmware UEFI</b> (antes BIOS) vive en un chip <b>flash SPI</b> soldado a la placa. Es el primer programa que ejecuta la CPU: inicializa memoria, cuenta dispositivos (POST) y cede el control al cargador del sistema operativo.</p>
+         <ul><li><b>EZ Mode</b> muestra lo esencial; <b>Modo avanzado (F7)</b> da acceso a cada parámetro.</li>
+         <li><b>Secure Boot</b> solo arranca cargadores firmados; hay que desactivarlo para algunos Linux o herramientas antiguas.</li>
+         <li><b>USB Flashback</b>: un microcontrolador aparte reescribe el chip desde un USB con solo la fuente conectada, sin CPU ni RAM. Sirve para actualizar la placa cuando aún no soporta la CPU nueva, o para recuperar un firmware corrupto.</li>
+         <li>Muchas placas llevan <b>dos chips</b> (Dual BIOS) por si una actualización falla.</li></ul>`,
+      tags:["RA1 · UT2","UEFI","Secure Boot","actualización"]
+    },
+    cmos: {
+      t:"Pila CMOS, NVRAM y jumper CLR_CMOS",
+      w:"Placa: pila de botón CR2032 en la zona inferior; jumper o botón CLR_CMOS al lado · UEFI: perfil de memoria y reloj",
+      b:`<p>Los ajustes que cambias en la UEFI (orden de arranque, perfil XMP/EXPO, curvas) se guardan en una memoria <b>NVRAM</b>. La pila <b>CR2032</b> mantiene el <b>reloj en tiempo real</b> cuando el equipo está sin corriente.</p>
+         <ul><li>Síntoma de pila agotada: la fecha vuelve a 2020 y aparece "CMOS checksum error" al arrancar.</li>
+         <li><b>CLR_CMOS</b> borra todos los ajustes y vuelve a valores por defecto: es la salida cuando un overclock o un perfil de memoria impide arrancar.</li>
+         <li><b>XMP/EXPO</b>: perfil guardado en el módulo de RAM con su frecuencia real; sin activarlo la memoria funciona a la velocidad estándar más baja.</li></ul>`,
+      tags:["RA1 · UT4","NVRAM","CR2032"]
+    }
+  };
+
+  const seen = new Set();
+  function updProgress(){ $("#progress").textContent = `Componentes vistos: ${seen.size} / ${Object.keys(C).length}`; }
+
+  function open(id){
+    const c = C[id]; if(!c) return;
+    $("#mTitle").textContent = c.t; $("#mWhere").textContent = c.w; $("#mBody").innerHTML = c.b;
+    $("#mTags").innerHTML = c.tags.map(t=>`<span class="tag">${t}</span>`).join("");
+    $("#modal").hidden = false; $("#mClose").focus();
+    seen.add(id); updProgress();
+    $$(`[data-c="${id}"]`).forEach(e=>e.classList.add("done"));
+  }
+  function close(){ $("#modal").hidden = true; }
+  $("#mClose").addEventListener("click", close);
+  $("#modal").addEventListener("click", e=>{ if(e.target===$("#modal")) close(); });
+
+  $$("[data-c]").forEach(el=>{
+    el.addEventListener("click", e=>{
+      if(e.target.closest("button, li, .pt")) return;
+      open(el.dataset.c);
+    });
+    el.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); open(el.dataset.c);} });
+  });
+
+  document.addEventListener("keydown", e=>{
+    if(e.key==="Escape") close();
+    if(e.key==="F7"){ e.preventDefault(); open("firmware"); }
+    if(e.key==="F8"){ e.preventDefault(); open("boot"); }
+    if(e.key==="F10"){ e.preventDefault(); save(); }
+    if(e.key==="F5"){ e.preventDefault(); defaults(); }
+  });
+
+  // ---------- Clock ----------
+  function tick(){
+    const d = new Date();
+    $("#clock").firstChild.textContent = d.toTimeString().slice(0,5);
+    $("#date").textContent = d.toLocaleDateString("es-ES",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
+  }
+  tick(); setInterval(tick, 15000);
+
+  // ---------- Fans ----------
+  const fans = [["CPU FAN",828],["CPU OPT",null],["CHA1 FAN",1331],["CHA2 FAN",null],["AIO PUMP",null],["M.2 FAN",null]];
+  $("#fans").innerHTML = fans.map(([n,r])=>`
+    <div class="fan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#5f6979" stroke-width="1.2"/>
+      <g class="${r?'spin':''}" fill="${r?'#f2b632':'#3a4250'}"><path d="M12 4a4 4 0 0 1 3 7l-3 1z"/><path d="M20 12a4 4 0 0 1-7 3l-1-3z"/><path d="M12 20a4 4 0 0 1-3-7l3-1z"/><path d="M4 12a4 4 0 0 1 7-3l1 3z"/></g></svg>
+      <div>${n}<br><span class="${r?'':'na'}" style="font-family:var(--font-mono)">${r? r+' RPM':'N/A'}</span></div></div>`).join("");
+
+  // ---------- Fan curve ----------
+  const pts = [{t:0,p:20},{t:30,p:20},{t:70,p:70},{t:100,p:100}];
+  const svg = $("#curve");
+  const X = t => 24 + t*2.5, Y = p => 112 - p*0.95;
+  function drawCurve(){
+    let s = "";
+    for(let p=0;p<=100;p+=25) s += `<line class="grid" x1="24" x2="274" y1="${Y(p)}" y2="${Y(p)}"/><text class="lbl" x="6" y="${Y(p)+3}">${p}</text>`;
+    for(let t=0;t<=100;t+=25) s += `<text class="lbl" x="${X(t)}" y="124" text-anchor="middle">${t}</text>`;
+    s += `<text class="lbl" x="284" y="124">°C</text><text class="lbl" x="8" y="10">%</text>`;
+    s += `<polyline class="line" points="${pts.map(q=>X(q.t)+','+Y(q.p)).join(' ')}"/>`;
+    pts.forEach((q,i)=> s += `<circle class="pt" data-i="${i}" cx="${X(q.t)}" cy="${Y(q.p)}" r="4"/>`);
+    svg.innerHTML = s;
+  }
+  drawCurve();
+  let dragI = null;
+  svg.addEventListener("pointerdown", e=>{ const c = e.target.closest(".pt"); if(!c) return; dragI = +c.dataset.i; svg.setPointerCapture(e.pointerId); });
+  svg.addEventListener("pointermove", e=>{
+    if(dragI===null) return;
+    const r = svg.getBoundingClientRect(); const y = (e.clientY - r.top) * (130/r.height);
+    let p = Math.round((112 - y)/0.95); p = Math.max(0, Math.min(100, p));
+    if(dragI>0) p = Math.max(p, pts[dragI-1].p);
+    if(dragI<pts.length-1) p = Math.min(p, pts[dragI+1].p);
+    pts[dragI].p = p; drawCurve();
+  });
+  svg.addEventListener("pointerup", ()=>{ dragI=null; });
+  svg.addEventListener("click", e=>{ if(!e.target.closest(".pt")) open("fans"); });
+
+  // ---------- Boot list ----------
+  let boot = ["Windows Boot Manager (M.2_1: SSD NVMe 1 TB)","USB: pendrive de instalación 32 GB","SATA6G_1: HDD 4 TB","Red (PXE IPv4)"];
+  function renderBoot(){
+    $("#bootlist").innerHTML = boot.map((b,i)=>`<li draggable="true" data-i="${i}"><span class="n">${i+1}</span><span>${b}</span>
+      <span class="mv"><button data-up="${i}" aria-label="Subir">▲</button><button data-down="${i}" aria-label="Bajar">▼</button></span></li>`).join("");
+    const first = boot[0];
+    $("#bootmsg").innerHTML = first.startsWith("USB") ? `<span style="color:var(--ok)">Arrancará el instalador desde USB. Recuerda volver a poner el disco primero al terminar.</span>`
+      : first.startsWith("Red") ? `<span style="color:var(--warn)">Intentará arrancar por red (PXE); si no hay servidor, pasará al siguiente.</span>`
+      : `Arrancará el sistema instalado en <b>${first.split(":")[0].replace("Windows Boot Manager (","").replace(")","")}</b>.`;
+  }
+  renderBoot();
+  $("#bootlist").addEventListener("click", e=>{
+    const up = e.target.dataset.up, down = e.target.dataset.down;
+    if(up!==undefined && +up>0){ const i=+up; [boot[i-1],boot[i]]=[boot[i],boot[i-1]]; renderBoot(); }
+    if(down!==undefined && +down<boot.length-1){ const i=+down; [boot[i+1],boot[i]]=[boot[i],boot[i+1]]; renderBoot(); }
+  });
+  let dragFrom = null;
+  $("#bootlist").addEventListener("dragstart", e=>{ const li=e.target.closest("li"); if(!li) return; dragFrom=+li.dataset.i; li.classList.add("drag"); });
+  $("#bootlist").addEventListener("dragover", e=>e.preventDefault());
+  $("#bootlist").addEventListener("drop", e=>{ e.preventDefault(); const li=e.target.closest("li"); if(!li||dragFrom===null) return; const to=+li.dataset.i; const [m]=boot.splice(dragFrom,1); boot.splice(to,0,m); dragFrom=null; renderBoot(); });
+  $("#bootlist").addEventListener("dragend", ()=>{ $$("#bootlist li").forEach(l=>l.classList.remove("drag")); });
+
+  // ---------- Buttons ----------
+  function defaults(){ boot = ["Windows Boot Manager (M.2_1: SSD NVMe 1 TB)","USB: pendrive de instalación 32 GB","SATA6G_1: HDD 4 TB","Red (PXE IPv4)"]; renderBoot(); pts[0].p=20;pts[1].p=20;pts[2].p=70;pts[3].p=100; drawCurve(); $("#xmp").textContent="Desactivado"; flash("Valores por defecto cargados. En una placa real esto equivale a CLR_CMOS."); }
+  function save(){ flash("Ajustes guardados en la NVRAM. El equipo se reiniciaría y pasaría por el POST con el nuevo orden de arranque."); }
+  function flash(m){ $("#bootmsg").innerHTML = `<span style="color:var(--amber2)">${m}</span>`; }
+  $("#bDefault").addEventListener("click", defaults);
+  $("#bSave").addEventListener("click", save);
+  $("#bAdv").addEventListener("click", ()=>open("firmware"));
+  $("#xmp").parentElement.parentElement.addEventListener("dblclick", ()=>{ $("#xmp").textContent = $("#xmp").textContent==="Desactivado" ? "Activado (DDR5-6000)" : "Desactivado"; });
+
+  // ---------- Sensors jitter ----------
+  setInterval(()=>{ $("#cputemp").textContent = (39 + Math.floor(Math.random()*5)) + " °C"; $("#mbtemp").textContent = (29 + Math.floor(Math.random()*3)) + " °C"; }, 2500);
+
+  // ---------- Mode switch ----------
+  function setMode(ami){
+    $("#ami").hidden = !ami; $("#bios").hidden = ami;
+    $("#swAmi").classList.toggle("on", ami); $("#swUefi").classList.toggle("on", !ami);
+    if(ami) renderAmi();
+  }
+  $("#swAmi").addEventListener("click", ()=>setMode(true));
+  $("#swUefi").addEventListener("click", ()=>setMode(false));
+
+  // ---------- AMI classic ----------
+  const AMI = [
+    {t:"Main", items:[
+      {sec:"System Overview"},
+      {l:"BIOS Version", v:["2802"], ro:1, c:"firmware", h:"Versión del firmware grabada en el chip SPI. Se compara con la web del fabricante para saber si hay actualización."},
+      {l:"Build Date", v:["11/09/2020"], ro:1, c:"firmware", h:"Fecha de compilación del firmware."},
+      {l:"Processor", v:["8-core 3600 MHz"], ro:1, c:"cpu", h:"Modelo y frecuencia leídos del procesador durante el POST."},
+      {l:"System Memory", v:["16384 MB"], ro:1, c:"ram", h:"Memoria total detectada sumando los módulos de las ranuras DIMM."},
+      {l:"System Time", v:["--:--:--"], ro:1, c:"cmos", h:"Reloj en tiempo real. Lo mantiene la pila CR2032 cuando no hay corriente.", clock:1},
+      {l:"System Date", v:["--"], ro:1, c:"cmos", h:"Si la fecha vuelve sola a un valor antiguo, la pila está agotada.", date:1}
+    ]},
+    {t:"Advanced", items:[
+      {sec:"CPU Configuration"},
+      {l:"SVM / Intel VT-x (Virtualization)", v:["Disabled","Enabled"], i:1, c:"cpu", h:"Extensiones de virtualización de la CPU. Necesarias para VirtualBox, VMware, Hyper-V o WSL2. Muchas placas las traen desactivadas."},
+      {l:"CPU Fan Speed Control", v:["Standard","Silent","Turbo","Manual"], i:0, c:"fans", h:"Perfil que aplica el Super I/O al cabezal CPU_FAN según la temperatura."},
+      {sec:"SATA Configuration"},
+      {l:"SATA Mode", v:["AHCI","IDE","RAID"], i:0, c:"storage", h:"AHCI: modo normal para SATA (NCQ, hot-plug). IDE: compatibilidad con SO antiguos. RAID: la controladora del chipset agrupa discos. Cambiarlo con un SO ya instalado puede impedir el arranque."},
+      {l:"M.2_1 Link", v:["PCIe x4","SATA"], i:0, c:"storage", h:"Algunas ranuras M.2 admiten SSD NVMe (PCIe) o SATA; el modo debe coincidir con la unidad."},
+      {sec:"USB Configuration"},
+      {l:"Legacy USB Support", v:["Enabled","Disabled"], i:0, c:"chipset", h:"Permite usar teclado y ratón USB antes de que cargue el sistema operativo (y en el propio Setup)."},
+      {sec:"Hardware Monitor"},
+      {l:"CPU Temperature", v:["41 °C"], ro:1, c:"sensors", h:"Sensor interno de la CPU leído por el Super I/O."},
+      {l:"CPU Fan Speed", v:["828 RPM"], ro:1, c:"fans", h:"Lectura del tacómetro del cabezal CPU_FAN. Si es 0 la placa avisa con 'CPU Fan Error'."},
+      {l:"VCore", v:["1.184 V"], ro:1, c:"vrm", h:"Tensión que el VRM entrega al procesador."}
+    ]},
+    {t:"Chipset", items:[
+      {sec:"North / South Bridge"},
+      {l:"Primary Graphics Adapter", v:["PCIe x16","Integrated"], i:0, c:"chipset", h:"Qué salida de vídeo usa el POST: la tarjeta en la ranura PCIe ×16 o la gráfica integrada del panel trasero."},
+      {l:"PCIe x16 Link Speed", v:["Auto","Gen 3","Gen 4"], i:0, c:"chipset", h:"Generación PCIe negociada con la tarjeta gráfica. Forzar Gen 3 ayuda a diagnosticar inestabilidad."},
+      {l:"Onboard LAN", v:["Enabled","Disabled"], i:0, c:"chipset", h:"Controlador de red conectado al chipset."},
+      {l:"HD Audio", v:["Enabled","Disabled"], i:0, c:"chipset", h:"Códec de audio integrado."},
+      {l:"Memory Profile (XMP/EXPO)", v:["Disabled","Profile 1 (DDR5-6000)"], i:0, c:"cmos", h:"Perfil de velocidad guardado en el SPD de los módulos. Sin activarlo la RAM va a la velocidad estándar. Si el equipo no arranca tras activarlo: CLR_CMOS."}
+    ]},
+    {t:"Boot", items:[
+      {sec:"Boot Settings Configuration"},
+      {l:"Boot Mode", v:["UEFI","Legacy (CSM)"], i:0, c:"firmware", h:"UEFI arranca desde la partición EFI (GPT). Legacy/CSM emula una BIOS antigua y arranca desde el MBR. Un disco instalado en un modo no arranca en el otro."},
+      {l:"Fast Boot", v:["Disabled","Enabled"], i:0, c:"firmware", h:"Salta parte del POST (USB, red). Más rápido, pero puede impedir entrar al Setup con el teclado."},
+      {l:"Quiet Boot", v:["Enabled","Disabled"], i:0, c:"firmware", h:"Muestra el logo en lugar de los mensajes del POST. Desactívalo para ver qué detecta la placa."},
+      {sec:"Boot Device Priority"},
+      {l:"1st Boot Device", v:["SSD NVMe (M.2_1)","USB pendrive","HDD SATA6G_1","Network (PXE)"], i:0, c:"boot", h:"Primer dispositivo en el que el firmware busca un cargador. Para instalar un SO, pon aquí el USB."},
+      {l:"2nd Boot Device", v:["USB pendrive","SSD NVMe (M.2_1)","HDD SATA6G_1","Network (PXE)"], i:0, c:"boot", h:"Se usa si el primero no tiene cargador o no responde."},
+      {l:"3rd Boot Device", v:["HDD SATA6G_1","Network (PXE)","Disabled"], i:0, c:"boot", h:"Tercer intento."}
+    ]},
+    {t:"Security", items:[
+      {sec:"Security Settings"},
+      {l:"Supervisor Password", v:["Not Installed","Installed"], i:0, c:"cmos", h:"Protege el Setup. Se guarda en la NVRAM: quitar la pila o CLR_CMOS la borra. Por eso en equipos corporativos la protección real es el TPM y el cifrado de disco."},
+      {l:"User Password", v:["Not Installed","Installed"], i:0, c:"cmos", h:"Pide contraseña al encender, antes de arrancar nada."},
+      {l:"Secure Boot", v:["Enabled","Disabled"], i:0, c:"firmware", h:"Solo arranca cargadores firmados con claves del firmware. Requisito de Windows 11. Desactívalo para algunos Linux o herramientas de arranque antiguas."},
+      {l:"TPM Device", v:["Enabled","Disabled"], i:0, c:"firmware", h:"Módulo de plataforma segura (fTPM en la CPU o chip aparte). Guarda las claves de BitLocker."}
+    ]},
+    {t:"Exit", items:[
+      {sec:"Exit Options"},
+      {l:"Save Changes and Exit", v:["F10"], ro:1, c:"cmos", h:"Escribe los cambios en la NVRAM y reinicia. El siguiente POST usa ya los valores nuevos.", act:"save"},
+      {l:"Discard Changes and Exit", v:["Esc"], ro:1, c:"cmos", h:"Sale sin guardar nada.", act:"discard"},
+      {l:"Load Optimal Defaults", v:["F9"], ro:1, c:"cmos", h:"Vuelve a los valores de fábrica sin borrar la fecha. Equivale casi a CLR_CMOS.", act:"defaults"}
+    ]}
+  ];
+  let aTab = 0, aRow = 0, aDirty = false;
+  function amiRows(){ return AMI[aTab].items.filter(x=>!x.sec); }
+  function renderAmi(){
+    $("#amiTabs").innerHTML = AMI.map((t,i)=>`<span class="${i===aTab?'on':''}" data-t="${i}">${t.t}</span>`).join("");
+    const rows = amiRows(); let k=0; const d=new Date();
+    $("#amiItems").innerHTML = AMI[aTab].items.map(x=>{
+      if(x.sec) return `<div class="sec">${x.sec}</div>`;
+      const idx = k++;
+      const val = x.clock ? d.toTimeString().slice(0,8) : x.date ? d.toLocaleDateString("es-ES") : x.v[x.i||0];
+      return `<div class="row ${idx===aRow?'sel':''} ${x.ro?'ro':''}" data-r="${idx}"><span>${x.l}</span><span class="v">${val}</span></div>`;
+    }).join("");
+    const cur = rows[aRow];
+    $("#amiHelp").innerHTML = cur ? `<b>${cur.l}</b>${cur.h}<div class="more">Enter: ver el componente de la placa (${C[cur.c].t}).${cur.ro?'':' + / −: cambiar el valor.'}</div>` : "";
+  }
+  function amiChange(dir){
+    const cur = amiRows()[aRow]; if(!cur || cur.ro) return;
+    cur.i = ((cur.i||0) + dir + cur.v.length) % cur.v.length; aDirty = true;
+    $("#amiMsg").textContent = `${cur.l} → ${cur.v[cur.i]}  (cambio pendiente de guardar con F10)`;
+    if(cur.l==="Secure Boot") $("#sb").textContent = cur.v[cur.i]==="Enabled"?"Activado":"Desactivado";
+    if(cur.l.startsWith("Memory Profile")) $("#xmp").textContent = cur.i? "Activado (DDR5-6000)":"Desactivado";
+    renderAmi();
+  }
+  function amiEnter(){
+    const cur = amiRows()[aRow]; if(!cur) return;
+    if(cur.act==="save"){ $("#amiMsg").textContent = "Guardado en NVRAM. Reiniciando… el POST aplicará los valores nuevos."; aDirty=false; return; }
+    if(cur.act==="discard"){ $("#amiMsg").textContent = "Cambios descartados. Saliendo del Setup."; aDirty=false; return; }
+    if(cur.act==="defaults"){ AMI.forEach(t=>t.items.forEach(x=>{ if(!x.ro) x.i=0; })); $("#amiMsg").textContent = "Valores óptimos cargados (pendiente de guardar)."; aDirty=true; renderAmi(); return; }
+    open(cur.c);
+  }
+  $("#amiTabs").addEventListener("click", e=>{ const s=e.target.closest("span[data-t]"); if(!s) return; aTab=+s.dataset.t; aRow=0; renderAmi(); });
+  $("#amiItems").addEventListener("click", e=>{ const r=e.target.closest(".row"); if(!r) return; if(+r.dataset.r===aRow){ amiEnter(); } else { aRow=+r.dataset.r; renderAmi(); } });
+  $("#amiItems").addEventListener("dblclick", e=>{ const r=e.target.closest(".row"); if(r){ aRow=+r.dataset.r; amiChange(1); } });
+  document.addEventListener("keydown", e=>{
+    if($("#ami").hidden || !$("#modal").hidden) return;
+    const n = amiRows().length;
+    if(e.key==="ArrowRight"){ aTab=(aTab+1)%AMI.length; aRow=0; }
+    else if(e.key==="ArrowLeft"){ aTab=(aTab+AMI.length-1)%AMI.length; aRow=0; }
+    else if(e.key==="ArrowDown"){ aRow=(aRow+1)%n; }
+    else if(e.key==="ArrowUp"){ aRow=(aRow+n-1)%n; }
+    else if(e.key==="+"||e.key==="="){ amiChange(1); return; }
+    else if(e.key==="-"){ amiChange(-1); return; }
+    else if(e.key==="Enter"){ e.preventDefault(); amiEnter(); return; }
+    else if(e.key==="F9"){ e.preventDefault(); aTab=5; aRow=2; amiEnter(); return; }
+    else return;
+    e.preventDefault(); renderAmi();
+  });
+  setInterval(()=>{ if(!$("#ami").hidden && aTab===0) renderAmi(); }, 1000);
+
+  // ---------- USB Flashback ----------
+  let fbs = 1;
+  function fbStep(){ $$(".fbstep").forEach(s=>{ const n=+s.dataset.s; s.classList.toggle("act", n===fbs); s.classList.toggle("ok", n<fbs); }); }
+  fbStep();
+  $("#fb1").addEventListener("click", ()=>{ fbs=2; fbStep(); $("#fb1").disabled=true; $("#fb2").disabled=false; $("#fblog").textContent="USB (FAT32) preparado: /PLACA.CAP · 32 MB · firmware ver. 2905. Sin el nombre exacto el microcontrolador no lo reconoce."; });
+  $("#fb2").addEventListener("click", ()=>{ fbs=3; fbStep(); $("#fb2").disabled=true; $("#fb3").disabled=false; $("#fbusb").setAttribute("opacity","1"); $("#fbport").setAttribute("fill","#4da3ff"); $("#fblog").textContent="USB conectado en el puerto Flashback. Equipo apagado, fuente en ON. Listo para pulsar."; });
+  $("#fb3").addEventListener("click", ()=>{
+    $("#fb3").disabled=true; $("#fbbtn").setAttribute("fill","#4da3ff"); $("#fbled").classList.add("busy");
+    let s=0; const st=["Leyendo PLACA.CAP del USB…","Verificando firma del archivo…","Borrando chip SPI…","Escribiendo bloque 1/4…","Escribiendo bloque 2/4…","Escribiendo bloque 3/4…","Escribiendo bloque 4/4…","Verificando…"];
+    const iv=setInterval(()=>{ if(s<st.length){ $("#fblog").textContent="LED parpadeando · "+st[s++]; } else { clearInterval(iv); $("#fbled").classList.remove("busy"); $("#fbled").setAttribute("fill","#333"); $("#fbbtn").setAttribute("fill","#2b2b2b"); fbs=4; fbStep(); seen.add("firmware"); updProgress(); $$('[data-c="firmware"]').forEach(e=>e.classList.add("done")); $("#fblog").innerHTML="<span style='color:var(--ok)'>LED apagado: firmware actualizado a la versión 2905.</span> Al encender, el primer POST tardará más y cargará valores por defecto: revisa el orden de arranque y el perfil de memoria."; } }, 700);
+  });
+
+  // ---------- Quiz ----------
+  const Q = [
+    {q:"En 'Estado DRAM' solo aparecen módulos en A2 y B2. ¿Por qué se montan así y no en A1 y A2?",
+     o:["Porque A1 y A2 están reservadas para memoria ECC","Para activar el doble canal: cada módulo en un canal distinto","Porque las ranuras A1 y B1 solo admiten DDR4"], a:1,
+     f:"A y B son los dos canales del controlador de memoria. Un módulo en cada canal duplica el ancho de banda."},
+    {q:"El equipo enciende ventiladores y luces pero no muestra nada en pantalla y la UEFI nunca aparece. Lo primero que revisarías en la placa:",
+     o:["El conector EPS de 8 pines de la CPU","La pila CR2032","El cable SATA del disco"], a:0,
+     f:"Sin el EPS, el VRM no recibe los 12 V para la CPU: la placa 'enciende' pero nunca ejecuta el firmware. La pila o el disco dan otros síntomas."},
+    {q:"Has actualizado la placa para una CPU nueva que aún no soporta, y no arranca. ¿Qué te permite reescribir el firmware sin CPU ni RAM instaladas?",
+     o:["Secure Boot","El jumper CLR_CMOS","USB Flashback (microcontrolador independiente)"], a:2,
+     f:"Flashback usa un chip aparte que lee el USB y reescribe el chip SPI con solo la fuente conectada. CLR_CMOS solo borra ajustes; Secure Boot no tiene que ver."}
+  ];
+  $("#quiz").innerHTML = Q.map((x,i)=>`<div class="q" data-q="${i}"><h4>${i+1}. ${x.q}</h4><div class="opts">${x.o.map((o,j)=>`<button data-j="${j}">${o}</button>`).join("")}</div><div class="fb"></div></div>`).join("");
+  $("#quiz").addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    const box = b.closest(".q"); const i=+box.dataset.q, j=+b.dataset.j;
+    box.querySelectorAll("button").forEach(x=>x.classList.remove("ok","ko"));
+    if(j===Q[i].a){ b.classList.add("ok"); box.querySelector(".fb").innerHTML = "<b style='color:var(--ok)'>Correcto.</b> " + Q[i].f; }
+    else { b.classList.add("ko"); box.querySelector(".fb").textContent = "No es eso. Vuelve a abrir el panel relacionado en la UEFI y prueba otra vez."; }
+  });
+})();
+</script>
+</body>
+</html>

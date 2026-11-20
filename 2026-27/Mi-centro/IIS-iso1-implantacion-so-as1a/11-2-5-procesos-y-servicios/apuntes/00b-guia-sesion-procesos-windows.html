@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de sesión: procesos y servicios en Windows — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+details{margin:.5em 0}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}}
+.analogia{border-left:6px solid var(--navy2);background:#eef4fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><div class="k">&gt; module ISO 0369 · UD2 · RA2.c</div><h1>Procesos y servicios en Windows</h1><p>Qué hacer, en qué orden y cómo comprobar que lo has hecho bien: misiones 5 a 7 de la práctica 6.</p><div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">Una sesión + remate en casa</span><span class="pill">Windows 11 + Windows Server</span></div></div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+<div class="wrap">
+
+<div class="card"><h2>Qué vas a aprender</h2>
+<ul><li>Cómo ver y controlar los <b>procesos</b> de Windows desde la consola.</li>
+<li>Qué es un <b>servicio</b> de Windows, su <b>estado</b> y su <b>tipo de inicio</b>.</li>
+<li>Cómo hacer que <b>tu propio script</b> arranque con el sistema y se reinicie si falla.</li></ul>
+<h3>Antes de empezar</h3>
+<ul><li><b>Windows 11</b> (misión 5) y <b>Windows Server</b> (misiones 6 y 7), con <b>instantánea</b> hecha: se reinicia.</li>
+<li>Existen las cuentas <code>ana</code> y <code>luis</code>.</li>
+<li>Tienes a mano <b>PowerShell como administrador</b> y <b>CMD como administrador</b> (clic derecho → Ejecutar como administrador).</li></ul>
+<div class="warn"><b>Dos trampas.</b><br>1) En PowerShell, <code>sc</code> es un <b>alias de otro comando</b> (<code>Set-Content</code>). Para el comando de servicios escribe <code>sc.exe</code>, o usa CMD.<br>2) Los permisos con paréntesis, como <code>(OI)(CI)</code>, solo van bien en CMD.</div>
+<div class="warn"><b>Guarda cada salida.</b> Esta guía es la práctica 6: copia siempre el comando <b>y</b> su resultado.</div></div>
+
+<div class="card"><h2>1. Procesos en Windows</h2>
+<div class="analogia"><b>Una receta y un cocinero.</b> Un programa es la receta (un archivo). Un <b>proceso</b> es esa receta <b>en marcha</b>: tiene un número (<b>PID</b>), un <b>dueño</b> y un <b>padre</b>. Es lo mismo que en Linux.</div>
+<h3>El árbol de procesos</h3>
+<pre>System (PID 4)
+ └─ smss.exe → wininit.exe
+                └─ services.exe
+                     ├─ svchost.exe   ← aloja varios servicios
+                     ├─ svchost.exe
+                     └─ spoolsv.exe   ← el servicio de impresión</pre>
+<p><b>svchost.exe</b> no es un virus ni un programa concreto: es un <b>contenedor</b> donde Windows ejecuta varios servicios a la vez. Es sospechoso solo si no cuelga de <code>services.exe</code> o no está en <code>C:\Windows\System32</code>.</p>
+<h3>Herramientas</h3>
+<table><tr><th>Quiero…</th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Ver procesos</td><td><code>ps</code>, <code>top</code></td><td><code>tasklist</code>, <code>Get-Process</code>, Administrador de tareas (<kbd>Ctrl</kbd>+<kbd>Mayús</kbd>+<kbd>Esc</kbd>)</td></tr>
+<tr><td>Terminar</td><td><code>kill</code></td><td><code>taskkill</code>, <code>Stop-Process</code></td></tr></table></div>
+
+<div class="card"><h2>2. Misión 5 · Procesos de un usuario</h2>
+<p>Hay que cerrar <b>solo</b> los procesos de <code>ana</code>, sin tocar los tuyos.</p>
+<div class="step"><input type="checkbox"><div>Abre una consola que actúe <b>como ana</b>: <pre>runas /user:ana cmd</pre> Te pedirá su contraseña. En la consola nueva abre tres Bloc de notas: <pre>start notepad
+start notepad
+start notepad</pre> Y en <b>tu</b> sesión, abre un Bloc de notas tuyo.</div></div>
+<div class="step"><input type="checkbox"><div>Localiza los de ana (en PowerShell de administrador): <pre>tasklist /FI "USERNAME eq ana"
+Get-Process notepad -IncludeUserName</pre> <span class="muted">Si <code>tasklist</code> no filtra, añade <code>/V</code>. Para <code>-IncludeUserName</code> la consola debe estar <b>elevada</b>.</span></div></div>
+<div class="step"><input type="checkbox"><div>Cierra <b>solo</b> los de ana, en <b>una línea</b>: <pre>Get-Process notepad -IncludeUserName | Where UserName -like '*\ana' | Stop-Process</pre></div></div>
+<div class="step"><input type="checkbox"><div><b>Comprueba</b> que solo queda el tuyo: <pre>tasklist /FI "IMAGENAME eq notepad.exe"</pre></div></div>
+<div class="step"><input type="checkbox"><div>Los cinco procesos que más memoria usan: <pre>Get-Process | Sort WS -Descending | Select -First 5 Name,Id,@{n='MB';e={[int]($_.WS/1MB)}}</pre></div></div>
+<div class="step"><input type="checkbox"><div>¿Qué servicios aloja el <code>svchost</code> más pesado? Sustituye <code>1234</code> por su PID: <pre>tasklist /SVC /FI "PID eq 1234"</pre></div></div>
+<div class="warn"><b>Por qué <code>'*\ana'</code> y no <code>'*ana'</code>:</b> el nombre aparece como <code>EQUIPO\ana</code>. Con <code>*ana</code> también coincidiría con un usuario llamado «luisana».</div>
+<div class="q" onclick="this.classList.toggle('open')">Stop-Process da «Acceso denegado». ¿Qué pasa? <small>(clic para ver la respuesta)</small><div class="ans">La consola de PowerShell no está elevada. Ábrela con clic derecho → <b>Ejecutar como administrador</b>.</div></div>
+<div class="q" onclick="this.classList.toggle('open')">Se cerraron todos los Bloc de notas, también el tuyo. ¿Qué falló? <small>(clic para ver la respuesta)</small><div class="ans">El filtro por usuario. Hay que usar <code>Where UserName -like '*\ana'</code> antes de <code>Stop-Process</code>.</div></div></div>
+
+<div class="card"><h2>3. Servicios en Windows</h2>
+<p>Un <b>servicio</b> es un proceso sin ventana que arranca con el sistema, <b>antes de que nadie inicie sesión</b>. Se gestiona con <code>services.msc</code>, <code>Get-Service</code> y <code>sc.exe</code>.</p>
+<h3>Dos propiedades distintas</h3>
+<table><tr><th>Propiedad</th><th>Pregunta</th><th>Valores</th><th>Equivale en Linux a…</th></tr>
+<tr><td><b>Estado</b> (Status)</td><td>¿Corre ahora?</td><td>Running / Stopped</td><td><code>is-active</code></td></tr>
+<tr><td><b>Tipo de inicio</b> (StartType)</td><td>¿Arrancará al reiniciar?</td><td>Automatic / Manual / Disabled</td><td><code>is-enabled</code></td></tr></table>
+<table><tr><th>Quiero…</th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Ver estado</td><td><code>systemctl status x</code></td><td><code>sc.exe query x</code> · <code>Get-Service x</code></td></tr>
+<tr><td>Ver tipo de inicio</td><td><code>systemctl is-enabled x</code></td><td><code>sc.exe qc x</code></td></tr>
+<tr><td>Parar</td><td><code>systemctl stop x</code></td><td><code>sc.exe stop x</code> · <code>Stop-Service x</code></td></tr>
+<tr><td>Deshabilitar</td><td><code>systemctl disable x</code></td><td><code>sc.exe config x start= disabled</code> · <code>Set-Service x -StartupType Disabled</code></td></tr>
+<tr><td>Registro</td><td><code>journalctl -u x</code></td><td>Visor de eventos</td></tr></table>
+<div class="q" onclick="this.classList.toggle('open')">¿Por qué es peligroso tener el servicio de impresión activo en un servidor que no imprime? <small>(clic para ver la respuesta)</small><div class="ans">Por <b>seguridad</b>, no solo por memoria: ha tenido vulnerabilidades graves (PrintNightmare). Lo que no se usa se deshabilita.</div></div></div>
+
+<div class="card"><h2>4. Misión 6 · Deshabilitar el Spooler (Windows Server)</h2>
+<div class="step"><input type="checkbox"><div>Mira el estado actual: <pre>Get-Service Spooler
+sc.exe qc spooler
+sc.exe query spooler</pre></div></div>
+<div class="step"><input type="checkbox"><div>Párarlo y <b>deshabilítalo</b> (CMD de administrador): <pre>sc.exe stop spooler
+sc.exe config spooler start= disabled
+sc.exe qc spooler</pre> <b>Hay un espacio después de <code>start=</code></b>. Debe salir <code>START_TYPE : 4 DISABLED</code>. En PowerShell sería: <pre>Stop-Service Spooler
+Set-Service Spooler -StartupType Disabled</pre></div></div>
+<div class="step"><input type="checkbox"><div><b>Reinicia el servidor</b> y demuestra que no vuelve: <pre>sc.exe query spooler</pre> Debe salir <code>STATE : 1 STOPPED</code>.</div></div>
+<div class="step"><input type="checkbox"><div>Lista los servicios que están en <b>Automático</b> y <b>no están corriendo</b>: <pre>Get-Service | Where {$_.StartType -eq 'Automatic' -and $_.Status -ne 'Running'}</pre> Alguno es normal (por ejemplo los de «inicio retardado»). <b>Comenta</b> la lista, no solo la pegues.</div></div>
+<div class="step"><input type="checkbox"><div>Busca en el Visor de eventos el evento <b>7036</b> del Spooler: <pre>Get-WinEvent -FilterHashtable @{LogName='System';Id=7036} -MaxEvents 50 | Where {$_.Message -match 'Spooler|Cola de impresión'} | Select -First 5 TimeCreated,Message</pre> Debe aparecer: <i>El servicio Cola de impresión entró en el estado Detenido</i>.</div></div>
+<div class="warn"><b>Si no aparece el evento 7036:</b> solo se genera cuando el servicio <b>cambia</b> de estado. Búscalo justo después de hacer el <code>stop</code>.</div>
+<table><tr><th>Si falla</th><th>Causa probable</th></tr>
+<tr><td><code>sc stop</code> da error raro en PowerShell</td><td>Estás usando el alias <code>sc</code>; escribe <code>sc.exe</code></td></tr>
+<tr><td><code>sc.exe config</code> da error</td><td>Falta el espacio después de <code>start=</code></td></tr>
+<tr><td>«Acceso denegado»</td><td>Consola sin elevar</td></tr>
+<tr><td>El Spooler vuelve tras el reinicio</td><td>Solo hiciste <code>stop</code>, no <code>config start= disabled</code></td></tr></table></div>
+
+<div class="card"><h2>5. Misión 7 · Tu propio servicio (remate)</h2>
+<p>Un <code>.ps1</code> o un <code>.bat</code> <b>no puede ser un servicio de Windows directamente</b>. Hay dos soluciones aceptadas: un envoltorio como <b>NSSM</b> (hay que descargarlo) o una <b>tarea del Programador de tareas</b> que arranque con el sistema. Aquí usamos la segunda, que no necesita descargar nada.</p>
+<div class="step"><input type="checkbox"><div>Crea las carpetas y el script: <pre>mkdir C:\Scripts
+mkdir C:\Logs</pre> Contenido de <code>C:\Scripts\monitor.ps1</code>: <pre>while ($true) {
+  Get-Date | Out-File -Append C:\Logs\monitor.log
+  Start-Sleep -Seconds 30
+}</pre></div></div>
+<div class="step"><input type="checkbox"><div>Crea la tarea (en <b>Windows PowerShell 5.1</b>, el icono azul, como administrador): <pre>$a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File C:\Scripts\monitor.ps1'
+$t = New-ScheduledTaskTrigger -AtStartup
+$s = New-ScheduledTaskSettingsSet -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero)
+Register-ScheduledTask -TaskName MonitorLog -Action $a -Trigger $t -Settings $s -User 'SYSTEM' -RunLevel Highest
+Start-ScheduledTask -TaskName MonitorLog</pre> <span class="muted"><code>-AtStartup</code> la lanza con el sistema; <code>-RestartCount 3</code> la reinicia si falla; <code>-ExecutionTimeLimit ([TimeSpan]::Zero)</code> evita que Windows la mate a las 72 horas.</span></div></div>
+<div class="step"><input type="checkbox"><div><b>Compruébalo</b>: <pre>Get-ScheduledTask MonitorLog | Select TaskName,State
+Get-Content C:\Logs\monitor.log -Tail 3</pre> Reinicia y comprueba que el log <b>sigue creciendo</b> sin que hayas hecho nada.</div></div>
+<details><summary>Alternativa con NSSM (si puedes descargarlo)</summary><pre>nssm install MonitorLog "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" "-File C:\Scripts\monitor.ps1"
+sc.exe failure MonitorLog reset= 60 actions= restart/5000
+nssm start MonitorLog</pre><p>Con NSSM aparece en <code>services.msc</code>; con el Programador de tareas, no.</p></details>
+<div class="q" onclick="this.classList.toggle('open')">¿En qué se diferencia una tarea programada de un servicio de verdad? <small>(clic para ver la respuesta)</small><div class="ans">Un servicio aparece en <code>services.msc</code>, tiene estados y se gestiona con <code>sc.exe</code> o <code>Get-Service</code>. Una tarea está en el Programador de tareas y se gestiona con <code>schtasks</code> o <code>Get-ScheduledTask</code>. En la práctica hay que <b>justificar</b> cuál elegiste.</div></div>
+<table><tr><th>Si falla</th><th>Causa probable</th></tr>
+<tr><td><code>Register-ScheduledTask</code> no existe</td><td>Estás en PowerShell 7; abre Windows PowerShell (icono azul)</td></tr>
+<tr><td>El log no crece</td><td>No existe <code>C:\Logs</code>. Mira <code>Get-ScheduledTaskInfo MonitorLog</code>: <i>LastTaskResult</i> distinto de 0 es un fallo</td></tr>
+<tr><td>El script no arranca</td><td>Política de ejecución: por eso <code>-ExecutionPolicy Bypass</code></td></tr></table></div>
+
+<div class="card"><h2>Comprueba antes de terminar</h2>
+<table><tr><th>Comprobación</th><th>Debe verse</th></tr>
+<tr><td>Misión 5</td><td>Solo se cerraron los de ana; queda tu Bloc de notas; top 5 de memoria; servicios del <code>svchost</code></td></tr>
+<tr><td>Misión 6</td><td><code>START_TYPE : 4 DISABLED</code>, <code>STATE : 1 STOPPED</code> tras reiniciar, lista de automáticos parados y evento 7036</td></tr>
+<tr><td>Misión 7</td><td>Tarea creada, con reinicio si falla, log creciendo tras reiniciar</td></tr></table>
+<h3>Ideas clave</h3>
+<ol><li>Mismo concepto que en Linux, otras herramientas: <code>tasklist</code>/<code>Get-Process</code> para ver, <code>Stop-Process</code> para terminar.</li>
+<li>Se filtra por <b>usuario</b> antes de cerrar nada, y se <b>comprueba</b> después.</li>
+<li><b>Estado</b> y <b>tipo de inicio</b> son cosas distintas, como <i>is-active</i> e <i>is-enabled</i>: se comprueba reiniciando.</li>
+<li>En PowerShell, <code>sc</code> no es el comando de servicios: usa <code>sc.exe</code>.</li>
+<li>Lo que no se usa se <b>deshabilita</b>: seguridad, no solo rendimiento.</li></ol>
+<h3>Chuleta</h3>
+<table><tr><th>Quiero…</th><th>Comando</th></tr>
+<tr><td>Ver procesos</td><td><code>tasklist</code> · <code>Get-Process</code></td></tr>
+<tr><td>Procesos de un usuario</td><td><code>Get-Process -IncludeUserName | Where UserName -like '*\usuario'</code></td></tr>
+<tr><td>Servicios de un svchost</td><td><code>tasklist /SVC /FI "PID eq N"</code></td></tr>
+<tr><td>Estado / tipo de inicio</td><td><code>sc.exe query x</code> · <code>sc.exe qc x</code></td></tr>
+<tr><td>Parar y deshabilitar</td><td><code>sc.exe stop x</code> + <code>sc.exe config x start= disabled</code></td></tr>
+<tr><td>Eventos de servicios</td><td><code>Get-WinEvent -FilterHashtable @{LogName='System';Id=7036}</code></td></tr>
+<tr><td>Tarea al iniciar</td><td><code>Register-ScheduledTask</code> con <code>-AtStartup</code></td></tr></table></div>
+
+</div>
+<script>
+(function(){
+ var iso_alumno_proc_win='iso_alumno_proc_win',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(iso_alumno_proc_win)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b,i){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(iso_alumno_proc_win,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+})();
+</script>
+</body>
+</html>
