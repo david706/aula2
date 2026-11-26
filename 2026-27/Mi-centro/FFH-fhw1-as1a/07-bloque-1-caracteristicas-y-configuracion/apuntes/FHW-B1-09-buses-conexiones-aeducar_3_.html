@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buses y conexiones de la placa</title>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: una columna de lectura (~860px) con esquema de placa interactivo arriba, fichas de comandos con salida real y autoevaluación al final */
+:root{
+  --bg:#F3F5F2; --card:#FFFFFF; --ink:#18201C; --soft:#58655E; --line:#D5DDD7;
+  --pcb:#1F5D45; --pcb-soft:#E3EFE8; --copper:#B5651D; --copper-soft:#F8EBDD;
+  --code-bg:#14201A; --code-ink:#D7EADF; --code-dim:#7FA08E; --hl:#F2C14E;
+  --ok:#1E7A46; --ok-soft:#E2F3E8; --bad:#B42318; --bad-soft:#FCE9E7;
+  --f-ui:system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,Cantarell,"Noto Sans",sans-serif;
+  --f-mono:ui-monospace,"DejaVu Sans Mono","Cascadia Mono","Liberation Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1512; --card:#17201B; --ink:#E4ECE7; --soft:#9AAAA1; --line:#2A3830;
+    --pcb:#6FC79D; --pcb-soft:#183027; --copper:#E39A55; --copper-soft:#33251A;
+    --code-bg:#0A0F0C; --code-ink:#D7EADF; --code-dim:#6E8C7C; --hl:#F2C14E;
+    --ok:#5BCB88; --ok-soft:#14301F; --bad:#F2877D; --bad-soft:#3A1714; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1512; --card:#17201B; --ink:#E4ECE7; --soft:#9AAAA1; --line:#2A3830;
+  --pcb:#6FC79D; --pcb-soft:#183027; --copper:#E39A55; --copper-soft:#33251A;
+  --code-bg:#0A0F0C; --code-ink:#D7EADF; --code-dim:#6E8C7C; --hl:#F2C14E;
+  --ok:#5BCB88; --ok-soft:#14301F; --bad:#F2877D; --bad-soft:#3A1714; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:16px;line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 64px;display:flex;flex-direction:column;gap:40px}
+header{display:flex;flex-direction:column;gap:10px;border-bottom:2px solid var(--pcb);padding-bottom:22px}
+.tag{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--pcb)}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h2{font-size:23px;line-height:1.25;margin:0;text-wrap:balance}
+h3{font-size:17.5px;margin:0}
+p{margin:0;max-width:68ch}
+.lead{font-size:18px;color:var(--soft)}
+section{display:flex;flex-direction:column;gap:16px}
+.sec-no{font-family:var(--f-mono);font-size:13px;color:var(--copper);letter-spacing:.05em;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ce{color:var(--pcb);background:var(--pcb-soft);border-radius:4px;padding:1px 7px;font-size:12px}
+code{font-family:var(--f-mono);font-size:.9em;background:var(--pcb-soft);color:var(--ink);padding:1px 5px;border-radius:4px}
+.note{border-left:4px solid var(--copper);background:var(--copper-soft);padding:12px 16px;border-radius:0 8px 8px 0;display:flex;flex-direction:column;gap:6px}
+.note.green{border-color:var(--pcb);background:var(--pcb-soft)}
+.note b{color:var(--ink)}
+ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:4px;max-width:68ch}
+
+/* Diagrama */
+.board{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+.svgbox{overflow-x:auto}
+.svgbox svg{display:block;width:100%;min-width:620px;height:auto}
+.node rect{fill:var(--card);stroke:var(--soft);stroke-width:1.5;transition:stroke .15s,fill .15s}
+.node{cursor:pointer}
+.node:focus{outline:none}
+.node:hover rect,.node:focus-visible rect{stroke:var(--copper);stroke-width:2.5}
+.node.on rect{fill:var(--copper-soft);stroke:var(--copper);stroke-width:2.5}
+.node .t{font:600 14px var(--f-ui);fill:var(--ink)}
+.node .s{font:12px var(--f-ui);fill:var(--soft)}
+.node.core rect{fill:var(--pcb-soft);stroke:var(--pcb)}
+.node.core.on rect{fill:var(--copper-soft);stroke:var(--copper)}
+.bus{stroke:var(--pcb);stroke-width:4;fill:none;stroke-linecap:round}
+.bus.thin{stroke-width:2}
+.bus.slow{stroke-dasharray:5 5;stroke-width:2;stroke:var(--soft)}
+.bus.on{stroke:var(--copper)}
+.bl{font:600 11.5px var(--f-mono);fill:var(--pcb)}
+.bl.dim{fill:var(--soft)}
+.info{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px;min-height:96px}
+.info h3{color:var(--copper)}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:26px;height:0;border-top:4px solid var(--pcb)}
+.legend i.s{border-top:2px dashed var(--soft)}
+
+/* Tablas */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);background:var(--pcb-soft)}
+tr:last-child td{border-bottom:0}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap;font-family:var(--f-mono);font-size:13.5px}
+td b{color:var(--pcb)}
+
+/* Cálculos */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.calc div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.calc .f{font-family:var(--f-mono);font-size:13.5px;color:var(--soft);font-variant-numeric:tabular-nums}
+.calc .r{font-family:var(--f-mono);font-size:20px;font-weight:700;color:var(--copper)}
+
+/* Comandos */
+.cmd{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.cmd-h{padding:14px 16px 10px;display:flex;flex-direction:column;gap:6px}
+.prompt{display:flex;align-items:center;gap:10px;background:var(--code-bg);padding:10px 12px 10px 16px}
+.prompt pre{flex:1;min-width:0;margin:0;overflow-x:auto;color:var(--hl);font:600 14px var(--f-mono)}
+.prompt pre::before{content:"$ ";color:var(--code-dim)}
+.copy{font:600 12px var(--f-ui);border:1px solid var(--code-dim);background:transparent;color:var(--code-ink);border-radius:6px;padding:5px 10px;cursor:pointer;flex:none}
+.copy:hover,.copy:focus-visible{border-color:var(--hl);color:var(--hl);outline:none}
+.out{background:var(--code-bg);border-top:1px dashed var(--code-dim);margin:0;padding:12px 16px;overflow-x:auto;color:var(--code-ink);font:13px/1.5 var(--f-mono);white-space:pre}
+.out mark{background:transparent;color:var(--hl);font-weight:700}
+.out .d{color:var(--code-dim)}
+.admin{margin:0 16px 14px;border:1px dashed var(--soft);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.admin-h{padding:10px 14px;display:flex;flex-direction:column;gap:4px;font-size:14.5px;background:var(--bg)}
+.admin-h .k{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--soft)}
+.admin .cmdline{margin:0;padding:8px 14px;background:var(--code-bg);color:var(--code-dim);font:600 13.5px var(--f-mono);overflow-x:auto;white-space:pre}
+.admin .out{border-top:0}
+.look{padding:12px 16px 14px;display:flex;flex-direction:column;gap:6px;font-size:15px}
+.look .k{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--copper)}
+
+/* Paths */
+.steps{margin:0;padding-left:24px;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+.k-tag{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--copper)}
+.path ul{padding-left:18px}
+.chain.flow{font-family:var(--f-ui);font-size:14px}
+.chain.flow span{padding:6px 10px;background:var(--card);border:1px solid var(--line)}
+.look ul{padding-left:18px}
+
+.paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.path{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12.5px}
+.chain span{background:var(--pcb-soft);border-radius:5px;padding:2px 7px}
+.chain em{font-style:normal;color:var(--copper);font-weight:700}
+
+footer{font-size:13.5px;color:var(--soft);border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <span class="tag">FHW (0371) · 1.º ASIR · RA1 · Configura equipos microinformáticos, componentes y periféricos</span>
+  <h1>Buses y conexiones de la placa base</h1>
+  <p class="lead">Cómo se comunican la CPU, la memoria, el almacenamiento, la red y los sensores. Primero lo vemos en el esquema y en el simulador UEFI, y después lo comprobamos en tu propio equipo con comandos de Vitalinux.</p>
+</header>
+
+<section>
+  <span class="sec-no">1 · QUÉ ES UN BUS <span class="ce">CE 1.c</span></span>
+  <h2>Un camino compartido para mover datos</h2>
+  <p>Un <b>bus</b> es el conjunto de líneas eléctricas y reglas (protocolo) que usan dos o más componentes para intercambiar información. Por un bus viajan tres tipos de señales: <b>datos</b> (lo que se transmite), <b>direcciones</b> (a dónde va) y <b>control</b> (lectura, escritura, reloj, interrupciones).</p>
+  <ul>
+    <li><b>Paralelo:</b> muchos bits a la vez por muchas líneas. Es el caso del bus de memoria DDR (64 bits por módulo).</li>
+    <li><b>Serie:</b> los bits van uno tras otro por pares de líneas muy rápidas. Hoy casi todo es serie: PCIe, SATA, USB, Thunderbolt.</li>
+    <li><b>Ancho de banda:</b> la cantidad de datos por segundo. Depende de la velocidad de cada línea y de cuántas líneas hay.</li>
+    <li><b>Control:</b> además de los datos, el bus lleva las señales que organizan la comunicación, entre ellas las <b>interrupciones</b> (apartado 7).</li>
+  </ul>
+  <div class="note">
+    <b>M.2 no es un bus.</b>
+    <p>M.2 es un <b>formato de tarjeta y de ranura</b>. Por una ranura M.2 puede ir un SSD <b>SATA</b> (lento, como un disco de 2,5″) o un SSD <b>NVMe</b>, que usa el bus <b>PCIe</b>. NVMe es el protocolo que hablan esos SSD sobre PCIe. Por eso en <code>lsblk</code> verás <code>sata</code> o <code>nvme</code>, nunca «m2».</p>
+  </div>
+</section>
+
+<section>
+  <span class="sec-no">2 · ESQUEMA DE UNA PLACA AM5 <span class="ce">CE 1.a · 1.c</span></span>
+  <h2>Quién se conecta con quién</h2>
+  <p>Ejemplo: placa con chipset B650, procesador Ryzen 7000 (zócalo AM5) y dos módulos DDR5-4800, como el del simulador UEFI. <b>Pulsa cada bloque</b> para ver por qué bus se comunica.</p>
+  <div class="board">
+    <div class="svgbox">
+    <svg viewBox="0 0 760 480" role="img" aria-label="Esquema de buses de una placa base AM5">
+      <!-- buses -->
+      <path class="bus" data-b="ram" d="M200 90 H280"/>
+      <path class="bus" data-b="gpu" d="M480 75 H560 V55"/>
+      <path class="bus" data-b="m2a" d="M480 110 H560 V135"/>
+      <path class="bus" data-b="chip" d="M380 140 V240"/>
+      <path class="bus thin" data-b="sata" d="M280 265 H200"/>
+      <path class="bus thin" data-b="usb" d="M280 300 H240 V365 H200"/>
+      <path class="bus thin" data-b="lan" d="M480 265 H560"/>
+      <path class="bus thin" data-b="m2b" d="M480 300 H520 V365 H560"/>
+      <path class="bus slow" data-b="sio" d="M380 320 V390"/>
+      <!-- etiquetas de bus -->
+      <text class="bl" x="206" y="80">DDR5 · 2 canales</text>
+      <text class="bl" x="488" y="68">PCIe 5.0 x16</text>
+      <text class="bl" x="488" y="104">PCIe 5.0 x4</text>
+      <text class="bl" x="390" y="196">PCIe 4.0 x4</text>
+      <text class="bl" x="390" y="211">(enlace CPU–chipset)</text>
+      <text class="bl" x="208" y="257">SATA 6 Gb/s</text>
+      <text class="bl" x="246" y="357">USB</text>
+      <text class="bl" x="488" y="257">PCIe x1</text>
+      <text class="bl" x="490" y="357">PCIe 4.0 x4</text>
+      <text class="bl dim" x="390" y="362">LPC / eSPI</text>
+      <!-- nodos -->
+      <g class="node" data-k="ram" tabindex="0" role="button" aria-label="Memoria RAM"><rect x="30" y="45" width="170" height="90" rx="8"/><text class="t" x="44" y="78">Memoria DDR5</text><text class="s" x="44" y="98">2 × 16 GB · 4800 MT/s</text><text class="s" x="44" y="116">canal A + canal B</text></g>
+      <g class="node core" data-k="cpu" tabindex="0" role="button" aria-label="Procesador"><rect x="280" y="40" width="200" height="100" rx="8"/><text class="t" x="294" y="72">CPU · zócalo AM5</text><text class="s" x="294" y="92">controlador de memoria</text><text class="s" x="294" y="110">28 líneas PCIe 5.0</text><text class="s" x="294" y="128">+ algunos USB propios</text></g>
+      <g class="node" data-k="gpu" tabindex="0" role="button" aria-label="Tarjeta gráfica"><rect x="560" y="15" width="170" height="60" rx="8"/><text class="t" x="574" y="42">Gráfica</text><text class="s" x="574" y="60">ranura PCIe x16</text></g>
+      <g class="node" data-k="m2a" tabindex="0" role="button" aria-label="SSD M.2 NVMe de la CPU"><rect x="560" y="105" width="170" height="60" rx="8"/><text class="t" x="574" y="132">SSD M.2 NVMe</text><text class="s" x="574" y="150">ranura M.2_1 (CPU)</text></g>
+      <g class="node core" data-k="chip" tabindex="0" role="button" aria-label="Chipset"><rect x="280" y="240" width="200" height="80" rx="8"/><text class="t" x="294" y="272">Chipset B650</text><text class="s" x="294" y="292">reparte el enlace x4</text><text class="s" x="294" y="308">entre muchos dispositivos</text></g>
+      <g class="node" data-k="sata" tabindex="0" role="button" aria-label="Discos SATA"><rect x="30" y="235" width="170" height="60" rx="8"/><text class="t" x="44" y="262">Discos SATA</text><text class="s" x="44" y="280">SSD 2,5″ · HDD · DVD</text></g>
+      <g class="node" data-k="usb" tabindex="0" role="button" aria-label="Puertos USB"><rect x="30" y="335" width="170" height="60" rx="8"/><text class="t" x="44" y="362">Puertos USB</text><text class="s" x="44" y="380">traseros y frontales</text></g>
+      <g class="node" data-k="lan" tabindex="0" role="button" aria-label="Tarjeta de red"><rect x="560" y="235" width="170" height="60" rx="8"/><text class="t" x="574" y="262">Red 2,5 GbE</text><text class="s" x="574" y="280">chip Realtek / Intel</text></g>
+      <g class="node" data-k="m2b" tabindex="0" role="button" aria-label="Segundo M.2"><rect x="560" y="335" width="170" height="60" rx="8"/><text class="t" x="574" y="362">2.º M.2</text><text class="s" x="574" y="380">ranura M.2_2 (chipset)</text></g>
+      <g class="node" data-k="sio" tabindex="0" role="button" aria-label="Chip Super I/O"><rect x="280" y="390" width="200" height="70" rx="8"/><text class="t" x="294" y="418">Super I/O</text><text class="s" x="294" y="436">ventiladores, tensiones,</text><text class="s" x="294" y="452">temperaturas de placa</text></g>
+    </svg>
+    </div>
+    <div class="legend"><span><i></i> bus de alta velocidad</span><span><i class="s"></i> bus lento de control</span></div>
+    <div class="info" id="info" aria-live="polite"></div>
+  </div>
+  <div class="note green">
+    <b>La idea clave del esquema</b>
+    <p>Lo más rápido (memoria, gráfica y el primer M.2) va <b>directo a la CPU</b>. Todo lo que cuelga del chipset (SATA, USB, red, el segundo M.2) <b>comparte</b> el enlace PCIe 4.0 x4 entre CPU y chipset, unos 7,9 GB/s en total.</p>
+  </div>
+</section>
+
+<section>
+  <span class="sec-no">3 · LOS BUSES QUE VAS A ENCONTRAR <span class="ce">CE 1.c · 1.h</span></span>
+  <h2>Tabla de buses y conexiones</h2>
+  <div class="tw">
+  <table>
+    <thead><tr><th>Bus</th><th>Qué conecta</th><th>Velocidad (ejemplos)</th><th>Cómo verlo en Linux</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bus de memoria (DDR5)</b></td><td>RAM ↔ controlador de memoria de la CPU</td><td class="n">DDR5-4800: 38,4 GB/s por módulo</td><td><code>free -h</code> (solo el total)</td></tr>
+      <tr><td><b>PCIe</b></td><td>Gráfica, SSD NVMe, red, CPU ↔ chipset</td><td class="n">≈1 GB/s por línea (3.0)<br>≈2 GB/s (4.0) · ≈4 GB/s (5.0)</td><td><code>lspci</code>, <code>/sys/bus/pci</code></td></tr>
+      <tr><td><b>SATA</b></td><td>Discos de 2,5″ y 3,5″, SSD M.2 SATA, lectores ópticos</td><td class="n">SATA III: 6 Gb/s ≈ 600 MB/s</td><td><code>lsblk</code>, <code>/sys/class/ata_link</code></td></tr>
+      <tr><td><b>NVMe sobre PCIe</b></td><td>SSD M.2 NVMe</td><td class="n">4.0 x4 ≈ 7,9 GB/s</td><td><code>lsblk</code>, <code>/sys/class/nvme</code></td></tr>
+      <tr><td><b>USB</b></td><td>Periféricos externos y cabezales frontales</td><td class="n">2.0: 480 Mb/s · 3.2 Gen1: 5 Gb/s<br>Gen2: 10 Gb/s · USB4: 40 Gb/s</td><td><code>lsusb</code>, <code>lsusb -t</code></td></tr>
+      <tr><td><b>Thunderbolt</b></td><td>Docks, pantallas, discos externos (por USB-C)</td><td class="n">TB3/TB4: 40 Gb/s · TB5: 80 Gb/s</td><td><code>boltctl</code>, <code>lspci</code></td></tr>
+      <tr><td><b>LPC / eSPI</b></td><td>Chip Super I/O, TPM y otros chips lentos</td><td class="n">Pocos MB/s</td><td><code>sensors</code> (adaptador «ISA»)</td></tr>
+      <tr><td><b>SMBus / I²C</b></td><td>Chip SPD de cada módulo de RAM, algunos sensores</td><td class="n">100–400 kHz</td><td>Solo con permisos de administrador</td></tr>
+      <tr><td><b>SPI</b></td><td>Chip flash donde se guarda el firmware UEFI</td><td class="n">Decenas de MHz</td><td>No se ve desde el sistema</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Thunderbolt transporta por el mismo cable <b>PCIe y DisplayPort</b>. Por eso un disco o una gráfica externa por Thunderbolt aparecen en <code>lspci</code> como si estuvieran dentro del equipo.</p>
+</section>
+
+<section>
+  <span class="sec-no">4 · EJEMPLOS DE CÁLCULO <span class="ce">CE 1.e</span></span>
+  <h2>¿Cuántos datos caben por cada bus?</h2>
+  <div class="calc">
+    <div><h3>RAM DDR5-4800</h3><span class="f">4800 MT/s × 8 bytes = 38,4 GB/s<br>× 2 módulos en doble canal</span><span class="r">76,8 GB/s</span></div>
+    <div><h3>SSD NVMe PCIe 4.0 x4</h3><span class="f">16 GT/s × 128/130 ÷ 8 ≈ 1,97 GB/s<br>× 4 líneas</span><span class="r">≈ 7,9 GB/s</span></div>
+    <div><h3>Disco SATA III</h3><span class="f">6 Gb/s × 8/10 (codificación)<br>÷ 8 bits</span><span class="r">≈ 600 MB/s</span></div>
+    <div><h3>Gráfica PCIe 5.0 x16</h3><span class="f">32 GT/s × 128/130 ÷ 8 ≈ 3,94 GB/s<br>× 16 líneas</span><span class="r">≈ 63 GB/s</span></div>
+  </div>
+  <p>Conclusión: un SSD NVMe de gama media es unas <b>13 veces</b> más rápido que el límite de SATA, y la RAM es unas <b>10 veces</b> más rápida que ese SSD. Esto lo comprobarás con números reales en la próxima sesión de benchmarks.</p>
+</section>
+
+<section>
+  <span class="sec-no">5 · DEL SENSOR A LA PANTALLA <span class="ce">CE 1.a · 1.f</span></span>
+  <h2>¿Cómo llega la temperatura al simulador UEFI?</h2>
+  <p>No todas las temperaturas viajan por el mismo camino. Cada sensor usa el bus del chip que lo contiene:</p>
+  <div class="paths">
+    <div class="path"><h3>Temperatura de la CPU</h3><div class="chain"><span>sensor dentro de la CPU</span><em>→</em><span>registros internos</span><em>→</em><span>UEFI / Linux</span></div><p>La mide el propio procesador. En Linux sale como <code>k10temp</code> (AMD) o <code>coretemp</code> (Intel).</p></div>
+    <div class="path"><h3>Placa, ventiladores y tensiones</h3><div class="chain"><span>sondas y tacómetros</span><em>→</em><span>Super I/O</span><em>→ LPC/eSPI →</em><span>chipset o CPU</span></div><p>El Super I/O (Nuvoton, ITE…) lee sondas y RPM. En Linux sale como <code>nct67xx</code> o <code>it87</code>.</p></div>
+    <div class="path"><h3>Temperatura del SSD NVMe</h3><div class="chain"><span>sensor del SSD</span><em>→ PCIe →</em><span>CPU</span></div><p>El propio disco la informa por su bus. En Linux sale como <code>nvme</code> en <code>sensors</code> y en <code>smartctl</code>.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="sec-no">6 · COMPRUÉBALO EN TU EQUIPO <span class="ce">CE 1.f</span></span>
+  <h2>Comandos en Vitalinux, con salida de ejemplo</h2>
+  <div class="note">
+    <b>Antes de empezar</b>
+    <ul>
+      <li>Hazlo en el <b>equipo físico</b>, no en la máquina virtual. En VirtualBox verás hardware emulado y <code>sensors</code> dirá que no encuentra sensores (lo ves al final de esta sección).</li>
+      <li>Tu usuario <b>no tiene permisos de administrador</b>. Todos los comandos que tienes que escribir funcionan con tu usuario. Algunos datos (detalle de la RAM, salud del disco) solo se pueden leer con permisos de administrador: en esos casos verás un recuadro con borde discontinuo que muestra <b>cómo funcionaría con esos permisos</b>, con una salida de ejemplo. Ese recuadro es solo para leerlo, no lo ejecutes.</li>
+      <li>Para guardar el registro que tienes que entregar, empieza con <code>script -q buses_apellido.txt</code>. Todo lo que escribas y lo que salga quedará en ese archivo. Al acabar, escribe <code>exit</code>.</li>
+      <li>Las salidas de abajo son de un equipo de ejemplo. Las tuyas tendrán otros modelos y números.</li>
+    </ul>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.1 · Discos y su bus</h3><p>La columna <code>TRAN</code> (transporte) dice por qué bus se conecta cada disco. La opción <code>-d</code> oculta las particiones.</p></div>
+    <div class="prompt"><pre>lsblk -d -o NAME,TRAN,SIZE,MODEL</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">NAME    <mark>TRAN</mark>    SIZE MODEL
+sda     <mark>sata</mark>  476,9G CT500MX500SSD1
+sdb     <mark>usb</mark>    14,6G Cruzer Blade
+nvme0n1 <mark>nvme</mark>  931,5G Samsung SSD 980 1TB</pre>
+    <div class="look"><span class="k">Qué buscar</span><p><code>sata</code> = SSD de 2,5″ o disco duro. <code>nvme</code> = SSD M.2 por PCIe. <code>usb</code> = pendrive. Fíjate en que el nombre del dispositivo ya lo indica: <code>sdX</code> para SATA y USB, <code>nvmeXnY</code> para NVMe.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.2 · Dispositivos PCIe</h3><p>Lista todo lo que cuelga del bus PCI Express. La primera columna es la dirección <i>bus:dispositivo.función</i>.</p></div>
+    <div class="prompt"><pre>lspci</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">00:00.0 Host bridge: AMD Raphael/Granite Ridge Root Complex
+<mark>01:00.0 VGA compatible controller: NVIDIA AD106 [GeForce RTX 4060 Ti]</mark>
+<mark>02:00.0 Non-Volatile memory controller: Samsung NVMe SSD Controller 980</mark>
+03:00.0 PCI bridge: AMD 600 Series Chipset PCIe Switch Upstream Port
+<mark>0a:00.0 SATA controller: AMD 600 Series Chipset SATA Controller</mark>
+<mark>0b:00.0 Ethernet controller: Realtek RTL8125 2.5GbE Controller</mark>
+0c:00.0 USB controller: AMD 600 Series Chipset USB 3.2 Controller
+<span class="d">… (salida recortada)</span></pre>
+    <div class="look"><span class="k">Qué buscar</span><p>La gráfica (<i>VGA</i>), el SSD (<i>Non-Volatile memory</i>), la red (<i>Ethernet</i> o <i>Network</i>) y las controladoras SATA y USB. Las líneas «600 Series Chipset» son el chipset: los dispositivos que hay detrás dependen de él. Con <code>lspci -tv</code> lo ves en forma de árbol.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.3 · Velocidad y ancho real del enlace PCIe</h3><p>Linux guarda estos datos en la carpeta <code>/sys</code>, que puede leer cualquier usuario. Cambia <code>01:00.0</code> por la dirección de tu gráfica o de tu SSD en el paso anterior, con <code>0000:</code> delante.</p></div>
+    <div class="prompt"><pre>cd /sys/bus/pci/devices/0000:01:00.0 && cat max_link_speed max_link_width current_link_speed current_link_width</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out"><mark>16.0 GT/s PCIe</mark>     <span class="d">← máximo que admite</span>
+<mark>8</mark>                  <span class="d">← líneas que admite</span>
+<mark>2.5 GT/s PCIe</mark>      <span class="d">← velocidad que usa ahora</span>
+<mark>8</mark>                  <span class="d">← líneas que usa ahora</span></pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Generaciones: 2.5 GT/s = PCIe 1.0 · 5 = 2.0 · 8 = 3.0 · 16 = 4.0 · 32 = 5.0. En el ejemplo, la gráfica es PCIe 4.0 <b>x8</b> aunque esté en una ranura x16. Si la velocidad actual es menor que la máxima con el equipo en reposo, es ahorro de energía: cuando la gráfica trabaja, sube. Al terminar, vuelve a tu carpeta con <code>cd</code>.</p></div>
+    <div class="admin">
+      <div class="admin-h"><span class="k">Con permisos de administrador funcionaría así · solo para leer</span><p>El mismo dato sale con <code>lspci -vv</code>. Sin permisos, esa parte aparece como <code>&lt;access denied&gt;</code>.</p></div>
+      <pre class="cmdline">sudo lspci -s 01:00.0 -vv | grep -E "LnkCap:|LnkSta:"</pre>
+<pre class="out">LnkCap: Port #0, Speed <mark>16GT/s</mark>, Width <mark>x8</mark>, ASPM L1, Exit Latency L1 &lt;4us
+LnkSta: Speed <mark>2.5GT/s (downgraded)</mark>, Width <mark>x8</mark></pre>
+    </div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.4 · Árbol USB</h3><p>Muestra cada controladora USB, qué hay conectado y a qué velocidad negocia.</p></div>
+    <div class="prompt"><pre>lsusb -t</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">/:  Bus 001.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/10p, <mark>480M</mark>
+    |__ Port 002: Dev 002, If 0, Class=Human Interface Device, Driver=usbhid, <mark>1.5M</mark>
+    |__ Port 004: Dev 003, If 0, Class=Human Interface Device, Driver=usbhid, <mark>12M</mark>
+/:  Bus 002.Port 001: Dev 001, Class=root_hub, Driver=xhci_hcd/4p, <mark>10000M</mark>
+    |__ Port 001: Dev 002, If 0, Class=Mass Storage, Driver=usb-storage, <mark>5000M</mark></pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Ratón y teclado (<i>Human Interface Device</i>) van a 1,5 o 12 Mb/s: no necesitan más. Un pendrive USB 3 sale a 5000M. Si lo conectas en un puerto USB 2.0 verás 480M aunque el pendrive sea USB 3.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.5 · Memoria: tipo, velocidad y canal</h3><p>Con tu usuario, Linux solo te dice cuánta memoria hay en total. El tipo y la velocidad los tienes en el panel de memoria del simulador UEFI (DDR5 4800 MHz).</p></div>
+    <div class="prompt"><pre>free -h</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">               total        usado        libre  compartido   búf/caché   disponible
+Mem:           <mark>30Gi</mark>        3,1Gi         24Gi       312Mi       3,4Gi         27Gi
+Inter:         2,0Gi           0B        2,0Gi</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Con 2 módulos de 16 GB salen unos <b>30 GiB</b>, no 32: parte de la memoria la reserva el firmware y la gráfica integrada, y además Linux cuenta en GiB (1024³ bytes). <i>Inter</i> es la memoria de intercambio en disco, no RAM.</p></div>
+    <div class="admin">
+      <div class="admin-h"><span class="k">Con permisos de administrador funcionaría así · solo para leer</span><p><code>dmidecode</code> lee la tabla SMBIOS que rellena el firmware UEFI y muestra cada módulo con su canal.</p></div>
+      <pre class="cmdline">sudo dmidecode -t memory | grep -E "Size|Locator|Type:|Speed"</pre>
+<pre class="out">	Size: 16 GB
+	Locator: DIMM 1
+	Bank Locator: <mark>P0 CHANNEL A</mark>
+	Type: <mark>DDR5</mark>
+	Speed: <mark>4800 MT/s</mark>
+	Configured Memory Speed: 4800 MT/s
+	Size: 16 GB
+	Locator: DIMM 1
+	Bank Locator: <mark>P0 CHANNEL B</mark>
+	Type: DDR5
+	Speed: 4800 MT/s
+	Configured Memory Speed: 4800 MT/s</pre>
+      <div class="look"><span class="k">Cómo se interpreta</span><p>Un módulo en el canal A y otro en el B = <b>doble canal</b>. Si <code>Configured Memory Speed</code> fuera menor que <code>Speed</code>, la RAM estaría funcionando por debajo de su velocidad (por ejemplo, porque no está activado EXPO/XMP en la UEFI).</p></div>
+    </div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.6 · Sensores: lo mismo que el panel del simulador</h3><p>Muestra las temperaturas, tensiones y ventiladores que Linux puede leer.</p></div>
+    <div class="prompt"><pre>sensors</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out"><mark>k10temp-pci-00c3</mark>
+Adapter: PCI adapter
+Tctl:         +48.5°C
+
+<mark>nct6799-isa-0290</mark>
+Adapter: <mark>ISA adapter</mark>
+in0:          1.02 V
+fan2:          820 RPM
+SYSTIN:       +32.0°C
+CPUTIN:       +38.5°C
+
+<mark>nvme-pci-0200</mark>
+Adapter: PCI adapter
+Composite:    +38.9°C</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Cada bloque es un chip distinto con su propio camino (apartado 5). <code>k10temp</code> es el sensor interno de la CPU AMD. <code>nct6799</code> es el <b>modelo del chip Super I/O</b> de esta placa, y «ISA adapter» indica que se accede a él a la antigua, por LPC/eSPI. <code>nvme</code> es la temperatura que informa el propio SSD.</p><p>Si en tu equipo <b>no sale el bloque del Super I/O</b>, es normal: para cargar su controlador hacen falta permisos de administrador. Con este comando ves qué chips de sensores tiene cargados Linux:</p></div>
+    <div class="prompt"><pre>cat /sys/class/hwmon/hwmon*/name</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out"><mark>nvme</mark>
+<mark>k10temp</mark>
+amdgpu</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>En este ejemplo no aparece ningún <code>nct…</code> ni <code>it87</code>: el Super I/O está en la placa, pero Linux no lo está leyendo. Sus datos sí los ves en el panel de ventiladores y tensiones del simulador UEFI.</p></div>
+    <div class="admin">
+      <div class="admin-h"><span class="k">Con permisos de administrador funcionaría así · solo para leer</span><p><code>sensors-detect</code> busca los chips de sensores de la placa y carga sus controladores. A partir de ahí, <code>sensors</code> ya muestra el bloque del Super I/O como en la salida de arriba.</p></div>
+      <pre class="cmdline">sudo sensors-detect --auto</pre>
+<pre class="out"><span class="d">…</span>
+Trying family `Nuvoton'...                                  <mark>Yes</mark>
+Found `Nuvoton NCT6799D Super IO Sensors'                    <mark>Success!</mark>
+    (address 0x290, driver `nct6775')
+<span class="d">…</span>
+Driver `nct6775':
+  * ISA bus, address 0x290
+    Chip `Nuvoton NCT6799D Super IO Sensors' (confidence: 9)</pre>
+    </div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.7 · Información del disco según su bus</h3><p>Velocidad de cada puerto SATA de la placa:</p></div>
+    <div class="prompt"><pre>cat /sys/class/ata_link/link*/sata_spd</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out"><mark>6.0 Gbps</mark>
+&lt;unknown&gt;
+&lt;unknown&gt;
+&lt;unknown&gt;</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Cada línea es un puerto SATA. <code>6.0 Gbps</code> = SATA III con un disco conectado; <code>&lt;unknown&gt;</code> = puerto vacío. Si sale <code>3.0 Gbps</code>, el disco o el puerto son SATA II. Así también sabes cuántos puertos SATA tiene la placa (en el ejemplo, 4).</p></div>
+    <div class="cmd-h"><p>Y el SSD NVMe:</p></div>
+    <div class="prompt"><pre>cat /sys/class/nvme/nvme0/model /sys/class/nvme/nvme0/transport</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">Samsung SSD 980 1TB
+<mark>pcie</mark></pre>
+    <div class="look"><span class="k">Qué buscar</span><p><code>pcie</code> confirma que el SSD es un dispositivo PCIe más. Su temperatura ya la viste en <code>sensors</code> (bloque <code>nvme</code>). Si tu equipo no tiene NVMe, el comando dirá que no existe el archivo.</p></div>
+    <div class="admin">
+      <div class="admin-h"><span class="k">Con permisos de administrador funcionaría así · solo para leer</span><p><code>smartctl</code> lee directamente del disco su modelo, versión del bus y estado de salud (SMART).</p></div>
+      <pre class="cmdline">sudo smartctl -i /dev/sda | grep -E "Model|SATA"</pre>
+<pre class="out">Device Model:     CT500MX500SSD1
+SATA Version is:  <mark>SATA 3.3, 6.0 Gb/s (current: 6.0 Gb/s)</mark></pre>
+      <pre class="cmdline">sudo smartctl -i /dev/nvme0 | grep -E "Model|PCI|Version"</pre>
+<pre class="out">Model Number:                       Samsung SSD 980 1TB
+PCI Vendor/Subsystem ID:            <mark>0x144d</mark>
+NVMe Version:                       <mark>1.4</mark></pre>
+    </div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>6.8 · Resumen general con inxi</h3><p>Una visión de conjunto: placa, CPU, gráfica, red y discos.</p></div>
+    <div class="prompt"><pre>inxi -Fxz</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">Machine:   Type: Desktop Mobo: ASUSTeK model: TUF GAMING <mark>B650</mark>-PLUS
+CPU:       Info: 6-core model: AMD Ryzen 5 7600 bits: 64 type: MT MCP
+Graphics:  Device-1: NVIDIA AD106 [GeForce RTX 4060 Ti] driver: nvidia <mark>pcie: speed: 16 GT/s lanes: 8</mark>
+Network:   Device-1: Realtek RTL8125 2.5GbE driver: r8169
+Drives:    ID-1: /dev/nvme0n1 vendor: Samsung model: SSD 980 1TB size: 931.51 GiB
+           ID-2: /dev/sda vendor: Crucial model: CT500MX500SSD1 size: 465.76 GiB
+<span class="d">… (salida recortada)</span></pre>
+    <div class="look"><span class="k">Qué buscar</span><p>La opción <code>-z</code> oculta datos privados (números de serie, IP). Con <code>-xx</code> o <code>-xxx</code> sale más detalle, también de los enlaces PCIe. Si añades <code>-m</code> para ver la memoria, inxi avisará de que el detalle de los módulos necesita permisos de administrador: es el mismo límite que en el apartado 6.5.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>Comparación: lo mismo dentro de VirtualBox</h3><p>Así se ve si lo ejecutas en la máquina virtual. El hardware es <b>emulado</b>, no el real del aula.</p></div>
+<pre class="out"><span class="d">$ lspci</span>
+00:02.0 VGA compatible controller: <mark>VMware SVGA II Adapter</mark>
+00:03.0 Ethernet controller: <mark>Intel 82540EM Gigabit Ethernet Controller</mark>
+00:0d.0 SATA controller: <mark>Intel 82801HM/HEM (ICH8M/ICH8M-E) SATA Controller [AHCI mode]</mark>
+<span class="d">$ sensors</span>
+<mark>No sensors found!</mark></pre>
+  </div>
+</section>
+
+<section>
+  <span class="sec-no">7 · INTERRUPCIONES Y DMA <span class="ce">CE 1.c · 1.h</span></span>
+  <h2>¿Cómo avisa un dispositivo a la CPU?</h2>
+  <p>Los buses explican <b>por dónde</b> viajan los datos. Falta saber <b>cuándo</b>: la CPU no sabe en qué momento vas a pulsar una tecla o va a llegar un paquete de red. Hay dos formas de enterarse:</p>
+  <div class="paths">
+    <div class="path"><h3>Sondeo (<i>polling</i>)</h3><p>La CPU pregunta a cada dispositivo una y otra vez si tiene algo nuevo. Es como levantarse a mirar la puerta cada minuto por si llega alguien: casi siempre pierdes el tiempo.</p></div>
+    <div class="path"><h3>Interrupción</h3><p>El dispositivo avisa a la CPU solo cuando tiene algo. Es como el timbre: sigues con lo tuyo hasta que suena. Así funcionan los equipos actuales.</p></div>
+  </div>
+
+  <h3>Qué hace la CPU cuando le llega una interrupción</h3>
+  <ol class="steps">
+    <li><b>Recibe el aviso.</b> Por ejemplo, la tarjeta de red indica que ha llegado un paquete.</li>
+    <li><b>Termina la instrucción que estaba ejecutando</b> y guarda en la pila dónde se había quedado (contador de programa y registros).</li>
+    <li><b>Ejecuta la rutina de servicio</b> de esa interrupción, que forma parte del controlador (<i>driver</i>) del dispositivo.</li>
+    <li><b>Recupera lo que había guardado</b> y continúa con el programa como si nada hubiera pasado.</li>
+  </ol>
+  <p>Todo esto dura microsegundos y ocurre miles de veces por segundo. Por eso parece que el equipo hace muchas cosas a la vez.</p>
+
+  <h3>Tipos de interrupciones</h3>
+  <div class="paths">
+    <div class="path"><span class="k-tag">Hardware · externas</span><h3>Las provoca un dispositivo</h3><p>Teclado, ratón, disco, tarjeta de red, el reloj del sistema… Llegan en cualquier momento, sin que el programa lo espere.</p><ul><li><b>Enmascarables:</b> la CPU puede retrasarlas un momento si está ocupada en algo crítico. Son casi todas.</li><li><b>No enmascarables (NMI):</b> no se pueden ignorar. Se usan para errores graves del hardware, como un fallo de memoria.</li></ul></div>
+    <div class="path"><span class="k-tag">Software · programadas</span><h3>Las provoca un programa a propósito</h3><p>Un programa ejecuta una instrucción especial para <b>pedir un servicio al sistema operativo</b>: abrir un archivo, escribir en pantalla, enviar datos por la red. Se llaman <b>llamadas al sistema</b>.</p><p>Ejemplos: <code>INT 21h</code> en MS-DOS, <code>INT 0x80</code> en Linux de 32 bits y la instrucción <code>SYSCALL</code> en los procesadores de 64 bits actuales.</p></div>
+    <div class="path"><span class="k-tag">Excepciones · internas</span><h3>Las provoca la propia CPU</h3><p>Saltan cuando la CPU intenta ejecutar algo que no puede: dividir entre cero, usar una instrucción que no existe o acceder a memoria que no está cargada en la RAM (<b>fallo de página</b>).</p><p>Muchos libros las incluyen dentro de las de software, porque también las causa el programa que se está ejecutando.</p></div>
+  </div>
+
+  <h3>De las líneas IRQ a los mensajes por PCIe</h3>
+  <div class="paths">
+    <div class="path"><h3>Antes: líneas IRQ</h3><p>Cada dispositivo tenía un cable de aviso con un número: IRQ 1 el teclado, IRQ 8 el reloj, IRQ 14 el disco IDE… Solo había 16, y si dos tarjetas usaban la misma había <b>conflictos</b> que se arreglaban moviendo <i>jumpers</i>. Hoy las gestiona un chip llamado <b>APIC</b>.</p></div>
+    <div class="path"><h3>Ahora: MSI y MSI-X</h3><p>En PCIe no hay cables de aviso. El dispositivo avisa <b>enviando un mensaje por el propio bus PCIe</b>. Cada dispositivo puede tener muchas interrupciones: un SSD NVMe usa una por cada núcleo de la CPU, así cada núcleo atiende sus propias lecturas.</p></div>
+  </div>
+
+  <h3>DMA: copiar sin molestar a la CPU</h3>
+  <p>Si la CPU tuviera que copiar ella misma cada byte que llega del disco o de la red, no podría hacer otra cosa. Con <b>DMA</b> (acceso directo a memoria), el dispositivo copia los datos <b>directamente a la RAM</b> por el bus, y la interrupción solo sirve para avisar de que ha terminado:</p>
+  <div class="chain flow"><span>1 · la CPU pide «lee este archivo»</span><em>→</em><span>2 · el SSD copia los datos a la RAM por PCIe (DMA)</span><em>→</em><span>3 · el SSD lanza una interrupción</span><em>→</em><span>4 · la CPU usa los datos</span></div>
+  <p>Un dispositivo que puede hacer DMA se llama <b>bus master</b>. Lo verás escrito así en <code>lspci -v</code>.</p>
+
+  <div class="note green">
+    <b>Compruébalo en tu equipo</b>
+    <p>Todos estos comandos funcionan con tu usuario. Si estás guardando el registro con <code>script</code>, sigue en la misma terminal.</p>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>7.1 · Lista de interrupciones</h3><p>Muestra cada interrupción, cuántas veces ha saltado en cada núcleo desde que se encendió el equipo, de qué tipo es y qué dispositivo la usa.</p></div>
+    <div class="prompt"><pre>cat /proc/interrupts</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">            CPU0       CPU1       CPU2       CPU3
+   0:         36          0          0          0  IR-IO-APIC    2-edge      timer
+   1:          0          0          9          0  <mark>IR-IO-APIC</mark>    1-edge      i8042
+   8:          0          0          0          1  IR-IO-APIC    8-edge      rtc0
+  38:       5121          0          0          0  <mark>IR-PCI-MSIX</mark>-0000:02:00.0    1-edge      <mark>nvme0q1</mark>
+  39:          0       4870          0          0  IR-PCI-MSIX-0000:02:00.0    2-edge      <mark>nvme0q2</mark>
+  52:          0      89211          0          0  <mark>IR-PCI-MSI</mark>-0000:0c:00.0    0-edge      <mark>xhci_hcd</mark>
+  60:          0          0          0      40877  IR-PCI-MSI-0000:0b:00.0    0-edge      <mark>enp11s0</mark>
+ <mark>NMI</mark>:          3          2          2          3   Non-maskable interrupts
+ <mark>LOC</mark>:     812345     790221     801113     776540   Local timer interrupts
+<span class="d">… (salida recortada)</span></pre>
+    <div class="look"><span class="k">Qué buscar</span><ul><li>Las líneas con <b>número</b> son interrupciones de <b>hardware</b>. La columna del final dice de quién: <code>nvme</code> el SSD, <code>xhci_hcd</code> el USB, <code>enp…</code> o <code>wlp…</code> la red, <code>i8042</code> el teclado PS/2.</li><li><code>IO-APIC</code> = interrupción clásica por línea. <code>PCI-MSI</code> y <code>PCI-MSIX</code> = aviso por mensaje en PCIe, con la dirección del dispositivo que ya viste en <code>lspci</code>.</li><li><code>NMI</code> son las no enmascarables. <code>LOC</code> es el reloj interno de cada núcleo, que avisa varios cientos de veces por segundo para repartir el tiempo entre programas.</li></ul></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>7.2 · Interrupciones en directo</h3><p>Repite la consulta cada segundo y marca lo que cambia. Mientras se ejecuta, <b>mueve el ratón</b>, <b>copia un archivo grande</b> y <b>abre una página web</b>. Para salir, pulsa <code>Ctrl+C</code>.</p></div>
+    <div class="prompt"><pre>watch -d -n1 "grep -E 'xhci|nvme|ahci|enp|eth|wlp' /proc/interrupts"</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">Every 1,0s: grep -E 'xhci|nvme|ahci|enp|eth|wlp' /proc/interrupts
+
+  38:       <mark>5390</mark>          0          0          0  IR-PCI-MSIX-0000:02:00.0    1-edge      nvme0q1
+  52:          0      <mark>90544</mark>          0          0  IR-PCI-MSI-0000:0c:00.0    0-edge      xhci_hcd
+  60:          0          0          0      <mark>41012</mark>  IR-PCI-MSI-0000:0b:00.0    0-edge      enp11s0</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Con el ratón sube <code>xhci_hcd</code>, al copiar sube <code>nvme</code> (o <code>ahci</code> si el disco es SATA) y al navegar sube la red. Cada dispositivo avisa por su propia interrupción y casi siempre al mismo núcleo.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>7.3 · Cuántas interrupciones por segundo</h3><p>Muestra 5 resúmenes del sistema, uno por segundo. <code>LANG=C</code> hace que las columnas salgan en inglés, como en los manuales.</p></div>
+    <div class="prompt"><pre>LANG=C vmstat 1 5</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out">procs -----------memory---------- ---swap-- -----io---- <mark>-system--</mark> ------cpu-----
+ r  b   swpd     free   buff   cache   si   so    bi    bo   <mark>in</mark>   <mark>cs</mark> us sy id wa st
+ 1  0      0 25012340 412300 3480112    0    0    12    25  <mark>612</mark> 1043  2  1 97  0  0
+ 0  0      0 25011800 412300 3480120    0    0     0     0  <mark>498</mark>  860  1  0 99  0  0
+ 3  0      0 24688000 412304 3801200    0    0 82140   152 <mark>4310</mark> 6120 11  6 80  3  0</pre>
+    <div class="look"><span class="k">Qué buscar</span><p><code>in</code> = interrupciones por segundo. <code>cs</code> = cambios de contexto (la CPU deja un programa para atender otro). <code>bi</code> = bloques leídos del disco. En la última línea se estaba copiando un archivo: suben a la vez la lectura de disco y las interrupciones.</p></div>
+  </div>
+
+  <div class="cmd">
+    <div class="cmd-h"><h3>7.4 · Excepciones: fallos de página</h3><p>Muestra los 5 programas que más fallos de página han provocado.</p></div>
+    <div class="prompt"><pre>ps -eo min_flt,maj_flt,comm --sort=-min_flt | head -6</pre><button class="copy" type="button">Copiar</button></div>
+<pre class="out"> <mark>MINFL</mark>  <mark>MAJFL</mark> COMMAND
+2841230   1532 firefox
+ 912334    410 Isolated Web Co
+ 401223    208 Xorg
+ 288410    731 nautilus
+ 150322     95 bash</pre>
+    <div class="look"><span class="k">Qué buscar</span><p>Cada fallo de página es una <b>excepción</b>: el programa pidió una zona de memoria que no estaba preparada y la CPU avisó al sistema operativo. <code>MINFL</code> (menores) se resuelven sin tocar el disco. <code>MAJFL</code> (mayores) obligan a leer del disco y son mucho más lentos. Un programa grande como el navegador provoca millones.</p></div>
+  </div>
+
+  <div class="note">
+    <b>No confundas: <code>/proc/softirqs</code></b>
+    <p>En Linux verás también un archivo llamado <code>softirqs</code>. A pesar del nombre, no son las interrupciones de software de este apartado: son la segunda parte del trabajo de una interrupción de hardware, que Linux deja para un momento un poco posterior para atender antes los siguientes avisos.</p>
+  </div>
+</section>
+
+
+<footer>FHW · Fundamentos de Hardware (0371) · 1.º ASIR · RA1, criterios a (bloques funcionales), c (arquitectura y mecanismos de conexión), e (prestaciones), f (utilidades de chequeo) y h (periféricos y sus mecanismos de comunicación).</footer>
+</div>
+
+<script>
+(function(){
+  var info = {
+    ram:["Memoria DDR5 → bus de memoria","Los módulos se conectan directamente al controlador de memoria que está dentro de la CPU, no al chipset. Cada módulo DDR5 tiene 64 bits de datos divididos en 2 subcanales de 32 bits. Con un módulo en el canal A y otro en el B se trabaja en doble canal: el doble de ancho de banda.",["ram"]],
+    cpu:["CPU AM5 → centro del sistema","El procesador lleva dentro el controlador de memoria y 28 líneas PCIe 5.0: 16 para la gráfica, 8 para SSD M.2 y 4 para el enlace con el chipset. También tiene algunos puertos USB propios. Lo más rápido se conecta aquí.",["ram","gpu","m2a","chip"]],
+    gpu:["Gráfica → PCIe x16","La ranura larga ofrece 16 líneas PCIe. La tarjeta usa las que admite: muchas gráficas de gama media solo usan 8. Lo compruebas con lspci -vv (LnkSta).",["gpu"]],
+    m2a:["SSD M.2 NVMe → PCIe x4 de la CPU","La primera ranura M.2 suele ir directa a la CPU con 4 líneas PCIe. El SSD habla el protocolo NVMe sobre PCIe. En lsblk aparece como nvme0n1.",["m2a"]],
+    chip:["Chipset → enlace PCIe 4.0 x4","El chipset es un concentrador: multiplica las conexiones (SATA, USB, red, más ranuras), pero todo lo que cuelga de él comparte el mismo enlace de unos 7,9 GB/s hacia la CPU.",["chip","sata","usb","lan","m2b","sio"]],
+    sata:["Discos SATA → controladora SATA del chipset","SATA III llega a 6 Gb/s, unos 600 MB/s útiles. Es el límite de cualquier SSD de 2,5″, por bueno que sea. En lsblk aparecen como sda, sdb…",["sata","chip"]],
+    usb:["Puertos USB → controladoras USB","Unos puertos salen del chipset y otros de la propia CPU. Cada controladora tiene su bus y su velocidad: lsusb -t te muestra el árbol.",["usb","chip"]],
+    lan:["Red → PCIe x1","El chip de red integrado es un dispositivo PCIe más, aunque esté soldado en la placa. Lo ves en lspci como Ethernet controller.",["lan","chip"]],
+    m2b:["2.º M.2 → PCIe del chipset","Funciona igual que el primero, pero sus datos pasan por el chipset y comparten el enlace x4 con todo lo demás.",["m2b","chip"]],
+    sio:["Super I/O → LPC / eSPI","Chip lento que controla ventiladores y lee tensiones y temperaturas de la placa. Se conecta por LPC o su sustituto eSPI (al chipset o a la CPU, según la plataforma). En Linux, sensors lo muestra con su modelo (nct67xx, it87…) y adaptador ISA.",["sio","chip"]]
+  };
+  var box=document.getElementById('info'), nodes=document.querySelectorAll('.node'), buses=document.querySelectorAll('.bus');
+  function show(k){
+    var d=info[k]; if(!d) return;
+    nodes.forEach(function(n){n.classList.toggle('on',n.dataset.k===k)});
+    buses.forEach(function(b){b.classList.toggle('on',d[2].indexOf(b.dataset.b)>-1)});
+    box.innerHTML='';
+    var h=document.createElement('h3');h.textContent=d[0];
+    var p=document.createElement('p');p.textContent=d[1];
+    box.appendChild(h);box.appendChild(p);
+  }
+  nodes.forEach(function(n){
+    n.addEventListener('click',function(){show(n.dataset.k)});
+    n.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show(n.dataset.k)}});
+  });
+  show('cpu');
+
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var pre=b.parentNode.querySelector('pre'), t=pre.textContent;
+      function sel(){var r=document.createRange();r.selectNodeContents(pre);var s=window.getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Seleccionado';}
+      try{navigator.clipboard.writeText(t).then(function(){b.textContent='Copiado'},sel)}catch(e){sel()}
+      setTimeout(function(){b.textContent='Copiar'},1600);
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

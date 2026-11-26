@@ -1,0 +1,196 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #005a9e; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Teoría · Windows</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Verificar y diagnosticar la red en un cliente Windows 11</h2>
+</div>
+
+<div style="background: #e6f1fa; border-left: 5px solid #005a9e; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Objetivo:</strong> comprobar que la configuración TCP/IP de Windows funciona: puerta de enlace, equipos de la red, Internet, resolución de nombres y acceso a servicios web. Y localizar el fallo cuando algo no va.</p>
+</div>
+
+<!-- 1 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">1. La escalera de diagnóstico en Windows</h3>
+<p>Se comprueba <strong>de dentro hacia fuera</strong>. El primer peldaño que falla indica dónde mirar.</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 6%;">#</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Pregunta</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 32%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Si falla, revisa…</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">1</td><td style="padding: 8px; border: 1px solid #ccc;">¿Tengo IP y no es 169.254?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ipconfig /all</code> · <code>Get-NetIPConfiguration</code></td><td style="padding: 8px; border: 1px solid #ccc;">Configuración del adaptador, VirtualBox</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">2</td><td style="padding: 8px; border: 1px solid #ccc;">¿Funciona la pila TCP/IP?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 127.0.0.1</code></td><td style="padding: 8px; border: 1px solid #ccc;">El sistema (muy raro)</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">3</td><td style="padding: 8px; border: 1px solid #ccc;">¿Llego a un vecino?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP, máscara, red interna, el otro equipo</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">4</td><td style="padding: 8px; border: 1px solid #ccc;">¿Llego a la puerta de enlace?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>route print -4</code> y <code>ping</code> a esa IP</td><td style="padding: 8px; border: 1px solid #ccc;">Ruta por defecto, adaptador NAT</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">5</td><td style="padding: 8px; border: 1px solid #ccc;">¿Salgo a Internet?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace, router</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">6</td><td style="padding: 8px; border: 1px solid #ccc;">¿Resuelvo nombres?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code> · <code>Resolve-DnsName</code></td><td style="padding: 8px; border: 1px solid #ccc;">Servidores DNS</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">7</td><td style="padding: 8px; border: 1px solid #ccc;">¿Responde el servicio?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>Test-NetConnection … -Port 80</code> · <code>curl.exe -I</code></td><td style="padding: 8px; border: 1px solid #ccc;">Servicio del servidor, puerto, cortafuegos</td></tr>
+</table>
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Idea clave:</strong> <code>ping</code> comprueba que el <strong>equipo</strong> responde; <code>Test-NetConnection -Port</code> y <code>curl.exe</code> comprueban que un <strong>servicio</strong> concreto responde.</p>
+</div>
+
+<!-- 2 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">2. Revisar la configuración aplicada</h3>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">ipconfig /all
+Get-NetIPConfiguration -InterfaceAlias "Ethernet 2"
+Get-NetIPConfiguration -InterfaceAlias "Ethernet"</pre>
+<p><code>Get-NetIPConfiguration</code> resume los cuatro datos de cada adaptador:</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">InterfaceAlias       : Ethernet 2
+IPv4Address          : 192.168.100.51
+IPv4DefaultGateway   :                      <span style="color: #9fd9ff;">← vacío: correcto en la red interna</span>
+DNSServer            : 8.8.8.8
+                       8.8.4.4</pre>
+<p>En el adaptador «Ethernet» (NAT) verás <code>IPv4DefaultGateway : 10.0.2.2</code> y el DNS <code>10.0.2.3</code> que da VirtualBox.</p>
+
+<!-- 3 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">3. <code>ping</code> en Windows: leer la respuesta</h3>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">C:\&gt; ping 192.168.100.10
+Respuesta desde 192.168.100.10: bytes=32 tiempo&lt;1m TTL=64
+...
+Estadísticas de ping para 192.168.100.10:
+    Paquetes: enviados = 4, recibidos = 4, perdidos = 0
+    (0% perdidos),</pre>
+<p>Windows envía 4 paquetes y para. <code>ping -n 10</code> envía 10; <code>ping -t</code> no para hasta Ctrl+C.</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2b88d8; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 45%;">Mensaje</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qué está pasando</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>Tiempo de espera agotado para esta solicitud.</code></td><td style="padding: 8px; border: 1px solid #ccc;">El paquete sale pero no vuelve: equipo apagado, cortafuegos del otro equipo o ruta equivocada.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>Respuesta desde 192.168.100.51: Host de destino inaccesible.</code></td><td style="padding: 8px; border: 1px solid #ccc;">Contesta <strong>tu propio equipo</strong>: el destino está en tu red y nadie responde a esa IP. ¡Ojo! Aunque pone «recibidos = 4», el ping ha fallado.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>PING: error en la transmisión. Error general.</code></td><td style="padding: 8px; border: 1px solid #ccc;">No hay ruta hacia ese destino (falta puerta de enlace o adaptador deshabilitado).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>La solicitud de ping no pudo encontrar el host google.com.</code></td><td style="padding: 8px; border: 1px solid #ccc;">Fallo de <strong>DNS</strong> o nombre mal escrito.</td></tr>
+</table>
+
+<!-- 4 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">4. La puerta de enlace: encontrarla y probarla</h3>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">route print -4    # busca la fila 0.0.0.0  0.0.0.0  10.0.2.2
+Get-NetRoute -DestinationPrefix 0.0.0.0/0       # lo mismo en PowerShell
+ping 10.0.2.2
+tracert -d 8.8.8.8    # por dónde pasan los paquetes</pre>
+<div style="background: #e6f1fa; border-left: 5px solid #005a9e; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;">En el laboratorio la puerta de enlace es <code>10.0.2.2</code> (NAT). En la red interna no hay router, así que <code>ping 192.168.100.1</code> no contesta: es lo esperado.</p>
+</div>
+<p><code>Find-NetRoute -RemoteIPAddress 192.168.100.10</code> indica por qué adaptador saldría un paquete hacia esa IP (equivale a <code>ip route get</code> de Linux).</p>
+
+<!-- 5 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">5. Comprobar el DNS</h3>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">C:\&gt; nslookup google.com
+Servidor:  dns.google
+Address:  8.8.8.8
+
+Respuesta no autoritativa:            <span style="color: #9fd9ff;">← normal: no responde el dueño del dominio</span>
+Nombre:  google.com
+Addresses:  2a00:1450:...
+          142.250.184.14</pre>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">nslookup google.com 1.1.1.1    # preguntar a un DNS concreto
+Resolve-DnsName google.com -Type A              # versión PowerShell
+ipconfig /displaydns    # lo que hay en la caché DNS
+ipconfig /flushdns    # vaciar la caché</pre>
+<p>Errores típicos: <code>DNS request timed out</code> (el DNS no contesta) y <code>*** dns.google no encuentra googel.com: Non-existent domain</code> (el nombre no existe).</p>
+<p>Si <code>nslookup google.com</code> falla y <code>nslookup google.com 1.1.1.1</code> funciona, el problema está en los DNS configurados en el adaptador.</p>
+
+<!-- 6 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">6. Comprobar servicios: puertos y web</h3>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">6.1 <code>Test-NetConnection</code>: ¿está abierto el puerto?</h4>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">PS&gt; Test-NetConnection 192.168.100.10 -Port 80
+
+ComputerName     : 192.168.100.10
+RemoteAddress    : 192.168.100.10
+RemotePort       : 80
+InterfaceAlias   : Ethernet 2          <span style="color: #9fd9ff;">← sale por la red interna: bien</span>
+SourceAddress    : 192.168.100.51
+TcpTestSucceeded : True                <span style="color: #9fd9ff;">← el puerto responde</span></pre>
+<p>Si sale <code>TcpTestSucceeded : False</code> con un aviso <code>TCP connect to … failed</code>, mira <code>PingSucceeded</code>: si el ping va y el puerto no, el problema es el <strong>servicio o el cortafuegos del servidor</strong>, no la red.</p>
+<p style="font-size: 13px; color: #555;">Sin <code>-Port</code> hace un ping. Abreviado: <code>tnc 192.168.100.10 -Port 80</code>.</p>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">6.2 <code>curl.exe</code>: pedir una página web</h4>
+<p style="margin-top: 4px;">Windows 11 trae <code>curl</code> de serie. <strong>Escríbelo siempre como <code>curl.exe</code></strong>: en PowerShell, <code>curl</code> a secas es un alias de otro comando (<code>Invoke-WebRequest</code>) con otras opciones y otra salida.</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">curl.exe -I http://192.168.100.10          # solo la cabecera
+curl.exe -I https://www.google.com
+curl.exe -s -o NUL -w "%{http_code}" https://www.google.com   # solo el código</pre>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">HTTP/1.1 200 OK
+Server: Apache/2.4.58 (Ubuntu)</pre>
+<p>Alternativa en PowerShell: <code>(Invoke-WebRequest http://192.168.100.10 -UseBasicParsing).StatusCode</code> → <code>200</code>.</p>
+
+<h4 style="color: #2b88d8; margin-bottom: 4px;">6.3 Códigos y errores</h4>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2b88d8; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 42%;">Respuesta</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Significado</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>200</code> · <code>301/302</code> · <code>404</code></td><td style="padding: 8px; border: 1px solid #ccc;">El servidor responde: red y servicio funcionan. (200 = bien, 301/302 = redirección, 404 = esa página no existe.)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (6) Could not resolve host</code></td><td style="padding: 8px; border: 1px solid #ccc;">DNS: no se conoce la IP del nombre.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (7) Failed to connect … Connection refused</code><br>(o <code>Could not connect to server</code>)</td><td style="padding: 8px; border: 1px solid #ccc;">El equipo responde pero no hay servicio en ese puerto.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>curl: (28) … Timed out</code></td><td style="padding: 8px; border: 1px solid #ccc;">Nadie contesta: equipo inalcanzable o cortafuegos.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>Invoke-WebRequest : No se encuentra ningún parámetro que coincida con el nombre del parámetro 'I'</code></td><td style="padding: 8px; border: 1px solid #ccc;">Escribiste <code>curl</code> en PowerShell en vez de <code>curl.exe</code>.</td></tr>
+</table>
+<p><code>curl.exe http://srv-ubuntu</code> fallará con <code>Could not resolve host</code>: es un nombre interno de la ferretería que ningún DNS de Internet conoce. Con la IP funciona. Para usar nombres internos hace falta el archivo <code>hosts</code> o un DNS propio, que se ve en el tema de resolución de nombres.</p>
+
+<!-- 7 -->
+<h3 style="color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 4px;">7. Errores típicos al verificar</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #c0392b; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 34%;">Lo que ves</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Causa</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Qué hacer</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.1</code>: tiempo agotado</td><td style="padding: 8px; border: 1px solid #ccc;">En la red interna no hay router. No es un fallo.</td><td style="padding: 8px; border: 1px solid #ccc;">La puerta de enlace es <code>10.0.2.2</code> (<code>route print -4</code>).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">«Host de destino inaccesible» y el resumen dice «perdidos = 0»</td><td style="padding: 8px; border: 1px solid #ccc;">Responde tu propio equipo, no el destino.</td><td style="padding: 8px; border: 1px solid #ccc;">Comprueba que el otro equipo está encendido y en la red <code>ferreteria</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>Test-NetConnection</code> muestra <code>InterfaceAlias : Ethernet</code> hacia 192.168.100.10</td><td style="padding: 8px; border: 1px solid #ccc;">La IP o la máscara de Ethernet 2 están mal (otra red).</td><td style="padding: 8px; border: 1px solid #ccc;">Corrige la IP de Ethernet 2.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ping al servidor OK; <code>TcpTestSucceeded : False</code></td><td style="padding: 8px; border: 1px solid #ccc;">Web parada o cortafuegos del servidor.</td><td style="padding: 8px; border: 1px solid #ccc;">En el servidor: <code>systemctl status apache2</code>, <code>sudo ufw status</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>curl -I</code> da error de parámetro</td><td style="padding: 8px; border: 1px solid #ccc;">Alias de PowerShell.</td><td style="padding: 8px; border: 1px solid #ccc;">Usa <code>curl.exe</code>.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ping a 8.8.8.8 bien, a google.com mal</td><td style="padding: 8px; border: 1px solid #ccc;">DNS.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com 1.1.1.1</code>, revisar DNS, <code>ipconfig /flushdns</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ubuntu no recibe respuesta al hacer ping a Windows</td><td style="padding: 8px; border: 1px solid #ccc;">Cortafuegos de Windows.</td><td style="padding: 8px; border: 1px solid #ccc;">Regla «Ping ferreteria».</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ethernet 2 con <code>169.254.x.x</code> de repente</td><td style="padding: 8px; border: 1px solid #ccc;">El adaptador ha vuelto a DHCP.</td><td style="padding: 8px; border: 1px solid #ccc;">Vuelve a poner la IP fija.</td></tr>
+</table>
+
+<!-- 8 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">8. Equivalencias Linux ↔ Windows</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #005a9e; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Para…</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Linux</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Windows</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ver los cuatro datos</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli device show</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>Get-NetIPConfiguration</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip route</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>route print -4</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">¿Por dónde sale?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>ip route get IP</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>Find-NetRoute -RemoteIPAddress IP</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ruta a un destino</td><td style="padding: 8px; border: 1px solid #ccc;"><code>tracepath</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>tracert</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">¿Puerto abierto?</td><td style="padding: 8px; border: 1px solid #ccc;"><code>nc -zv IP 80</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>Test-NetConnection IP -Port 80</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Probar una web</td><td style="padding: 8px; border: 1px solid #ccc;"><code>curl -I</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>curl.exe -I</code></td></tr>
+</table>
+
+<!-- 9 -->
+<h3 style="color: #005a9e; border-bottom: 2px solid #005a9e; padding-bottom: 4px;">9. Comprueba lo que has aprendido</h3>
+<p>Intenta responder antes de abrir cada pregunta para ver la solución.</p>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">1. ¿Cuál es la puerta de enlace de la VM Windows y cómo la ves?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>10.0.2.2</code>, en la fila <code>0.0.0.0</code> de <code>route print -4</code> o en <code>Get-NetIPConfiguration</code> del adaptador Ethernet.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">2. Un ping muestra «Host de destino inaccesible» y «perdidos = 0». ¿Ha funcionado?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> No. Las respuestas las da tu propio equipo para avisar de que el destino no contesta.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">3. ¿Por qué hay que escribir <code>curl.exe</code> y no <code>curl</code> en PowerShell?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Porque en PowerShell <code>curl</code> es un alias de <code>Invoke-WebRequest</code>, que no entiende las opciones de curl como <code>-I</code>.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">4. <code>Test-NetConnection 192.168.100.10 -Port 80</code> da <code>PingSucceeded True</code> y <code>TcpTestSucceeded False</code>. ¿Dónde está el fallo?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> En el servidor: la red funciona, pero no hay servicio web en el puerto 80 o el cortafuegos lo bloquea.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">5. ¿Qué comando de Windows equivale a <code>ip route get</code>?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>Find-NetRoute -RemoteIPAddress &lt;IP&gt;</code>.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">6. <code>curl.exe -I https://google.com</code> devuelve 301. ¿Hay un problema de red?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> No. Es una redirección: el servidor ha respondido.</div>
+</details>
+
+</div>

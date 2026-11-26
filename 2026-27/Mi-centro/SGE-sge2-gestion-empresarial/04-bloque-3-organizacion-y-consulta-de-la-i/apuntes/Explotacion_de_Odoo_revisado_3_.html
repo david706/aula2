@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Explotación de Odoo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: misma identidad SGE. Dos recorridos (ventas y compras) como escenarios con pasos, estados y qué
+   comprobar; una sección de almacén y otra de casos que se tuercen (devoluciones, entregas parciales). */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4; --code:#f1eee6;
+  --ok:#2d7a4f; --warn:#95590e;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+img{max-width:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0;padding:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3,h4{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700}
+h2{font-size:1.4rem;font-weight:600;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+h2 .n{font-family:var(--fm);font-size:.8rem;color:var(--accent);margin-right:10px;vertical-align:middle}
+h3{font-size:1.05rem;font-weight:600;margin-top:20px}
+h4{font-size:.78rem;font-family:var(--fm);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:16px}
+p{margin:0;max-width:70ch}
+p+p,ul,ol{margin-top:10px}
+h2+p,h3+p,h4+p{margin-top:12px}
+ul,ol{padding-left:22px;max-width:70ch}
+li+li{margin-top:5px}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.08rem;color:var(--muted);margin-top:10px;max-width:72ch}
+code{font-family:var(--fm);font-size:.86em;background:var(--soft);padding:1px 6px;border-radius:4px}
+kbd{font-family:var(--fb);font-size:.9em;border:1px solid var(--line);background:var(--paper);padding:1px 7px;border-radius:4px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:.9rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+.grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;margin-top:36px}
+@media (max-width:860px){.grid{grid-template-columns:1fr;gap:24px}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:18px}
+nav.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-size:.9rem;padding:5px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover,nav.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+nav.toc .eyebrow{display:block;margin-bottom:8px;padding-left:12px}
+@media (max-width:860px){nav.toc{position:static}nav.toc ol{grid-template-columns:1fr 1fr}}
+main{display:grid;gap:40px;min-width:0}
+section{min-width:0}
+.tw{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.82rem;background:var(--soft)}
+.note{border-left:3px solid var(--accent);background:var(--paper);padding:12px 16px;margin-top:14px;max-width:72ch}
+.note.warn{border-left-color:var(--warn)}
+.note .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.note.warn .eyebrow{color:var(--warn)}
+.note ul,.note ol{margin-top:6px}
+.steps{counter-reset:p;display:grid;gap:10px;margin-top:12px;padding:0;list-style:none;max-width:none}
+.steps li{position:relative;padding:10px 14px 10px 46px;background:var(--paper);border:1px solid var(--line);margin:0;min-width:0}
+.steps li::before{counter-increment:p;content:counter(p);position:absolute;left:14px;top:9px;font-family:var(--fd);font-weight:700;color:var(--accent)}
+.steps li b{font-weight:600}
+.steps li .r{display:block;font-size:.88rem;color:var(--muted);margin-top:3px}
+.steps li .st{display:inline-block;font-family:var(--fm);font-size:.72rem;padding:1px 7px;border:1px solid var(--line);border-radius:4px;background:var(--bg);margin-left:6px;vertical-align:middle}
+.escenario{background:var(--soft);border-left:3px solid var(--accent);padding:12px 16px;margin-top:14px;font-size:.95rem;max-width:72ch}
+.escenario .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.diag{background:var(--paper);border:1px solid var(--line);margin-top:14px;overflow-x:auto}
+.diag svg{display:block;width:100%;min-width:600px;height:auto}
+.diag text{font-family:var(--fb);font-size:13px;fill:var(--ink)}
+.diag .q{font-family:var(--fm);font-size:11px;fill:var(--muted)}
+.diag .box{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.diag .main{fill:var(--soft);stroke:var(--accent);stroke-width:1.6}
+.diag .virt{fill:none;stroke:var(--muted);stroke-dasharray:4 3}
+.diag .edge{fill:none;stroke:var(--muted);stroke-width:1.3;marker-end:url(#arr)}
+.diag .edge.both{marker-start:url(#arr)}
+.caption{font-size:.88rem;color:var(--muted);margin-top:8px}
+figure.ui{margin:16px 0 0;min-width:0}
+figure.ui .win{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--paper)}
+figure.ui .win .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--soft);padding:8px 12px;font-family:var(--fd);font-weight:600;font-size:.84rem;border-bottom:1px solid var(--line)}
+figure.ui .win .bar .chip{font-family:var(--fm);font-size:.72rem;font-weight:400;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:2px 8px;color:var(--muted)}
+figure.ui .win .bar .sp{margin-left:auto;font-family:var(--fm);font-size:.72rem;font-weight:400;color:var(--muted)}
+figure.ui .scroll{overflow-x:auto}
+figure.ui table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:480px;margin:0}
+figure.ui th,figure.ui td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+figure.ui thead th{background:var(--bg);font-family:var(--fd);font-size:.76rem;color:var(--muted);font-weight:600}
+figure.ui td.n,figure.ui th.n{text-align:right;font-variant-numeric:tabular-nums}
+figure.ui .cta{font-family:var(--fd);font-size:.74rem;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:2px 8px}
+figure.ui figcaption{font-size:.9rem;color:var(--muted);margin-top:10px;max-width:none}
+figure.ui figcaption b{color:var(--ink)}
+figure.ui .dlg{border:1px solid var(--accent);border-radius:6px;background:var(--bg);padding:12px 14px;margin:14px 16px}
+figure.ui .dlg b{font-family:var(--fd);font-size:.88rem}
+figure.ui .dlg p{font-size:.84rem;color:var(--muted);margin:4px 0 10px;max-width:none}
+figure.ui .btns{display:flex;flex-wrap:wrap;gap:8px}
+figure.ui .btn{font-family:var(--fd);font-size:.78rem;border:1px solid var(--line);border-radius:4px;padding:3px 10px;color:var(--muted)}
+figure.ui .btn.pri{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600}
+.casos{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.casos>div{background:var(--paper);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.casos h3{margin-top:0;font-size:1rem}
+.casos p{font-size:.93rem;margin-top:6px;max-width:none}
+.casos ol,.casos ul{font-size:.93rem;margin-top:6px;max-width:none;padding-left:20px}
+@media (max-width:620px){.casos{grid-template-columns:1fr}}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head><body>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM · Bloque 3 · Explotación</p>
+  <h1 style="margin-top:6px">Explotación: ventas, compras y almacén</h1>
+  <p class="lead">En el bloque anterior configuraste el sistema; ahora lo usas como lo usaría un empleado. Esta guía recorre el ciclo comercial completo con casos reales: una venta normal, una entrega parcial, una devolución, una compra lanzada por el stock mínimo y un recuento de almacén. En cada paso se indica el documento que nace, su estado, dónde comprobarlo y, sobre todo, <em>por qué</em> Odoo hace lo que hace.</p>
+  <div class="meta">
+    <span>Requisito <b>BD de la práctica de implantación restaurada</b></span>
+    <span>Usuarios <b>trabaja con comercial, almacen y contable, no con admin</b></span>
+  </div>
+
+  <div class="grid">
+  <nav class="toc" aria-label="Índice">
+    <span class="eyebrow">Contenido</span>
+    <ol>
+      <li><a href="#s0">0. Antes de empezar</a></li>
+      <li><a href="#s1">1. Documentos y estados</a></li>
+      <li><a href="#s2">2. Ciclo de venta</a></li>
+      <li><a href="#s3">3. Casos que se tuercen</a></li>
+      <li><a href="#s4">4. Ciclo de compra</a></li>
+      <li><a href="#s5">5. Almacén</a></li>
+      <li><a href="#s6">6. Trazabilidad</a></li>
+      <li><a href="#s7">7. Ejercicios</a></li>
+    </ol>
+  </nav>
+
+  <main>
+  <div class="note"><span class="eyebrow">Pantallas ilustrativas</span>Los esquemas son ejemplos didácticos, no capturas reales. Las opciones, nombres y estados pueden variar según la versión, configuración, módulos y permisos de tu instalación.</div>
+  <section id="s0">
+    <h2><span class="n">00</span>Antes de empezar</h2>
+    <p>Todo lo que sigue depende de la configuración del bloque anterior. Si un paso no se comporta como dice la guía, casi siempre falta uno de estos puntos. Revísalos como <code>admin</code> antes de cambiar de usuario.</p>
+    <div class="tw"><table>
+      <tr><th>Qué debe estar hecho</th><th>Dónde se mira</th><th>Qué pasa si falta</th></tr>
+      <tr><td>Los productos físicos llevan control de stock</td><td>Ficha del producto: tipo <em>Bienes</em> con <em>Rastrear inventario</em> marcado</td><td>No hay stock, ni reglas de reabastecimiento, ni albarán con reserva</td></tr>
+      <tr><td>Lotes activados y un producto con seguimiento <em>Por lotes</em></td><td>Inventario → Configuración → Ajustes → <em>Lotes y números de serie</em>; ficha del producto</td><td>No aparece la columna de lote ni el menú de trazabilidad</td></tr>
+      <tr><td>Ubicaciones de almacenamiento activadas (Estantería A, B, Zona picking)</td><td>Inventario → Configuración → Ajustes → <em>Ubicaciones de almacenamiento</em></td><td>No existen los traslados internos de la sección 5</td></tr>
+      <tr><td>Política de facturación de cada producto</td><td>Ficha del producto, campo <em>Política de facturación</em></td><td>La factura lleva cantidades distintas de las que esperas (ver nota)</td></tr>
+      <tr><td>Proveedor en el producto y ruta <em>Comprar</em></td><td>Ficha del producto, pestañas <em>Compra</em> e <em>Inventario</em></td><td>La regla de reabastecimiento no genera compra</td></tr>
+      <tr><td>Regla de reabastecimiento con mínimo y máximo</td><td>Botón inteligente <em>Reglas de reabastecimiento</em> del producto</td><td>El sistema nunca pide solo</td></tr>
+      <tr><td>Cliente con plazo de pago, tarifa y dirección de entrega</td><td>Ficha del contacto, pestaña <em>Ventas y compras</em></td><td>El pedido no hereda nada y hay que rellenarlo a mano</td></tr>
+      <tr><td>Los tres usuarios con sus permisos</td><td>Ajustes → Usuarios</td><td>Un usuario no ve el menú o el botón que necesita</td></tr>
+    </table></div>
+    <div class="note"><span class="eyebrow">Política de facturación: la decisión que más cambia el resultado</span>Cada producto se factura por <em>Cantidades pedidas</em> (se puede facturar todo nada más confirmar el pedido) o por <em>Cantidades entregadas</em> (solo se factura lo que ha salido del almacén). Odoo trae por defecto <em>Cantidades pedidas</em>. En esta guía se supone que los <strong>productos físicos</strong> están en <em>Cantidades entregadas</em> y el <strong>servicio</strong> en <em>Cantidades pedidas</em>. Si no lo cambias, la factura de una entrega parcial llevará las 10 unidades y no las 6 entregadas.</div>
+    <h3>Las cuatro cantidades de stock</h3>
+    <p>Odoo no tiene «un» stock, tiene cuatro cifras distintas por producto. Confundirlas es el origen de casi todos los diagnósticos fallidos.</p>
+    <div class="tw"><table>
+      <tr><th>Cifra</th><th>Qué es</th><th>Ejemplo</th></tr>
+      <tr><td><strong>A mano</strong> (stock real)</td><td>Lo que hay físicamente en el almacén ahora mismo</td><td>6</td></tr>
+      <tr><td><strong>Reservado</strong></td><td>Parte de lo que hay a mano que ya está apartada para un albarán en estado <em>Listo</em></td><td>2</td></tr>
+      <tr><td><strong>Disponible</strong></td><td>A mano − reservado: lo que se puede comprometer hoy</td><td>4</td></tr>
+      <tr><td><strong>Previsto</strong></td><td>A mano + entradas confirmadas − salidas confirmadas: lo que habrá cuando se cumpla todo lo pendiente</td><td>6 + 0 − 2 = 4</td></tr>
+    </table></div>
+    <div class="note"><span class="eyebrow">Por qué tres usuarios</span>En esta práctica se separan las funciones para conocer los menús y permisos de <code>comercial</code>, <code>almacen</code> y <code>contable</code>. Detrás hay un motivo de control: quien vende no debería validar su propia entrega ni cobrarla, porque así un error o un fraude necesita pasar por más de una persona. Cada empresa puede organizar sus funciones de otra manera. Si no aparece un botón, comprueba permisos, módulos instalados, configuración y estado del documento; anota lo que has revisado y consulta al profesorado si necesitas ayuda.</div>
+  </section>
+
+  <section id="s1">
+    <h2><span class="n">01</span>Documentos y estados</h2>
+    <p>Cada paso del ciclo deja un documento con su numeración: el presupuesto recoge la oferta, el pedido confirma el acuerdo, el albarán registra el movimiento físico, la factura documenta el importe y el pago registra el cobro. <strong>Entregar no es facturar, y facturar no es cobrar</strong>: son tres hechos distintos con tres documentos distintos. Los documentos confirmados no se borran: cambian de estado. Esta tabla es la que hay que tener en la cabeza para saber, en cualquier momento, dónde está una operación. La columna <em>Estados</em> usa el valor técnico (el que verás en la base de datos y en los filtros); debajo tienes su nombre en pantalla.</p>
+    <div class="tw"><table>
+      <tr><th>Documento</th><th>Prefijo</th><th>Modelo</th><th>Estados</th><th>Quién lo trabaja</th></tr>
+      <tr><td>Oportunidad</td><td>—</td><td><code>crm.lead</code></td><td>etapas del embudo · ganado · perdido</td><td>comercial</td></tr>
+      <tr><td>Presupuesto / Pedido de venta</td><td>S</td><td><code>sale.order</code></td><td>draft → sent → sale · cancel (y <em>bloqueado</em> si se activa el bloqueo)</td><td>comercial</td></tr>
+      <tr><td>Entrega</td><td>WH/OUT</td><td><code>stock.picking</code></td><td>draft → waiting → confirmed → assigned → done · cancel</td><td>almacen</td></tr>
+      <tr><td>Factura de cliente</td><td>INV</td><td><code>account.move</code></td><td>draft → posted · cancel; pago: not_paid → partial → in_payment → paid</td><td>contable</td></tr>
+      <tr><td>Solicitud / Pedido de compra</td><td>P</td><td><code>purchase.order</code></td><td>draft → sent → to approve → purchase · cancel (y <em>bloqueado</em>)</td><td>almacen o compras</td></tr>
+      <tr><td>Recepción</td><td>WH/IN</td><td><code>stock.picking</code></td><td>los mismos que la entrega</td><td>almacen</td></tr>
+      <tr><td>Factura de proveedor</td><td>BILL</td><td><code>account.move</code></td><td>los mismos que la de cliente</td><td>contable</td></tr>
+      <tr><td>Devolución</td><td>WH/IN (de cliente) · WH/OUT (a proveedor)</td><td><code>stock.picking</code></td><td>los mismos</td><td>almacen</td></tr>
+      <tr><td>Rectificativa</td><td>RINV · RBILL</td><td><code>account.move</code></td><td>los mismos</td><td>contable</td></tr>
+    </table></div>
+    <h3>Los estados, en pantalla</h3>
+    <div class="tw"><table>
+      <tr><th>Documento</th><th>Valor técnico</th><th>En pantalla</th><th>Qué significa</th></tr>
+      <tr><td rowspan="3">Pedido de venta</td><td><code>draft</code></td><td>Presupuesto</td><td>Borrador: no compromete stock ni genera nada</td></tr>
+      <tr><td><code>sent</code></td><td>Presupuesto enviado</td><td>Se ha enviado al cliente; sigue sin comprometer nada</td></tr>
+      <tr><td><code>sale</code></td><td>Pedido de venta</td><td>Confirmado: nace el albarán y ya se puede facturar</td></tr>
+      <tr><td rowspan="5">Albarán</td><td><code>draft</code></td><td>Borrador</td><td>Creado a mano y aún sin confirmar</td></tr>
+      <tr><td><code>waiting</code></td><td>Esperando otra operación</td><td>Depende de un movimiento previo (rutas de varios pasos)</td></tr>
+      <tr><td><code>confirmed</code></td><td>En espera</td><td>Confirmado, pero sin stock reservado</td></tr>
+      <tr><td><code>assigned</code></td><td>Listo</td><td>Hay stock reservado y se puede validar</td></tr>
+      <tr><td><code>done</code></td><td>Hecho</td><td>Validado: el stock ya se ha movido y no se puede editar</td></tr>
+      <tr><td rowspan="2">Factura</td><td><code>draft</code></td><td>Borrador</td><td>Editable y <strong>sin número</strong> todavía</td></tr>
+      <tr><td><code>posted</code></td><td>Publicado</td><td>Confirmada: recibe su número y ya no se edita</td></tr>
+    </table></div>
+    <div class="note"><span class="eyebrow">Listo y En espera: el estado que más confunde</span>En un albarán, <em>confirmed</em> (<em>En espera</em>) significa que el pedido está confirmado pero no hay stock reservado: no se puede entregar. <em>assigned</em> (<em>Listo</em>) significa que hay stock reservado. Cuánto hace falta reservar para pasar a <em>Listo</em> depende de la <strong>política de envío</strong>: con <em>Lo antes posible</em> (la habitual) basta con que haya reserva de una parte, así que un albarán <em>Listo</em> puede estar incompleto; con <em>Cuando todos los productos estén listos</em> no pasa a <em>Listo</em> hasta tener todas las líneas. Por eso nunca te fíes solo del estado: mira <em>Demanda</em> frente a <em>Cantidad</em> línea por línea.</div>
+    <div class="note"><span class="eyebrow">El pedido no tiene un estado «entregado» ni «facturado»</span>El pedido de venta se queda en <em>Pedido de venta</em> hasta el final. Lo que cambia son las cantidades por línea (<em>Entregado</em>, <em>Facturado</em>) y el <em>estado de facturación</em>: <em>Nada que facturar</em>, <em>A facturar</em> o <em>Totalmente facturado</em>.</div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="n">02</span>Ciclo de venta</h2>
+    <div class="escenario"><span class="eyebrow">Escenario</span>Un cliente habitual pide 4 unidades de un producto con stock, 2 de un producto con seguimiento por lote y 10 horas de un servicio. Paga a 30 días por transferencia.</div>
+    <div class="diag">
+      <svg viewBox="0 0 760 440" role="img" aria-label="Las cuatro zonas de la pantalla de un pedido de venta en Odoo">
+        <text x="20" y="26" font-weight="600">Las cuatro zonas de un pedido de venta (tras entregar, antes de facturar)</text>
+        <rect class="box" x="20" y="44" width="720" height="282" rx="8"/>
+        <rect class="box" x="38" y="58" width="104" height="30" rx="6"/><text class="q" x="90" y="77" text-anchor="middle">Entrega  1</text>
+        <circle cx="38" cy="58" r="9" fill="var(--accent)"/><text x="38" y="62" text-anchor="middle" font-size="11" fill="var(--accent-ink)" font-weight="600">1</text>
+        <rect class="box" x="440" y="60" width="92" height="26" rx="13"/><text class="q" x="486" y="77" text-anchor="middle">Presupuesto</text>
+        <rect class="box" x="538" y="60" width="86" height="26" rx="13"/><text class="q" x="581" y="77" text-anchor="middle">Enviado</text>
+        <rect class="main" x="630" y="60" width="92" height="26" rx="13"/><text class="q" x="676" y="77" text-anchor="middle" fill="var(--ink)">Pedido</text>
+        <circle cx="440" cy="60" r="9" fill="var(--accent)"/><text x="440" y="64" text-anchor="middle" font-size="11" fill="var(--accent-ink)" font-weight="600">2</text>
+        <text x="38" y="118" font-size="17" font-weight="600">S00014</text>
+        <circle cx="38" cy="136" r="9" fill="var(--accent)"/><text x="38" y="140" text-anchor="middle" font-size="11" fill="var(--accent-ink)" font-weight="600">3</text>
+        <text class="q" x="56" y="140">Cliente</text><text x="170" y="140">Talleres Pardo, S.L.</text>
+        <text class="q" x="56" y="160">Dirección de entrega</text><text x="210" y="160">Pol. Malpica, nave 7</text>
+        <text class="q" x="430" y="140">Fecha del pedido</text><text x="566" y="140">12/01/2026</text>
+        <text class="q" x="430" y="160">Condiciones de pago</text><text x="566" y="160">30 días</text>
+        <text class="q" x="430" y="180">Lista de precios</text><text x="566" y="180">Mayorista</text>
+        <rect x="38" y="198" width="686" height="26" rx="4" fill="var(--soft)" stroke="var(--line)"/>
+        <rect class="box" x="38" y="224" width="686" height="78"/>
+        <text class="q" x="50" y="215">Producto</text><text class="q" x="400" y="215" text-anchor="end">Cantidad</text><text class="q" x="494" y="215" text-anchor="end">Entregado</text><text class="q" x="590" y="215" text-anchor="end">Facturado</text><text class="q" x="712" y="215" text-anchor="end">Subtotal</text>
+        <text x="50" y="243">Rodamiento 6204-2RS</text><text x="400" y="243" text-anchor="end">4,00</text><text x="494" y="243" text-anchor="end">4,00</text><text x="590" y="243" text-anchor="end">0,00</text><text x="712" y="243" text-anchor="end">96,00</text>
+        <text x="50" y="267">Aceite ISO 46 (lote)</text><text x="400" y="267" text-anchor="end">2,00</text><text x="494" y="267" text-anchor="end">2,00</text><text x="590" y="267" text-anchor="end">0,00</text><text x="712" y="267" text-anchor="end">58,00</text>
+        <text x="50" y="291">Mantenimiento (servicio)</text><text x="400" y="291" text-anchor="end">10,00</text><text x="494" y="291" text-anchor="end">0,00</text><text x="590" y="291" text-anchor="end">0,00</text><text x="712" y="291" text-anchor="end">350,00</text>
+        <circle cx="38" cy="224" r="9" fill="var(--accent)"/><text x="38" y="228" text-anchor="middle" font-size="11" fill="var(--accent-ink)" font-weight="600">4</text>
+        <text class="q" x="520" y="320" text-anchor="end">Base 504,00 · IVA 21 % 105,84</text>
+        <text x="712" y="320" text-anchor="end" font-weight="600">Total  609,84 €</text>
+        <text class="q" x="20" y="356">1 · Botones inteligentes: saltan al albarán (y a la factura, cuando exista) que nacen de este pedido.</text>
+        <text class="q" x="20" y="376">2 · Barra de estado: en qué punto del ciclo está. El resaltado es el actual.</text>
+        <text class="q" x="20" y="396">3 · Cabecera: cliente y condiciones. Casi todo se hereda de la ficha del cliente.</text>
+        <text class="q" x="20" y="416">4 · Los productos están entregados; el servicio figura en 0. Nada está facturado.</text>
+      </svg>
+    </div>
+    <p class="caption">Compara las tres cifras de cada línea: en los productos físicos, una cantidad entregada inferior a la pedida indica que falta entrega. La cantidad que se puede facturar depende de la política del producto. El servicio marca <em>Entregado 0</em> porque no pasa por el almacén: su cantidad entregada depende de cómo se registren las horas (a mano en la línea o con partes de horas), pero como aquí se factura por cantidad pedida no hace falta anotarlas. Comprobación de importes: 4 × 24 + 2 × 29 + 10 × 35 = 504 €; 21 % de 504 = 105,84 €.</p>
+    <div class="note"><span class="eyebrow">Si la venta viene de CRM</span>El ciclo real empieza una pantalla antes: en la oportunidad, botón <em>Nuevo presupuesto</em>. El presupuesto queda enlazado y, al confirmarlo, la oportunidad se marca como ganada a mano con <em>Ganado</em>. Si creas el presupuesto directamente en Ventas, no hay oportunidad y el botón inteligente <em>Oportunidad</em> no aparece.</div>
+    <ol class="steps">
+      <li><b>Como <code>comercial</code>: Ventas → Nuevo.</b> Cliente, tarifa (se rellena sola desde la ficha), tres líneas. Guarda. <span class="st">S00014 · draft</span><span class="r">Comprueba: el plazo de pago y la dirección de entrega vienen de la ficha del cliente; el precio de cada línea, de la tarifa. Si en tu tarifa creaste una regla con cantidad mínima, cambia la cantidad a 12 y mira si entra el descuento por volumen; vuelve a dejarla en 4. Un presupuesto en borrador no reserva stock ni aparece en Inventario.</span></li>
+      <li><b>Enviar por correo.</b> Odoo abre la plantilla con el PDF adjunto. Envía. <span class="st">sent</span><span class="r">El correo queda en el chatter del presupuesto (el historial de la derecha). Sin servidor de correo configurado, se queda en <kbd>Ajustes → Técnico → Correos electrónicos</kbd> en estado <em>Fallido</em> o <em>En cola</em>; es normal en clase. El menú <em>Técnico</em> solo se ve con el modo desarrollador activado. Este paso es opcional: se puede confirmar sin enviar.</span></li>
+      <li><b>Confirmar.</b> <span class="st">sale</span><span class="r">Aparece el botón inteligente <em>Entrega 1</em>: Odoo ha creado un albarán WH/OUT con las dos líneas de producto físico. El servicio no genera movimiento de almacén. El albarán está en <em>Listo</em> porque hay stock y se ha reservado: el <em>disponible</em> de esos productos ya ha bajado aunque el <em>a mano</em> siga igual.</span></li>
+      <li><b>Como <code>almacen</code>: Inventario → Entregas → WH/OUT/000xx.</b> En la línea del producto con lote, abre el detalle de la línea (icono de lista) y comprueba o elige el lote. Pulsa <em>Validar</em>. <span class="st">done</span><span class="r">El pedido ahora muestra <em>Entregado 4 / 2 / 0</em>: los dos productos completos y el servicio en 0, como en el esquema. El stock <em>a mano</em> baja ahora, no al confirmar. El lote propuesto depende de la estrategia de retirada y de las existencias disponibles. Comprueba el lote o selecciona uno con stock en la ubicación de origen; un producto con seguimiento por lote requiere asignarlo para validar la entrega. El albarán se imprime desde el menú de impresión del propio documento.</span></li>
+      <li><b>Como <code>contable</code>: desde el pedido, Crear factura → Factura normal.</b> <span class="st">Borrador · draft</span><span class="r">Entran 4, 2 y 10: los productos por lo entregado y el servicio por lo pedido, según la política de cada uno (sección 0). Revisa fecha de factura y vencimiento: con plazo de 30 días, el vencimiento es la fecha de factura más 30. Pulsa <em>Confirmar</em>: la factura recibe entonces su número. <span class="st">INV/2026/000xx · posted · not_paid</span> En el pedido, el estado de facturación pasa a <em>Totalmente facturado</em> en este momento, no cuando se cobra. Si <code>contable</code> no ve el pedido, crea la factura desde <kbd>Facturación → Clientes → Facturas</kbd> o revisa sus permisos de Ventas.</span></li>
+      <li><b>Registrar pago</b> cuando llegue la transferencia: botón <em>Pagar</em> / <em>Registrar pago</em> en la factura, diario <em>Banco</em>, importe y fecha. <span class="st">in_payment o paid</span><span class="r">Según la configuración contable, la factura queda en <em>Pagado</em> directamente o en <em>En proceso de pago</em>: este segundo estado significa que el pago está registrado pero aún no se ha casado con una línea del extracto bancario. Las dos situaciones son correctas; anota cuál te sale. El pedido ya no cambia: lleva <em>Totalmente facturado</em> desde el paso 5.</span></li>
+    </ol>
+    <h4>Dónde se ve todo junto</h4>
+    <p>En el pedido, los botones inteligentes de la parte superior: <em>Entrega</em>, <em>Facturas</em>, y si vino de CRM, <em>Oportunidad</em>. Odoo no tiene una pantalla de «expediente»; el pedido es el centro y todo cuelga de él. Además, cada documento guarda en el campo <em>Documento origen</em> el número del pedido (S00014), que es lo que te permite volver hacia atrás desde un albarán o una factura.</p>
+    <div class="tw"><table>
+      <tr><th>Momento</th><th>Pedido</th><th>Albarán</th><th>Factura</th><th>Stock a mano</th></tr>
+      <tr><td>Guardar presupuesto</td><td>draft</td><td>no existe</td><td>no existe</td><td>igual</td></tr>
+      <tr><td>Confirmar</td><td>sale · A facturar (el servicio)</td><td>Listo (reservado)</td><td>no existe</td><td>igual (baja el disponible)</td></tr>
+      <tr><td>Validar entrega</td><td>sale · A facturar</td><td>Hecho</td><td>no existe</td><td>baja</td></tr>
+      <tr><td>Confirmar factura</td><td>sale · Totalmente facturado</td><td>Hecho</td><td>posted · No pagada</td><td>igual</td></tr>
+      <tr><td>Registrar pago</td><td>sin cambios</td><td>Hecho</td><td>En proceso de pago / Pagado</td><td>igual</td></tr>
+    </table></div>
+  </section>
+
+  <section id="s3">
+    <h2><span class="n">03</span>Casos que se tuercen</h2>
+    <p>Lo que distingue a alguien que sabe usar el ERP de alguien que ha seguido un tutorial es resolver estos. La regla general: <strong>un documento validado o publicado no se edita ni se borra; se compensa con otro documento</strong> (una devolución compensa una entrega, una rectificativa compensa una factura).</p>
+    <figure class="ui">
+      <div class="win">
+        <div class="bar">Entrega <span class="chip">WH/OUT/00031</span><span class="sp">Listo (parcial) · origen S00019</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>Producto</th><th>Lote</th><th class="n">Demanda</th><th class="n">Cantidad</th></tr></thead>
+          <tbody>
+            <tr><td>Rodamiento 6204-2RS</td><td>—</td><td class="n">10,00</td><td class="n">6,00</td></tr>
+            <tr><td>Aceite ISO 46</td><td>L2026-07</td><td class="n">2,00</td><td class="n">2,00</td></tr>
+          </tbody>
+        </table></div>
+        <div class="dlg">
+          <b>¿Crear entrega parcial?</b>
+          <p>Has entregado menos de lo pedido. ¿Quieres crear una entrega parcial con las 4 unidades que faltan?</p>
+          <div class="btns"><span class="btn pri">Crear entrega parcial</span><span class="btn">Sin entrega parcial</span></div>
+        </div>
+      </div>
+      <figcaption><b>Una entrega parcial y lo que Odoo pregunta al validarla.</b> La columna <em>Demanda</em> es lo que pidió el cliente y <em>Cantidad</em> lo que de verdad sale: del rodamiento se piden 10 y solo hay 6. Con la política de envío <em>Lo antes posible</em> el albarán aparece como <em>Listo</em> aunque esté incompleto; con <em>Cuando todos los productos estén listos</em> se quedaría <em>En espera</em>. Al validar aparece este diálogo: <em>Crear entrega parcial</em> genera un segundo albarán (la «entrega pendiente», <em>backorder</em>) con las 4 que faltan y el pedido sigue abierto; <em>Sin entrega parcial</em> da por cerrada la entrega y cancela esas 4. Con la política de facturación por cantidades entregadas, la factura que salga de aquí llevará 6, no 10.</figcaption>
+    </figure>
+    <div class="casos">
+      <div><h3>Entrega parcial</h3><p>El cliente pide 10 y solo hay 6. Hay dos caminos y elegir es una decisión comercial, no técnica:</p>
+        <ul>
+          <li><strong>A · Entregar ya lo que hay.</strong> En el albarán, <em>Comprobar disponibilidad</em> reserva 6. Al validar, <em>Crear entrega parcial</em> genera un segundo WH/OUT con los 4 que faltan (enlazado al primero); <em>Sin entrega parcial</em> los cancela.</li>
+          <li><strong>B · Esperar a tenerlo todo.</strong> No se valida nada hasta que entre la recepción; después, <em>Comprobar disponibilidad</em> completa la reserva y se entrega de una vez.</li>
+        </ul>
+        <p>Factura: con política por entregadas, en la primera solo entran 6; las otras 4 se facturan cuando se valide el segundo albarán.</p></div>
+      <div><h3>Devolución de cliente</h3><p>Devuelve 1 de las 4.</p>
+        <ol>
+          <li>En el albarán validado, botón <em>Devolver</em>: indica 1 unidad.</li>
+          <li>Odoo crea un WH/IN desde la ubicación de clientes hacia el almacén. Valídalo: hasta entonces el stock no vuelve.</li>
+          <li>El pedido muestra <em>Entregado 3</em>.</li>
+          <li>Si ya había factura publicada: en la factura, <em>Nota de crédito</em> (rectificativa), reembolso parcial por 1 unidad. Nace una RINV.</li>
+        </ol>
+        <p>Son dos documentos independientes: la devolución arregla el stock, la rectificativa arregla el dinero. Hacer solo uno deja el sistema descuadrado.</p></div>
+      <div><h3>Cancelar un pedido confirmado</h3><p>Si el albarán no está validado y no hay factura publicada: <em>Cancelar</em> en el pedido cancela también el albarán y libera la reserva. Si ya se entregó, no se puede cancelar sin más: hay que hacer la devolución y, si se facturó, la rectificativa. Si está activo el bloqueo de pedidos confirmados, primero <em>Desbloquear</em>. Un pedido cancelado no se borra: queda en estado <em>cancel</em> y se puede volver a pasar a presupuesto.</p></div>
+      <div><h3>Cambiar precio o cantidad después de confirmar</h3><p>Con el pedido confirmado, las líneas se pueden editar (salvo bloqueo). Cambiar el <strong>precio</strong> no toca la entrega pero sí la factura futura. Subir la <strong>cantidad</strong> añade la diferencia al albarán pendiente (o crea uno nuevo si el anterior ya está hecho); no se puede bajar por debajo de lo ya entregado. Si la factura ya está publicada, no se edita: rectificativa y factura nueva.</p></div>
+      <div><h3>Factura sin pedido</h3><p>Un alquiler, una penalización, un servicio puntual. <kbd>Facturación → Clientes → Facturas → Nuevo</kbd>. Las líneas pueden ser productos o texto libre con cuenta e impuesto a mano. No genera albarán ni aparece en Ventas, así que no mueve stock: no la uses para vender producto físico.</p></div>
+      <div><h3>El cliente paga de más o de menos</h3><p><strong>De menos:</strong> al registrar el pago, Odoo pregunta qué hacer con la diferencia. <em>Mantener abierto</em> deja la factura <em>Parcialmente pagada</em> con el saldo pendiente; <em>Marcar como pagado en su totalidad</em> lleva la diferencia a una cuenta (un descuento, una comisión bancaria). El saldo pendiente se ve en la propia factura (<em>Importe adeudado</em>) y en el total a cobrar del cliente. <strong>De más:</strong> el exceso queda como saldo a favor del cliente y Odoo lo ofrece como crédito pendiente al abrir su siguiente factura.</p></div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <h2><span class="n">04</span>Ciclo de compra</h2>
+    <div class="escenario"><span class="eyebrow">Escenario</span>La venta anterior dejó el producto con lote por debajo del mínimo de su regla de reabastecimiento. El sistema debe pedir al proveedor sin que nadie lo decida.</div>
+    <p style="margin-top:14px">Una regla de reabastecimiento tiene dos números. El <strong>mínimo</strong> es el disparador: cuando el stock <em>previsto</em> cae por debajo, hay que pedir. El <strong>máximo</strong> es el objetivo: se pide lo necesario para volver a él. En los ejemplos simplificados de esta guía, la cantidad propuesta es <code>máximo − previsto</code>. La propuesta real puede variar por múltiplos, fechas, plazos y otros ajustes: comprueba lo que muestra Odoo.</p>
+    <ol class="steps">
+      <li><b>Como <code>almacen</code>: Inventario → Operaciones → Reposición.</b> Mira la fila del producto: stock real, previsto, mínimo, máximo y la columna <em>A pedir</em> calculada. <span class="r">Previsto = stock real + entradas confirmadas − salidas confirmadas. Es lo que usa la regla, no el stock actual: así no se pide dos veces lo que ya viene de camino, y sí se pide lo que ya está vendido aunque siga en la estantería. En la documentación este menú aparece también como <em>Reabastecimiento</em>.</span></li>
+      <li><b>Lanzar la compra:</b> botón <em>Ordenar</em> en la fila, o esperar al planificador, que se ejecuta solo una vez al día. <span class="st">P00007 · draft</span><span class="r">Mira antes el campo <em>Activar</em> de la regla: en <em>Automático</em> el planificador genera la solicitud sin intervención; en <em>Manual</em> solo propone la cantidad y espera a que alguien pulse <em>Ordenar</em>. Aparece una solicitud de presupuesto por la cantidad que lleva el previsto hasta el máximo. El proveedor elegido es el <strong>primero de la lista</strong> de la pestaña <em>Compra</em> del producto que cumpla la cantidad mínima y las fechas de validez; no necesariamente el más barato. Para cambiar la preferencia se reordena esa lista. Si ya existe una solicitud en borrador para ese proveedor, la línea se añade a ella en lugar de crear otra.</span></li>
+      <li><b>Compras → P00007 → Enviar por correo → Confirmar pedido.</b> <span class="st">purchase</span><span class="r">Hasta que no se confirma, la solicitud no cuenta como entrada prevista. Si hay aprobación por importe y el pedido la supera, queda en <em>to approve</em> hasta que el responsable lo apruebe. Al confirmar aparece el botón inteligente <em>Recepción</em> y el <em>previsto</em> del producto sube, aunque el stock real no.</span></li>
+      <li><b>Inventario → Recepciones → WH/IN/000xx.</b> Escribe el número de lote que viene en la etiqueta del proveedor. Validar. <span class="st">done</span><span class="r">El lote se crea en este momento: es el dato que hará posible la trazabilidad de la sección 6. Stock a mano sube; el pedido muestra <em>Recibido</em>. Si llegan menos, pon la cantidad real, valida y acepta la recepción parcial para el resto (el mismo diálogo que en ventas, visto desde el otro lado).</span></li>
+      <li><b>Como <code>contable</code>: Compras → P00007 → Crear factura.</b> Referencia de la factura del proveedor, fecha de factura, fecha de vencimiento. Confirmar. <span class="st">BILL/2026/000xx · posted</span><span class="r">Aquí no emites tú la factura: registras la que te ha enviado el proveedor, por eso hay que copiar su número en <em>Referencia</em>. Con la política de control por cantidades recibidas, Odoo propone lo recibido. Si la factura del proveedor indica 12 y solo llegaron 10, compara pedido, recepción y factura; documenta la discrepancia y consulta al proveedor o al responsable antes de contabilizar o pagar. Registra el documento y su resolución según el procedimiento de la empresa, sin hacerlo pasar por una factura de 10 unidades. Comparar pedido, recepción y factura antes de pagar es el control básico de compras.</span></li>
+      <li><b>Registrar pago</b> desde la factura de proveedor. <span class="st">in_payment o paid</span><span class="r">Igual que en ventas, pero el dinero sale. Revisa que la fecha de pago respete el vencimiento pactado.</span></li>
+    </ol>
+    <figure class="ui">
+      <div class="win">
+        <div class="bar">Reposición <span class="chip">Inventario → Operaciones</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>Producto</th><th>Ubicación</th><th class="n">Stock real</th><th class="n">Previsto</th><th class="n">Cantidad mínima</th><th class="n">Cantidad máxima</th><th class="n">A pedir</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Aceite ISO 46</td><td>WH/Stock</td><td class="n">6,00</td><td class="n">4,00</td><td class="n">10,00</td><td class="n">40,00</td><td class="n">36,00</td><td><span class="cta">Ordenar</span></td></tr>
+            <tr><td>Rodamiento 6204-2RS</td><td>WH/Stock</td><td class="n">52,00</td><td class="n">52,00</td><td class="n">20,00</td><td class="n">60,00</td><td class="n">0,00</td><td></td></tr>
+            <tr><td>Filtro hidráulico FH-12</td><td>WH/Stock</td><td class="n">14,00</td><td class="n">9,00</td><td class="n">12,00</td><td class="n">30,00</td><td class="n">21,00</td><td><span class="cta">Ordenar</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <figcaption><b>La pantalla de reposición.</b> Una fila por producto y ubicación. Lo que decide si se pide no es <em>Stock real</em> sino <em>Previsto</em>: el aceite tiene 6 en el almacén pero 4 previstos, porque hay 2 comprometidos en una entrega. Como 4 está por debajo del mínimo de 10, Odoo calcula 40 − 4 = 36 para llegar al máximo. El filtro es el caso engañoso: tiene 14 a mano, por encima del mínimo de 12, pero su previsto es 9, así que pide 30 − 9 = 21. El rodamiento no pide nada porque su previsto supera el mínimo. <em>Ordenar</em> lanza la compra sin esperar al planificador nocturno.</figcaption>
+    </figure>
+    <div class="note warn"><span class="eyebrow">Por qué no lanza la compra</span>Mira <em>Previsto</em> antes que nada y luego, en este orden:
+      <ol>
+        <li>El previsto no ha bajado del mínimo: hay una recepción pendiente que ya cubre el hueco, o la venta sigue en presupuesto y aún no cuenta.</li>
+        <li>La regla está en otro almacén o ubicación, o está archivada.</li>
+        <li>El producto no tiene proveedor en la pestaña <em>Compra</em>.</li>
+        <li>La ruta <em>Comprar</em> no está activa en el producto.</li>
+        <li>El producto no lleva control de stock (sección 0), así que no tiene previsto.</li>
+        <li>La compra sí se generó, pero se añadió a una solicitud en borrador que ya existía para ese proveedor: búscala en Compras.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="s5">
+    <h2><span class="n">05</span>Almacén</h2>
+    <p>Odoo lleva el stock por partida doble: cada movimiento sale de una ubicación y entra en otra. Los proveedores, los clientes, los ajustes y los desechos son ubicaciones virtuales: no existen físicamente, pero sirven de origen o destino. Así queda registrado el origen y el destino de cada movimiento. El stock registrado puede diferir del recuento físico; por eso se comprueba periódicamente. Una compra no «crea» 36 unidades, las mueve de <em>Proveedores</em> al almacén; una venta no las «destruye», las mueve a <em>Clientes</em>.</p>
+    <div class="diag">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Ubicaciones de Odoo: proveedores, almacén con sus estanterías, clientes, ajuste de inventario y desechos, con los movimientos entre ellas">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker></defs>
+        <rect class="virt" x="24" y="110" width="150" height="56" rx="8"/><text x="99" y="134" text-anchor="middle" font-weight="600">Partners/Vendors</text><text class="q" x="99" y="152" text-anchor="middle">virtual · proveedores</text>
+        <rect class="main" x="250" y="50" width="260" height="170" rx="8"/><text x="380" y="74" text-anchor="middle" font-weight="600">WH/Stock</text><text class="q" x="380" y="90" text-anchor="middle">almacén físico</text>
+        <rect class="box" x="266" y="104" width="108" height="40" rx="6"/><text x="320" y="129" text-anchor="middle">Estantería A</text>
+        <rect class="box" x="386" y="104" width="108" height="40" rx="6"/><text x="440" y="129" text-anchor="middle">Estantería B</text>
+        <rect class="box" x="326" y="164" width="108" height="40" rx="6"/><text x="380" y="189" text-anchor="middle">Zona picking</text>
+        <rect class="virt" x="586" y="110" width="150" height="56" rx="8"/><text x="661" y="134" text-anchor="middle" font-weight="600">Partners/Customers</text><text class="q" x="661" y="152" text-anchor="middle">virtual · clientes</text>
+        <rect class="virt" x="230" y="250" width="160" height="40" rx="8"/><text x="310" y="275" text-anchor="middle" font-weight="600">Inventory adjustment</text>
+        <rect class="virt" x="420" y="250" width="110" height="40" rx="8"/><text x="475" y="275" text-anchor="middle" font-weight="600">Scrap</text>
+        <path class="edge" d="M174 130H250"/><text class="q" x="212" y="120" text-anchor="middle">WH/IN</text>
+        <path class="edge" d="M510 130H586"/><text class="q" x="548" y="120" text-anchor="middle">WH/OUT</text>
+        <path class="edge" d="M586 152H510" style="opacity:.6"/><text class="q" x="548" y="170" text-anchor="middle">devolución</text>
+        <path class="edge both" d="M310 250V220"/><text class="q" x="244" y="240">recuento ±</text>
+        <path class="edge" d="M475 220V250"/><text class="q" x="484" y="240">desecho</text>
+        <path class="edge" d="M320 144L352 164" style="opacity:.6"/><text class="q" x="258" y="160">interno</text>
+      </svg>
+    </div>
+    <p class="caption">Un traslado interno mueve entre estanterías sin salir del almacén; un recuento mueve desde o hacia la ubicación virtual de ajuste (hacia ella si falta género, desde ella si sobra); un desecho solo va en un sentido. Los nombres en inglés son los técnicos; en pantalla, según el idioma de la base de datos, pueden verse traducidos (<em>Proveedores</em>, <em>Clientes</em>, <em>Ajuste de inventario</em>), como en el informe de la sección 6.</p>
+    <h3>Operaciones de almacén</h3>
+    <ol class="steps">
+      <li><b>Traslado interno.</b> <kbd>Inventario → Operaciones → Transferencias → Nuevo</kbd>, tipo <em>Traslados internos</em>, de Estantería A a Zona picking, 5 unidades. Validar. <span class="st">WH/INT/000xx · done</span><span class="r">El total del almacén no cambia; cambia el reparto por ubicación. Se ve en <kbd>Informes → Stock</kbd> agrupando por ubicación. Si no aparece el tipo de operación, faltan las ubicaciones de almacenamiento (sección 0).</span></li>
+      <li><b>Recuento físico.</b> <kbd>Inventario → Operaciones → Inventario físico</kbd> (en algunas versiones, <em>Recuentos</em> o <em>Ajustes de inventario</em>): filtra los productos de Estantería A, escribe en <em>Cantidad contada</em> lo que has contado (haz que una difiera en −2) y pulsa <em>Aplicar</em>. <span class="r">Mientras no aplicas, la diferencia solo es una anotación: el stock no cambia. Al aplicar, Odoo crea un movimiento de 2 unidades hacia <em>Inventory adjustment</em>. Es una pérdida reconocida de causa desconocida y, si la valoración de inventario está automatizada, tiene reflejo contable. Si hubieras contado de más, el movimiento iría en sentido contrario.</span></li>
+      <li><b>Desecho.</b> Una unidad dañada: <kbd>Operaciones → Desechar</kbd>, producto, cantidad, ubicación de origen y motivo. <span class="r">Va a la ubicación virtual <em>Scrap</em>. Distinto del recuento: aquí se sabe qué pasó y cuándo. Usa el desecho para lo que se rompe o caduca y el recuento para lo que simplemente no cuadra.</span></li>
+      <li><b>Informe de stock previsto.</b> En la ficha del producto, botón <em>Previsto</em>: la gráfica de stock real y previsto con cada entrada y salida pendiente y su fecha. <span class="r">Es la pantalla para responder «¿puedo prometer 20 unidades para el jueves?»: no basta con mirar el stock de hoy, hay que ver qué entra y qué sale antes de esa fecha.</span></li>
+    </ol>
+    <div class="note"><span class="eyebrow">Comprobación rápida</span>Tras las tres operaciones, el stock a mano del almacén debe haber bajado exactamente 3 unidades (2 del recuento y 1 del desecho). El traslado interno no cuenta. Si tu cifra es otra, busca el movimiento que sobra en el historial de movimientos.</div>
+  </section>
+
+  <section id="s6">
+    <h2><span class="n">06</span>Trazabilidad</h2>
+    <p>Un <strong>lote</strong> es un grupo de unidades que entraron juntas y comparten número (L2026-07); un <strong>número de serie</strong> identifica una única unidad. Con lotes activos, Odoo sabe por dónde ha pasado cada grupo. Es lo que exige alimentación, farmacia o cualquier sector con retiradas de producto. La trazabilidad no se «activa» al consultar: existe porque en cada recepción y cada entrega alguien indicó el lote. Un movimiento hecho sin lote no se puede reconstruir después.</p>
+    <ol class="steps">
+      <li><b>Inventario → Productos → Lotes/Números de serie → el lote que entregaste.</b> Botón <em>Trazabilidad</em>. <span class="r">Lista de movimientos del lote: la recepción del proveedor, los traslados internos y las entregas a cliente, con fechas y documentos. Esta es la pregunta «hacia atrás»: de dónde vino lo que entregué.</span></li>
+      <li><b>Pregunta inversa:</b> el proveedor avisa de que el lote L2026-07 es defectuoso. ¿A qué clientes ha llegado? <span class="r">Misma pantalla: localiza las filas cuyo destino es <em>Clientes</em>. El informe da el albarán (WH/OUT), no el nombre del cliente: abre cada salida para ver a quién se envió y de qué pedido viene. Haz la captura; es una pregunta de examen.</span></li>
+      <li><b>Historial de movimientos.</b> <kbd>Inventario → Informes → Historial de movimientos</kbd>, filtra por lote. <span class="r">Es la tabla <code>stock_move_line</code> tal cual; cada fila, un movimiento hecho. Sirve para lo mismo que el informe anterior pero permite filtrar, agrupar y exportar.</span></li>
+    </ol>
+    <figure class="ui">
+      <div class="win">
+        <div class="bar">Informe de trazabilidad <span class="chip">Lote L2026-07</span><span class="sp">Aceite ISO 46</span></div>
+        <div class="scroll"><table>
+          <thead><tr><th>Referencia</th><th>Fecha</th><th>Desde</th><th>A</th><th class="n">Cantidad</th></tr></thead>
+          <tbody>
+            <tr><td>WH/IN/00007</td><td>02/02/2026 09:14</td><td>Proveedores</td><td>WH/Stock</td><td class="n">80,00</td></tr>
+            <tr><td>WH/INT/00003</td><td>02/02/2026 10:02</td><td>WH/Stock</td><td>WH/Stock/Estantería B</td><td class="n">80,00</td></tr>
+            <tr><td>WH/OUT/00029</td><td>05/02/2026 12:40</td><td>WH/Stock/Estantería B</td><td>Clientes</td><td class="n">6,00</td></tr>
+            <tr><td>WH/OUT/00031</td><td>11/02/2026 09:55</td><td>WH/Stock/Estantería B</td><td>Clientes</td><td class="n">2,00</td></tr>
+            <tr><td>Ajuste de inventario</td><td>28/02/2026 17:05</td><td>WH/Stock/Estantería B</td><td>Ajuste de inventario</td><td class="n">1,00</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <figcaption><b>El informe de trazabilidad de un lote.</b> Cada fila es un movimiento, con las columnas <em>Desde</em> y <em>A</em>. Se lee de arriba abajo: entraron 80 del proveedor, se colocaron en la estantería B, salieron 6 y 2 a clientes (la segunda salida es el albarán WH/OUT/00031 de la sección 3), y un recuento dio una unidad de menos. Quedan 80 − 6 − 2 − 1 = 71 unidades del lote. <em>Proveedores</em>, <em>Clientes</em> y <em>Ajuste de inventario</em> son las ubicaciones virtuales de la sección anterior y permiten registrar el origen y el destino de cada movimiento. Para saber a quién le llegó el lote, basta con abrir las dos salidas.</figcaption>
+    </figure>
+    <div class="note"><span class="eyebrow">Qué se hace con la respuesta</span>Identifica y avisa a los clientes afectados siguiendo el procedimiento de la empresa. Inmoviliza las unidades restantes, por ejemplo, mediante una ubicación de cuarentena configurada para impedir su uso. Tras revisar el caso, se decide su destino: devolución al proveedor, desecho u otra solución autorizada. La cuarentena, la devolución y el desecho son operaciones distintas; no tienen que hacerse todas sobre las mismas unidades.</div>
+  </section>
+
+  <section id="s7">
+    <h2><span class="n">07</span>Ejercicios</h2>
+    <p>Todos sobre tu empresa, con los tres usuarios. Entrega los números de los documentos y las capturas necesarias para demostrar los pasos y resultados de cada ejercicio. En cada uno, indica qué usuario hizo cada paso y explica brevemente lo comprobado. Por ejemplo, en la venta muestra los documentos vinculados y el estado de la factura; en la devolución, el albarán de devolución y la rectificativa.</p>
+    <ol>
+      <li><strong>Venta completa</strong> del escenario de la sección 2, de presupuesto a pagado, con cada usuario haciendo su parte. Anota el estado de la factura tras registrar el pago (<em>En proceso de pago</em> o <em>Pagado</em>) y explica la diferencia.</li>
+      <li><strong>Entrega parcial</strong> con albarán pendiente y dos facturas: una por lo entregado primero y otra por el resto cuando llegue el stock. Antes de empezar, comprueba que el producto se factura por <em>Cantidades entregadas</em>; si no, la primera factura saldrá por el total.</li>
+      <li><strong>Devolución y rectificativa</strong> de una unidad de la venta del ejercicio 1. Deben quedar dos documentos nuevos: un WH/IN y una RINV.</li>
+      <li><strong>Reabastecimiento automático</strong>: deja un producto bajo mínimo, lanza la reposición y lleva la compra hasta el pago. Explica por qué eligió ese proveedor y esa cantidad, con tus cifras, la configuración de la regla y, si resulta aplicable al caso, la fórmula <code>máximo − previsto</code>.</li>
+      <li><strong>Recepción incompleta</strong>: el proveedor manda 8 de 10; recibe 8, acepta la recepción parcial por las 2 restantes, factura solo 8.</li>
+      <li><strong>Almacén</strong>: un traslado interno, un recuento con diferencia y un desecho; captura del informe de stock agrupado por ubicación antes y después. Justifica con números cuánto ha variado el total.</li>
+      <li><strong>Trazabilidad</strong>: a qué clientes llegó un lote concreto y cuántas unidades quedan en el almacén.</li>
+      <li><strong>Diagnóstico</strong>: un compañero te deja un pedido confirmado cuyo albarán está en <em>En espera</em> y una regla que no lanza compra. Escribe qué miraste, en qué orden, y qué era.</li>
+    </ol>
+    <div class="note"><span class="eyebrow">Preparación</span>Comprueba antes que las cantidades iniciales permiten cada caso: para la entrega parcial, deja 6 unidades disponibles y pide 10; después recibe al menos 4. Para la recepción incompleta, pide 10 y registra la llegada de 8. Usa productos de prueba distintos en cada ejercicio para no alterar los resultados anteriores, y no uses datos reales de clientes ni proveedores.</div>
+    <div class="note"><span class="eyebrow">Antes de entregar</span>Para cada ejercicio comprueba tres cosas: que los documentos están enlazados (el albarán y la factura tienen como origen el pedido), que las cantidades <em>Pedido / Entregado / Facturado</em> cuadran con lo que cuentas, y que ningún documento se ha quedado en borrador sin querer.</div>
+  </section>
+  </main>
+  </div>
+
+  <footer>Material del módulo 0491 (RD 450/2010), bloque 3. Nombres de menú según Odoo 19 Community en español; pueden variar ligeramente según la versión y el idioma de la base de datos (es / es_ES / es_419). Consulta la <a href="https://www.odoo.com/documentation/19.0/es/">documentación oficial de Odoo 19</a> para ampliar información; su contenido se publica con licencia CC BY-SA 4.0. Curso 2026/2027.</footer>
+</div>
+
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a')), secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function mark(){ var y=scrollY+120, cur=0; secs.forEach(function(s,i){ if(s && s.offsetTop<=y) cur=i; }); links.forEach(function(a,i){ a.classList.toggle('on',i===cur); }); }
+  addEventListener('scroll',mark,{passive:true}); mark();
+})();
+</script>
+
+</body></html>

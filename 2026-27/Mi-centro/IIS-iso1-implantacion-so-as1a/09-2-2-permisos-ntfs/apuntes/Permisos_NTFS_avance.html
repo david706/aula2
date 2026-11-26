@@ -1,0 +1,96 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Permisos NTFS — avance</title>
+<style>
+  :root{
+    --bg:#f6f3ec; --paper:#ffffff; --ink:#201d17; --ink-soft:#5c574c; --rule:#dcd5c4;
+    --win:#1f5fa8; --win-soft:#eaf1fb; --accent:#1f5fa8;
+    --code-bg:#211e18; --code-fg:#f1ede1; --warn:#a8721f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+      --win:#7badec; --win-soft:#1c2b3e; --accent:#7badec;
+      --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+    --win:#7badec; --win-soft:#1c2b3e; --accent:#7badec;
+    --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:48px 80px;
+  }
+  h1,h2,h3,.eyebrow,code,pre{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:720px;margin:0 auto}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 10px}
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(26px,5vw,36px); line-height:1.15; margin:0 0 10px; text-wrap:balance}
+  .sub{color:var(--ink-soft); font-size:15.5px; line-height:1.55; max-width:62ch; margin:0 0 30px}
+  .banner{
+    background:var(--win-soft); border:1px solid var(--rule); border-left:3px solid var(--win);
+    border-radius:3px; padding:14px 16px; font-size:13.5px; line-height:1.55; margin-bottom:34px;
+  }
+  .banner b{color:var(--ink)}
+  section{margin-bottom:34px}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:21px; margin:0 0 12px}
+  p{font-size:15px; line-height:1.65; margin:0 0 12px; color:var(--ink)}
+  ul{margin:0 0 12px; padding-left:20px}
+  li{font-size:15px; line-height:1.6; margin-bottom:6px}
+  li b{color:var(--ink)}
+  code{background:var(--win-soft); padding:1px 5px; border-radius:3px; font-size:0.88em}
+  pre{background:var(--code-bg); color:var(--code-fg); padding:12px 14px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.55; margin:8px 0}
+  pre code{background:none; padding:0}
+  .panel{background:var(--paper); border:1px solid var(--rule); border-radius:3px; padding:16px 18px; margin-bottom:14px}
+  footer{margin-top:40px; padding-top:16px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">ISO · 1º ASIR · 2.2 Permisos NTFS</p>
+  <h1>NTFS, por encima</h1>
+  <p class="sub">Esto todavía no ha salido en tu Moodle. Es solo para que no llegues en blanco si se adelanta — lo trataremos a fondo (permisos efectivos, herencia avanzada, combinación con recursos compartidos) más adelante, en UD5.</p>
+
+  <div class="banner">👉 <b>Esto es un adelanto breve, no la ficha completa.</b> Cuando lleguéis a UD5 ampliamos con ejercicios de <code>icacls</code>, herencia y permisos efectivos en dominio.</div>
+
+  <section>
+    <h2>Qué es</h2>
+    <p>NTFS es el sistema de archivos de Windows. Cada archivo o carpeta lleva asociada una lista de quién puede hacer qué con él — eso son los <b>permisos NTFS</b>. Es el mismo concepto que ya conoces de Linux con <code>chmod</code>/<code>chown</code>, solo que aquí se gestiona desde una ventana gráfica en vez de con notación octal.</p>
+  </section>
+
+  <section>
+    <h2>Los permisos básicos</h2>
+    <ul>
+      <li><b>Control total</b> — todo, incluido cambiar permisos a otros.</li>
+      <li><b>Modificar</b> — leer, escribir y borrar.</li>
+      <li><b>Lectura y ejecución</b> — ver y, si es un programa, ejecutarlo.</li>
+      <li><b>Lectura</b> — solo ver el contenido.</li>
+      <li><b>Escritura</b> — modificar el contenido.</li>
+    </ul>
+    <p>Se configuran en: clic derecho sobre el archivo o carpeta → <b>Propiedades</b> → pestaña <b>Seguridad</b>. Ahí ves cada usuario/grupo y qué permisos tiene marcados.</p>
+  </section>
+
+  <section>
+    <h2>Por línea de comandos</h2>
+    <p>El libro de clase lo trata con <code>icacls</code> (o el más antiguo <code>cacls</code>):</p>
+    <pre><code>icacls ARCHIVO /grant USUARIO:PERMISO
+icacls ARCHIVO /remove USUARIO</code></pre>
+    <p>Donde <code>PERMISO</code> puede ser <code>R</code> (lectura), <code>W</code> (escritura), <code>C</code> (cambio) o <code>F</code> (control total).</p>
+  </section>
+
+  <section>
+    <h2>Dos ideas que te van a preguntar seguro</h2>
+    <div class="panel">
+      <p style="margin-bottom:8px"><b>Herencia</b> — por defecto, una carpeta nueva hereda los permisos de la carpeta que la contiene. Si cambias los permisos de una carpeta, puedes aplicarlos también a todo lo que hay dentro.</p>
+      <p style="margin-bottom:0"><b>NTFS vs. recurso compartido</b> — cuando accedes a una carpeta por red, se aplica el permiso <b>más restrictivo</b> entre el permiso NTFS (local) y el permiso de recurso compartido (de red). Si por red tienes solo lectura pero en NTFS tienes control total, acabas con solo lectura: gana el más estricto de los dos.</p>
+    </div>
+  </section>
+
+  <footer>Avance breve — ampliaremos con teoría y práctica cuando lleguéis a UD5 (accesos y seguridad de dominios).</footer>
+</div>
+
+</body></html>

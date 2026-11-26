@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicios de scripting ASO: .bat y bash</title>
+<style>
+  :root { --fg:#1f2328; --muted:#59636e; --bg:#ffffff; --code-bg:#f4f6f8; --accent:#0b5fff; --line:#d8dee4; }
+  @media (prefers-color-scheme: dark) {
+    :root { --fg:#e6edf3; --muted:#9aa4af; --bg:#14181d; --code-bg:#1d232a; --accent:#6ea8ff; --line:#2d353d; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 2rem; margin: 0 0 .2em; }
+  h2 { font-size: 1.5rem; margin: 2.2em 0 .6em; padding-top: .6em; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.15rem; margin: 1.8em 0 .5em; }
+  p, li { max-width: 70ch; }
+  code { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size: .92em;
+         background: var(--code-bg); padding: .12em .35em; border-radius: 4px; }
+  pre { position: relative; background: var(--code-bg); border: 1px solid var(--line);
+        border-radius: 8px; padding: 14px 16px; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; font-size: .88rem; }
+  pre button { position: absolute; top: 8px; right: 8px; font: inherit; font-size: .75rem;
+               border: 1px solid var(--line); background: var(--bg); color: var(--muted);
+               border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+  pre button:hover { color: var(--accent); border-color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+  th, td { text-align: left; border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; }
+  th { background: var(--code-bg); }
+  ul { padding-left: 1.3em; }
+  @media print { pre button { display: none; } pre { white-space: pre-wrap; } }
+</style>
+</head>
+<body>
+<main>
+<h1 id="ejercicios-de-scripting-aso-bat-y-bash">Ejercicios de scripting ASO: .bat y bash</h1>
+<p>Actualizado: 13/11/2026</p>
+<h2 id="como-usar-esta-serie">Cómo usar esta serie</h2>
+<p>La serie tiene 7 niveles y un proyecto final; cada ejercicio trae enunciado y solución en .bat (Windows, cmd) y en bash (Linux, WSL o Git Bash).</p>
+<ul>
+<li><strong>Ejecutar .bat:</strong> guarda el archivo como <code>ejercicio.bat</code> y lánzalo desde <code>cmd</code>: <code>ejercicio.bat arg1 arg2</code>.</li>
+<li><strong>Ejecutar bash:</strong> guarda el archivo como <code>ejercicio.sh</code>, dale permisos con <code>chmod +x ejercicio.sh</code> y lánzalo con <code>./ejercicio.sh arg1 arg2</code>.</li>
+<li><strong>Orden:</strong> intenta cada ejercicio sin mirar la solución; cada nivel usa lo visto en el anterior.</li>
+<li><strong>Pruebas:</strong> ejecuta cada script con casos normales y con errores (sin argumentos, ficheros que no existen).</li>
+<li><strong>Seguridad:</strong> el nivel 5 crea usuarios y cierra procesos; hazlo en una máquina virtual, no en tu equipo real.</li>
+</ul>
+<h2 id="nivel-1-primeros-pasos">Nivel 1: primeros pasos</h2>
+<p>Objetivo: mostrar texto, usar variables y leer argumentos.</p>
+<h3 id="11-hola-asir">1.1 Hola, ASIR</h3>
+<p>Muestra por pantalla el mensaje <code>Hola, ASIR</code>.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+echo Hola, ASIR
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+echo &quot;Hola, ASIR&quot;
+</code></pre>
+<h3 id="12-saludo-personalizado">1.2 Saludo personalizado</h3>
+<p>Pregunta el nombre al usuario y salúdalo.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set /p nombre=Como te llamas? 
+echo Hola, %nombre%
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+read -p &quot;Como te llamas? &quot; nombre
+echo &quot;Hola, $nombre&quot;
+</code></pre>
+<h3 id="13-suma-de-dos-numeros">1.3 Suma de dos números</h3>
+<p>Recibe dos números como argumentos y muestra su suma.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set /a suma=%1+%2
+echo La suma es %suma%
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+suma=$(( $1 + $2 ))
+echo &quot;La suma es $suma&quot;
+</code></pre>
+<h3 id="14-informacion-del-sistema">1.4 Información del sistema</h3>
+<p>Muestra el usuario, el nombre del equipo y la fecha actual.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+echo Usuario: %USERNAME%
+echo Equipo: %COMPUTERNAME%
+echo Fecha: %DATE%
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+echo &quot;Usuario: $USER&quot;
+echo &quot;Equipo: $(hostname)&quot;
+echo &quot;Fecha: $(date +%d/%m/%Y)&quot;
+</code></pre>
+<h2 id="nivel-2-condicionales-y-comprobaciones">Nivel 2: condicionales y comprobaciones</h2>
+<p>Objetivo: tomar decisiones con <code>if</code>, validar argumentos y usar el código de salida de un comando.</p>
+<h3 id="21-par-o-impar">2.1 Par o impar</h3>
+<p>Recibe un número como argumento y di si es par o impar.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set /a resto=%1 %% 2
+if %resto%==0 (echo Par) else (echo Impar)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if [ $(( $1 % 2 )) -eq 0 ]; then
+    echo &quot;Par&quot;
+else
+    echo &quot;Impar&quot;
+fi
+</code></pre>
+<h3 id="22-existe-el-fichero">2.2 ¿Existe el fichero?</h3>
+<p>Recibe una ruta y di si existe o no.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+if exist &quot;%~1&quot; (
+    echo %~1 existe
+) else (
+    echo %~1 no existe
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if [ -e &quot;$1&quot; ]; then
+    echo &quot;$1 existe&quot;
+else
+    echo &quot;$1 no existe&quot;
+fi
+</code></pre>
+<h3 id="23-validar-argumentos">2.3 Validar argumentos</h3>
+<p>Si no se pasa ningún argumento, muestra el modo de uso y termina con código de error 1. Si se pasa, saluda.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+if &quot;%~1&quot;==&quot;&quot; (
+    echo Uso: %0 nombre
+    exit /b 1
+)
+echo Hola, %1
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if [ $# -ne 1 ]; then
+    echo &quot;Uso: $0 nombre&quot;
+    exit 1
+fi
+echo &quot;Hola, $1&quot;
+</code></pre>
+<h3 id="24-calificacion">2.4 Calificación</h3>
+<p>Recibe una nota entera (0 a 10) y muestra Suspenso (menos de 5), Aprobado (5 y 6), Notable (7 y 8) o Sobresaliente (9 y 10).</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set /a nota=%1
+if %nota% LSS 5 (
+    echo Suspenso
+) else if %nota% LSS 7 (
+    echo Aprobado
+) else if %nota% LSS 9 (
+    echo Notable
+) else (
+    echo Sobresaliente
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+nota=$1
+if [ &quot;$nota&quot; -lt 5 ]; then
+    echo &quot;Suspenso&quot;
+elif [ &quot;$nota&quot; -lt 7 ]; then
+    echo &quot;Aprobado&quot;
+elif [ &quot;$nota&quot; -lt 9 ]; then
+    echo &quot;Notable&quot;
+else
+    echo &quot;Sobresaliente&quot;
+fi
+</code></pre>
+<h3 id="25-responde-el-equipo">2.5 ¿Responde el equipo?</h3>
+<p>Recibe un nombre o IP y di si responde a un ping. Usa el resultado del comando, no su salida en pantalla.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+ping -n 1 %1 | find &quot;TTL=&quot; &gt;nul
+if %errorlevel%==0 (echo %1 responde) else (echo %1 NO responde)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if ping -c 1 &quot;$1&quot; &gt; /dev/null 2&gt;&amp;1; then
+    echo &quot;$1 responde&quot;
+else
+    echo &quot;$1 NO responde&quot;
+fi
+</code></pre>
+<p>En Windows, <code>ping</code> puede devolver código 0 aunque el equipo no responda (por ejemplo, si el router contesta "host inaccesible"). Por eso la solución .bat busca <code>TTL=</code> en la salida.</p>
+<h2 id="nivel-3-bucles">Nivel 3: bucles</h2>
+<p>Objetivo: repetir acciones con <code>for</code> y <code>while</code>, y recorrer listas de valores.</p>
+<h3 id="31-contar-del-1-al-10">3.1 Contar del 1 al 10</h3>
+<p>Muestra los números del 1 al 10, uno por línea.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+for /l %%i in (1,1,10) do echo %%i
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+for i in {1..10}; do
+    echo &quot;$i&quot;
+done
+</code></pre>
+<h3 id="32-tabla-de-multiplicar">3.2 Tabla de multiplicar</h3>
+<p>Recibe un número como argumento y muestra su tabla del 1 al 10.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal enabledelayedexpansion
+for /l %%i in (1,1,10) do (
+    set /a r=%1*%%i
+    echo %1 x %%i = !r!
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+for i in $(seq 1 10); do
+    echo &quot;$1 x $i = $(( $1 * $i ))&quot;
+done
+</code></pre>
+<p>En .bat, dentro de un bloque con paréntesis una variable cambia de valor en cada vuelta, así que se lee con <code>!r!</code> (expansión retardada) y no con <code>%r%</code>.</p>
+<h3 id="33-recorrer-los-argumentos">3.3 Recorrer los argumentos</h3>
+<p>Muestra cada argumento recibido, uno por línea, sin importar cuántos sean.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+for %%a in (%*) do echo Argumento: %%a
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+for a in &quot;$@&quot;; do
+    echo &quot;Argumento: $a&quot;
+done
+</code></pre>
+<h3 id="34-adivina-el-numero">3.4 Adivina el número</h3>
+<p>El número secreto es 7. Pide números hasta que el usuario acierte.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set secreto=7
+:pedir
+set /p n=Adivina el numero: 
+if &quot;%n%&quot;==&quot;%secreto%&quot; goto fin
+echo Incorrecto
+goto pedir
+:fin
+echo Acertaste!
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+secreto=7
+read -p &quot;Adivina el numero: &quot; n
+while [ &quot;$n&quot; -ne &quot;$secreto&quot; ]; do
+    echo &quot;Incorrecto&quot;
+    read -p &quot;Adivina el numero: &quot; n
+done
+echo &quot;Acertaste!&quot;
+</code></pre>
+<h3 id="35-barrido-de-red">3.5 Barrido de red</h3>
+<p>Haz ping a las IP 192.168.1.1 a 192.168.1.10 y muestra solo las que respondan.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+for /l %%i in (1,1,10) do (
+    ping -n 1 -w 500 192.168.1.%%i | find &quot;TTL=&quot; &gt;nul &amp;&amp; echo 192.168.1.%%i activa
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+for i in {1..10}; do
+    ping -c 1 -W 1 192.168.1.$i &gt; /dev/null 2&gt;&amp;1 &amp;&amp; echo &quot;192.168.1.$i activa&quot;
+done
+</code></pre>
+<p>Reto: haz que el rango de IP (por ejemplo <code>192.168.1</code>) se pase como argumento.</p>
+<h2 id="nivel-4-ficheros-directorios-y-texto">Nivel 4: ficheros, directorios y texto</h2>
+<p>Objetivo: crear carpetas, escribir y leer ficheros, hacer copias y buscar texto.</p>
+<h3 id="41-estructura-de-carpetas">4.1 Estructura de carpetas</h3>
+<p>Crea la carpeta <code>proyecto</code> con las subcarpetas <code>docs</code>, <code>src</code> y <code>backup</code>.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+mkdir proyecto\docs proyecto\src proyecto\backup
+echo Estructura creada
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+mkdir -p proyecto/{docs,src,backup}
+echo &quot;Estructura creada&quot;
+</code></pre>
+<h3 id="42-escribir-y-leer-un-fichero">4.2 Escribir y leer un fichero</h3>
+<p>Crea <code>informe.txt</code> con el usuario y la fecha (una línea cada uno) y muéstralo por pantalla.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+echo Informe de %USERNAME%&gt; informe.txt
+echo Fecha: %DATE%&gt;&gt; informe.txt
+type informe.txt
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+echo &quot;Informe de $USER&quot; &gt; informe.txt
+echo &quot;Fecha: $(date +%d/%m/%Y)&quot; &gt;&gt; informe.txt
+cat informe.txt
+</code></pre>
+<p><code>&gt;</code> crea o sobrescribe el fichero; <code>&gt;&gt;</code> añade al final.</p>
+<h3 id="43-contar-ficheros-txt">4.3 Contar ficheros .txt</h3>
+<p>Recibe una carpeta y di cuántos ficheros <code>.txt</code> contiene (sin entrar en subcarpetas).</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set n=0
+for %%f in (&quot;%~1\*.txt&quot;) do set /a n+=1
+echo Hay %n% ficheros .txt
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+n=$(find &quot;$1&quot; -maxdepth 1 -name &quot;*.txt&quot; | wc -l)
+echo &quot;Hay $n ficheros .txt&quot;
+</code></pre>
+<h3 id="44-copia-de-seguridad-con-fecha">4.4 Copia de seguridad con fecha</h3>
+<p>Copia la carpeta recibida como argumento a una carpeta nueva llamada <code>backup_AAAAMMDD</code>.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set fecha=%DATE:~6,4%%DATE:~3,2%%DATE:~0,2%
+xcopy &quot;%~1&quot; &quot;backup_%fecha%\&quot; /E /I /Y
+echo Copia creada en backup_%fecha%
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+fecha=$(date +%Y%m%d)
+cp -r &quot;$1&quot; &quot;backup_$fecha&quot;
+echo &quot;Copia creada en backup_$fecha&quot;
+</code></pre>
+<p>La versión .bat da por hecho que <code>%DATE%</code> tiene el formato <code>dd/mm/aaaa</code>. Comprueba con <code>echo %DATE%</code> qué formato usa tu Windows y ajusta las posiciones si no coincide.</p>
+<h3 id="45-buscar-texto-en-un-log">4.5 Buscar texto en un log</h3>
+<p>Recibe un fichero y muestra las líneas que contengan <code>error</code> (sin distinguir mayúsculas), seguidas de cuántas son.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+findstr /i &quot;error&quot; &quot;%~1&quot;
+echo ---
+findstr /i &quot;error&quot; &quot;%~1&quot; | find /c /v &quot;&quot;
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+grep -i &quot;error&quot; &quot;$1&quot;
+echo &quot;---&quot;
+grep -ic &quot;error&quot; &quot;$1&quot;
+</code></pre>
+<h2 id="nivel-5-administracion-del-sistema">Nivel 5: administración del sistema</h2>
+<p>Objetivo: gestionar procesos, usuarios, recursos y servicios. Haz estos ejercicios en una máquina virtual: algunos necesitan permisos de administrador (.bat: cmd como administrador; bash: <code>sudo</code>).</p>
+<h3 id="51-cerrar-un-proceso-con-confirmacion">5.1 Cerrar un proceso con confirmación</h3>
+<p>Recibe el nombre de un proceso, muéstralo y pregunta si se quiere cerrar. Solo lo cierra si la respuesta es S.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+tasklist | find /i &quot;%~1&quot;
+set /p ok=Cerrar %~1 (S/N)? 
+if /i &quot;%ok%&quot;==&quot;S&quot; taskkill /im &quot;%~1&quot; /f
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+pgrep -l &quot;$1&quot;
+read -p &quot;Cerrar $1 (S/N)? &quot; ok
+if [[ &quot;$ok&quot; =~ ^[sS]$ ]]; then
+    pkill &quot;$1&quot;
+fi
+</code></pre>
+<h3 id="52-crear-usuarios-desde-un-fichero">5.2 Crear usuarios desde un fichero</h3>
+<p>Lee <code>usuarios.txt</code> (un nombre por línea) y crea un usuario por cada línea con una contraseña inicial.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+for /f %%u in (usuarios.txt) do (
+    net user %%u P@ssw0rd1 /add
+    echo Usuario %%u creado
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if [ &quot;$EUID&quot; -ne 0 ]; then
+    echo &quot;Ejecuta como root&quot;
+    exit 1
+fi
+while read -r u; do
+    useradd -m &quot;$u&quot; &amp;&amp; echo &quot;$u:P@ssw0rd1&quot; | chpasswd &amp;&amp; echo &quot;Usuario $u creado&quot;
+done &lt; usuarios.txt
+</code></pre>
+<p>La contraseña en claro es solo para práctica. Reto: en Linux, fuerza el cambio en el primer inicio de sesión con <code>chage -d 0 "$u"</code>.</p>
+<h3 id="53-informe-de-estado-del-equipo">5.3 Informe de estado del equipo</h3>
+<p>Guarda en <code>estado.txt</code> la fecha y el espacio en disco, y muéstralo. En bash añade también la memoria.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+echo Informe %DATE% %TIME%&gt; estado.txt
+powershell -NoProfile -Command &quot;Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free&quot; &gt;&gt; estado.txt
+type estado.txt
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+{
+    echo &quot;Informe $(date)&quot;
+    df -h
+    free -h
+} &gt; estado.txt
+cat estado.txt
+</code></pre>
+<h3 id="54-vigilar-un-servicio">5.4 Vigilar un servicio</h3>
+<p>Recibe el nombre de un servicio (en Windows, por ejemplo <code>Spooler</code>; en Linux, por ejemplo <code>ssh</code>). Si está parado, arráncalo.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+sc query &quot;%~1&quot; | find &quot;RUNNING&quot; &gt;nul
+if %errorlevel%==0 (
+    echo %~1 esta activo
+) else (
+    echo %~1 parado, arrancando...
+    net start &quot;%~1&quot;
+)
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+if systemctl is-active --quiet &quot;$1&quot;; then
+    echo &quot;$1 esta activo&quot;
+else
+    echo &quot;$1 parado, arrancando...&quot;
+    systemctl start &quot;$1&quot;
+fi
+</code></pre>
+<p>Reto: programa este script para que se ejecute cada 5 minutos con <code>schtasks</code> (Windows) o <code>cron</code> (Linux).</p>
+<h2 id="nivel-6-recorrer-ficheros-paso-a-paso">Nivel 6: recorrer ficheros paso a paso</h2>
+<p>En esta serie mejoras un mismo script ejercicio a ejercicio. Cada versión funciona, pero tiene un fallo que corriges en la siguiente. Antes de mirar la solución, prueba tu versión con un fichero que tenga líneas con espacios, una línea vacía y una ruta que no exista.</p>
+<p>Fichero de prueba <code>lista.txt</code>:</p>
+<pre><code class="language-text">manzana roja
+pera
+
+kiwi verde y dulce
+</code></pre>
+<h3 id="61-mostrar-un-fichero-con-numero-de-linea">6.1 Mostrar un fichero con número de línea</h3>
+<p>Muestra <code>lista.txt</code> línea a línea con el formato <code>1: contenido</code>.</p>
+<p>Primera versión en bash:</p>
+<pre><code class="language-bash">#!/bin/bash
+n=1
+for linea in $(cat lista.txt); do
+    echo &quot;$n: $linea&quot;
+    n=$((n+1))
+done
+</code></pre>
+<p>La salida no es la esperada: <code>manzana</code> y <code>roja</code> salen como líneas distintas y la línea vacía desaparece. <code>for</code> separa por espacios y saltos de línea. La forma correcta de leer línea a línea es <code>while read</code>:</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+n=1
+while IFS= read -r linea; do
+    echo &quot;$n: $linea&quot;
+    n=$((n+1))
+done &lt; lista.txt
+</code></pre>
+<p><code>IFS=</code> evita que se recorten los espacios y <code>-r</code> evita que se interpreten las barras invertidas.</p>
+<p>Primera versión en .bat:</p>
+<pre><code class="language-bat">@echo off
+set n=0
+for /f %%l in (lista.txt) do (
+    set /a n+=1
+    echo %n%: %%l
+)
+</code></pre>
+<p>Tiene tres fallos: <code>%n%</code> se calcula una sola vez antes del bucle (siempre muestra 0), <code>for /f</code> solo coge la primera palabra de cada línea y se salta las líneas vacías. Se corrigen con <code>delims=</code> y expansión retardada:</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal enabledelayedexpansion
+set n=0
+for /f &quot;usebackq delims=&quot; %%l in (&quot;lista.txt&quot;) do (
+    set /a n+=1
+    echo !n!: %%l
+)
+</code></pre>
+<p>Esta versión sigue saltando la línea vacía. Reto: usa <code>findstr /n "^"</code> para conservarla:</p>
+<pre><code class="language-bat">@echo off
+for /f &quot;delims=&quot; %%l in ('findstr /n &quot;^&quot; lista.txt') do echo %%l
+</code></pre>
+<h3 id="62-la-ruta-llega-por-parametro">6.2 La ruta llega por parámetro</h3>
+<p>El fichero ya no es fijo: llega como primer argumento. Si falta el argumento o no es un fichero, muestra el error por la salida de errores y termina con un código distinto de 0. Crea una función (o subrutina) para los errores.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+error() {
+    echo &quot;Error: $1&quot; &gt;&amp;2
+    exit &quot;$2&quot;
+}
+
+[ $# -eq 0 ] &amp;&amp; error &quot;falta la ruta del fichero&quot; 1
+[ -f &quot;$1&quot; ] || error &quot;$1 no es un fichero&quot; 2
+[ -r &quot;$1&quot; ] || error &quot;no se puede leer $1&quot; 3
+
+n=1
+while IFS= read -r linea; do
+    echo &quot;$n: $linea&quot;
+    n=$((n+1))
+done &lt; &quot;$1&quot;
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal enabledelayedexpansion
+if &quot;%~1&quot;==&quot;&quot; (
+    echo Error: falta la ruta del fichero 1&gt;&amp;2
+    exit /b 1
+)
+if not exist &quot;%~1&quot; (
+    echo Error: %~1 no existe 1&gt;&amp;2
+    exit /b 2
+)
+if exist &quot;%~1\&quot; (
+    echo Error: %~1 es una carpeta 1&gt;&amp;2
+    exit /b 3
+)
+set n=0
+for /f &quot;usebackq delims=&quot; %%l in (&quot;%~1&quot;) do (
+    set /a n+=1
+    echo !n!: %%l
+)
+</code></pre>
+<p>Para ver el código de salida: en bash <code>./ver.sh; echo $?</code>, en cmd <code>ver.bat &amp; echo %errorlevel%</code>. Prueba sin argumento, con un fichero que no existe y con una carpeta.</p>
+<h3 id="63-lista-variable-de-ficheros">6.3 Lista variable de ficheros</h3>
+<p>El script recibe uno o más ficheros. Para cada uno muestra una cabecera <code>=== nombre ===</code> y su contenido numerado. Pon el cuerpo en una función (bash) o subrutina (.bat).</p>
+<p>La primera idea suele ser reutilizar la comprobación del ejercicio anterior dentro de la función, con <code>exit</code>. Funciona hasta que un fichero no existe:</p>
+<pre><code class="language-bash">mostrar() {
+    [ -f &quot;$1&quot; ] || { echo &quot;Error: $1 no existe&quot; &gt;&amp;2; exit 1; }
+    # ...
+}
+</code></pre>
+<p><code>exit</code> termina todo el script, así que los ficheros que van detrás del que falta no se procesan. Hay que salir solo de la función (<code>return</code> en bash, <code>exit /b</code> en .bat), avisar y seguir. De paso, cuenta los ficheros con problemas y devuélvelo como código de salida.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+mostrar() {
+    if [ ! -f &quot;$1&quot; ]; then
+        echo &quot;Aviso: $1 no existe, se omite&quot; &gt;&amp;2
+        return 1
+    fi
+    echo &quot;=== $1 ===&quot;
+    local n=1 linea
+    while IFS= read -r linea; do
+        echo &quot;$n: $linea&quot;
+        n=$((n+1))
+    done &lt; &quot;$1&quot;
+}
+
+fallos=0
+for f in &quot;$@&quot;; do
+    mostrar &quot;$f&quot; || fallos=$((fallos+1))
+done
+echo &quot;Ficheros con problemas: $fallos&quot;
+[ &quot;$fallos&quot; -eq 0 ]
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal enabledelayedexpansion
+set fallos=0
+for %%f in (%*) do (
+    call :mostrar &quot;%%~f&quot;
+    if errorlevel 1 set /a fallos+=1
+)
+echo Ficheros con problemas: %fallos%
+exit /b %fallos%
+
+:mostrar
+if not exist &quot;%~1&quot; (
+    echo Aviso: %~1 no existe, se omite 1&gt;&amp;2
+    exit /b 1
+)
+echo === %~1 ===
+set n=0
+for /f &quot;usebackq delims=&quot; %%l in (&quot;%~1&quot;) do (
+    set /a n+=1
+    echo !n!: %%l
+)
+exit /b 0
+</code></pre>
+<p>En bash, <code>local</code> evita que las variables de la función pisen las del script. En .bat, <code>exit /b</code> dentro de una subrutina vuelve al <code>call</code>; sin <code>/b</code> se cerraría la consola.</p>
+<h3 id="64-el-ambito-de-los-parametros">6.4 El ámbito de los parámetros</h3>
+<p>Refactoriza: mete el recorrido de todos los ficheros en una función <code>mostrarTodos</code> y llámala al final del script. Comprueba qué pasa.</p>
+<p>Versión que no funciona:</p>
+<pre><code class="language-bash">mostrarTodos() {
+    for f in &quot;$@&quot;; do
+        mostrar &quot;$f&quot;
+    done
+}
+
+mostrarTodos
+</code></pre>
+<pre><code class="language-bat">call :todos
+</code></pre>
+<p>No muestra nada. Dentro de una función, <code>$@</code> son los parámetros de la función, no los del script, y aquí se la llama sin ninguno. En .bat pasa lo mismo: dentro de una subrutina, <code>%*</code> son los argumentos del <code>call</code>. Hay que pasárselos explícitamente:</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">mostrarTodos &quot;$@&quot;
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">call :todos %*
+exit /b
+
+:todos
+for %%f in (%*) do call :mostrar &quot;%%~f&quot;
+exit /b
+</code></pre>
+<p>Regla práctica: una función solo ve lo que le pasas. La única excepción en bash es <code>$0</code>, que siempre es el nombre del script.</p>
+<h3 id="65-contar-coincidencias-en-varios-ficheros">6.5 Contar coincidencias en varios ficheros</h3>
+<p>El primer argumento es una palabra y el resto son ficheros. Para cada fichero que exista muestra cuántas líneas contienen la palabra (sin distinguir mayúsculas). Los que no existan se avisan y se omiten. Si faltan argumentos, muestra el modo de uso. Pista: <code>shift</code> descarta el primer parámetro y desplaza los demás.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+[ $# -ge 2 ] || { echo &quot;Uso: $0 palabra fichero...&quot; &gt;&amp;2; exit 1; }
+
+palabra=$1
+shift
+
+for f in &quot;$@&quot;; do
+    if [ -f &quot;$f&quot; ]; then
+        echo &quot;$f: $(grep -ic -- &quot;$palabra&quot; &quot;$f&quot;)&quot;
+    else
+        echo &quot;Aviso: $f no existe, se omite&quot; &gt;&amp;2
+    fi
+done
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+if &quot;%~2&quot;==&quot;&quot; (
+    echo Uso: %0 palabra fichero... 1&gt;&amp;2
+    exit /b 1
+)
+set palabra=%~1
+shift
+
+:siguiente
+if &quot;%~1&quot;==&quot;&quot; exit /b 0
+if exist &quot;%~1&quot; (
+    for /f %%c in ('findstr /i /c:&quot;%palabra%&quot; &quot;%~1&quot; ^| find /c /v &quot;&quot;') do echo %~1: %%c
+) else (
+    echo Aviso: %~1 no existe, se omite 1&gt;&amp;2
+)
+shift
+goto siguiente
+</code></pre>
+<p>Retos: haz que el script acepte también la opción <code>-n</code> para mostrar el número de cada línea que coincide, y que funcione con palabras que contengan espacios.</p>
+<h3 id="lo-que-ha-quedado-claro-en-esta-serie">Lo que ha quedado claro en esta serie</h3>
+<ul>
+<li>En bash, <code>for x in $(cat fichero)</code> separa por espacios y pierde líneas vacías; para leer línea a línea usa <code>while IFS= read -r</code>.</li>
+<li>En .bat, <code>for /f</code> solo toma la primera palabra de cada línea y se salta las vacías; <code>delims=</code> lo arregla en parte y <code>findstr /n "^"</code> conserva las vacías.</li>
+<li>Dentro de un bloque con paréntesis en .bat, las variables que cambian se leen con <code>!var!</code> y <code>setlocal enabledelayedexpansion</code>.</li>
+<li><code>exit</code> en una función de bash termina el script entero; <code>return</code> solo la función. En .bat usa <code>exit /b</code> en las subrutinas.</li>
+<li>Una función o subrutina solo ve los parámetros que se le pasan: llama a <code>f "$@"</code> o a <code>call :f %*</code>.</li>
+</ul>
+<h2 id="nivel-7-scripts-robustos-y-tareas-programadas">Nivel 7: scripts robustos y tareas programadas</h2>
+<p>Objetivo: que un script se pueda dejar funcionando solo: que registre lo que hace, acepte opciones, limpie lo antiguo y se ejecute a una hora fija. Haz los ejercicios 7.3 y 7.4 en una carpeta de pruebas: borran copias antiguas.</p>
+<h3 id="71-un-registro-log-con-fecha">7.1 Un registro (log) con fecha</h3>
+<p>Crea una función <code>log</code> que reciba un mensaje y lo escriba en <code>registro.log</code> con la fecha y la hora, además de mostrarlo por pantalla. Pruébala con tres mensajes seguidos.</p>
+<p>La primera idea suele ser <code>echo "$(date) $1" &gt; registro.log</code>. Funciona, pero <code>&gt;</code> sobrescribe el fichero en cada llamada y al final solo queda el último mensaje. Hay que añadir con <code>&gt;&gt;</code>.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+LOG=&quot;registro.log&quot;
+log() {
+    echo &quot;$(date '+%Y-%m-%d %H:%M:%S') $1&quot; | tee -a &quot;$LOG&quot;
+}
+
+log &quot;Inicio del script&quot;
+log &quot;Procesando $1&quot;
+log &quot;Fin del script&quot;
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+set LOG=registro.log
+call :log &quot;Inicio del script&quot;
+call :log &quot;Procesando %~1&quot;
+call :log &quot;Fin del script&quot;
+exit /b
+
+:log
+echo %DATE% %TIME% %~1
+&gt;&gt; &quot;%LOG%&quot; echo %DATE% %TIME% %~1
+exit /b
+</code></pre>
+<p><code>tee -a</code> escribe en pantalla y añade al fichero a la vez. En .bat la redirección va al principio de la línea: si el mensaje terminara en un 1 o un 2 (por ejemplo "Procesando 2"), <code>2&gt;&gt;</code> se leería como una redirección de errores y el texto saldría mal.</p>
+<h3 id="72-opciones-en-la-linea-de-comandos">7.2 Opciones en la línea de comandos</h3>
+<p>Haz un script <code>contar</code> con la forma <code>contar [-v] [-e extension] carpeta</code>: cuenta los ficheros de la carpeta con esa extensión (por defecto <code>txt</code>); con <code>-v</code> muestra además sus nombres. Si falta la carpeta o no existe, da el error y un código de salida distinto de 0.</p>
+<p>En bash se usa <code>getopts</code>. Después de procesar las opciones hay que hacer <code>shift $((OPTIND - 1))</code>; si no, <code>$1</code> sigue siendo la primera opción y no la carpeta.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+uso=&quot;Uso: $0 [-v] [-e extension] carpeta&quot;
+ext=&quot;txt&quot;
+verbose=0
+
+while getopts &quot;ve:&quot; opcion; do
+    case $opcion in
+        v) verbose=1 ;;
+        e) ext=$OPTARG ;;
+        *) echo &quot;$uso&quot; &gt;&amp;2; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+[ $# -eq 1 ] || { echo &quot;$uso&quot; &gt;&amp;2; exit 1; }
+[ -d &quot;$1&quot; ] || { echo &quot;Error: $1 no es una carpeta&quot; &gt;&amp;2; exit 2; }
+
+n=0
+for f in &quot;$1&quot;/*.&quot;$ext&quot;; do
+    [ -e &quot;$f&quot; ] || continue
+    n=$((n+1))
+    [ &quot;$verbose&quot; -eq 1 ] &amp;&amp; echo &quot;$f&quot;
+done
+echo &quot;Hay $n ficheros .$ext&quot;
+</code></pre>
+<p><strong>.bat</strong></p>
+<p>En .bat no hay <code>getopts</code>: se recorren los argumentos con <code>shift</code>. Ojo: <code>-e</code> consume dos argumentos (la opción y su valor), así que lleva dos <code>shift</code>.</p>
+<pre><code class="language-bat">@echo off
+setlocal
+set ext=txt
+set verbose=0
+
+:opciones
+if &quot;%~1&quot;==&quot;-v&quot; (
+    set verbose=1
+    shift
+    goto opciones
+)
+if &quot;%~1&quot;==&quot;-e&quot; (
+    set ext=%~2
+    shift
+    shift
+    goto opciones
+)
+if &quot;%~1&quot;==&quot;&quot; (
+    echo Uso: %0 [-v] [-e extension] carpeta 1&gt;&amp;2
+    exit /b 1
+)
+if not exist &quot;%~1\&quot; (
+    echo Error: %~1 no es una carpeta 1&gt;&amp;2
+    exit /b 2
+)
+
+set n=0
+for %%f in (&quot;%~1\*.%ext%&quot;) do (
+    set /a n+=1
+    if &quot;%verbose%&quot;==&quot;1&quot; echo %%f
+)
+echo Hay %n% ficheros .%ext%
+</code></pre>
+<p>Prueba: <code>contar carpeta</code>, <code>contar -v carpeta</code>, <code>contar -e log -v carpeta</code>, <code>contar</code> (sin carpeta) y <code>contar -e</code> (sin valor).</p>
+<h3 id="73-copia-de-seguridad-con-rotacion">7.3 Copia de seguridad con rotación</h3>
+<p>Copia la carpeta recibida a <code>copias/backup_AAAAMMDD_HHMMSS</code> y conserva solo las N copias más recientes (por defecto 3), borrando las anteriores. El nombre lleva la fecha y la hora en orden de mayor a menor, así que ordenar por nombre es ordenar por antigüedad.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+origen=$1
+mantener=${2:-3}
+destino=&quot;./copias&quot;
+
+[ -d &quot;$origen&quot; ] || { echo &quot;Uso: $0 carpeta [copias_a_mantener]&quot; &gt;&amp;2; exit 1; }
+mkdir -p &quot;$destino&quot;
+
+copia=&quot;$destino/backup_$(date +%Y%m%d_%H%M%S)&quot;
+cp -r &quot;$origen&quot; &quot;$copia&quot; &amp;&amp; echo &quot;Copia creada: $copia&quot;
+
+ls -1d &quot;$destino&quot;/backup_* | sort | head -n -&quot;$mantener&quot; | while read -r vieja; do
+    rm -rf -- &quot;$vieja&quot;
+    echo &quot;Eliminada: $vieja&quot;
+done
+</code></pre>
+<p><code>head -n -N</code> (todas las líneas menos las últimas N) es de GNU/Linux. Con menos de N copias no devuelve nada y no se borra nada.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal
+set origen=%~1
+set mantener=%~2
+if &quot;%mantener%&quot;==&quot;&quot; set mantener=3
+
+if not exist &quot;%origen%\&quot; (
+    echo Uso: %0 carpeta [copias_a_mantener] 1&gt;&amp;2
+    exit /b 1
+)
+if not exist copias mkdir copias
+
+set hora=%TIME:~0,2%
+if &quot;%hora:~0,1%&quot;==&quot; &quot; set hora=0%hora:~1,1%
+set marca=%DATE:~6,4%%DATE:~3,2%%DATE:~0,2%_%hora%%TIME:~3,2%%TIME:~6,2%
+
+xcopy &quot;%origen%&quot; &quot;copias\backup_%marca%\&quot; /E /I /Y &gt;nul &amp;&amp; echo Copia creada: copias\backup_%marca%
+
+for /f &quot;skip=%mantener% delims=&quot; %%d in ('dir /b /ad /o-n &quot;copias\backup_*&quot;') do (
+    rd /s /q &quot;copias\%%d&quot;
+    echo Eliminada: copias\%%d
+)
+</code></pre>
+<p>Tres detalles: a las horas de un solo dígito <code>%TIME%</code> pone un espacio delante (" 9"), y por eso se rellena con un cero; <code>dir /o-n</code> ordena por nombre de mayor a menor, así que <code>skip=N</code> salta las N copias más recientes y borra el resto; y la fecha da por hecho el formato <code>dd/mm/aaaa</code>, como en el 4.4.</p>
+<h3 id="74-programar-la-copia-a-una-hora-fija">7.4 Programar la copia a una hora fija</h3>
+<p>Programar el script del 7.3 para que se ejecute cada día a las 02:00 con 5 copias como máximo. Para probarlo sin esperar, programa primero una ejecución cada minuto y cámbiala después.</p>
+<p><strong>bash (cron)</strong></p>
+<pre><code class="language-bash">crontab -e
+</code></pre>
+<p>Y en el editor, una línea con el formato <code>minuto hora día-del-mes mes día-de-la-semana comando</code>:</p>
+<pre><code class="language-text"># Prueba: cada minuto
+* * * * * /home/usuario/copia.sh /home/usuario/datos 5 &gt;&gt; /home/usuario/copia.log 2&gt;&amp;1
+
+# Definitiva: cada día a las 02:00
+0 2 * * * /home/usuario/copia.sh /home/usuario/datos 5 &gt;&gt; /home/usuario/copia.log 2&gt;&amp;1
+</code></pre>
+<p><strong>.bat (schtasks)</strong></p>
+<pre><code class="language-bat">rem Prueba: cada minuto
+schtasks /create /tn &quot;CopiaDiaria&quot; /tr &quot;C:\scripts\copia.bat C:\datos 5&quot; /sc minute /mo 1
+
+rem Definitiva: cada día a las 02:00 (sustituye la anterior)
+schtasks /create /tn &quot;CopiaDiaria&quot; /tr &quot;C:\scripts\copia.bat C:\datos 5&quot; /sc daily /st 02:00 /f
+
+rem Ver y borrar la tarea
+schtasks /query /tn &quot;CopiaDiaria&quot;
+schtasks /delete /tn &quot;CopiaDiaria&quot; /f
+</code></pre>
+<p><strong>El fallo típico.</strong> El script funciona a mano y, al programarlo, las copias aparecen en otro sitio o no aparecen. Una tarea programada no arranca en la carpeta del script: <code>cron</code> arranca en la carpeta personal del usuario y <code>schtasks</code> en <code>C:\Windows\System32</code>. La ruta relativa <code>./copias</code> apunta entonces a un lugar inesperado. Se corrige haciendo que el script se coloque en su propia carpeta al empezar:</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">cd &quot;$(dirname &quot;$0&quot;)&quot; || exit 1
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">cd /d &quot;%~dp0&quot;
+</code></pre>
+<p>Pon esa línea justo después de <code>@echo off</code> (o de <code>#!/bin/bash</code>) en el script del 7.3. Redirigir la salida a un fichero, como hace la línea de <code>cron</code>, es lo que permite saber qué pasó cuando nadie está mirando. Cuando termines las pruebas, borra la tarea de prueba para que no siga copiando cada minuto.</p>
+<h3 id="75-vigilar-el-espacio-en-disco">7.5 Vigilar el espacio en disco</h3>
+<p>Recibe una ruta o unidad y un umbral de uso en porcentaje (por defecto 80). Si el uso lo alcanza o lo supera, anota un aviso con fecha en <code>disco.log</code>, lo muestra y termina con código 1. Si no, muestra que todo va bien y termina con 0. Así se puede programar con el 7.4 y consultar el código de salida o el log.</p>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+ruta=${1:-/}
+umbral=${2:-80}
+uso=$(df --output=pcent &quot;$ruta&quot; | tail -1 | tr -dc '0-9')
+
+if [ &quot;$uso&quot; -ge &quot;$umbral&quot; ]; then
+    echo &quot;$(date '+%F %T') AVISO: $ruta al ${uso}% - umbral ${umbral}%&quot; | tee -a disco.log
+    exit 1
+fi
+echo &quot;$ruta al ${uso}%: correcto&quot;
+</code></pre>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+setlocal
+set unidad=%~1
+if &quot;%unidad%&quot;==&quot;&quot; set unidad=C
+set umbral=%~2
+if &quot;%umbral%&quot;==&quot;&quot; set umbral=80
+
+for /f %%p in ('powershell -NoProfile -Command &quot;$d=Get-PSDrive %unidad%; [int](100*$d.Used/($d.Used+$d.Free))&quot;') do set uso=%%p
+
+if %uso% GEQ %umbral% (
+    &gt;&gt; disco.log echo %DATE% %TIME% AVISO: %unidad%: al %uso%%% - umbral %umbral%%%
+    echo AVISO: %unidad%: al %uso%%%
+    exit /b 1
+)
+echo %unidad%: al %uso%%%: correcto
+</code></pre>
+<p>En .bat, un porcentaje literal se escribe <code>%%</code>. Y no pongas paréntesis dentro del texto de un <code>echo</code> que está en un bloque <code>( ... )</code>: el primer <code>)</code> cerraría el bloque antes de tiempo. Para probar el aviso, pasa un umbral bajo, por ejemplo 1.</p>
+<p>Reto: haz que el script use la función <code>log</code> del 7.1 y que acepte la opción <code>-u umbral</code> con el método del 7.2.</p>
+<h3 id="lo-que-ha-quedado-claro-en-este-nivel">Lo que ha quedado claro en este nivel</h3>
+<ul>
+<li>Un registro se escribe con <code>&gt;&gt;</code> (añadir), no con <code>&gt;</code> (sobrescribir). Con <code>tee -a</code> se muestra y se guarda a la vez.</li>
+<li>En bash, tras <code>getopts</code> hay que hacer <code>shift $((OPTIND - 1))</code>. En .bat, cada opción se consume con <code>shift</code> y las que llevan valor necesitan dos.</li>
+<li>Si el nombre incluye la fecha de mayor a menor unidad (año, mes, día, hora), ordenar por nombre es ordenar por antigüedad, y eso permite borrar las copias viejas.</li>
+<li>Una tarea programada no empieza en la carpeta del script: usa <code>cd "$(dirname "$0")"</code> o <code>cd /d "%~dp0"</code>, o rutas absolutas.</li>
+<li>Un script desatendido debe dejar rastro: log, código de salida y salida redirigida a un fichero.</li>
+</ul>
+<h2 id="proyecto-final-menu-de-administracion">Proyecto final: menú de administración</h2>
+<p>Un único script con un menú que se repite hasta elegir Salir. Opciones: información del sistema, espacio en disco, comprobar conectividad con un host y salir. Reutiliza lo de los niveles 1 a 5.</p>
+<p><strong>.bat</strong></p>
+<pre><code class="language-bat">@echo off
+:menu
+cls
+echo ===== MENU ADMIN =====
+echo 1) Informacion del sistema
+echo 2) Espacio en disco
+echo 3) Comprobar conectividad
+echo 4) Salir
+set /p op=Elige una opcion: 
+if &quot;%op%&quot;==&quot;1&quot; goto info
+if &quot;%op%&quot;==&quot;2&quot; goto disco
+if &quot;%op%&quot;==&quot;3&quot; goto red
+if &quot;%op%&quot;==&quot;4&quot; exit /b 0
+echo Opcion no valida
+pause
+goto menu
+
+:info
+echo Usuario: %USERNAME% - Equipo: %COMPUTERNAME%
+pause
+goto menu
+
+:disco
+powershell -NoProfile -Command &quot;Get-PSDrive -PSProvider FileSystem | Select-Object Name,Used,Free&quot;
+pause
+goto menu
+
+:red
+set /p host=Host a comprobar: 
+ping -n 1 %host% | find &quot;TTL=&quot; &gt;nul
+if %errorlevel%==0 (echo %host% responde) else (echo %host% NO responde)
+pause
+goto menu
+</code></pre>
+<p><strong>bash</strong></p>
+<pre><code class="language-bash">#!/bin/bash
+info()  { echo &quot;Usuario: $USER - Equipo: $(hostname)&quot;; }
+disco() { df -h; }
+red() {
+    read -p &quot;Host a comprobar: &quot; host
+    if ping -c 1 &quot;$host&quot; &gt; /dev/null 2&gt;&amp;1; then
+        echo &quot;$host responde&quot;
+    else
+        echo &quot;$host NO responde&quot;
+    fi
+}
+
+while true; do
+    echo &quot;===== MENU ADMIN =====&quot;
+    echo &quot;1) Informacion del sistema&quot;
+    echo &quot;2) Espacio en disco&quot;
+    echo &quot;3) Comprobar conectividad&quot;
+    echo &quot;4) Salir&quot;
+    read -p &quot;Elige una opcion: &quot; op
+    case $op in
+        1) info ;;
+        2) disco ;;
+        3) red ;;
+        4) exit 0 ;;
+        *) echo &quot;Opcion no valida&quot; ;;
+    esac
+    echo
+done
+</code></pre>
+<p>Retos: añade una opción de copia de seguridad (ejercicio 4.4), otra para vigilar un servicio (5.4) y un fichero <code>log.txt</code> donde se anote cada opción elegida con su fecha.</p>
+<h2 id="tabla-de-equivalencias-bat-bash">Tabla de equivalencias .bat / bash</h2>
+<table>
+<thead><tr><th>Tarea</th><th>.bat (cmd)</th><th>bash</th></tr></thead>
+<tbody>
+<tr><td>Comentario</td><td><code>REM texto</code> o <code>:: texto</code></td><td><code># texto</code></td></tr>
+<tr><td>Mostrar texto</td><td><code>echo texto</code></td><td><code>echo "texto"</code></td></tr>
+<tr><td>Asignar variable</td><td><code>set x=5</code></td><td><code>x=5</code></td></tr>
+<tr><td>Leer variable</td><td><code>%x%</code></td><td><code>$x</code></td></tr>
+<tr><td>Pedir un dato</td><td><code>set /p x=Pregunta</code></td><td><code>read -p "Pregunta" x</code></td></tr>
+<tr><td>Argumentos</td><td><code>%1</code>, <code>%2</code>, <code>%*</code></td><td><code>$1</code>, <code>$2</code>, <code>"$@"</code></td></tr>
+<tr><td>Operación aritmética</td><td><code>set /a r=%1+%2</code></td><td><code>r=$(( $1 + $2 ))</code></td></tr>
+<tr><td>Condicional</td><td><code>if ... (...) else (...)</code></td><td><code>if [ ... ]; then ... fi</code></td></tr>
+<tr><td>Existe fichero</td><td><code>if exist ruta</code></td><td><code>[ -e ruta ]</code></td></tr>
+<tr><td>Bucle por rango</td><td><code>for /l %%i in (1,1,10) do</code></td><td><code>for i in {1..10}; do</code></td></tr>
+<tr><td>Bucle por lista</td><td><code>for %%a in (lista) do</code></td><td><code>for a in lista; do</code></td></tr>
+<tr><td>Código de salida</td><td><code>%errorlevel%</code>, <code>exit /b N</code></td><td><code>$?</code>, <code>exit N</code></td></tr>
+<tr><td>Buscar texto</td><td><code>findstr</code></td><td><code>grep</code></td></tr>
+<tr><td>Listar ficheros</td><td><code>dir</code></td><td><code>ls</code></td></tr>
+<tr><td>Copiar</td><td><code>copy</code>, <code>xcopy</code></td><td><code>cp</code></td></tr>
+<tr><td>Ver procesos / cerrar</td><td><code>tasklist</code>, <code>taskkill</code></td><td><code>ps</code>, <code>kill</code></td></tr>
+<tr><td>Redirigir salida</td><td><code>&gt;</code>, <code>&gt;&gt;</code>, <code>|</code></td><td><code>&gt;</code>, <code>&gt;&gt;</code>, <code>|</code></td></tr>
+</tbody>
+</table>
+</main>
+<script>
+document.querySelectorAll('pre').forEach(function (pre) {
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = 'Copiar';
+  b.addEventListener('click', function () {
+    var text = pre.querySelector('code').innerText;
+    var done = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done); }
+  });
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>

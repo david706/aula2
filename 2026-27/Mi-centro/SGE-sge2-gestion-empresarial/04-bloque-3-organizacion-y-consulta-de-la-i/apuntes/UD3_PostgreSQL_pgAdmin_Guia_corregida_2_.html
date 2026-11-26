@@ -1,0 +1,571 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>UD 3 · PostgreSQL y pgAdmin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: misma identidad que "Módulos de Odoo". Índice lateral pegajoso en escritorio, secciones numeradas,
+   bloques de código con botón de copiar y tablas comparativas. */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4; --code:#f1eee6;
+  --ok:#2d7a4f; --warn:#95590e;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --code:#15131b; --ok:#5fbf87; --warn:#e0a24a; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700}
+h2{font-size:1.4rem;font-weight:600;padding-top:18px;border-top:2px solid var(--line);scroll-margin-top:16px}
+h2 .n{font-family:var(--fm);font-size:.8rem;color:var(--accent);margin-right:10px;vertical-align:middle}
+h3{font-size:1.05rem;font-weight:600;margin-top:18px}
+p{margin:0;max-width:70ch}
+p+p,ul,ol{margin-top:10px}
+ul,ol{padding-left:22px;max-width:70ch}
+li+li{margin-top:5px}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.08rem;color:var(--muted);margin-top:10px;max-width:72ch}
+code{font-family:var(--fm);font-size:.86em;background:var(--soft);padding:1px 6px;border-radius:4px}
+a{color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:.9rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+
+.grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;margin-top:36px}
+@media (max-width:860px){.grid{grid-template-columns:1fr;gap:24px}}
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:18px}
+nav.toc ol{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+nav.toc a{display:block;text-decoration:none;color:var(--muted);font-size:.9rem;padding:5px 10px;border-left:2px solid var(--line)}
+nav.toc a:hover,nav.toc a.on{color:var(--ink);border-left-color:var(--accent)}
+nav.toc .eyebrow{display:block;margin-bottom:8px;padding-left:12px}
+@media (max-width:860px){nav.toc{position:static}nav.toc ol{grid-template-columns:1fr 1fr}}
+main{display:grid;gap:40px;min-width:0}
+section{min-width:0}
+
+pre{position:relative;background:var(--code);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin:12px 0 0;overflow-x:auto;font-family:var(--fm);font-size:.84rem;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+pre .c{color:var(--muted)}
+.copy{position:absolute;top:8px;right:8px;font:inherit;font-family:var(--fd);font-size:.72rem;border:1px solid var(--line);background:var(--paper);color:var(--muted);padding:3px 8px;border-radius:4px;cursor:pointer}
+.copy:hover{color:var(--ink)}
+.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.tw{overflow-x:auto;margin-top:12px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.82rem;background:var(--soft)}
+td code{white-space:nowrap}
+.y{color:var(--ok);font-weight:600}.n{color:var(--muted)}
+
+.note{border-left:3px solid var(--accent);background:var(--paper);padding:12px 16px;margin-top:14px;max-width:72ch}
+.note.warn{border-left-color:var(--warn)}
+.note .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.note.warn .eyebrow{color:var(--warn)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.two>div{background:var(--paper);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.two h3{margin-top:0;font-size:1rem}
+.two p{font-size:.93rem;margin-top:6px;max-width:none}
+@media (max-width:620px){.two{grid-template-columns:1fr}}
+
+.diag{background:var(--paper);border:1px solid var(--line);margin-top:14px;overflow-x:auto}
+.diag svg{display:block;width:100%;min-width:600px;height:auto}
+.diag text{font-family:var(--fb);font-size:13px;fill:var(--ink)}
+.diag .q{font-family:var(--fm);font-size:11px;fill:var(--muted)}
+.diag .box{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.diag .main{fill:var(--soft);stroke:var(--accent);stroke-width:1.6}
+.diag .band{fill:none;stroke:var(--line);stroke-dasharray:5 4}
+.diag .edge{fill:none;stroke:var(--muted);stroke-width:1.3;marker-end:url(#arr)}
+.caption{font-size:.88rem;color:var(--muted);margin-top:8px}
+figure.ui{margin:16px 0 0;min-width:0}
+figure.ui .win{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--paper)}
+figure.ui .win .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--soft);padding:8px 12px;font-family:var(--fd);font-weight:600;font-size:.84rem;border-bottom:1px solid var(--line)}
+figure.ui .win .bar .chip{font-family:var(--fm);font-size:.72rem;font-weight:400;border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:2px 8px;color:var(--muted)}
+figure.ui .win .bar .sp{margin-left:auto;font-family:var(--fm);font-size:.72rem;font-weight:400;color:var(--muted)}
+figure.ui .scroll{overflow-x:auto}
+figure.ui table{border-collapse:collapse;width:100%;font-size:.86rem;min-width:480px;margin:0}
+figure.ui th,figure.ui td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+figure.ui thead th{background:var(--bg);font-family:var(--fd);font-size:.76rem;color:var(--muted);font-weight:600}
+figure.ui td.n,figure.ui th.n{text-align:right;font-variant-numeric:tabular-nums}
+figure.ui tr.tot td{font-weight:600;background:var(--bg)}
+figure.ui tr.sub td:first-child{padding-left:32px;color:var(--muted)}
+figure.ui .cta{font-family:var(--fd);font-size:.74rem;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:2px 8px}
+figure.ui figcaption{font-size:.9rem;color:var(--muted);margin-top:10px;max-width:none}
+figure.ui figcaption b{color:var(--ink)}
+figure.ui ol{margin:8px 0 0;padding-left:20px;font-size:.9rem;max-width:none}
+figure.ui ol li{margin-top:3px}
+figure.ui .dos{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){figure.ui .dos{grid-template-columns:1fr}}
+figure.ui .tb{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:0 8px}
+figure.ui .tb span{font-family:var(--fd);font-size:.82rem;color:var(--muted);padding:8px 10px;border-bottom:2px solid transparent}
+figure.ui .tb span.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+figure.ui .flds{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;padding:12px 16px 14px}
+@media (max-width:620px){figure.ui .flds{grid-template-columns:1fr}}
+figure.ui .flds div{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0;font-size:.85rem}
+figure.ui .flds .k{color:var(--muted)}
+figure.ui .flds .v{font-weight:600;text-align:right}
+figure.ui .sw{padding:4px 16px 12px}
+figure.ui .sw .row{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line)}
+figure.ui .sw .row:last-child{border-bottom:0}
+figure.ui .pill{flex:0 0 auto;width:30px;height:17px;border-radius:999px;border:1px solid var(--line);background:var(--bg);position:relative;margin-top:2px}
+figure.ui .pill::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--muted)}
+figure.ui .pill.on{background:var(--accent);border-color:var(--accent)}
+figure.ui .pill.on::after{left:15px;background:var(--accent-ink)}
+figure.ui .sw b{font-family:var(--fd);font-size:.86rem;display:block}
+figure.ui .sw p{font-size:.8rem;color:var(--muted);margin:2px 0 0;max-width:none}
+figure.ui .tree{font-family:var(--fm);font-size:.8rem;padding:12px 16px;line-height:1.85;overflow-x:auto}
+figure.ui .tree div{white-space:nowrap}
+figure.ui .tree .d{color:var(--muted)}
+figure.ui .tree .hl{color:var(--accent);font-weight:600}
+figure.ui .dlg{border:1px solid var(--accent);border-radius:6px;background:var(--bg);padding:12px 14px;margin:14px 16px}
+figure.ui .dlg b{font-family:var(--fd);font-size:.88rem}
+figure.ui .dlg p{font-size:.84rem;color:var(--muted);margin:4px 0 10px;max-width:none}
+figure.ui .btns{display:flex;flex-wrap:wrap;gap:8px}
+figure.ui .btn{font-family:var(--fd);font-size:.78rem;border:1px solid var(--line);border-radius:4px;padding:3px 10px;color:var(--muted)}
+figure.ui .btn.pri{border-color:var(--accent);background:var(--accent);color:var(--accent-ink);font-weight:600}
+
+.ej{counter-reset:ej;display:grid;gap:12px;margin-top:14px}
+.ej>div{background:var(--paper);border:1px solid var(--line);padding:14px 16px 14px 52px;position:relative;min-width:0}
+.ej>div::before{counter-increment:ej;content:counter(ej);position:absolute;left:16px;top:12px;font-family:var(--fd);font-weight:700;color:var(--accent);font-size:1.1rem}
+.ej h3{margin-top:0;font-size:1rem}
+.ej p{font-size:.95rem;margin-top:4px;max-width:none}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM · Bloque 3 · Unidad 3</p>
+  <h1 style="margin-top:6px">PostgreSQL y pgAdmin con Odoo 19 en Docker</h1>
+  <p class="lead">Odoo guarda los datos de negocio principalmente en PostgreSQL; los archivos adjuntos suelen almacenarse en el filestore de Odoo. Esta unidad enseña a entrar en esa base de datos cuando Odoo corre en contenedores: qué guarda, cómo conectarse con pgAdmin 4 y qué cambia respecto a una instalación clásica.</p>
+  <div class="meta">
+    <span>Requisito <b>Instalación SGE con Docker terminada</b></span>
+    <span>Imágenes <b class="mono">odoo:19 · postgres:17 · dpage/pgadmin4</b></span>
+    <span>Puertos <b class="mono">8069 · 5432 · 5050</b></span>
+  </div>
+
+  <div class="grid">
+  <nav class="toc" aria-label="Índice">
+    <span class="eyebrow">Contenido</span>
+    <ol>
+      <li><a href="#s1">1. Qué hay debajo de Odoo</a></li>
+      <li><a href="#s2">2. El docker-compose.yml</a></li>
+      <li><a href="#s3">3. Instalar pgAdmin 4</a></li>
+      <li><a href="#s4">4. Conectar pgAdmin</a></li>
+      <li><a href="#s5">5. Bases de datos</a></li>
+      <li><a href="#s6">6. Usuarios y contraseñas</a></li>
+      <li><a href="#s7">7. Conexiones remotas</a></li>
+      <li><a href="#s8">8. Consola psql</a></li>
+      <li><a href="#s9">9. Ejercicios</a></li>
+    </ol>
+  </nav>
+
+  <main>
+  <div class="note"><span class="eyebrow">Ruta de la práctica</span>Sigue esta ruta para realizar la práctica:
+    <ol>
+      <li>Añade pgAdmin a tu compose de la instalación anterior y arráncalo (secciones 2 y 3).</li>
+      <li>Entra en pgAdmin y registra el servidor PostgreSQL (sección 4).</li>
+      <li>Recorre el árbol hasta las tablas de Odoo y lanza la consulta de prueba (sección 5).</li>
+      <li>Crea el usuario de solo lectura (sección 6).</li>
+      <li>Lee la sección 7. La prueba de abrir y cerrar el puerto es una ampliación opcional.</li>
+      <li>Repite las consultas desde la consola <code>psql</code> (sección 8).</li>
+      <li>Haz los ejercicios y prepara el PDF de entrega (sección 9).</li>
+    </ol>
+    Las tablas y explicaciones intermedias son para entender lo que haces; los pasos numerados y los bloques con botón <em>Copiar</em> son lo que se ejecuta.</div>
+  <div class="note"><span class="eyebrow">Antes de empezar</span>
+  <p>Comprueba que Docker funciona, que Odoo abre y que tienes una base de pruebas. Anota tus datos sin incluir contraseñas en la entrega:</p>
+  <div class="tw"><table><tr><th>Dato</th><th>Ejemplo</th><th>Mi instalación</th></tr><tr><td>Servicio PostgreSQL en Compose</td><td>db</td><td>____________</td></tr><tr><td>Nombre del contenedor PostgreSQL</td><td>odoo-db</td><td>____________</td></tr><tr><td>Usuario PostgreSQL</td><td>odoo</td><td>____________</td></tr><tr><td>Base de Odoo</td><td>empresa</td><td>____________</td></tr><tr><td>Puerto de Odoo</td><td>8069</td><td>____________</td></tr></table></div>
+  <p>En la carpeta del proyecto, <code>docker compose ps</code> muestra servicios y contenedores. El host interno usa el nombre del servicio; <code>docker exec</code> usa el nombre del contenedor. Sustituye los ejemplos por tus valores. Para el ejercicio de pedidos instala Ventas en la base de prueba.</p></div>
+  <section id="s1">
+    <h2><span class="n">01</span>Qué hay debajo de Odoo</h2>
+    <p style="margin-top:12px">En la instalación de clase hay tres contenedores que se levantan juntos con Docker Compose. Odoo y pgAdmin se conectan al contenedor de PostgreSQL por su nombre, <code>db</code>, dentro de la red interna que crea Compose. Tu navegador entra por los puertos publicados.</p>
+    <div class="diag">
+      <svg viewBox="0 0 760 400" role="img" aria-label="Odoo y pgAdmin llegan a PostgreSQL por el nombre db; desde fuera solo por el puerto publicado">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker></defs>
+        <rect class="band" x="24" y="150" width="712" height="130" rx="8"/>
+        <text class="q" x="40" y="270">Red interna de Docker Compose</text>
+        <rect class="box" x="250" y="52" width="260" height="48" rx="8"/>
+        <text x="380" y="81" text-anchor="middle" font-weight="600">Navegador del alumno (localhost)</text>
+        <path class="edge" d="M300 100L150 184"/><path class="edge" d="M460 100L610 184"/>
+        <text class="q" x="196" y="134" text-anchor="end">http://localhost:8069</text>
+        <text class="q" x="564" y="134">http://localhost:5050</text>
+        <rect class="box" x="55" y="184" width="190" height="72" rx="8"/>
+        <text x="150" y="208" text-anchor="middle" font-weight="600">odoo-web</text>
+        <text class="q" x="150" y="226" text-anchor="middle">imagen odoo:19</text>
+        <text class="q" x="150" y="242" text-anchor="middle">puerto 8069</text>
+        <rect class="main" x="285" y="184" width="190" height="72" rx="8"/>
+        <text x="380" y="208" text-anchor="middle" font-weight="600">odoo-db</text>
+        <text class="q" x="380" y="226" text-anchor="middle">imagen postgres:17</text>
+        <text class="q" x="380" y="242" text-anchor="middle">puerto 5432, usuario odoo</text>
+        <rect class="box" x="515" y="184" width="190" height="72" rx="8"/>
+        <text x="610" y="208" text-anchor="middle" font-weight="600">odoo-pgadmin</text>
+        <text class="q" x="610" y="226" text-anchor="middle">imagen dpage/pgadmin4</text>
+        <text class="q" x="610" y="242" text-anchor="middle">puerto 5050 (80 dentro)</text>
+        <path class="edge" d="M245 220H285"/><path class="edge" d="M515 220H475"/>
+        <text class="q" x="265" y="208" text-anchor="middle">HOST=db</text>
+        <text class="q" x="495" y="208" text-anchor="middle">host db</text>
+        <rect class="box" x="250" y="330" width="260" height="48" rx="8" stroke-dasharray="4 4"/>
+        <text x="380" y="359" text-anchor="middle" font-weight="600">pgAdmin de escritorio (opcional)</text>
+        <path class="edge" d="M380 330V256"/>
+        <text class="q" x="392" y="306">localhost:5432, solo si ports lo publica</text>
+      </svg>
+    </div>
+    <p class="caption">Un pgAdmin instalado en el PC solo llega a PostgreSQL porque el compose publica el puerto 5432 en <code>127.0.0.1</code> (explicado en la sección 3).</p>
+  </section>
+
+  <section id="s2">
+    <h2><span class="n">02</span>El docker-compose.yml de referencia</h2>
+    <p style="margin-top:12px">Toda la unidad usa esta pila. Si tu <code>docker-compose.yml</code> (o <code>compose.yaml</code>) tiene otros nombres o contraseñas, apunta los tuyos y sustitúyelos en el resto del documento. Respecto al de la instalación anterior, lo único nuevo es el servicio <code>pgadmin</code> y su volumen: no hace falta rehacer el fichero, basta con añadirlos (sección 3).</p>
+<pre><button class="copy" type="button">Copiar</button><code>services:
+  db:
+    image: postgres:17
+    container_name: odoo-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  odoo:
+    image: odoo:19
+    container_name: odoo-web
+    depends_on:
+      - db
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: odoo-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: alumno@example.com
+      PGADMIN_DEFAULT_PASSWORD: sge
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  odoo-db-data:
+  odoo-web-data:
+  pgadmin-data:</code></pre>
+    <div class="tw"><table>
+      <tr><th>Servicio</th><th>Imagen</th><th>Puerto en tu PC</th><th>Para qué</th></tr>
+      <tr><td>db</td><td><code>postgres:17</code></td><td>5432, solo desde tu propio PC</td><td>El servidor PostgreSQL que guarda los datos de negocio</td></tr>
+      <tr><td>odoo</td><td><code>odoo:19</code></td><td>8069</td><td>El ERP. Entra en <code>http://localhost:8069</code></td></tr>
+      <tr><td>pgadmin</td><td><code>dpage/pgadmin4</code></td><td>5050</td><td>Herramienta gráfica para ver la BD. Entra en <code>http://localhost:5050</code></td></tr>
+    </table></div>
+    <p style="margin-top:12px">El bloque <code>ports</code> del servicio <code>db</code> publica PostgreSQL solo para tu propio PC, gracias al prefijo <code>127.0.0.1</code>. Odoo y el pgAdmin del contenedor no lo necesitan, porque llegan a PostgreSQL por la red interna; sirve para los programas instalados en tu equipo, como pgAdmin de escritorio. Si tu compose anterior no lo tiene y no vas a hacer las ampliaciones, puedes seguir sin él; si lo añades, cópialo tal cual, con el prefijo. Qué significa cada parte de esa línea está en la sección 3, y cómo abrirlo un momento a otro PC, en la sección 7.</p>
+    <h3>Tres cosas que cambian respecto a la instalación clásica</h3>
+    <ol>
+      <li>Las credenciales de PostgreSQL no se eligen en un instalador: son las variables <code>POSTGRES_USER</code> y <code>POSTGRES_PASSWORD</code> del servicio <code>db</code>. Odoo las recibe por <code>USER</code> y <code>PASSWORD</code>.</li>
+      <li>Odoo no habla con PostgreSQL por <code>localhost</code> sino por el nombre del servicio, <code>db</code>. Docker resuelve ese nombre dentro de la red del compose.</li>
+      <li>Los datos viven en el volumen <code>odoo-db-data</code>. Si borras el contenedor, los datos siguen; si borras el volumen (<code>docker compose down -v</code>), se eliminan las bases de datos de ese volumen. También se eliminan los demás volúmenes declarados, incluidos los adjuntos de Odoo y la configuración persistida de pgAdmin.</li>
+    </ol>
+<pre><button class="copy" type="button">Copiar</button><code>docker compose up -d
+docker compose ps          <span class="c"># los tres servicios en estado running</span>
+docker compose logs db     <span class="c"># "database system is ready to accept connections"</span></code></pre>
+    <h3>Persistencia: qué se conserva y dónde</h3>
+    <p>Un contenedor es reemplazable: su sistema de archivos propio no es un lugar fiable para guardar datos a largo plazo. Los <strong>volúmenes de Docker</strong> viven fuera del ciclo de vida del contenedor y se vuelven a montar cuando se recrea. En este ejemplo los administra Docker en el equipo anfitrión.</p>
+    <div class="tw"><table><tr><th>Volumen o carpeta</th><th>Contenido</th><th>Para qué sirve</th></tr>
+    <tr><td><code>odoo-db-data</code></td><td>Datos de PostgreSQL</td><td>Conserva las bases de datos al recrear <code>db</code>.</td></tr>
+    <tr><td><code>odoo-web-data</code></td><td>Directorio de datos de Odoo, incluido su filestore habitual</td><td>Conserva los adjuntos guardados como archivos.</td></tr>
+    <tr><td><code>pgadmin-data</code></td><td>Configuración y datos de pgAdmin</td><td>Conserva usuarios y servidores registrados al recrear pgAdmin.</td></tr>
+    <tr><td><code>./addons</code></td><td>Carpeta del proyecto en el equipo anfitrión</td><td>Es un montaje de carpeta, no un volumen con nombre; contiene módulos adicionales.</td></tr></table></div>
+    <p>Ejemplo: crea un contacto y un adjunto, ejecuta <code>docker compose down</code> y después <code>docker compose up -d</code>. Los contenedores se crean de nuevo y los volúmenes conservan esos datos. <code>docker compose stop</code> solo detiene los contenedores. En cambio, <strong><code>docker compose down -v</code> elimina los volúmenes nombrados del proyecto</strong>: úsalo únicamente para reiniciar una práctica desechable. La carpeta <code>./addons</code> no se borra con ese comando.</p>
+    <p>Comprueba los volúmenes con <code>docker compose config --volumes</code> y <code>docker volume ls</code>; Docker puede añadir el nombre del proyecto como prefijo. La persistencia <strong>no es una copia de seguridad</strong>: un borrado, fallo del disco o corrupción puede afectar también al volumen. Para recuperar Odoo necesitas copias comprobadas de la base de datos y del filestore correspondiente, y probar su restauración.</p>
+  </section>
+
+  <section id="s3">
+    <h2><span class="n">03</span>Instalar pgAdmin 4</h2>
+    <p style="margin-top:12px">Hay dos formas de tener pgAdmin. En clase usamos la primera porque no instala nada en el PC y funciona igual en Windows, Linux y macOS: es la ruta que sigue el resto de la unidad. La opción B y el ejercicio 2 son ampliaciones opcionales; no se necesitan para la entrega básica.</p>
+    <div class="two">
+      <div><h3>Opción A · pgAdmin como contenedor (recomendada)</h3><p>Ya está en el compose de referencia; si partes del compose de la instalación anterior, que no lo traía, añádelo primero con los pasos de más abajo. Abre <code>http://localhost:5050</code> y entra con el correo y la contraseña que pusiste en <code>PGADMIN_DEFAULT_EMAIL</code> y <code>PGADMIN_DEFAULT_PASSWORD</code>: en el ejemplo, <code>alumno@example.com</code> y <code>sge</code>. Esa contraseña es la de pgAdmin, no la de PostgreSQL, que se pide después al registrar el servidor.</p></div>
+      <div><h3>Opción B · pgAdmin de escritorio</h3><p>Descárgalo de <a href="https://www.pgadmin.org/download/">pgadmin.org</a> e instálalo. Si al abrirlo te pide crear una contraseña maestra, elige una y apúntala: protege las contraseñas que guardes. Para que llegue al PostgreSQL del contenedor usa el puerto 5432 que publica el servicio <code>db</code> del compose; sin ese bloque <code>ports</code> el puerto no sale del contenedor.</p></div>
+    </div>
+    <div class="tw"><table>
+      <tr><th></th><th>Contenedor</th><th>Escritorio</th></tr>
+      <tr><td>Instalación</td><td>Ninguna, va en el compose</td><td>Instalador de pgadmin.org</td></tr>
+      <tr><td>Dirección del servidor PostgreSQL</td><td><code>db</code> (nombre del servicio)</td><td><code>localhost</code> o la IP de la máquina con Docker</td></tr>
+      <tr><td>Necesita publicar el 5432</td><td class="n">No</td><td class="y">Sí</td></tr>
+      <tr><td>Ventaja</td><td>Igual en todos los PC del aula</td><td>Más rápido; conecta a varios servidores</td></tr>
+    </table></div>
+    <h3>Opción A: añadir pgAdmin a tu compose anterior</h3>
+    <p>Si tu fichero viene de la práctica de instalación, tendrá solo los servicios de PostgreSQL y Odoo. No lo sustituyas ni borres nada: se añade un servicio y un volumen.</p>
+    <ol>
+      <li>Abre el fichero de la instalación (<code>docker-compose.yml</code> o <code>compose.yaml</code>) y mira cómo se llama en él el servicio de PostgreSQL. En esta unidad es <code>db</code>; si el tuyo tiene otro nombre, úsalo en <code>depends_on</code> y, después, como host al conectar (sección 4).</li>
+      <li>Dentro de <code>services:</code>, al mismo nivel que los otros dos servicios y con la misma sangría, pega este bloque:</li>
+    </ol>
+<pre><button class="copy" type="button">Copiar</button><code>  pgadmin:
+    image: dpage/pgadmin4
+    container_name: odoo-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: alumno@example.com
+      PGADMIN_DEFAULT_PASSWORD: sge
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin</code></pre>
+    <ol start="3">
+      <li>Al final del fichero, en la sección <code>volumes:</code> que ya existe, añade una línea más con dos espacios de sangría: <code>pgadmin-data:</code>. No crees una segunda sección <code>volumes:</code>.</li>
+      <li>En la carpeta del fichero, ejecuta primero <code>docker compose config</code> para comprobar la estructura. Si muestra un error, corrígelo antes de seguir. Después ejecuta <code>docker compose up -d</code>. Compose crea el contenedor nuevo y puede recrear los servicios cuya configuración haya cambiado; los datos siguen en sus volúmenes. No uses <code>down -v</code>.</li>
+      <li>Comprueba con <code>docker compose ps</code> que hay tres servicios en marcha y abre <code>http://localhost:5050</code>.</li>
+    </ol>
+    <p>Si al guardar aparece un error de YAML, casi siempre es la sangría: usa espacios, nunca tabuladores, y alinea <code>pgadmin:</code> con los otros servicios. Si el puerto 5050 está ocupado, cambia la parte izquierda (<code>"5051:80"</code>) y entra por ese puerto. Si el contenedor de pgAdmin se para nada más arrancar, mira <code>docker compose logs pgadmin</code>: el motivo más frecuente es un correo que pgAdmin no acepta como válido (por ejemplo, terminado en <code>.local</code>).</p>
+    <h3>El puerto 5432: publicación opcional para pgAdmin de escritorio</h3>
+    <p>Este paso solo es necesario para la ampliación con pgAdmin de escritorio. El compose de referencia ya lo publica. Si tu servicio de PostgreSQL no tiene bloque <code>ports</code>:</p>
+    <ol>
+      <li>En el <code>docker-compose.yml</code>, añade estas dos líneas al servicio <code>db</code>, al mismo nivel que <code>volumes</code>:</li>
+    </ol>
+<pre><button class="copy" type="button">Copiar</button><code>    ports:
+      - "127.0.0.1:5432:5432"</code></pre>
+    <ol start="2">
+      <li>Aplica el cambio con <code>docker compose up -d</code>: Compose recrea el contenedor <code>db</code> y los datos siguen en su volumen.</li>
+      <li>Comprueba con <code>docker compose ps</code> que en la columna de puertos de <code>db</code> aparece <code>127.0.0.1:5432-&gt;5432/tcp</code>.</li>
+    </ol>
+    <p>La opción A funciona también sin este bloque; se incluye para que la opción B y las herramientas de tu PC conecten sin tocar nada más.</p>
+    <h3>Qué significa <code>"127.0.0.1:5432:5432"</code></h3>
+    <p>Un contenedor es como un ordenador aparte dentro del tuyo: tiene sus propios puertos y, por defecto, desde tu PC no se llega a ellos. PostgreSQL escucha en el puerto 5432 <em>del contenedor</em>. La línea <code>ports</code> abre una «puerta» en tu PC que lleva hasta ese puerto. Se lee de derecha a izquierda, en tres partes separadas por dos puntos:</p>
+    <div class="tw"><table>
+      <tr><th>Parte</th><th>Valor</th><th>Qué es</th><th>Por qué ese valor</th></tr>
+      <tr><td>3.ª · puerto del contenedor</td><td><code>5432</code></td><td>Dónde escucha PostgreSQL dentro del contenedor</td><td>Es el puerto estándar de PostgreSQL; lo fija la imagen y no se cambia</td></tr>
+      <tr><td>2.ª · puerto de tu PC</td><td><code>5432</code></td><td>El puerto que se abre en tu equipo y que usarás al conectar</td><td>Se pone el mismo por comodidad. Puede ser otro: con <code>5433:5432</code> conectarías a <code>localhost:5433</code></td></tr>
+      <tr><td>1.ª · dirección de tu PC</td><td><code>127.0.0.1</code></td><td>Por cuál de las direcciones de tu equipo se acepta la conexión</td><td><code>127.0.0.1</code> es «este mismo equipo» (<code>localhost</code>): solo los programas de tu PC pueden entrar</td></tr>
+    </table></div>
+    <p>La primera parte es opcional. Si escribes solo <code>"5432:5432"</code>, Docker abre el puerto en todas las direcciones de tu PC, también en la de la red del aula, y cualquier compañero podría entrar en tu PostgreSQL con un usuario y una contraseña que todos conocen. Por eso el compose lleva <code>127.0.0.1</code>, y solo se quita un momento en la práctica de la sección 7.</p>
+    <p>Es la misma sintaxis que ya usan los otros servicios: <code>"8069:8069"</code> lleva el puerto 8069 de tu PC al 8069 de Odoo, y <code>"5050:80"</code> lleva el 5050 de tu PC al 80 del contenedor de pgAdmin, por eso entras por <code>localhost:5050</code>. Y explica por qué Odoo y el pgAdmin del contenedor no necesitan esta línea: están dentro de la misma red de Docker y llegan directamente a <code>db:5432</code>, sin pasar por tu PC.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="n">04</span>Conectar pgAdmin al PostgreSQL de Odoo</h2>
+    <p style="margin-top:12px">En pgAdmin, botón derecho sobre <em>Servers</em> y después <em>Register › Server</em>. Se abre un diálogo con varias pestañas; solo hacen falta dos.</p>
+    <h3>Pestaña General</h3>
+    <div class="tw"><table>
+      <tr><th>Campo</th><th>Valor</th></tr>
+      <tr><td>Name</td><td>Odoo 19 Docker</td></tr>
+      <tr><td>Server group</td><td>Servers</td></tr>
+      <tr><td>Connect now</td><td>activado</td></tr>
+    </table></div>
+    <h3>Pestaña Connection</h3>
+    <div class="tw"><table>
+      <tr><th>Campo</th><th>pgAdmin en contenedor</th><th>pgAdmin de escritorio</th></tr>
+      <tr><td>Host name/address</td><td><code>db</code></td><td><code>localhost</code> (o la IP del PC con Docker)</td></tr>
+      <tr><td>Port</td><td>5432</td><td>5432</td></tr>
+      <tr><td>Maintenance database</td><td>postgres</td><td>postgres</td></tr>
+      <tr><td>Username</td><td>odoo</td><td>odoo</td></tr>
+      <tr><td>Password</td><td>odoo</td><td>odoo</td></tr>
+      <tr><td>Save password</td><td>sí, en clase</td><td>sí, en clase</td></tr>
+    </table></div>
+    <p style="margin-top:12px">Pulsa <em>Save</em>. En el árbol de la izquierda aparece el servidor y, dentro de <em>Databases</em>, al menos la base <code>postgres</code> y las bases de datos de Odoo que hayas creado. Actualiza el árbol si no aparecen.</p>
+    <div class="note warn"><span class="eyebrow">Si no conecta</span>
+      El error habitual contiene el texto <code>Connection refused</code>. Comprueba, en este orden:
+      <ol>
+        <li><code>docker compose ps</code>: el servicio <code>db</code> está en marcha.</li>
+        <li>Con pgAdmin en contenedor, el host es <code>db</code>, no <code>localhost</code>: dentro del contenedor de pgAdmin, <code>localhost</code> es el propio pgAdmin.</li>
+        <li>Con pgAdmin de escritorio, el servicio <code>db</code> tiene el bloque <code>ports</code> con <code>127.0.0.1:5432:5432</code> (sección 3). Si el puerto está ocupado, usa <code>127.0.0.1:5433:5432</code>, ejecuta <code>docker compose up -d</code> y conecta al puerto 5433.</li>
+        <li>Usuario y contraseña coinciden con <code>POSTGRES_USER</code> y <code>POSTGRES_PASSWORD</code>. Si cambiaste las variables después del primer arranque, PostgreSQL conserva la contraseña anterior. Cambia la contraseña del rol en PostgreSQL y actualiza el compose de Odoo; no borres el volumen para resolverlo.</li>
+      </ol>
+    </div>
+    <h3>Si necesitas cambiar la contraseña de PostgreSQL</h3>
+    <p>En un entorno de práctica, abre <code>docker exec -it odoo-db psql -U odoo -d postgres</code> y ejecuta <code>\password odoo</code>; introduce la contraseña nueva cuando se solicite y sal con <code>\q</code>. Actualiza <code>POSTGRES_PASSWORD</code> y <code>PASSWORD</code> en el Compose con la misma contraseña y ejecuta <code>docker compose up -d</code>. Actualiza también la contraseña guardada en pgAdmin. Cambiar solo las variables no modifica el rol ya inicializado. No incluyas contraseñas reales en capturas.</p>
+  </section>
+
+  <section id="s5">
+    <h2><span class="n">05</span>Bases de datos</h2>
+    <p style="margin-top:12px">Al arrancar por primera vez, el contenedor <code>db</code> crea la base de datos de mantenimiento <code>postgres</code>. pgAdmin puede usarla para conectarse aunque aún no haya bases de Odoo. Es posible eliminarla, pero en esta práctica debes conservarla.</p>
+    <p>Cada base de datos de Odoo se crea desde <code>http://localhost:8069/web/database/manager</code> (o en la primera pantalla, si aún no hay ninguna) y aparece en pgAdmin bajo <em>Databases</em>. Dentro de una misma base, Odoo también puede gestionar varias empresas mediante su función multiempresa: crear una empresa no crea necesariamente otra base.</p>
+    <figure class="ui">
+      <div class="win">
+        <div class="bar">pgAdmin 4 <span class="chip">Browser</span><span class="sp">conectado como odoo</span></div>
+        <div class="tree">
+          <div>▾ Servers (1)</div>
+          <div>&nbsp;&nbsp;▾ <span class="hl">Odoo 19 Docker</span> <span class="d">— host db, puerto 5432</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;▾ Databases (3)</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ postgres <span class="d">— base de mantenimiento</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▾ <span class="hl">empresa</span> <span class="d">— ejemplo de base de Odoo</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▾ Schemas (1)</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▾ public</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▾ Tables (612)</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ account_move</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ account_move_line</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ res_partner</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ sale_order <span class="d">— el modelo sale.order</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ Views</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;▸ empresa_copia <span class="d">— la restauración del ejercicio 7</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;▸ Login/Group Roles (4) <span class="d">— los roles disponibles dependen de la instalación</span></div>
+        </div>
+      </div>
+      <figcaption><b>El árbol de pgAdmin, de arriba abajo.</b> Este es el camino que harás cada vez: servidor → base de datos de la empresa → <code>Schemas</code> → <code>public</code> → <code>Tables</code>. Una base puede contener una o varias empresas. Fíjate en que los usuarios de PostgreSQL cuelgan del servidor, no de la base: por eso <code>consulta</code> aparece aquí abajo y no dentro de <code>empresa</code>.</figcaption>
+    </figure>
+    <p>Dentro de una BD de Odoo, en <em>Schemas › public › Tables</em>, hay numerosas tablas; su número depende de los módulos. Normalmente el modelo <code>sale.order</code> se almacena en <code>sale_order</code>, pero existen excepciones y modelos que no tienen tabla propia. Algunas tablas solo aparecen si el módulo correspondiente está instalado.</p>
+    <div class="tw"><table>
+      <tr><th>Modelo en Odoo</th><th>Tabla en PostgreSQL</th><th>Contiene</th></tr>
+      <tr><td><code>res.partner</code></td><td><code>res_partner</code></td><td>Clientes, proveedores y contactos</td></tr>
+      <tr><td><code>res.users</code></td><td><code>res_users</code></td><td>Usuarios de Odoo (no de PostgreSQL)</td></tr>
+      <tr><td><code>product.template</code></td><td><code>product_template</code></td><td>Productos</td></tr>
+      <tr><td><code>sale.order</code></td><td><code>sale_order</code></td><td>Presupuestos y pedidos de venta</td></tr>
+      <tr><td><code>account.move</code></td><td><code>account_move</code></td><td>Facturas y asientos</td></tr>
+      <tr><td><code>stock.picking</code></td><td><code>stock_picking</code></td><td>Albaranes</td></tr>
+      <tr><td><code>ir.module.module</code></td><td><code>ir_module_module</code></td><td>Módulos instalados y su estado</td></tr>
+    </table></div>
+    <p style="margin-top:12px">Una consulta de prueba en pgAdmin (<em>Tools › Query Tool</em> sobre la BD de la empresa):</p>
+<pre><button class="copy" type="button">Copiar</button><code>SELECT name, state
+FROM ir_module_module
+WHERE state = 'installed'
+ORDER BY name;</code></pre>
+    <p style="margin-top:12px">Ejemplo de copia SQL y restauración en una base nueva llamada <code>empresa_copia</code>, sin borrar la original. Sustituye <code>empresa</code> por el nombre real de tu base de prueba. La base de destino no debe existir; si ya existe, elige otro nombre nuevo en ambos comandos. Ejecuta estos comandos en una terminal de tu PC, en la carpeta del compose. Funcionan igual en PowerShell y en Linux, porque la copia se hace dentro del contenedor; la última línea la trae a tu carpeta:</p>
+<pre><button class="copy" type="button">Copiar</button><code>docker exec odoo-db pg_dump -U odoo -Fc -f /tmp/empresa.dump empresa
+docker exec odoo-db createdb -U odoo -T template0 empresa_copia
+docker exec odoo-db pg_restore -U odoo --no-owner --no-privileges -d empresa_copia /tmp/empresa.dump
+docker cp odoo-db:/tmp/empresa.dump .</code></pre>
+    <div class="note"><span class="eyebrow">Ojo</span>Una copia <code>pg_dump</code> solo contiene PostgreSQL y no incluye los archivos del filestore. El gestor de bases de datos de Odoo permite generar una copia ZIP que incluye la base y el filestore. Para una restauración completa, usa la copia y restauración de Odoo y verifica los adjuntos. Si restauras manualmente con otro nombre, también debes recuperar el filestore correspondiente y comprobar permisos y configuración; sin ello pueden faltar archivos.</div>
+  </section>
+
+  <section id="s6">
+    <h2><span class="n">06</span>Usuarios y contraseñas</h2>
+    <p style="margin-top:12px">Hay que distinguir dos tipos de usuario que no tienen nada que ver entre sí:</p>
+    <div class="tw"><table>
+      <tr><th></th><th>Usuario de PostgreSQL</th><th>Usuario de Odoo</th></tr>
+      <tr><td>Dónde se define</td><td>Variables del compose o <code>CREATE ROLE</code></td><td>Ajustes › Usuarios dentro de Odoo</td></tr>
+      <tr><td>Dónde se guarda</td><td>Catálogo del servidor (<code>pg_roles</code>)</td><td>Tabla <code>res_users</code> de cada BD</td></tr>
+      <tr><td>Para qué</td><td>Conectarse al servidor desde pgAdmin, psql u Odoo</td><td>Entrar en el ERP por el navegador</td></tr>
+      <tr><td>En clase</td><td><code>odoo</code> / <code>odoo</code> (superusuario)</td><td><code>admin</code> / la que pongas al crear la empresa</td></tr>
+    </table></div>
+    <p style="margin-top:12px">En este ejemplo <code>odoo</code> es superusuario porque la imagen inicializa así <code>POSTGRES_USER</code>. Tiene permisos muy amplios, incluida la gestión de bases de datos. No es necesario que toda instalación utilice un superusuario: los permisos dependen de las tareas de administración previstas. Evita modificar datos directamente: los cambios confirmados pueden ser difíciles de revertir y saltarse las reglas de Odoo.</p>
+    <p>Por eso, para consultar desde pgAdmin, LibreOffice o Python, conviene crear un usuario de <strong>solo lectura</strong>. En el árbol, abre la base indicada y selecciona Tools › Query Tool; comprueba arriba la base y el usuario conectados. Para cambiar de base, abre un nuevo Query Tool sobre ella. Si el rol ya existe, omite CREATE ROLE y comprueba sus permisos; no lo elimines sin revisar qué depende de él. En <em>Query Tool</em> sobre la BD <code>postgres</code> ejecuta las dos primeras líneas. Después abre otro Query Tool sobre <code>empresa</code> y ejecuta las tres últimas:</p>
+<pre><button class="copy" type="button">Copiar</button><code>CREATE ROLE consulta LOGIN PASSWORD 'consulta';
+GRANT CONNECT ON DATABASE empresa TO consulta;
+
+<span class="c">-- sobre la BD empresa</span>
+GRANT USAGE ON SCHEMA public TO consulta;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO consulta;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO consulta;</code></pre>
+    <p style="margin-top:12px">Ejecuta las instrucciones de la base <code>empresa</code> conectado como el rol que crea sus tablas, normalmente <code>odoo</code>. Los privilegios por defecto solo afectan a objetos futuros creados por ese rol; si otro rol crea tablas, configura también sus privilegios. En otras bases y esquemas los permisos se gestionan por separado.</p>
+    <div class="note"><span class="eyebrow">Comprobación paso a paso</span>Registra otro servidor en pgAdmin: host <code>db</code>, puerto <code>5432</code>, base de mantenimiento <code>empresa</code>, usuario y contraseña de prueba <code>consulta</code>. Sustituye los valores por los tuyos. Abre Query Tool sobre la base y ejecuta cada instrucción por separado:
+<pre><code>SELECT id, name FROM public.res_partner LIMIT 5;
+UPDATE public.res_partner SET name = name WHERE id = -1;</code></pre>
+El SELECT debe funcionar y el UPDATE debe devolver un error de permisos incluso sin afectar registros. Si UPDATE funciona, detente: revisa que la conexión sea realmente <code>consulta</code> y que no tenga permisos adicionales o pertenencia a otros roles. Las capturas deben mostrar usuario/base, consulta y resultado sin contraseñas.</div>
+    <h3>Dónde guarda pgAdmin las contraseñas</h3>
+    <p>Al marcar <em>Save password</em>, el mecanismo de protección depende del modo y la configuración. En el modo servidor habitual del contenedor, pgAdmin mantiene su configuración en <code>/var/lib/pgadmin</code>; en escritorio puede usar el almacén de contraseñas del sistema o una contraseña maestra. La contraseña de acceso a pgAdmin y la de PostgreSQL cumplen funciones distintas. Nunca publiques capturas que muestren contraseñas.</p>
+    <p>El fichero clásico <code>pgpass.conf</code> (o <code>~/.pgpass</code> en Linux), en texto plano, lo usan psql y otras herramientas, no pgAdmin 4. Si lo creas para que psql no pida contraseña, el formato es <code>host:puerto:bd:usuario:contraseña</code> y en Linux debe tener permisos <code>600</code>. Más en <a href="https://www.postgresql.org/docs/current/libpq-pgpass.html">libpq-pgpass</a>.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="n">07</span>Conexiones remotas</h2>
+    <p style="margin-top:12px">En una instalación clásica PostgreSQL suele escuchar inicialmente en <code>localhost</code>. Para conexiones remotas se revisan la escucha, la autenticación y el cortafuegos. En Docker, la configuración concreta depende de la imagen y de cómo se inicializó el volumen; compruébala antes de cambiar nada. Conviene saber qué hacen, porque es lo que te encontrarás en un servidor real.</p>
+    <div class="tw"><table>
+      <tr><th>Fichero</th><th>Qué controla</th><th>Instalación clásica (Ubuntu)</th><th>Contenedor postgres:17</th></tr>
+      <tr><td><code>postgresql.conf</code></td><td>En qué direcciones escucha (<code>listen_addresses</code>) y el puerto</td><td><code>/etc/postgresql/17/main/</code>, por defecto <code>localhost</code></td><td><code>/var/lib/postgresql/data/</code>, ya con <code>listen_addresses = '*'</code></td></tr>
+      <tr><td><code>pg_hba.conf</code></td><td>Qué clientes pueden entrar, a qué BD, con qué usuario y cómo se autentican</td><td>Mismo directorio; hay que añadir una línea <code>host</code> con la IP del cliente</td><td>Mismo directorio; revisa las reglas efectivas; pueden variar según la inicialización</td></tr>
+    </table></div>
+    <p style="margin-top:12px">Una regla como <code>host all all all scram-sha-256</code> acepta intentos TCP para cualquier base, usuario y dirección, sujetos a autenticación SCRAM. SCRAM autentica mediante un intercambio seguro de contraseña, pero no cifra por sí solo toda la conexión: para ello se necesita TLS. Las reglas se procesan en orden; comprueba las realmente activas.</p>
+    <p>La conectividad depende conjuntamente de la publicación de puertos, la red y el cortafuegos; PostgreSQL aplica además sus reglas de acceso y permisos:</p>
+    <ul>
+      <li>Sin <code>ports</code> en el servicio <code>db</code>, los servicios de la red de Compose pueden llegar a PostgreSQL por <code>db:5432</code>; el acceso desde el anfitrión u otras redes depende del entorno Docker.</li>
+      <li>Con <code>127.0.0.1:5432:5432</code> llegan además los programas de tu propio PC.</li>
+      <li>Con <code>5432:5432</code> llega cualquier equipo de la red, salvo que lo pare el cortafuegos. Úsalo solo durante la prueba de abajo.</li>
+    </ul>
+    <h3>Ampliación opcional: probarlo de dos formas</h3><div class="note warn"><span class="eyebrow">Antes de abrir el puerto</span>Mientras dure la prueba, cualquier equipo de tu misma red puede intentar entrar en tu PostgreSQL. Para que no pase nada:
+      <ul>
+        <li>Hazla solo con la base de prueba, nunca con datos reales.</li>
+        <li>Ten el puerto abierto el tiempo justo: abre, comprueba y cierra en la misma sesión.</li>
+        <li>Vuelve siempre a <code>127.0.0.1:5432:5432</code> al terminar, también si la prueba no te ha salido, y confírmalo con <code>docker compose ps</code>.</li>
+      </ul></div>
+    <p>Elige una. La preparación y el final son iguales; solo cambia desde dónde lanzas la conexión.</p>
+    <ol>
+      <li><strong>Abre el puerto.</strong> En el servicio <code>db</code>, deja la publicación sin el prefijo: <code>- "5432:5432"</code>. Ejecuta <code>docker compose up -d</code>.</li>
+      <li><strong>Averigua la IP de tu PC</strong> (<code>ipconfig</code> en Windows, <code>ip a</code> en Linux). En los ejemplos es <code>192.168.0.32</code>; pon la tuya.</li>
+      <li><strong>Conecta</strong> con una de las dos opciones:</li>
+    </ol>
+    <div class="two">
+      <div><h3>Opción 1 · Terminal del mismo PC (rápida)</h3><p>Abre una terminal en tu PC y conecta a <strong>la IP, no a <code>localhost</code></strong>. Con <code>localhost</code> la prueba no vale: funciona siempre, con prefijo o sin él.</p><p>Si no tienes <code>psql</code> instalado, puedes comprobar que el puerto responde (esto no demuestra autenticación): en PowerShell, <code>Test-NetConnection 192.168.0.32 -Port 5432</code>; en Linux, <code>nc -zv 192.168.0.32 5432</code>.</p></div>
+      <div><h3>Opción 2 · Máquina virtual (más real)</h3><p>Usa una máquina virtual Linux tuya con la red en modo <em>puente</em> o <em>solo anfitrión</em> (no NAT) e instala el cliente con <code>sudo apt install postgresql-client</code>. Lanza desde ella el mismo comando.</p><p>Si no conecta, comprueba con <code>ping 192.168.0.32</code> que las máquinas se ven y revisa el cortafuegos de tu PC para el puerto 5432.</p></div>
+    </div>
+<pre><button class="copy" type="button">Copiar</button><code>psql -h 192.168.0.32 -p 5432 -U consulta -d empresa</code></pre>
+    <ol start="4">
+      <li><strong>Cierra el puerto y repite.</strong> Vuelve a <code>- "127.0.0.1:5432:5432"</code>, ejecuta <code>docker compose up -d</code> y lanza otra vez el mismo comando: la conexión a esa IP debería fallar. El mensaje y el resultado pueden variar según Docker, la red y el cortafuegos. Verifica la publicación con <code>docker compose ps</code>.</li>
+    </ol>
+    <p>La opción 1 demuestra el efecto del prefijo, pero la conexión no sale de tu equipo. La opción 2 cruza de verdad la red y el cortafuegos, como en un servidor real. No dejes el puerto sin prefijo al terminar: mientras está así, cualquier equipo de la red puede entrar en tu PostgreSQL.</p>
+    <p style="margin-top:12px">Si quieres reproducir el ejercicio clásico y ver los ficheros reales:</p>
+<pre><button class="copy" type="button">Copiar</button><code>docker exec -it odoo-db bash
+grep listen_addresses /var/lib/postgresql/data/postgresql.conf
+tail -5 /var/lib/postgresql/data/pg_hba.conf</code></pre>
+    <p style="margin-top:12px">Los cambios en <code>pg_hba.conf</code> suelen requerir una recarga; algunos parámetros como <code>listen_addresses</code> requieren reiniciar PostgreSQL. En este ejemplo los ficheros están en el volumen. Sal de la shell con <code>exit</code>. Los cambios en el propio Compose, como los puertos, requieren <code>docker compose up -d</code> para recrear el servicio, no solo <code>restart</code>.</p>
+  </section>
+
+  <section id="s8">
+    <h2><span class="n">08</span>Consola textual psql</h2>
+    <p style="margin-top:12px">Sin pgAdmin, el propio contenedor trae el cliente <code>psql</code>. Es lo que usarás por SSH en un servidor sin entorno gráfico.</p>
+<pre><button class="copy" type="button">Copiar</button><code>docker exec -it odoo-db psql -U odoo -d postgres</code></pre>
+    <p style="margin-top:12px">Dentro de psql, los comandos que empiezan por barra invertida son de la consola; el resto es SQL y termina en punto y coma.</p>
+    <div class="tw"><table>
+      <tr><th>Comando</th><th>Qué hace</th></tr>
+      <tr><td><code>\l</code></td><td>Lista las bases de datos del servidor</td></tr>
+      <tr><td><code>\c empresa</code></td><td>Cambia a la base de datos <code>empresa</code></td></tr>
+      <tr><td><code>\dt</code></td><td>Lista las tablas de la BD actual</td></tr>
+      <tr><td><code>\d sale_order</code></td><td>Describe la tabla: columnas, tipos, claves</td></tr>
+      <tr><td><code>\du</code></td><td>Lista los usuarios (roles) del servidor</td></tr>
+      <tr><td><code>\x</code></td><td>Alterna la salida vertical, útil con tablas anchas</td></tr>
+      <tr><td><code>\q</code></td><td>Sale</td></tr>
+    </table></div>
+    <p style="margin-top:12px">Ejemplo completo:</p>
+<pre><button class="copy" type="button">Copiar</button><code>\c empresa
+SELECT id, name, email FROM res_partner WHERE customer_rank &gt; 0 LIMIT 5;
+SELECT name, state, amount_total FROM sale_order ORDER BY date_order DESC LIMIT 5;
+\q</code></pre>
+    <p style="margin-top:12px">Para lanzar una consulta sin entrar en la consola, útil en scripts:</p>
+<pre><button class="copy" type="button">Copiar</button><code>docker exec odoo-db psql -U odoo -d empresa -c "SELECT count(*) FROM res_partner;"</code></pre>
+  </section>
+
+  <section id="s9">
+    <h2><span class="n">09</span>Ejercicios de repaso</h2>
+    <p style="margin-top:12px">Trabaja únicamente con datos de prueba. Entrega un PDF con portada (nombre, grupo y fecha), índice, apartados 1, 3, 4, 5 y 7 (los apartados 2 y 6 son opcionales), capturas legibles con una breve explicación, comandos o consultas utilizados y referencias. Oculta contraseñas y datos personales. En cada ejercicio obligatorio se indica la evidencia que debes entregar.</p>
+    <div class="ej">
+      <div><h3>Empresas y bases de datos</h3><p>Crea dos bases de datos de prueba desde el gestor de Odoo y comprueba en pgAdmin que aparecen. Elimina una de prueba desde el gestor y actualiza el árbol. Explica la diferencia entre base de datos y empresa en una configuración multiempresa y por qué el usuario de este ejemplo es superusuario. <strong>Evidencia:</strong> capturas del árbol antes y después de eliminar la base de prueba y explicación.</p></div>
+      <div><h3>Dos pgAdmin, un servidor · opcional</h3><p>Conecta al mismo PostgreSQL desde pgAdmin en contenedor (host <code>db</code>) y desde pgAdmin de escritorio (host <code>localhost</code>). Indica qué líneas del compose hacen posible la segunda conexión y qué ocurre si las comentas y ejecutas <code>docker compose up -d</code> para recrear el servicio. Después restablécelas.</p></div>
+      <div><h3>Contraseña guardada</h3><p>Localiza el directorio persistente con <code>docker exec -it odoo-pgadmin ls /var/lib/pgadmin</code>. Explica la diferencia entre la contraseña de acceso a pgAdmin y la de PostgreSQL; consulta el mecanismo de protección de tu versión. Investiga el formato de <code>~/.pgpass</code> en Linux y sus permisos 600. Usa solo credenciales de prueba y no las incluyas en las capturas. <strong>Evidencia:</strong> captura del directorio y explicaciones solicitadas.</p></div>
+      <div><h3>Usuario de solo lectura</h3><p>Crea el rol <code>consulta</code> de la sección 6, conéctate con él y demuestra con una captura que un <code>SELECT</code> funciona y un <code>UPDATE</code> sobre <code>res_partner</code> da <code>permission denied</code>. <strong>Evidencia:</strong> capturas de ambas consultas y sus resultados.</p></div>
+      <div><h3>De modelo a tabla</h3><p>Instala el módulo Ventas en tu base de prueba. En Odoo crea un cliente, un producto y un presupuesto y confírmalo. Desde psql, localiza los tres registros en <code>res_partner</code>, <code>product_template</code> y <code>sale_order</code> y muestra la consulta que une el pedido con el nombre del cliente (<code>sale_order.partner_id = res_partner.id</code>). <strong>Evidencia:</strong> consultas y resultados de los tres registros y de la unión.</p></div>
+      <div><h3>Abrir y cerrar el puerto · opcional</h3><p>Sigue los pasos de «Ampliación opcional: probarlo de dos formas» de la sección 7 con la opción que prefieras: terminal del mismo PC o máquina virtual. Entrega dos capturas: la conexión funcionando con el puerto publicado sin prefijo y el mismo comando fallando tras volver a <code>127.0.0.1</code>. Indica qué opción has usado y la IP, y explica por qué falla la segunda vez. Si usas la máquina virtual, indica también su modo de red.</p></div>
+      <div><h3>Copia y restauración</h3><p>Con datos de prueba, haz un <code>pg_dump</code> y restáuralo en <code>empresa_copia</code> siguiendo la sección 5, sin borrar la base original. Comprueba las tablas y explica por qué pueden faltar adjuntos. <strong>Evidencia:</strong> comandos, captura de la base restaurada y sus tablas, y explicación sobre los adjuntos. Opcional: comprueba por separado una copia ZIP de Odoo y su restauración completa.</p></div>
+    </div>
+    <div class="note"><span class="eyebrow">Evaluación</span>Los ejercicios obligatorios se valoran según su funcionamiento (40 %), explicación técnica (30 %), evidencias (20 %) y presentación y referencias (10 %). Las ampliaciones 2 y 6 no son necesarias para obtener la nota completa.</div>
+  </section>
+  </main>
+  </div>
+
+  <footer>Material del módulo 0491 (RD 450/2010), unidad 3. Adaptado de los apuntes de pgAdmin para Odoo 15 a la instalación con Docker de Odoo 19 y PostgreSQL 17. Curso 2026/2027.</footer>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var code=b.parentNode.querySelector('code'), txt=code.textContent;
+      function ok(){ b.textContent='Copiado'; setTimeout(function(){ b.textContent='Copiar'; },1500); }
+      function fallback(){ var r=document.createRange(); r.selectNodeContents(code); var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='Selecciona y copia'; setTimeout(function(){ b.textContent='Copiar'; },2000); }
+      try{ navigator.clipboard.writeText(txt).then(ok,fallback); }catch(e){ fallback(); }
+    });
+  });
+  var links=[].slice.call(document.querySelectorAll('nav.toc a')), secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function mark(){ var y=scrollY+120, cur=0; secs.forEach(function(s,i){ if(s.offsetTop<=y) cur=i; }); links.forEach(function(a,i){ a.classList.toggle('on',i===cur); }); }
+  addEventListener('scroll',mark,{passive:true}); mark();
+})();
+</script>
+
+</body></html>

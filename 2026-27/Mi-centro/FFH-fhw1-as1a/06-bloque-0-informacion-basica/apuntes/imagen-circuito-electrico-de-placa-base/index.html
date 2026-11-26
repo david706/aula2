@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Placa Base Interactiva — Alimentación vs Datos (FHW)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<input type="radio" name="tabset" id="tab-radio-placa" class="tab-radio">
+<input type="radio" name="tabset" id="tab-radio-fundamentos" class="tab-radio" checked>
+
+<div class="tabbar">
+  <label class="tab-btn" for="tab-radio-fundamentos">⚡ Fundamentos eléctricos</label>
+  <label class="tab-btn" for="tab-radio-placa">🖥️ Placa interactiva</label>
+</div>
+
+<div id="tab-placa" class="tab-panel">
+<h1>🖥️ Placa base real interactiva — Alimentación vs Datos</h1>
+<p class="subtitle">1º ASIR · FHW — Sobre la foto real de una <b>Motherboard</b>. Pulsa un botón para ver cómo fluye la <b>energía</b> (conectores → VRM → componentes) o cómo viaja la <b>información</b> (CPU ↔ RAM ↔ Chipset). Las animaciones son una visualización educativa, no electricidad real visible.</p>
+
+<div class="wrap">
+
+  <div class="board-card">
+   <div class="board-photo-wrap">
+    <img class="board-photo" src="img/imagenplaca.jpg" alt="motherboard">
+    <svg id="board" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <g id="board-wrap">
+      <defs>
+        <filter id="glowPower" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowData" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowChip" x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowV12" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowV5" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glowV33" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="photoDim">
+          <feColorMatrix type="matrix" values="0.7 0 0 0 0  0 0.7 0 0 0  0 0 0.7 0 0  0 0 0 1 0"/>
+        </filter>
+        <linearGradient id="cableSheen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5a5a5a"/>
+          <stop offset="45%" stop-color="#1a1a1a"/>
+          <stop offset="55%" stop-color="#1a1a1a"/>
+          <stop offset="100%" stop-color="#0a0a0a"/>
+        </linearGradient>
+      </defs>
+
+      <!-- La foto real de la placa ahora la pone el <img> HTML de fuera del SVG (más compatible) -->
+      <rect x="0" y="0" width="800" height="800" fill="#000" opacity="0.12"/>
+
+      <!-- ===== Zonas identificadas sobre la foto real ===== -->
+      <g id="zones" font-family="inherit" stroke-dasharray="4 3" fill="none" stroke-width="1.5" opacity="0.85">
+        <rect x="55" y="55" width="180" height="355" rx="10" stroke="#ffb347"/>
+        <rect id="zone-cpu" x="340" y="135" width="200" height="270" rx="10" stroke="#4fd6e8"/>
+        <rect x="590" y="60" width="120" height="345" rx="10" stroke="#4fd6e8"/>
+        <rect x="700" y="258" width="66" height="142" rx="8" stroke="#ffb347"/>
+        <rect x="595" y="533" width="122" height="122" rx="10" stroke="#4fd6e8"/>
+        <rect x="595" y="688" width="172" height="66" rx="8" stroke="#4fd6e8"/>
+      </g>
+      <g font-family="inherit" font-size="13" font-weight="700" paint-order="stroke" stroke="#000" stroke-width="3">
+        <text x="63" y="46" fill="#ffb347">VRM</text>
+        <text x="345" y="127" fill="#4fd6e8">CPU</text>
+        <text x="598" y="52" fill="#4fd6e8">RAM (DIMM)</text>
+        <text x="705" y="250" fill="#ffb347">ATX 24-pin</text>
+        <text x="600" y="525" fill="#4fd6e8">Chipset (PCH)</text>
+        <text x="600" y="681" fill="#4fd6e8">SATA</text>
+      </g>
+
+      <!-- ===== TRAZAS: ALIMENTACION (gruesas) ===== -->
+      <g id="power-traces">
+        <path id="p-atx-vrm" class="trace-power" d="M 733 300 L 733 415 L 235 415 L 235 235"/>
+        <path id="p-cpu8pin-vrm" class="trace-power" d="M 209 57 L 209 90 L 150 90 L 150 140"/>
+        <path id="p-vrm-cpu" class="trace-power" d="M 235 235 L 300 235 L 300 270 L 345 270"/>
+        <path id="p-vrm-cpu2" class="trace-power" d="M 235 265 L 310 265 L 310 320 L 345 320"/>
+        <path id="p-vrm-ram" class="trace-power" d="M 235 115 L 595 115 L 595 150"/>
+        <path id="p-vrm-chipset" class="trace-power" d="M 150 410 L 150 597 L 595 597"/>
+      </g>
+
+      <!-- ===== TRAZAS: DATOS (finas) ===== -->
+      <g id="data-traces">
+        <path id="d-cpu-ram1" class="trace-data" d="M 535 170 L 590 170"/>
+        <path id="d-cpu-ram2" class="trace-data" d="M 535 230 L 590 230"/>
+        <path id="d-cpu-ram3" class="trace-data" d="M 535 290 L 590 290"/>
+        <path id="d-cpu-ram4" class="trace-data" d="M 535 350 L 590 350"/>
+        <path id="d-cpu-chipset" class="trace-data" d="M 440 405 L 440 470 L 657 470 L 657 533"/>
+        <path id="d-chipset-sata" class="trace-data" d="M 657 655 L 657 680 L 680 680 L 680 688"/>
+      </g>
+
+      <!-- etiquetas de voltaje -->
+      <g id="volt-labels">
+        <text x="733" y="360" class="volt-label v12" text-anchor="middle">12V</text>
+        <text x="268" y="225" class="volt-label v12" text-anchor="middle">12V</text>
+        <text x="278" y="345" class="volt-label v12" text-anchor="middle">12V</text>
+        <text x="415" y="108" class="volt-label v5" text-anchor="middle">5V</text>
+        <text x="150" y="500" class="volt-label v33" text-anchor="middle">3,3V</text>
+      </g>
+
+      <!-- nodos que parpadean -->
+      <circle id="node-vrm-out" class="node-dot" cx="235" cy="235" r="4"/>
+      <circle id="node-cpu-power" class="node-dot" cx="345" cy="270" r="4"/>
+      <circle id="node-cpu-data" class="node-dot" cx="535" cy="230" r="4"/>
+      <circle id="node-ram-in" class="node-dot" cx="590" cy="230" r="4"/>
+      <circle id="node-chipset-in" class="node-dot" cx="657" cy="533" r="4"/>
+      <circle id="node-sata-in" class="node-dot" cx="680" cy="688" r="4"/>
+
+      <g id="pulses"></g>
+      </g>
+    </svg>
+   </div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="mode-btn" data-mode="power"><span class="dot power"></span>Ver alimentación</button>
+    <button class="mode-btn" data-mode="voltage"><span class="dot v12"></span>Ver 12V / 5V / 3,3V</button>
+    <button class="mode-btn" data-mode="data-ram"><span class="dot data"></span>Ver CPU ↔ RAM</button>
+    <button class="mode-btn" data-mode="data-chipset"><span class="dot data"></span>Ver CPU ↔ Chipset</button>
+    <button class="mode-btn" data-mode="all"><span class="dot all"></span>Ver todo</button>
+    <button class="mode-btn" data-mode="reset"><span class="dot reset"></span>Reiniciar</button>
+  </div>
+
+  <div class="info" id="info">
+    <div class="tag">Info</div>
+    <div id="info-text">Pulsa un botón para activar un flujo. Verás pistas <b>gruesas naranjas</b> para la alimentación y pistas <b>finas cian</b> para los datos — no es lo mismo alimentar un componente que transmitir información.</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="swatch power"></span> Alimentación genérica — pista gruesa</span>
+    <span><span class="swatch v12"></span> Raíl 12V</span>
+    <span><span class="swatch v5"></span> Raíl 5V</span>
+    <span><span class="swatch v33"></span> Raíl 3,3V</span>
+    <span><span class="swatch data"></span> Datos / señal digital — pista fina</span>
+  </div>
+
+</div>
+</div>
+<div id="tab-fundamentos" class="tab-panel">
+  <div class="fund-wrap">
+
+<h1>⚡ Fundamentos eléctricos para 1º ASIR</h1>
+<p class="subtitle">Ley de Ohm · Potencia eléctrica · Corriente continua vs. corriente alterna — pensado como complemento a la <b>placa base interactiva</b>.</p>
+
+<h2><span class="num">1</span> Ley de Ohm — V = I × R</h2>
+<div class="card">
+  <p>La ley de Ohm relaciona tres magnitudes en cualquier circuito eléctrico:</p>
+  <div class="formula">
+    V = I × R
+    <small>V = tensión (voltios, V) · I = intensidad de corriente (amperios, A) · R = resistencia (ohmios, Ω)</small>
+  </div>
+  <p>Dicho de forma sencilla: cuanta más resistencia oponga un componente, más tensión hace falta para que circule la misma corriente. Es la fórmula base de la que salen las otras dos:</p>
+  <table>
+    <tr><th>Quiero calcular</th><th>Fórmula</th></tr>
+    <tr><td>Tensión</td><td>V = I × R</td></tr>
+    <tr><td>Intensidad</td><td>I = V ∕ R</td></tr>
+    <tr><td>Resistencia</td><td>R = V ∕ I</td></tr>
+  </table>
+  <div class="callout">
+    <b>Ejemplo:</b> si un componente tiene 6 Ω de resistencia y le aplicamos 12V, la corriente que circula es I = 12 ∕ 6 = <b>2 A</b>.
+  </div>
+</div>
+
+<h2><span class="num">2</span> Potencia eléctrica — P = V × I</h2>
+<div class="card">
+  <p>La potencia es la cantidad de energía que un circuito consume (o entrega) por unidad de tiempo. Se mide en <b>vatios (W)</b>:</p>
+  <div class="formula">
+    P = V × I
+    <small>P = potencia (vatios, W) · V = tensión (V) · I = intensidad (A)</small>
+  </div>
+  <p>Combinando esta fórmula con la ley de Ohm se obtienen dos variantes muy útiles, sobre todo cuando no conoces uno de los tres datos:</p>
+  <div class="grid2">
+    <div class="formula">P = I² × R<small>si conoces la corriente y la resistencia</small></div>
+    <div class="formula">P = V² ∕ R<small>si conoces la tensión y la resistencia</small></div>
+  </div>
+  <div class="callout">
+    <b>En un PC:</b> la potencia total que consume el equipo (CPU + GPU + ventiladores + discos...) es la suma de la potencia de cada raíl (12V, 5V, 3,3V). Por eso las fuentes de alimentación se etiquetan en vatios (ej. "650W") — es el límite de potencia total que pueden entregar de forma continua.
+  </div>
+</div>
+
+<h2><span class="num">3</span> Corriente continua (DC) vs. corriente alterna (AC)</h2>
+<div class="card">
+  <p>La diferencia está en cómo se comporta la tensión a lo largo del tiempo:</p>
+
+  <div class="grid2">
+    <div>
+      <span class="tag blue">Corriente continua — DC</span>
+      <p style="font-size:0.88rem">La tensión mantiene siempre el mismo signo y (idealmente) el mismo valor. Es la que usan los componentes electrónicos internos: CPU, RAM, chipset, discos...</p>
+    </div>
+    <div>
+      <span class="tag orange">Corriente alterna — AC</span>
+      <p style="font-size:0.88rem">La tensión cambia de signo periódicamente (en España, 50 veces por segundo → 50 Hz), formando una onda senoidal. Es la que llega del enchufe de casa (230V AC).</p>
+    </div>
+  </div>
+
+  <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+    <line x1="20" y1="100" x2="620" y2="100" stroke="#5a6167" stroke-width="1"/>
+    <line x1="20" y1="20" x2="20" y2="180" stroke="#5a6167" stroke-width="1"/>
+    <!-- DC line -->
+    <line x1="30" y1="55" x2="300" y2="55" stroke="#63b3ff" stroke-width="4"/>
+    <text x="165" y="42" text-anchor="middle" fill="#63b3ff" font-size="13" font-weight="700">DC (continua)</text>
+    <!-- AC wave -->
+    <path d="M 330 100 C 355 40, 385 40, 410 100 C 435 160, 465 160, 490 100 C 515 40, 545 40, 570 100 C 595 160, 605 160, 610 130"
+          fill="none" stroke="#ffb347" stroke-width="4"/>
+    <text x="470" y="42" text-anchor="middle" fill="#ffb347" font-size="13" font-weight="700">AC (alterna)</text>
+    <text x="620" y="115" text-anchor="end" fill="#9db3a6" font-size="11">tiempo</text>
+    <text x="14" y="24" text-anchor="end" fill="#9db3a6" font-size="11">V</text>
+  </svg>
+
+  <div class="callout">
+    <b>Por qué importa en un PC:</b> la <b>fuente de alimentación (PSU)</b> tiene como trabajo justamente convertir la corriente alterna de 230V que llega del enchufe en corriente continua estable de 12V, 5V y 3,3V — que es lo que necesitan la placa base, la CPU y el resto de componentes. A ese proceso se le llama <b>rectificación</b> (AC → DC), y luego el <b>VRM</b> de la placa base vuelve a regular esos 12V hasta el voltaje exacto que pide cada chip (por ejemplo, ~1,2V para el núcleo de la CPU).
+  </div>
+</div>
+
+<h2><span class="num">4</span> Cómo encaja todo junto</h2>
+<div class="card">
+  <p>Resumen del recorrido de la energía en un PC, de fuera hacia dentro:</p>
+  <table>
+    <tr><th>Etapa</th><th>Tipo de corriente</th><th>Tensión aprox.</th></tr>
+    <tr><td>Enchufe de pared</td><td>AC</td><td>230V (España)</td></tr>
+    <tr><td>Fuente de alimentación (PSU)</td><td>AC → DC (rectifica)</td><td>salida: 12V / 5V / 3,3V DC</td></tr>
+    <tr><td>VRM de la placa base</td><td>DC → DC (regula)</td><td>ej. ~1,2V para el núcleo de la CPU</td></tr>
+    <tr><td>CPU / RAM / chipset</td><td>DC</td><td>según el componente</td></tr>
+  </table>
+  <p>Y en cada una de esas etapas se cumple la ley de Ohm y la fórmula de potencia: la PSU tiene que ser capaz de entregar la potencia (P = V × I) que la suma de todos los componentes va a consumir, sin superar su límite en vatios.</p>
+</div>
+
+<p style="text-align:center; margin-top:24px;">
+  Esto complementa la <label class="switch-link" for="tab-radio-placa">placa base interactiva</label>, donde puedes ver estos raíles (12V/5V/3,3V) animados sobre una foto real.
+</p>
+
+</div>
+</div>
+<footer>Material educativo — 1º ASIR · Fundamentos de Hardware. Las animaciones representan flujo lógico, no electricidad real visible.</footer>
+
+<script src="js/script.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,134 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #2e7d32; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Práctica · Windows</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Red TCP/IP en el cliente Windows 11</h2>
+</div>
+
+<div style="background: #eaf7ea; border-left: 5px solid #2e7d32; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Situación:</strong> el ordenador de la oficina de la Ferretería Aragón usa Windows 11. Debe tener IP fija en la red de la tienda, ver al servidor y al puesto Ubuntu del mostrador, y seguir saliendo a Internet.</p>
+  <p style="margin: 6px 0 0 0;"><strong>Entrega:</strong> un PDF en la tarea de Aeducar (ver apartado «Qué entregas»).</p>
+</div>
+
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Datos</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0 20px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Adaptador</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Configuración</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ethernet · Adaptador 1 · NAT</td><td style="padding: 8px; border: 1px solid #ccc;">Automática (no se toca)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ethernet 2 · Adaptador 2 · Red interna <code>ferreteria</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP <code>192.168.100.51</code> · Máscara <code>255.255.255.0</code> · <strong>sin puerta de enlace</strong> · DNS <code>8.8.8.8</code>, <code>8.8.4.4</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Equipos para las pruebas</td><td style="padding: 8px; border: 1px solid #ccc;">Ubuntu Server <code>192.168.100.10</code> · Ubuntu Desktop <code>192.168.100.50</code></td></tr>
+</table>
+
+<div style="background: #fdecea; border-left: 5px solid #c0392b; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Antes de empezar, guarda cómo está tu red ahora</strong>, por si tienes que volver atrás:</p>
+  <pre style="background: #012456; color: #eeedf0; padding: 10px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; margin: 8px 0;">ipconfig /all &gt; "$HOME\estado-inicial-red.txt"</pre>
+  <p style="margin: 0;"><strong>No toques el adaptador «Ethernet» (NAT).</strong> Si pierdes Internet porque lo cambiaste por error, devuélvelo a automático en una Terminal (Administrador):</p>
+  <pre style="background: #012456; color: #eeedf0; padding: 10px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; margin: 8px 0 0 0;">netsh interface ipv4 set address name="Ethernet" dhcp
+netsh interface ipv4 set dnsservers name="Ethernet" dhcp</pre>
+</div>
+
+<!-- M1 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 1 · Adaptador 2 y situación inicial</h3>
+<ol>
+  <li>Con la VM <strong>apagada</strong>: VirtualBox → Configuración → Red → <strong>Adaptador 2</strong> → Habilitar → <strong>Red interna</strong> → <code>ferreteria</code>.</li>
+  <li>Arranca y ejecuta <code>ipconfig /all</code>. Identifica qué adaptador es el NAT y cuál el interno. Anota la IP que tiene el interno y explica qué es.</li>
+</ol>
+
+<!-- M2 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 2 · IP fija con la interfaz gráfica</h3>
+<p>Configuración → Red e Internet → Ethernet → <strong>Ethernet 2</strong> → Asignación de IP → Editar → Manual → IPv4. Pon los datos de la tabla. Deja la puerta de enlace <strong>vacía</strong>.</p>
+
+<!-- M3 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 3 · Lo mismo por comandos</h3>
+<p>Ahora demuestra que sabes hacerlo sin ratón. Abre <strong>Terminal (Administrador)</strong>, vuelve el adaptador a DHCP y configúralo de nuevo con <code>netsh</code>:</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">netsh interface ipv4 set address name="Ethernet 2" dhcp
+netsh interface ipv4 set dnsservers name="Ethernet 2" dhcp
+ipconfig                                   # debe volver a 169.254.x.x
+netsh interface ipv4 set address name="Ethernet 2" static 192.168.100.51 255.255.255.0
+netsh interface ipv4 set dnsservers name="Ethernet 2" static 8.8.8.8 primary
+netsh interface ipv4 add dnsservers name="Ethernet 2" 8.8.4.4 index=2
+netsh interface ipv4 show config name="Ethernet 2"</pre>
+<p style="font-size: 13px; color: #555;">Si tu adaptador tiene otro nombre, cópialo de <code>Get-NetAdapter</code>.</p>
+
+<!-- M4 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 4 · Permitir el ping desde la red de la tienda</h3>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px;">netsh advfirewall firewall add rule name="Ping ferreteria" protocol=icmpv4:8,any dir=in action=allow remoteip=192.168.100.0/24</pre>
+<p>Desde el <strong>Ubuntu Desktop</strong> comprueba que ahora Windows responde: <code>ping -c 4 192.168.100.51</code>.</p>
+
+<!-- M5 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 5 · Verificación</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 34%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Debes ver</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ipconfig /all</code></td><td style="padding: 8px; border: 1px solid #ccc;">Ethernet 2: DHCP no, <code>192.168.100.51</code>, <code>255.255.255.0</code>, sin puerta de enlace, DNS 8.8.8.8 y 8.8.4.4</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>route print -4</code></td><td style="padding: 8px; border: 1px solid #ccc;">Una sola ruta <code>0.0.0.0</code>, por <code>10.0.2.2</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>(0% perdidos)</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 192.168.100.50</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>(0% perdidos)</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>(0% perdidos)</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code></td><td style="padding: 8px; border: 1px solid #ccc;">Direcciones de google.com</td></tr>
+</table>
+<p>Después <strong>reinicia</strong> Windows y comprueba con <code>ipconfig</code> que la IP se mantiene.</p>
+
+<!-- M6 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 6 · Generar el archivo de evidencias</h3>
+<p>Después de reiniciar, abre <strong>Terminal (Administrador)</strong> con PowerShell, pega este bloque <strong>entero</strong> y pulsa Intro. Genera <code>red_windows_&lt;equipo&gt;.txt</code> en tu carpeta de usuario:</p>
+<pre style="background: #012456; color: #eeedf0; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 12px; line-height: 1.5;">$f = "$HOME\red_windows_$env:COMPUTERNAME.txt"
+$r = &amp; {
+"##### CABECERA"; whoami; hostname; Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+"##### W1 ADAPTADORES"; Get-NetAdapter | Format-Table Name,InterfaceDescription,Status,MacAddress -AutoSize
+"##### W2 IPCONFIG"; ipconfig /all
+"##### W3 IPV4"; Get-NetIPAddress -AddressFamily IPv4 | Format-Table InterfaceAlias,IPAddress,PrefixLength,PrefixOrigin -AutoSize
+"##### W4 RUTAS"; route print -4
+"##### W5 DNS"; Get-DnsClientServerAddress -AddressFamily IPv4 | Format-Table InterfaceAlias,ServerAddresses -AutoSize
+"##### W6 PING_LAN"; ping -n 4 192.168.100.10; ping -n 4 192.168.100.50
+"##### W7 PING_INTERNET"; ping -n 4 8.8.8.8
+"##### W8 NSLOOKUP"; cmd /c "nslookup google.com 2&gt;&amp;1"
+"##### W9 FIREWALL"; netsh advfirewall firewall show rule name="Ping ferreteria"
+"##### W10 ARRANQUE"; (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+"##### FIN"
+} | Out-String -Width 200
+$r; $r | Out-File -FilePath $f -Encoding utf8; "Guardado en $f"</pre>
+<p><strong>No edites el archivo generado.</strong> Si algo sale mal, corrige y vuelve a ejecutar el bloque completo.</p>
+
+<!-- ENTREGA -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Qué entregas</h3>
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 10px 14px; margin: 10px 0; border-radius: 4px;"><strong>Usa la plantilla de entrega</strong> (<code>plantilla-entrega-practicas.html</code>, en el curso de Aeducar). Elige «Red TCP/IP en el cliente · Windows»: los apartados ya vienen con su título, pegas las capturas con Ctrl+V, cargas el <code>.txt</code> en el Anexo y la guardas como PDF.</div>
+<p>Un único PDF llamado <code>RedWindows_Apellido_Nombre.pdf</code> con estos apartados, <strong>en este orden y con estos títulos</strong>:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 20%;">Título</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Contenido</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>W0 Datos</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Apellidos, nombre, grupo y fecha.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>W1 Situación inicial</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de <code>ipconfig /all</code> antes de configurar y explicación de la IP del adaptador interno.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>W2 Gráfico</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de la ventana de edición de IP con los datos puestos.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>W3 netsh</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de la terminal con los comandos de la misión 3 y su resultado.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>W4 Firewall</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura del ping <strong>desde Ubuntu</strong> a <code>192.168.100.51</code> con respuesta.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>W5 Verificación</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Una captura por cada comando de la misión 5, con una frase debajo que explique qué demuestra.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>W6 Incidencias</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Errores que te salieron y cómo los resolviste (o «Sin incidencias»).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Anexo</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Contenido completo de <code>red_windows_&lt;equipo&gt;.txt</code> pegado <strong>como texto</strong> (no como imagen), con letra monoespaciada.</td></tr>
+</table>
+
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Rúbrica</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Criterio</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: center; width: 15%;">Puntos</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Situación inicial identificada (NAT, interno, APIPA explicado)</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Ethernet 2 estática: IP, máscara, sin puerta de enlace, DNS (gráfico y <code>netsh</code>)</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">3</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Una sola ruta por defecto (por el NAT)</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Conectividad: servidor, Ubuntu Desktop, Internet y DNS</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">2</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Regla de firewall limitada a la red y ping desde Ubuntu</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Persistencia tras reinicio</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Explicaciones, incidencias y estructura del PDF</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #eaf7ea;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Total</strong></td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;"><strong>10</strong></td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">Sin el anexo de texto la práctica se califica como máximo con un 5.</p>
+
+</div>

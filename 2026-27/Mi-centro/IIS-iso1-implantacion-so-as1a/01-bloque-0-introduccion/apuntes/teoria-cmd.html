@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CMD · El Símbolo del Sistema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F3EFE5; --cream-panel:#FFFFFF; --navy:#182A45; --navy-2:#24385A;
+    --orange:#E0813C; --orange-dark:#B85F22; --ink:#22282F; --ink-soft:#5B6470;
+    --line:#DDD5C2; --deep:#182A45; --on-deep:#F3EFE5;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+      --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream:#171B21; --cream-panel:#20252D; --navy:#EDE7D9; --navy-2:#C9CFDA;
+    --ink:#EDEBE3; --ink-soft:#A9AFB9; --line:#333A44; --orange:#E79458; --orange-dark:#F0A96C;
+  }
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  html,body{height:100%;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:"Space Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px 70px;}
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+
+  header.hero{background:var(--deep);color:var(--on-deep);padding:50px 24px 32px;position:relative;overflow:hidden;}
+  header.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+    background:radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 70%);opacity:.35;}
+  .hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;}
+  .eyebrow-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;}
+  .pill{border:1px solid rgba(243,239,229,.35);color:var(--on-deep);padding:5px 12px;border-radius:999px;font-size:.78rem;}
+  .pill.solid{background:var(--orange);border-color:var(--orange);color:#241305;font-weight:600;}
+  h1{font-size:clamp(1.7rem,3.6vw,2.4rem);line-height:1.16;margin:0 0 10px;font-weight:700;letter-spacing:-.01em;}
+  .hero-sub{max-width:64ch;color:#D9D2BE;font-size:1rem;margin:0;}
+
+  section{padding:38px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;color:var(--orange-dark);font-weight:600;font-size:.9rem;}
+  h2{font-size:1.35rem;margin:0;color:var(--navy);font-weight:700;}
+  h3{font-size:1.05rem;color:var(--navy);margin:22px 0 10px;font-weight:600;}
+  p{color:var(--ink);margin:0 0 13px;}
+  .lede{color:var(--ink-soft);font-size:.97rem;max-width:70ch;}
+
+  .card{background:var(--cream-panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:14px 0;}
+  .term{background:#1B1F27;color:#DCE4E8;border-radius:8px;padding:13px 15px;font-family:"IBM Plex Mono",monospace;
+    font-size:.85rem;overflow-x:auto;white-space:pre;border:1px solid #2C3341;margin:12px 0;}
+  .term .c{color:#8FB99A;} .term .p{color:#E7B97E;} .term .k{color:#7FB0DE;}
+
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius);margin:14px 0;}
+  table{width:100%;border-collapse:collapse;background:var(--cream-panel);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;font-size:.86rem;}
+  th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;}
+  th:last-child,td:last-child{border-right:none;}
+  thead th{background:var(--deep);color:var(--on-deep);font-size:.72rem;font-weight:600;font-family:"IBM Plex Mono",monospace;letter-spacing:.02em;}
+  tbody tr:last-child td{border-bottom:none;}
+  td code{background:var(--cream);padding:1px 6px;border-radius:4px;font-size:.85em;color:var(--navy);}
+
+  .callout{display:flex;gap:10px;align-items:flex-start;background:#F7E6DC;border:1px solid #E7C4AF;
+    color:#6B3418;border-radius:10px;padding:13px 15px;font-size:.9rem;margin:14px 0;}
+  @media (prefers-color-scheme: dark){.callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}}
+  :root[data-theme="dark"] .callout{background:#3A281F;border-color:#5A3B28;color:#EFC3A6;}
+
+  .catbadge{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.68rem;font-weight:600;
+    padding:3px 9px;border-radius:6px;background:#DCE7DE;color:#2A5A3B;margin-bottom:10px;}
+  @media (prefers-color-scheme: dark){.catbadge{background:#243A2C;color:#9FD6AF;}}
+  :root[data-theme="dark"] .catbadge{background:#243A2C;color:#9FD6AF;}
+
+  footer{max-width:900px;margin:0 auto;padding:24px;color:var(--ink-soft);font-size:.8rem;text-align:center;}
+  .print-btn{display:inline-flex;align-items:center;gap:8px;background:var(--deep);color:var(--on-deep);
+    border:none;padding:10px 18px;border-radius:8px;font-family:"Space Grotesk";font-size:.88rem;font-weight:600;cursor:pointer;}
+  @media print{header.hero::after{display:none;}.print-btn{display:none;}section{break-inside:avoid;}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow-row">
+      <span class="pill solid">Módulo ISO · 0369</span>
+      <span class="pill">1º ASIR</span>
+      <span class="pill">Apoyo a RA2 · Windows</span>
+    </div>
+    <h1>CMD · El Símbolo del Sistema</h1>
+    <p class="hero-sub">Antes de la tabla de comandos: qué es, de dónde viene y cómo se construye una orden. La chuleta va al final — primero la teoría.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. QUE ES -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>¿Qué es CMD?</h2></div>
+    <p class="lede"><span class="mono">cmd.exe</span> es el intérprete de línea de comandos de Windows: un programa que lee texto que escribes, lo interpreta como una orden y la ejecuta. Es el heredero directo del intérprete de <b>MS-DOS</b> (COMMAND.COM) — por eso muchos comandos (<code>dir</code>, <code>copy</code>, <code>cd</code>) tienen 40 años de antigüedad y siguen funcionando igual.</p>
+    <p class="lede">No confundas la "ventana negra" con el sistema operativo: CMD es solo una <b>aplicación más</b> que Windows ejecuta, igual que Word o el Explorador de archivos. Lo que la hace especial es que, en vez de botones, su interfaz es texto — es la <b>CLI</b> (interfaz de línea de comandos) que vimos frente a la GUI en la sesión de arquitectura.</p>
+    <div class="callout">
+      <div><b>¿Por qué seguir usando algo de los 80?</b> Porque un comando de texto se puede automatizar (guardarlo en un script <code>.bat</code>), ejecutar en remoto sin necesidad de vídeo, y repetir miles de veces sin margen de error humano — justo lo que necesita un administrador de sistemas.</div>
+    </div>
+  </section>
+
+  <!-- 2. SINTAXIS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Anatomía de un comando</h2></div>
+    <p class="lede">Todo comando de CMD sigue la misma estructura: el propio comando, argumentos (sobre qué actúa) y modificadores que cambian su comportamiento — en CMD, los modificadores casi siempre empiezan por <code>/</code>, no por <code>-</code> como en Linux.</p>
+    <div class="term"><span class="k">comando</span> <span class="c">argumento</span> <span class="p">/modificador</span>
+<span class="k">dir</span> <span class="c">C:\Usuarios</span> <span class="p">/a /s</span>
+<span class="mono" style="color:#8B93A0;">   └─ comando   └─ dónde actuar   └─ modificadores: /a (mostrar ocultos), /s (subcarpetas)</span></div>
+    <p class="lede">Para saber qué hace cualquier comando sin memorizar nada, añade <code>/?</code> al final — es la ayuda incorporada, siempre disponible sin conexión:</p>
+    <div class="term">$ <span class="c">ipconfig /?</span></div>
+  </section>
+
+  <!-- 3. NAVEGACION -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>Navegación y sistema de archivos</h2></div>
+    <p class="lede">CMD trabaja siempre desde un <b>directorio actual</b> (lo ves al principio de la línea, como <code>C:\Usuarios\Alumno&gt;</code>). Todo comando relativo a archivos actúa ahí salvo que le indiques una ruta completa.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Comando</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>cd</code></td><td>Cambia de directorio (o lo muestra, sin argumentos)</td><td><code>cd Documentos</code></td></tr>
+          <tr><td><code>dir</code></td><td>Lista el contenido del directorio actual</td><td><code>dir /a</code></td></tr>
+          <tr><td><code>md</code> / <code>mkdir</code></td><td>Crea un directorio nuevo</td><td><code>md Proyectos</code></td></tr>
+          <tr><td><code>rd</code> / <code>rmdir</code></td><td>Elimina un directorio (vacío, salvo con <code>/s</code>)</td><td><code>rd /s Temp</code></td></tr>
+          <tr><td><code>copy</code></td><td>Copia uno o varios archivos</td><td><code>copy a.txt b.txt</code></td></tr>
+          <tr><td><code>move</code></td><td>Mueve o renombra archivos/carpetas</td><td><code>move a.txt Docs\</code></td></tr>
+          <tr><td><code>del</code></td><td>Elimina archivos (irreversible, sin papelera)</td><td><code>del *.tmp</code></td></tr>
+          <tr><td><code>tree</code></td><td>Dibuja el árbol de carpetas</td><td><code>tree /f</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 4. INFO SISTEMA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Información del sistema</h2></div>
+    <p class="lede">Estos son justo los comandos de la actividad "Preparando despliegue" que visteis en las slides de arquitectura — la base para cualquier informe técnico de un equipo.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Comando</th><th>Qué hace</th><th>Por qué importa</th></tr></thead>
+        <tbody>
+          <tr><td><code>systeminfo</code></td><td>Vuelca un informe completo: SO, versión, arquitectura, RAM, hotfixes instalados</td><td>El primer comando que ejecutas al llegar a un equipo desconocido</td></tr>
+          <tr><td><code>hostname</code></td><td>Muestra el nombre del equipo</td><td>Identificarlo en la red y en el dominio</td></tr>
+          <tr><td><code>ver</code></td><td>Muestra la versión exacta de Windows</td><td>Saber qué compatibilidades/parches aplican</td></tr>
+          <tr><td><code>whoami</code></td><td>Muestra el usuario con el que has iniciado sesión</td><td>Confirmar con qué privilegios estás actuando</td></tr>
+          <tr><td><code>whoami /priv</code></td><td>Lista los privilegios del usuario actual</td><td>Diagnóstico de permisos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">Un ejemplo real de <code>systeminfo</code> — fijaos en que ya solo con las 5 primeras líneas tenéis material para un informe de inventario:</p>
+    <div class="term">C:\Usuarios\Alumno&gt; <span class="c">systeminfo</span>
+
+<span class="k">Nombre de host:</span>                 PC-AULA-07
+<span class="k">Nombre del sistema operativo:</span>   Microsoft Windows 11 Pro
+<span class="k">Versión del sistema:</span>            10.0.22631 N/D compilación 22631
+<span class="k">Tipo de sistema:</span>                x64-based PC
+<span class="k">Memoria física total:</span>           8.145 MB</div>
+
+    <p class="lede">Y <code>whoami /priv</code> te enseña algo que la GUI esconde: el conjunto exacto de privilegios que tiene tu sesión ahora mismo, no solo si eres "administrador" o no:</p>
+    <div class="term">C:\Usuarios\Alumno&gt; <span class="c">whoami /priv</span>
+
+<span class="k">Información de privilegios</span>
+------------------------------------------
+Nombre de privilegio             Descripción                    Estado
+================================= =============================== ========
+SeShutdownPrivilege               Apagar el sistema               Deshabilitado
+SeChangeNotifyPrivilege           Omitir comprobación de recorrido Habilitado</div>
+  </section>
+
+  <!-- 5. RED -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Red — imprescindibles para RA2</h2></div>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Comando</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>ipconfig</code></td><td>Muestra la configuración IP de los adaptadores de red</td><td><code>ipconfig</code></td></tr>
+          <tr><td><code>ipconfig /all</code></td><td>Versión extendida: MAC, DNS, DHCP, puerta de enlace</td><td><code>ipconfig /all</code></td></tr>
+          <tr><td><code>ping</code></td><td>Comprueba conectividad con otro equipo</td><td><code>ping 8.8.8.8</code></td></tr>
+          <tr><td><code>tracert</code></td><td>Muestra la ruta de saltos hasta un destino</td><td><code>tracert claude.ai</code></td></tr>
+          <tr><td><code>netstat -an</code></td><td>Lista conexiones y puertos abiertos</td><td><code>netstat -an | find "LISTENING"</code></td></tr>
+          <tr><td><code>nslookup</code></td><td>Consulta la resolución de nombres DNS</td><td><code>nslookup aeducar.aragon.es</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">Este es justo el comando con el que comprobaríais en la práctica survival si vuestra VM quedó bien configurada en modo <b>NAT</b> (fijaos en la IP privada típica de NAT, <code>10.0.2.x</code>):</p>
+    <div class="term">C:\Usuarios\Alumno&gt; <span class="c">ipconfig</span>
+
+<span class="k">Adaptador de Ethernet:</span>
+   Sufijo DNS específico para la conexión. . :
+   Dirección IPv4. . . . . . . . . . . . . . : 10.0.2.15
+   Máscara de subred . . . . . . . . . . . . : 255.255.255.0
+   Puerta de enlace predeterminada. . . . . . : 10.0.2.2</div>
+
+    <p class="lede">Y así comprobaríais que hay salida real a Internet, no solo que la IP está bien puesta:</p>
+    <div class="term">C:\Usuarios\Alumno&gt; <span class="c">ping 8.8.8.8</span>
+
+Haciendo ping a 8.8.8.8 con 32 bytes de datos:
+Respuesta desde 8.8.8.8: bytes=32 tiempo=14ms TTL=115
+Respuesta desde 8.8.8.8: bytes=32 tiempo=13ms TTL=115
+
+Estadísticas de ping para 8.8.8.8:
+    Paquetes: enviados = 4, recibidos = 4, perdidos = 0 (0% perdidos)</div>
+  </section>
+
+  <!-- 6. USUARIOS -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Usuarios, grupos y procesos</h2></div>
+    <p class="lede">La familia <code>net</code> es de las más potentes de CMD: gestiona cuentas, grupos y recursos compartidos sin abrir ninguna ventana gráfica.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Comando</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>net user</code></td><td>Lista, crea o modifica cuentas de usuario locales</td><td><code>net user Alumno Passw0rd! /add</code></td></tr>
+          <tr><td><code>net localgroup</code></td><td>Gestiona grupos locales</td><td><code>net localgroup Administradores Alumno /add</code></td></tr>
+          <tr><td><code>tasklist</code></td><td>Lista los procesos en ejecución</td><td><code>tasklist /svc</code></td></tr>
+          <tr><td><code>taskkill</code></td><td>Termina un proceso por nombre o PID</td><td><code>taskkill /IM notepad.exe /F</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="lede">Así confirma CMD que la cuenta se ha creado — sin confirmación no hay forma de saber si el comando funcionó, por eso conviene comprobarlo siempre con <code>net user</code> a secas después:</p>
+    <div class="term">C:\Usuarios\Alumno&gt; <span class="c">net user Alumno Passw0rd! /add</span>
+Se ha completado el comando correctamente.
+
+C:\Usuarios\Alumno&gt; <span class="c">net user</span>
+
+Cuentas de usuario de \\PC-AULA-07
+
+-------------------------------------------------------------------------
+Administrador            Alumno                   DefaultAccount
+Invitado                 WDAGUtilityAccount
+El comando se completó correctamente.</div>
+  </section>
+
+  <!-- 7. REDIRECCION -->
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><h2>Encadenar y redirigir: la potencia real de la CLI</h2></div>
+    <p class="lede">Aquí es donde CMD deja de ser "escribir comandos sueltos" y empieza a ser una herramienta de automatización.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Operador</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>&gt;</code></td><td>Redirige la salida a un archivo (lo sobrescribe)</td><td><code>ipconfig &gt; red.txt</code></td></tr>
+          <tr><td><code>&gt;&gt;</code></td><td>Igual, pero añade al final sin borrar lo anterior</td><td><code>systeminfo &gt;&gt; informe.txt</code></td></tr>
+          <tr><td><code>&&</code></td><td>Ejecuta el segundo comando solo si el primero funciona</td><td><code>cd Docs && dir</code></td></tr>
+          <tr><td><code>|</code></td><td>Envía la salida de un comando como entrada del siguiente</td><td><code>tasklist | find "chrome"</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lede">Esto es exactamente lo que hacía el reto de la primera sesión: <code>hostname && ver</code> — dos comandos encadenados en una sola línea.</p>
+  </section>
+
+  <!-- 8. CHULETA -->
+  <section>
+    <div class="sec-head"><span class="sec-num">08</span><h2>Chuleta rápida</h2></div>
+    <p class="lede">Ahora sí, el resumen para consulta rápida — pero ya sabiendo qué hay detrás de cada comando.</p>
+    <div class="scrollx">
+      <table>
+        <thead><tr><th>Categoría</th><th>Comandos</th></tr></thead>
+        <tbody>
+          <tr><td><span class="catbadge">Archivos</span></td><td><code>cd</code> · <code>dir</code> · <code>md</code> · <code>rd</code> · <code>copy</code> · <code>move</code> · <code>del</code> · <code>tree</code></td></tr>
+          <tr><td><span class="catbadge">Sistema</span></td><td><code>systeminfo</code> · <code>hostname</code> · <code>ver</code> · <code>whoami</code></td></tr>
+          <tr><td><span class="catbadge">Red</span></td><td><code>ipconfig</code> · <code>ping</code> · <code>tracert</code> · <code>netstat</code> · <code>nslookup</code></td></tr>
+          <tr><td><span class="catbadge">Usuarios</span></td><td><code>net user</code> · <code>net localgroup</code> · <code>tasklist</code> · <code>taskkill</code></td></tr>
+          <tr><td><span class="catbadge">Ayuda</span></td><td><code>comando /?</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / guardar como PDF</button>
+  <p style="margin-top:16px;">Módulo ISO (0369) · 1º ASIR · Ver también: PowerShell — el sucesor de CMD</p>
+</footer>
+
+</body>
+</html>

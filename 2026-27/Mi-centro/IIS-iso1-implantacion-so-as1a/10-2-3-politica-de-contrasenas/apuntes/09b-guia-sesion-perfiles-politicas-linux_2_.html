@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de sesión: perfiles y políticas de contraseñas en Linux — ISO UD2</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+html{scroll-padding-top:56px}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Ubuntu,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+kbd{font-family:inherit;font-size:.85em;background:#fff;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5;max-width:100%}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step > div{min-width:0;flex:1}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+details{margin:.5em 0}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+td code,li code,p code,.info code{overflow-wrap:anywhere}
+.total td,.total th{font-weight:700}
+del{color:var(--muted);text-decoration-thickness:2px}
+.nuevo{display:inline-block;background:var(--green);color:#fff;border-radius:999px;padding:0 8px;font-size:.78rem;font-weight:700;margin-right:4px}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}th,td{padding:6px 7px}td code{word-break:break-all}pre{font-size:.82rem;padding:10px 12px}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}.step input{display:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="k">&gt; module ISO 0369 · UD2 · RA2</div>
+  <h1>Perfiles de usuario y políticas de contraseñas en Linux</h1>
+  <p>Guía de la sesión: lo mismo que hiciste en Windows, ahora en Linux. Qué hacer, en qué orden, cómo comprobarlo y qué entregar.</p>
+  <div class="pills"><span class="pill">1.º ASIR · I.E.S. Pablo Serrano · 2026/27</span><span class="pill">Una sesión + remate en casa</span><span class="pill">Vitalinux / Ubuntu</span><span class="pill">Entrega en PDF</span></div>
+</div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+<div class="wrap">
+
+<div class="card">
+  <h2>Qué vas a aprender</h2>
+  <ul>
+    <li>Dónde está el <b>perfil</b> de un usuario en Linux, de qué plantilla sale y <b>cuándo</b> se crea.</li>
+    <li>Cómo preparar lo que recibirán los <b>usuarios nuevos</b> y cómo dar de baja a alguien sin dejar restos.</li>
+    <li>Cómo configurar <b>longitud mínima, vigencia y bloqueo</b> de contraseñas y <b>comprobar</b> que funcionan.</li>
+  </ul>
+  <h3>Antes de empezar</h3>
+  <ul>
+    <li>Tu VM <b>Vitalinux</b> (o Ubuntu) arranca y tu usuario puede usar <code>sudo</code>.</li>
+    <li><del>Haz una instantánea en VirtualBox.</del><br><span class="nuevo">Cambio</span><b>Ya no hace falta hacer instantáneas.</b> En su lugar, antes de cada cambio delicado harás una copia del archivo que vas a tocar (<code>.bak</code>), y si te quedas sin poder entrar tienes el modo de recuperación en las dudas frecuentes.</li>
+    <li>Abre una <b>terminal</b> (<kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>).</li>
+    <li>Pon a tu VM un nombre con tu apellido. Así aparecerá en todas tus capturas de la entrega:<pre>sudo hostnamectl set-hostname iso-tuapellido</pre><span class="muted">Cierra y vuelve a abrir la terminal para que el nombre aparezca en el indicador (<code>usuario@iso-tuapellido</code>).</span></li>
+  </ul>
+  <div class="warn"><b>Equipos del aula:</b> los Vitalinux del instituto se gestionan de forma centralizada y pueden deshacer tus cambios. Trabaja <b>siempre en la máquina virtual</b>.</div>
+</div>
+
+<div class="card">
+  <h2>Parte 1 · Cuentas y grupos <span class="time">15 min</span></h2>
+  <p>Crea las mismas cuentas y grupos que tienes en Windows. En Linux los nombres se escriben en <b>minúsculas</b>.</p>
+  <div class="step"><input type="checkbox"><div>Crea los grupos:<pre>sudo addgroup contabilidad
+sudo addgroup direccion
+sudo addgroup almacen
+sudo addgroup becarios</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Crea los usuarios (pon <code>Asir2026.</code> como contraseña y pulsa Intro en el resto de preguntas) y añádelos a su grupo:<pre>sudo adduser ana
+sudo adduser luis
+sudo adduser marta
+sudo adduser pedro
+sudo adduser ana contabilidad      <i># añade ana al grupo contabilidad</i>
+sudo adduser luis becarios</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Comprueba que todo está bien:<pre>getent passwd ana luis marta pedro   <i># las cuentas</i>
+getent group contabilidad becarios   <i># los grupos y sus miembros</i>
+id ana                               <i># UID, grupo principal y grupos de ana</i></pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 En Windows el usuario se identifica por su SID. ¿Y en Linux? <small>(clic para ver la respuesta)</small><div class="ans">Por su <b>UID</b>, un número. Es el tercer campo de la línea en <code>/etc/passwd</code>. Los usuarios normales empiezan en el 1000; root es el 0.</div></div>
+</div>
+
+<div class="card">
+  <h2>Parte 2 · Perfiles locales <span class="time">30 min</span></h2>
+  <h3>Lo esencial</h3>
+  <ul>
+    <li>El perfil es la carpeta <code>/home/usuario</code>. Se crea <b>al crear la cuenta</b> con <code>adduser</code>, copiando la plantilla <code>/etc/skel</code>. (En Windows se creaba en el primer inicio de sesión.)</li>
+    <li>Dentro: <code>Escritorio</code>, <code>Documentos</code>, <code>Descargas</code> y archivos <b>ocultos</b> que empiezan por punto: <code>.bashrc</code>, <code>.profile</code>, <code>.config</code> (configuración de programas), <code>.cache</code> (temporales).</li>
+    <li>En Linux <b>no hay registro</b>: la configuración son archivos de texto dentro del perfil.</li>
+    <li>Borrar la <b>cuenta</b> no borra el <b>perfil</b>.</li>
+  </ul>
+  <table>
+    <tr><th>Windows</th><th>Linux</th></tr>
+    <tr><td><code>%USERPROFILE%</code> → C:\Users\usuario</td><td><code>$HOME</code> o <code>~</code> → /home/usuario</td></tr>
+    <tr><td><code>%APPDATA%</code> → AppData\Roaming</td><td><code>~/.config</code></td></tr>
+    <tr><td><code>%LOCALAPPDATA%</code> → AppData\Local</td><td><code>~/.local</code> y <code>~/.cache</code></td></tr>
+    <tr><td><code>C:\Users\Default</code></td><td><code>/etc/skel</code></td></tr>
+  </table>
+
+  <h3>Misión A · Anatomía de un perfil</h3>
+  <div class="step"><input type="checkbox"><div><b>Sin iniciar sesión</b> con ana ni luis, mira qué carpetas hay en <code>/home</code>:<pre>ls -la /home</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ana nunca ha iniciado sesión, pero su carpeta ya existe. ¿Por qué? <small>(clic)</small><div class="ans">Porque en Linux el perfil se crea <b>al crear la cuenta</b> (<code>adduser</code> copia <code>/etc/skel</code> en ese momento). En Windows no existiría hasta su primer inicio de sesión.</div></div>
+  <div class="step"><input type="checkbox"><div>Mira tus datos y relaciona el <b>UID</b> con la carpeta:<pre>echo $HOME
+id
+ls -l /home       <i># el dueño aparece con su nombre</i>
+ls -ln /home      <i># el dueño aparece con su número (UID)</i></pre></div></div>
+  <div class="step"><input type="checkbox"><div>Mira la plantilla y tu propio perfil, con los archivos ocultos:<pre>ls -la /etc/skel
+ls -la ~</pre></div></div>
+
+  <h3>Misión B · La plantilla de perfil</h3>
+  <p>La empresa quiere que <b>todo usuario nuevo</b> tenga en el escritorio un archivo <code>Normas-Empresa.txt</code>.</p>
+  <div class="step"><input type="checkbox"><div>Colócalo en la plantilla:<pre>sudo mkdir -p /etc/skel/Escritorio
+echo "Normas de la empresa" | sudo tee /etc/skel/Escritorio/Normas-Empresa.txt</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Crea un usuario nuevo y obliga a cambiar la clave en su primer inicio:<pre>sudo adduser prueba1
+sudo passwd -e prueba1</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Comprueba que prueba1 tiene el archivo y que <b>ana no lo tiene</b>:<pre>sudo ls -l /home/prueba1/Escritorio
+sudo ls -l /home/ana/Escritorio</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué ana no tiene el archivo? Y fíjate: ¿quién es el dueño del archivo de prueba1? <small>(clic)</small><div class="ans">ana se creó antes de cambiar la plantilla: los cambios en <code>/etc/skel</code> solo afectan a los usuarios creados <b>después</b>. El dueño del archivo es <b>prueba1</b>, no root: <code>adduser</code> copia la plantilla y le da la propiedad al nuevo usuario.</div></div>
+
+  <details><summary>Remate en casa · Misión C y D</summary>
+    <div class="step"><input type="checkbox"><div><b>C · Baja de un usuario (y por qué hay que hacerla bien):</b>
+      <ol>
+        <li>Crea <code>prueba2</code> y bórrala <b>solo la cuenta</b>:<pre>sudo adduser prueba2
+id prueba2                <i># apunta su UID</i>
+sudo deluser prueba2
+ls -l /home               <i># ¿qué aparece como dueño de /home/prueba2?</i></pre></li>
+        <li>Ahora crea otro usuario y mira a quién pertenece la carpeta huérfana:<pre>sudo adduser prueba3
+id prueba3
+ls -l /home</pre></li>
+        <li>Explica en tu entrega qué ha pasado y por qué es un <b>problema de seguridad</b>.</li>
+        <li>Limpia. Esta es la forma correcta de dar de baja:<pre>sudo deluser --remove-home prueba3
+sudo rm -r /home/prueba2      <i># la cuenta ya no existe: aquí sí se puede borrar la carpeta</i>
+sudo find /home -nouser       <i># no debe salir nada</i></pre></li>
+      </ol>
+      <span class="muted">A diferencia de Windows, Linux no guarda los perfiles en un registro. Por eso, una vez borrada la cuenta, borrar la carpeta a mano no deja restos.</span></div></div>
+    <div class="step"><input type="checkbox"><div><b>D · Inventario:</b> mide cuánto ocupa cada perfil y cuánto de eso es caché:<pre>sudo du -sh /home/*
+du -sh ~/.config ~/.cache ~/.local</pre>Razona qué carpeta copiarías si el perfil tuviera que viajar a otro equipo y por qué <code>.cache</code> no.</div></div>
+  </details>
+</div>
+
+<div class="card">
+  <h2>Parte 3 · Directivas de contraseña y de cuenta <span class="time">30 min</span></h2>
+  <p>En Linux no hay un <code>secpol.msc</code>: cada norma se configura en un archivo distinto. Igual que en Windows, se aplican a <b>todas las cuentas del equipo</b>.</p>
+  <table>
+    <tr><th>Directiva</th><th>Valor</th><th>Dónde se configura en Linux</th></tr>
+    <tr><td>Longitud mínima</td><td>10 caracteres</td><td><code>/etc/security/pwquality.conf</code></td></tr>
+    <tr><td>Complejidad</td><td>3 tipos de carácter</td><td><code>/etc/security/pwquality.conf</code></td></tr>
+    <tr><td>Vigencia máxima / mínima</td><td>90 días / 1 día</td><td><code>/etc/login.defs</code> (usuarios nuevos) y <code>chage</code> (usuarios existentes)</td></tr>
+    <tr><td>Bloqueo de cuenta</td><td>5 intentos · 15 min</td><td><code>/etc/security/faillock.conf</code> + PAM</td></tr>
+  </table>
+  <div class="warn"><b>Orden importante:</b> primero configurarás y probarás la <b>calidad</b> de la contraseña y después la <b>vigencia</b>. Si pones la vigencia mínima de 1 día antes, ana no podrá cambiar su clave hoy y no verás el error de calidad.</div>
+
+  <h3>Misión E · Longitud y complejidad</h3>
+  <div class="step"><input type="checkbox"><div>Instala el módulo de calidad de contraseñas:<pre>sudo apt install libpam-pwquality</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Edita el archivo con <code>sudo nano /etc/security/pwquality.conf</code>, busca estas líneas, quítales la <code>#</code> y pon:<pre>minlen = 10
+minclass = 3</pre><span class="muted"><code>minclass = 3</code> obliga a usar al menos 3 tipos de carácter (minúsculas, mayúsculas, números, símbolos), como la complejidad de Windows. Guarda con <kbd>Ctrl</kbd>+<kbd>O</kbd> y sal con <kbd>Ctrl</kbd>+<kbd>X</kbd>.</span></div></div>
+
+  <h3>Misión F · Comprobarlo como el usuario</h3>
+  <div class="step"><input type="checkbox"><div>Conviértete en ana y cambia su contraseña a <code>hola</code>. Debe <b>rechazarla</b>. Anota el mensaje:<pre>su - ana
+passwd
+exit</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Ahora hazlo como administrador y compara:<pre>sudo passwd ana</pre><span class="muted">Escribe <code>hola</code>, lee el aviso y <b>pulsa <kbd>Ctrl</kbd>+<kbd>C</kbd></b> para no cambiarla.</span></div></div>
+  <div class="warn"><b>Prueba siempre como el usuario afectado.</b> A root solo le sale un aviso y puede forzar la contraseña igualmente.</div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué falla <code>hola</code>? <small>(clic)</small><div class="ans">Porque tiene 4 caracteres (mínimo 10) y solo usa un tipo de carácter (minúsculas). El módulo <code>pwquality</code> la rechaza antes de guardarla.</div></div>
+
+  <h3>Misión G · Vigencia</h3>
+  <div class="step"><input type="checkbox"><div>Para los usuarios que se creen a partir de ahora, edita <code>sudo nano /etc/login.defs</code> y cambia:<pre>PASS_MAX_DAYS   90
+PASS_MIN_DAYS   1</pre></div></div>
+  <div class="step"><input type="checkbox"><div>Para los que ya existen, aplícalo a mano y compruébalo:<pre>sudo chage -M 90 -m 1 ana
+sudo chage -l ana</pre></div></div>
+  <div class="q" onclick="this.classList.toggle('open')">🤔 ¿Por qué hay que usar <code>chage</code> además de editar <code>login.defs</code>? <small>(clic)</small><div class="ans">Porque <code>login.defs</code> funciona como una plantilla: solo se aplica al <b>crear</b> usuarios, igual que <code>/etc/skel</code>. A los que ya existen no les afecta.</div></div>
+
+  <details><summary>Remate en casa · Misión H · Bloqueo y cuentas concretas</summary>
+    <div class="err"><b>Cuidado:</b> aquí vas a editar la configuración de inicio de sesión (PAM). Un error puede impedirte entrar. Haz <b>copia de los archivos</b> antes de tocarlos, deja abierta una terminal de root (<code>sudo -i</code>) y <b>no la cierres</b> hasta comprobar que puedes entrar (paso 3).</div>
+    <div class="step"><input type="checkbox"><div><b>1 · Valores del bloqueo.</b> Edita <code>sudo nano /etc/security/faillock.conf</code>:<pre>deny = 5
+unlock_time = 900       <i># 900 segundos = 15 minutos</i></pre></div></div>
+    <div class="step"><input type="checkbox"><div><b>2 · Activar el bloqueo en PAM.</b> Haz copia de los dos archivos y edita <code>common-auth</code>:<pre>sudo cp /etc/pam.d/common-auth /etc/pam.d/common-auth.bak
+sudo cp /etc/pam.d/common-account /etc/pam.d/common-account.bak
+sudo nano /etc/pam.d/common-auth</pre>Sustituye la línea de <code>pam_unix.so</code> por estas cuatro:<pre>auth  requisite                   pam_faillock.so preauth
+auth  [success=1 default=ignore]  pam_unix.so nullok
+auth  [default=die]               pam_faillock.so authfail
+auth  sufficient                  pam_faillock.so authsucc</pre>Y añade al final de <code>/etc/pam.d/common-account</code>:<pre>account required pam_faillock.so</pre><span class="muted">Si en tu <code>common-auth</code> hay más líneas con <code>success=2</code> o similares, pregunta antes de tocar nada.</span></div></div>
+    <div class="step"><input type="checkbox"><div><b>3 · Comprueba que puedes entrar.</b> Sin cerrar la terminal de root, abre <b>otra</b> terminal y entra como ana con su contraseña buena:<pre>su - ana
+exit</pre>Si entra, sigue. Si no, restaura las copias desde la terminal de root:<pre>cp /etc/pam.d/common-auth.bak /etc/pam.d/common-auth
+cp /etc/pam.d/common-account.bak /etc/pam.d/common-account</pre></div></div>
+    <div class="step"><input type="checkbox"><div><b>4 · Provocar y quitar el bloqueo.</b> Falla 5 veces la contraseña de marta y comprueba que queda bloqueada aunque después escribas la buena. Luego desbloquéala:<pre>su - marta                         <i># repítelo 5 veces con una clave mala</i>
+sudo faillock --user marta         <i># muestra los intentos fallidos</i>
+sudo faillock --user marta --reset <i># la desbloquea</i></pre></div></div>
+    <div class="step"><input type="checkbox"><div><b>5 · Cuentas concretas.</b> <code>luis</code> es becario y su cuenta caduca el 30/06/2027. <code>pedro</code> debe cambiar la contraseña en su próximo inicio:<pre>sudo chage -E 2027-06-30 luis
+sudo passwd -e pedro
+sudo chage -l luis
+sudo chage -l pedro</pre><span class="muted">Limitar el horario de entrada (como <code>/times</code> en Windows) también se puede hacer en Linux, con <code>pam_time</code>, pero no entra en esta práctica.</span></div></div>
+  </details>
+</div>
+
+<div class="card">
+  <h2>Comprueba antes de terminar <span class="time">20 min</span></h2>
+  <p>Enseña estos resultados en tu pantalla. Si uno no sale, repasa esa misión.</p>
+  <table>
+    <tr><th>Comprobación</th><th>Debe verse</th></tr>
+    <tr><td><code>ls -la /home</code> e <code>id</code></td><td>Carpetas de ana, luis y prueba1; tu UID</td></tr>
+    <tr><td><code>sudo ls -l /home/prueba1/Escritorio</code></td><td><code>Normas-Empresa.txt</code>, con prueba1 como dueño</td></tr>
+    <tr><td><code>sudo chage -l ana</code></td><td>Mínimo 1 día · máximo 90 días</td></tr>
+    <tr><td><code>grep -E "^minlen|^minclass" /etc/security/pwquality.conf</code></td><td><code>minlen = 10</code> · <code>minclass = 3</code></td></tr>
+    <tr><td>Como ana: <code>passwd</code> → <code>hola</code></td><td>CONTRASEÑA INCORRECTA, y la clave no se cambia</td></tr>
+  </table>
+  <h3>Ideas clave para recordar</h3>
+  <ol>
+    <li>Cuenta y perfil son cosas distintas: se unen por el <b>UID</b>.</li>
+    <li>El perfil se crea <b>al crear la cuenta</b>, copiando <code>/etc/skel</code>.</li>
+    <li>Las plantillas (<code>/etc/skel</code>, <code>login.defs</code>) solo afectan a los usuarios <b>nuevos</b>.</li>
+    <li>Al dar de baja a alguien hay que eliminar también su <b>perfil</b>: Linux reutiliza los UID.</li>
+    <li>Las directivas de contraseñas afectan a <b>todo el equipo</b> y se prueban <b>como el usuario</b>, no como root.</li>
+  </ol>
+  <div class="info">Cuando lo tengas todo, prepara el PDF siguiendo el apartado <a href="#entrega"><b>Entrega</b></a>.</div>
+</div>
+
+<div class="card" id="entrega">
+  <h2>Entrega · PDF</h2>
+  <div class="info"><b>Qué entregas:</b> un único PDF llamado <code>ISO_UD2_Linux_Apellido_Nombre.pdf</code>, en la tarea de Aeducar, en la fecha que indique el profesor.<br><b>Usa la plantilla</b> <code>ISO_UD2_Linux_plantilla_entrega.docx</code> que tienes en Aeducar: ya trae un recuadro para cada captura, su pie y cada respuesta. Rellénala en Word o LibreOffice y expórtala a PDF.</div>
+
+  <h3>Formato</h3>
+  <ul>
+    <li><b>Portada:</b> nombre y apellidos, curso, módulo (ISO 0369), título de la práctica y fecha.</li>
+    <li>Un apartado por misión, con su título (<i>Misión A · Anatomía de un perfil</i>, etc.).</li>
+    <li>Cada captura con un <b>pie</b> que diga qué demuestra. Una captura sin explicar no cuenta.</li>
+    <li>En todas las capturas de terminal debe verse el <b>indicador con el nombre de tu VM</b> (<code>usuario@iso-tuapellido</code>). Si no se ve, la captura no se acepta.</li>
+    <li>Las respuestas a las preguntas, <b>con tus palabras</b>. Puede que tengas que defenderlas en clase.</li>
+  </ul>
+
+  <h3>Qué debe aparecer</h3>
+  <table>
+    <tr><th>Misión</th><th>Capturas</th><th>Pregunta que debes responder</th></tr>
+    <tr><td>Parte 1 · Cuentas y grupos</td><td><code>getent group contabilidad becarios</code> e <code>id ana</code></td><td>¿Qué campo de <code>/etc/passwd</code> une la cuenta con su perfil? ¿Qué equivale en Windows?</td></tr>
+    <tr><td>A · Anatomía</td><td><code>ls -ln /home</code> y <code>ls -la /etc/skel</code></td><td>¿Por qué existe <code>/home/ana</code> si ana nunca ha iniciado sesión? Compáralo con Windows.</td></tr>
+    <tr><td>B · Plantilla</td><td><code>sudo ls -l</code> del Escritorio de prueba1 y del de ana</td><td>¿Por qué prueba1 tiene el archivo y ana no? ¿Quién es su dueño y por qué?</td></tr>
+    <tr><td>C · Baja de un usuario <span class="muted">(casa)</span></td><td><code>ls -l /home</code> con la carpeta huérfana, <code>id prueba3</code> y <code>find /home -nouser</code> vacío al final</td><td>¿Qué ha pasado con la carpeta de prueba2 al crear prueba3? ¿Por qué es un problema de seguridad? ¿Cuál es la forma correcta de dar de baja?</td></tr>
+    <tr><td>D · Inventario <span class="muted">(casa)</span></td><td><code>sudo du -sh /home/*</code></td><td>¿Qué carpeta copiarías si el perfil viajara a otro equipo? ¿Por qué <code>.cache</code> no?</td></tr>
+    <tr><td>E · Calidad</td><td><code>grep -E "^minlen|^minclass" /etc/security/pwquality.conf</code></td><td>¿Qué significa <code>minclass = 3</code>?</td></tr>
+    <tr><td>F · Prueba como usuario</td><td>El rechazo de <code>hola</code> como ana y el aviso como root</td><td>¿Qué diferencia hay entre las dos pruebas? ¿Cuál demuestra que la directiva funciona?</td></tr>
+    <tr><td>G · Vigencia</td><td><code>sudo chage -l ana</code></td><td>¿Por qué no basta con editar <code>login.defs</code>?</td></tr>
+    <tr><td>H · Bloqueo y cuentas <span class="muted">(casa)</span></td><td><code>ls -l /etc/pam.d/*.bak</code>, la comprobación con <code>su - ana</code> en otra terminal, <code>sudo faillock --user marta</code> con los 5 fallos, <code>chage -l luis</code> y <code>chage -l pedro</code></td><td>¿Qué pasaría en un servidor real si no hubiera bloqueo de cuenta?</td></tr>
+    <tr><td>Conclusión</td><td>—</td><td>Tabla comparativa Windows / Linux con al menos 5 diferencias de lo que has hecho en las dos prácticas.</td></tr>
+  </table>
+
+  <h3>Cómo se califica</h3>
+  <table>
+    <tr><th>Bloque</th><th>CE (RA2)</th><th>Puntos</th></tr>
+    <tr><td>Cuentas, grupos y perfiles (Parte 1 y misiones A a D)</td><td>a) Cuentas, grupos, perfiles y políticas locales</td><td>5</td></tr>
+    <tr><td>Directivas de contraseña y de cuenta (misiones E a H)</td><td>b) Directivas de cuenta y de contraseñas</td><td>3</td></tr>
+    <tr><td>Trabajo en la VM: nombre del equipo en las capturas y copias de seguridad antes de cambiar la configuración</td><td>g) Máquinas virtuales</td><td>1</td></tr>
+    <tr><td>Calidad del documento: orden, pies de captura, respuestas y conclusión</td><td>h) Documentación</td><td>1</td></tr>
+    <tr class="total"><th colspan="2">Total</th><th>10</th></tr>
+  </table>
+  <p class="muted">Las misiones de casa (C, D y H) forman parte de la nota. Una misión sin captura, o con una captura en la que no se ve tu VM, cuenta como no hecha.</p>
+  <div class="step"><input type="checkbox"><div>He revisado que el PDF tiene portada, todas las misiones, capturas con mi VM y las respuestas, y lo he subido a Aeducar.</div></div>
+</div>
+
+<div class="card">
+  <h2>Dudas frecuentes</h2>
+  <details><summary>«Permiso denegado al listar /home/prueba1»</summary><p>En las versiones recientes de Ubuntu, cada usuario solo puede ver su propia carpeta personal. Usa <code>sudo</code> delante del comando.</p></details>
+  <details><summary>«Mi usuario tiene Desktop, no Escritorio»</summary><p>El nombre depende del idioma del sistema. Si tu VM está en inglés, crea la carpeta <code>/etc/skel/Desktop</code> en lugar de <code>Escritorio</code>.</p></details>
+  <details><summary>«adduser me hace muchas preguntas»</summary><p>Solo es obligatoria la contraseña. En el resto (nombre completo, teléfono…) pulsa Intro y al final responde <code>S</code>.</p></details>
+  <details><summary>«passwd me dice que debo esperar más para cambiar la contraseña»</summary><p>Es la vigencia mínima de 1 día: ya has cambiado esa clave hoy. Por eso la Misión F va antes que la G. Para seguir probando: <code>sudo chage -m 0 ana</code>, y vuelve a ponerla a 1 al terminar.</p></details>
+  <details><summary>«Como root me deja poner hola»</summary><p>Es lo esperado: root solo recibe un aviso. Haz la prueba con <code>su - ana</code> y <code>passwd</code>.</p></details>
+  <details><summary>«No existe faillock ni /etc/security/faillock.conf»</summary><p>Tu sistema es anterior a Ubuntu 22.04 y usa otro módulo (<code>pam_tally2</code>). Compruébalo con <code>lsb_release -a</code> y consulta al profesor.</p></details>
+  <details><summary>«He editado PAM y ya no puedo entrar»</summary><p>Desde la terminal de root que dejaste abierta, restaura las copias:<pre>cp /etc/pam.d/common-auth.bak /etc/pam.d/common-auth
+cp /etc/pam.d/common-account.bak /etc/pam.d/common-account</pre>Si la cerraste, entra en <b>modo de recuperación</b>:</p>
+  <ol>
+    <li>Reinicia la VM y mantén pulsada <kbd>Mayús</kbd> (o pulsa <kbd>Esc</kbd>) al arrancar para que salga el menú GRUB.</li>
+    <li>Elige <i>Opciones avanzadas</i> → la línea que termina en <i>(recovery mode)</i> → <i>root</i>.</li>
+    <li>Ejecuta <code>mount -o remount,rw /</code>, restaura las dos copias con los <code>cp</code> de arriba y escribe <code>reboot</code>.</li>
+  </ol>
+</details>
+</div>
+
+</div>
+<script>
+(function(){
+ var KEY='iso_guia_perfiles_politicas_linux',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b,i){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+ window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.setAttribute('data-was',d.open?'1':'0');d.open=true})});
+ window.addEventListener('afterprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=d.getAttribute('data-was')==='1'})});
+})();
+</script>
+</body>
+</html>

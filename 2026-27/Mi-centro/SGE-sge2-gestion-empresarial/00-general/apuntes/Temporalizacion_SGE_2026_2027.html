@@ -1,0 +1,237 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Temporalización SGE 2026/2027</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: documento de planificación. Cronograma de las 25 semanas arriba, tabla semana a semana debajo
+   con la semana en curso resaltada por fecha, y al final criterios y plan de contingencia. */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4; --ok:#2d7a4f; --warn:#95590e;
+  --ra1:#2b5c9e; --ra2:#6f3c8f; --ra3:#2d7a4f; --ra4:#95590e; --ra5:#9e2b5c;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --ok:#5fbf87; --warn:#e0a24a;
+  --ra1:#7aa6e6; --ra2:#b58ad1; --ra3:#5fbf87; --ra4:#e0a24a; --ra5:#e68ab0; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --ok:#5fbf87; --warn:#e0a24a;
+  --ra1:#7aa6e6; --ra2:#b58ad1; --ra3:#5fbf87; --ra4:#e0a24a; --ra5:#e68ab0; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700}
+h2{font-size:1.35rem;font-weight:600;margin-top:46px;padding-top:18px;border-top:2px solid var(--line)}
+h3{font-size:1.02rem;font-weight:600;margin-top:20px}
+p{margin:0;max-width:72ch}
+p+p,ul,ol{margin-top:10px}
+ul,ol{padding-left:22px;max-width:72ch}
+li+li{margin-top:5px}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.06rem;color:var(--muted);margin-top:10px;max-width:74ch}
+code{font-family:var(--fm);font-size:.86em;background:var(--soft);padding:1px 6px;border-radius:4px}
+.datos{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.datos>div{background:var(--paper);border:1px solid var(--line);padding:12px 14px;min-width:0}
+.datos .eyebrow{display:block;margin-bottom:4px}
+.datos b{font-family:var(--fd);font-weight:600;font-size:1.02rem}
+@media (max-width:700px){.datos{grid-template-columns:1fr 1fr}}
+.tw{overflow-x:auto;margin-top:14px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.8rem;background:var(--soft);position:sticky;top:0}
+.cal{min-width:860px}
+.cal td.num{font-family:var(--fm);font-weight:600;text-align:center;width:40px}
+.cal td.fec{font-family:var(--fm);font-size:.8rem;white-space:nowrap;color:var(--muted)}
+.cal td.mat{font-size:.86rem}
+.cal tr.hoy{background:var(--soft)}
+.cal tr.hoy td.num::after{content:"◀";color:var(--accent);margin-left:4px}
+.cal tr.pas{color:var(--muted)}
+.hilo{display:block;font-size:.74rem;color:var(--ra5);margin-top:4px;font-family:var(--fd)}
+.fest{display:block;font-size:.72rem;color:var(--warn)}
+.ra{display:inline-block;font-family:var(--fm);font-size:.68rem;font-weight:600;color:var(--accent-ink);border-radius:3px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+.ra.ra1{background:var(--ra1)}.ra.ra2{background:var(--ra2)}.ra.ra3{background:var(--ra3)}
+.ra.ra4{background:var(--ra4)}.ra.ra5{background:var(--ra5)}
+.hito{display:inline-block;font-size:.74rem;font-family:var(--fd);font-weight:600;border:1px solid var(--accent);color:var(--accent);border-radius:999px;padding:1px 9px;white-space:nowrap}
+.crono{background:var(--paper);border:1px solid var(--line);margin-top:16px;overflow-x:auto}
+.crono svg{display:block;width:100%;min-width:720px;height:auto}
+.crono .wk.hoy{stroke-width:2.5;stroke:var(--ink)}
+.note{border-left:3px solid var(--accent);background:var(--paper);padding:12px 16px;margin-top:14px;max-width:72ch}
+.note.warn{border-left-color:var(--warn)}
+.note .eyebrow{color:var(--accent);display:block;margin-bottom:4px}
+.note.warn .eyebrow{color:var(--warn)}
+.caption{font-size:.88rem;color:var(--muted);margin-top:8px}
+.num2{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM · Curso 2026/2027</p>
+  <h1 style="margin-top:6px">Temporalización del módulo</h1>
+  <p class="lead">Veinticinco semanas lectivas, de septiembre a marzo, repartidas en dos evaluaciones. Cada semana tiene su contenido y el material de clase que le corresponde. La tercera evaluación es FCT.</p>
+  <div class="datos">
+    <div><span class="eyebrow">Periodos</span><b>4 por semana · 100 en total</b></div>
+    <div><span class="eyebrow">Inicio y fin</span><b>7 sep – 19 mar</b></div>
+    <div><span class="eyebrow">Evaluaciones</span><b>1ª: S1–S15 · 2ª: S16–S25</b></div>
+    <div><span class="eyebrow">Herramienta</span><b>Odoo 19 Community en Docker</b></div>
+  </div>
+
+  <h2>Cronograma</h2>
+  <div class="crono">
+    <svg viewBox="0 86 760 184" role="img" aria-label="Cronograma de las 25 semanas del módulo repartidas entre los cinco resultados de aprendizaje, con el hilo de Python en paralelo">
+        <rect x="24.0" y="116" width="139.5" height="22" rx="4" fill="var(--ra1)" fill-opacity="0.18" stroke="var(--ra1)"/>
+        <text x="93.8" y="131" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">RA1 · Identificar</text>
+        <rect x="166.5" y="116" width="253.5" height="22" rx="4" fill="var(--ra2)" fill-opacity="0.18" stroke="var(--ra2)"/>
+        <text x="293.2" y="131" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">RA2 · Implantar</text>
+        <rect x="423.0" y="116" width="111.0" height="22" rx="4" fill="var(--ra3)" fill-opacity="0.18" stroke="var(--ra3)"/>
+        <text x="478.5" y="131" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">RA3 · Explotar</text>
+        <rect x="537.0" y="116" width="82.5" height="22" rx="4" fill="var(--ra4)" fill-opacity="0.18" stroke="var(--ra4)"/>
+        <text x="578.2" y="131" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">RA4 Adaptar</text>
+        <rect x="622.5" y="116" width="54.0" height="22" rx="4" fill="var(--ra5)" fill-opacity="0.18" stroke="var(--ra5)"/>
+        <text x="649.5" y="131" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">RA5</text>
+        <rect x="679.5" y="116" width="54.0" height="22" rx="4" fill="var(--muted)" fill-opacity="0.25" stroke="var(--muted)"/>
+        <text x="706.5" y="131" text-anchor="middle" font-size="10" font-weight="600" fill="var(--ink)">Cierre</text>
+        <rect class="wk" data-sem="1" x="24.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra1)" fill-opacity="0.55" stroke="var(--ra1)"/>
+        <text x="36.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">1</text>
+        <rect class="wk" data-sem="2" x="52.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra1)" fill-opacity="0.55" stroke="var(--ra1)"/>
+        <text x="65.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">2</text>
+        <rect class="wk" data-sem="3" x="81.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra1)" fill-opacity="0.55" stroke="var(--ra1)"/>
+        <text x="93.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">3</text>
+        <rect class="wk" data-sem="4" x="109.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra1)" fill-opacity="0.55" stroke="var(--ra1)"/>
+        <text x="122.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">4</text>
+        <rect class="wk" data-sem="5" x="138.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra1)" fill-opacity="0.55" stroke="var(--ra1)"/>
+        <text x="150.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">5</text>
+        <rect class="wk" data-sem="6" x="166.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="179.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">6</text>
+        <rect class="wk" data-sem="7" x="195.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="207.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">7</text>
+        <rect class="wk" data-sem="8" x="223.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="236.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">8</text>
+        <rect class="wk" data-sem="9" x="252.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="264.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">9</text>
+        <rect class="wk" data-sem="10" x="280.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="293.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">10</text>
+        <rect class="wk" data-sem="11" x="309.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="321.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">11</text>
+        <rect class="wk" data-sem="12" x="337.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="350.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">12</text>
+        <rect class="wk" data-sem="13" x="366.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="378.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">13</text>
+        <rect class="wk" data-sem="14" x="394.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra2)" fill-opacity="0.55" stroke="var(--ra2)"/>
+        <text x="407.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">14</text>
+        <rect class="wk" data-sem="15" x="423.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra3)" fill-opacity="0.55" stroke="var(--ra3)"/>
+        <text x="435.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">15</text>
+        <rect class="wk" data-sem="16" x="451.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra3)" fill-opacity="0.55" stroke="var(--ra3)"/>
+        <text x="464.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">16</text>
+        <rect class="wk" data-sem="17" x="480.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra3)" fill-opacity="0.55" stroke="var(--ra3)"/>
+        <text x="492.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">17</text>
+        <rect class="wk" data-sem="18" x="508.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra3)" fill-opacity="0.55" stroke="var(--ra3)"/>
+        <text x="521.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">18</text>
+        <rect class="wk" data-sem="19" x="537.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra4)" fill-opacity="0.55" stroke="var(--ra4)"/>
+        <text x="549.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">19</text>
+        <rect class="wk" data-sem="20" x="565.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra4)" fill-opacity="0.55" stroke="var(--ra4)"/>
+        <text x="578.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">20</text>
+        <rect class="wk" data-sem="21" x="594.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra4)" fill-opacity="0.55" stroke="var(--ra4)"/>
+        <text x="606.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">21</text>
+        <rect class="wk" data-sem="22" x="622.5" y="150" width="25.5" height="30" rx="3" fill="var(--ra5)" fill-opacity="0.55" stroke="var(--ra5)"/>
+        <text x="635.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">22</text>
+        <rect class="wk" data-sem="23" x="651.0" y="150" width="25.5" height="30" rx="3" fill="var(--ra5)" fill-opacity="0.55" stroke="var(--ra5)"/>
+        <text x="663.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">23</text>
+        <rect class="wk" data-sem="24" x="679.5" y="150" width="25.5" height="30" rx="3" fill="var(--muted)" fill-opacity="0.55" stroke="var(--muted)"/>
+        <text x="692.2" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">24</text>
+        <rect class="wk" data-sem="25" x="708.0" y="150" width="25.5" height="30" rx="3" fill="var(--muted)" fill-opacity="0.55" stroke="var(--muted)"/>
+        <text x="720.8" y="170" text-anchor="middle" font-size="10.5" fill="var(--ink)">25</text>
+        <rect x="52.5" y="184" width="567.0" height="6" rx="3" fill="var(--ra5)" fill-opacity="0.8"/>
+        <text x="336.0" y="200" text-anchor="middle" font-size="9.5" fill="var(--ra5)">Hilo Python · un periodo semanal · NetAcad Python Essentials 2 y Python en Odoo</text>
+        <path d="M150.8 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="150.8" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 150.8 232)">Cierre RA1</text>
+        <path d="M407.2 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="407.2" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 407.2 232)">Práctica + examen</text>
+        <path d="M521.2 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="521.2" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 521.2 232)">Entrega RA3</text>
+        <path d="M606.8 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="606.8" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 606.8 232)">Supuesto</text>
+        <path d="M663.8 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="663.8" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 663.8 232)">Módulo + examen</text>
+        <path d="M692.2 206l5 5l-5 5l-5 -5z" fill="var(--accent)"/>
+        <text x="692.2" y="232" text-anchor="middle" font-size="9.5" fill="var(--muted)" transform="rotate(-30 692.2 232)">Examen final</text>
+        <line x1="421.5" x2="421.5" y1="106" y2="192" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="222.0" y="98" text-anchor="middle" font-size="11" font-weight="600" fill="var(--muted)">1ª evaluación · sep–dic · 15 semanas</text>
+        <text x="578.2" y="98" text-anchor="middle" font-size="11" font-weight="600" fill="var(--muted)">2ª evaluación · ene–mar · 10 semanas</text>
+    </svg>
+  </div>
+  <p class="caption">Cada celda es una semana lectiva. La franja inferior es el hilo de Python, un periodo cada semana. Los rombos marcan las entregas y los exámenes. La semana en curso aparece con el borde grueso.</p>
+
+  <h2>Reparto por resultado de aprendizaje</h2>
+  <div class="tw"><table>
+    <tr><th>RA</th><th>Qué se evalúa</th><th class="num2">Peso</th><th>Semanas</th><th class="num2">Periodos</th><th>Evaluación</th></tr>
+    <tr><td><span class="ra ra1">RA1</span>Identificar</td><td>Reconoce sistemas ERP-CRM y verifica la configuración del sistema informático</td><td class="num2">20 %</td><td>1 – 5</td><td class="num2">16</td><td>1ª</td></tr>
+    <tr><td><span class="ra ra2">RA2</span>Implantar</td><td>Instala y configura el ERP-CRM interpretando la documentación técnica</td><td class="num2">20 %</td><td>6 – 14</td><td class="num2">27</td><td>1ª</td></tr>
+    <tr><td><span class="ra ra3">RA3</span>Explotar</td><td>Realiza operaciones de gestión y consulta de la información</td><td class="num2">20 %</td><td>15 – 18</td><td class="num2">12</td><td>1ª y 2ª</td></tr>
+    <tr><td><span class="ra ra4">RA4</span>Adaptar</td><td>Adapta el sistema a los requerimientos de un supuesto empresarial</td><td class="num2">20 %</td><td>19 – 21</td><td class="num2">9</td><td>2ª</td></tr>
+    <tr><td><span class="ra ra5">RA5</span>Desarrollar</td><td>Desarrolla componentes con el lenguaje de programación incorporado</td><td class="num2">20 %</td><td>2 – 21 (un periodo semanal) y 22 – 23</td><td class="num2">28</td><td>2ª</td></tr>
+    <tr><td><span class="ra" style="background:var(--muted)">Cierre</span>Exámenes y ampliación</td><td>Examen final, defensas del módulo propio y ampliación</td><td class="num2">—</td><td>24 – 25</td><td class="num2">8</td><td>2ª</td></tr>
+  </table></div>
+  <div class="note"><span class="eyebrow">Por qué Python va en paralelo</span>Desarrollar componentes pesa lo mismo que los demás resultados y necesita una base de Python que el grupo no trae de serie. Por eso un periodo de cada semana, desde la segunda, es el hilo de Python: primero el curso <strong>NetAcad Python Essentials 2</strong> (con certificado de Cisco al aprobar su examen) y después Python aplicado a Odoo. Las dos últimas semanas de contenido se dedican por completo al módulo propio. Así salen 28 periodos para programar sin quitar tiempo a la implantación.</div>
+
+   <h2>El hilo de Python</h2>
+  <p style="margin-top:12px">Un periodo cada semana, de la segunda a la vigesimoprimera, no es Odoo: es Python. Las trece primeras siguen el curso <strong>Python Essentials 2</strong> de Cisco Networking Academy, que continúa el Python Essentials 1 de primero y termina con un examen que da certificado. A partir de ahí, el mismo periodo se usa para hablar con Odoo desde Python, que es justo lo que hace falta para el módulo propio del final.</p>
+  <div class="tw"><table>
+    <tr><th>Semanas</th><th>Qué se hace</th><th>Dónde</th></tr>
+    <tr><td>2 – 3</td><td>Módulo 1: módulos, paquetes, pip y entornos virtuales</td><td rowspan="5">NetAcad · Python Essentials 2</td></tr>
+    <tr><td>4 – 6</td><td>Módulo 2: cadenas, métodos de cadenas y listas, excepciones</td></tr>
+    <tr><td>7 – 10</td><td>Módulo 3: programación orientada a objetos (la base de los modelos de Odoo)</td></tr>
+    <tr><td>11 – 13</td><td>Módulo 4: generadores, iteradores, ficheros, os, datetime</td></tr>
+    <tr><td>14</td><td>Examen final del curso y certificado</td></tr>
+    <tr><td>15 – 16</td><td>odoo shell y el ORM: buscar, leer, crear, escribir y borrar registros desde Python</td><td rowspan="3">Módulo propio §9 y ejercicios</td></tr>
+    <tr><td>17 – 19</td><td>Cliente externo por XML-RPC: extraer pedidos a CSV y cargar datos desde un fichero</td></tr>
+    <tr><td>20 – 21</td><td>Mini-proyecto de integración: un script de Python que conecta Odoo con otro sistema. Entrega</td></tr>
+  </table></div>
+  <div class="note"><span class="eyebrow">Cómo cuenta</span>El examen de NetAcad y el mini-proyecto son la parte práctica de Desarrollar. Quien ya tenga el certificado de Python Essentials 2 usa ese periodo para ir por delante con la parte de Odoo.</div>
+
+  <h2>Calificación</h2>
+  <p style="margin-top:12px">Los criterios son los de la programación del departamento. Resumidos:</p>
+  <ul>
+    <li><strong>Cada criterio de evaluación</strong> se califica con <strong>examen 75 % + práctica 25 %</strong>. Si un criterio solo se evalúa con un instrumento, ese instrumento es el 100 %.</li>
+    <li><strong>Cada resultado de aprendizaje</strong> es la media de sus criterios, todos con el mismo peso.</li>
+    <li><strong>Nota del módulo:</strong> media de los cinco resultados, <strong>20 % cada uno</strong>.</li>
+    <li><strong>Mínimos:</strong> para aprobar hay que superar los cinco resultados y tener media de 5. Un resultado entre 3 y 5 se compensa con los demás si la media llega a 5; por debajo de 3 no hay compensación y la nota del módulo se queda en 4.</li>
+    <li><strong>1ª evaluación:</strong> nota orientativa con RA1, RA2 y lo visto de RA3 y RA5. <strong>2ª evaluación:</strong> RA3, RA4 y RA5. La nota final es la media ponderada de los cinco.</li>
+    <li><strong>Exámenes:</strong> 1ª evaluación en la semana 14 (diciembre), 2ª evaluación el 5 de marzo y examen final el 8 de marzo, solo de los resultados pendientes.</li>
+    <li><strong>Recuperación:</strong> quien no supere un resultado va al examen final solo con ese resultado y entrega la práctica corregida. Quien pierda la evaluación continua (15 % de faltas) hace una prueba global de todo el módulo.</li>
+  </ul>
+  <h3>De dónde sale la nota de cada RA</h3>
+  <div class="tw"><table>
+    <tr><th>RA</th><th>Examen (75 %)</th><th>Práctica (25 %)</th></tr>
+    <tr><td><span class="ra ra1">RA1</span></td><td>Examen de la 1ª evaluación: parte de sistemas ERP-CRM y entorno</td><td>Informe comparativo de ERP-CRM y tareas de los bloques 0 y 1</td></tr>
+    <tr><td><span class="ra ra2">RA2</span></td><td>Examen de la 1ª evaluación: parte práctica sobre tu propia instalación</td><td>Práctica de implantación documentada</td></tr>
+    <tr><td><span class="ra ra3">RA3</span></td><td>Examen de la 2ª evaluación: ciclo comercial y consultas sobre una base de datos preparada</td><td>Ejercicios del ciclo completo, consultas SQL e informe desde LibreOffice</td></tr>
+    <tr><td><span class="ra ra4">RA4</span></td><td>Examen de la 2ª evaluación: adaptaciones sobre una base de datos preparada</td><td>Supuesto empresarial documentado</td></tr>
+    <tr><td><span class="ra ra5">RA5</span></td><td>Examen de la 2ª evaluación: parte de código (Python y módulo)</td><td>Examen NetAcad Python 2, mini-proyecto de integración y módulo propio con su defensa</td></tr>
+  </table></div>
+
+  
+  <footer>Planificación orientativa del módulo 0491 (RD 450/2010) para 2º de Desarrollo de Aplicaciones Multiplataforma. Contrastar el calendario con el oficial del centro antes de publicarla. Curso 2026/2027.</footer>
+</div>
+
+<script>
+(function(){
+  var hoy=new Date(); hoy.setHours(12,0,0,0);
+  var filas=[].slice.call(document.querySelectorAll('#cal tr')), act=null;
+  filas.forEach(function(tr,i){
+    var a=new Date(tr.dataset.ini+'T00:00:00'), b=new Date(tr.dataset.fin+'T23:59:59');
+    if(hoy>b) tr.classList.add('pas');
+    if(hoy>=a && hoy<=b) act=i+1;
+    // el fin de semana cuenta como la semana que acaba de terminar
+    if(!act && hoy>b && (!filas[i+1] || new Date(filas[i+1].dataset.ini+'T00:00:00')>hoy)) act=i+1;
+  });
+  if(act){
+    var tr=filas[act-1]; tr.classList.add('hoy'); tr.classList.remove('pas');
+    var c=document.querySelector('.crono .wk[data-sem="'+act+'"]');
+    if(c) c.classList.add('hoy');
+  }
+})();
+</script>
+
+</body></html>

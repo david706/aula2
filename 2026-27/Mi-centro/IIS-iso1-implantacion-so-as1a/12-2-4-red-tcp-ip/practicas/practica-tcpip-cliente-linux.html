@@ -1,0 +1,142 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #2e7d32; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Práctica · Linux</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Red TCP/IP en el cliente Ubuntu Desktop</h2>
+</div>
+
+<div style="background: #eaf7ea; border-left: 5px solid #2e7d32; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Situación:</strong> el puesto cliente del mostrador de la Ferretería Aragón debe tener siempre la misma IP en la red de la tienda para que el servidor lo encuentre, sin perder la salida a Internet.</p>
+  <p style="margin: 6px 0 0 0;"><strong>Entrega:</strong> un PDF en la tarea de Aeducar (ver apartado «Qué entregas»).</p>
+</div>
+
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Datos</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0 20px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Interfaz</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Configuración</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>enp0s3</code> · Adaptador 1 · NAT</td><td style="padding: 8px; border: 1px solid #ccc;">DHCP (no se toca)</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>enp0s8</code> · Adaptador 2 · Red interna <code>ferreteria</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP <code>192.168.100.50/24</code> · <strong>sin puerta de enlace</strong> · DNS <code>8.8.8.8</code>, <code>8.8.4.4</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Servidor Ubuntu (pruebas)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.10</code></td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">Si tu interfaz interna tiene otro nombre (lo ves con <code>ip -br a</code>), úsalo en todos los pasos.</p>
+
+<div style="background: #fdecea; border-left: 5px solid #c0392b; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Antes de empezar, guarda cómo está tu red ahora</strong>, por si tienes que volver atrás:</p>
+  <pre style="background: #1e1e1e; color: #d4d4d4; padding: 10px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; margin: 8px 0;">mkdir -p ~/copia-red
+sudo cp /etc/netplan/*.yaml ~/copia-red/
+ip -br a &gt; ~/copia-red/estado-inicial.txt</pre>
+  <p style="margin: 0;">Usa siempre <code>sudo netplan try</code>: si te quedas sin red y no confirmas, vuelve sola a la configuración anterior. Si ya aplicaste y algo va mal, borra tu archivo (<code>sudo rm /etc/netplan/01-netcfg.yaml</code>), restaura la copia (<code>sudo cp ~/copia-red/*.yaml /etc/netplan/</code>) y ejecuta <code>sudo netplan apply</code>.</p>
+</div>
+
+<!-- M1 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 1 · Adaptador 2 en red interna</h3>
+<ol>
+  <li>Con la VM <strong>apagada</strong>: VirtualBox → Configuración → Red → <strong>Adaptador 2</strong> → Habilitar → Conectado a: <strong>Red interna</strong> → Nombre: <code>ferreteria</code>. El adaptador 1 sigue en NAT.</li>
+  <li>Arranca y comprueba que aparecen las dos interfaces:</li>
+</ol>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">ip -br a
+ls -l /etc/netplan/</pre>
+
+<!-- M2 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 2 · Archivo Netplan</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">sudo nano /etc/netplan/01-netcfg.yaml</pre>
+<p>Escribe (sangría con <strong>espacios</strong>, 2 por nivel):</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    enp0s3:
+      dhcp4: true
+    enp0s8:
+      dhcp4: false
+      addresses:
+        - 192.168.100.50/24
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]</pre>
+<p>Guarda (<strong>Ctrl+O</strong>, Intro) y sal (<strong>Ctrl+X</strong>). Ajusta permisos:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">sudo chmod 600 /etc/netplan/01-netcfg.yaml</pre>
+
+<!-- M3 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 3 · Comprobar y aplicar</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">sudo netplan generate
+sudo netplan try          # pulsa Intro para confirmar
+sudo netplan apply</pre>
+<p>Si sale un error, lee la <strong>línea y columna</strong> que indica, corrige y repite. Apunta el error y cómo lo resolviste: suma en la nota.</p>
+
+<!-- M4 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 4 · Verificación</h3>
+<p>Ejecuta y comprueba que obtienes el resultado correcto:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 34%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Debes ver</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ip -br a</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>enp0s8 UP 192.168.100.50/24</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>route -n</code> (o <code>ip route</code>)</td><td style="padding: 8px; border: 1px solid #ccc;">Una sola ruta por defecto, por <code>enp0s3</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>resolvectl dns</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>8.8.8.8 8.8.4.4</code> en <code>enp0s8</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>0% packet loss</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>0% packet loss</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code></td><td style="padding: 8px; border: 1px solid #ccc;">Una o varias líneas <code>Address:</code></td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">Si falta algún comando: <code>sudo apt install net-tools dnsutils</code>. Si algo falla, sigue la escalera de diagnóstico de la teoría.</p>
+
+<!-- M5 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 5 · Persistencia</h3>
+<p>Reinicia la máquina (<code>sudo reboot</code>) y comprueba con <code>ip -br a</code> que la IP <code>192.168.100.50/24</code> sigue puesta.</p>
+
+<!-- M6 -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Misión 6 · Generar el archivo de evidencias</h3>
+<p>Copia este bloque <strong>entero</strong> en la terminal y pulsa Intro. Te pedirá tu contraseña una vez. Genera el archivo <code>red_linux_&lt;equipo&gt;.txt</code> en tu carpeta personal:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">sudo -v
+{
+echo "##### CABECERA";  whoami; hostname; date '+%F %T'
+echo "##### L1 NETPLAN"; ls -l /etc/netplan/; sudo cat /etc/netplan/01-netcfg.yaml
+echo "##### L2 IP";      ip -br a
+echo "##### L3 RUTAS";   ip route; route -n
+echo "##### L4 DNS";     resolvectl dns
+echo "##### L5 PING_LAN"; ping -c 4 192.168.100.10
+echo "##### L6 PING_INTERNET"; ping -c 4 8.8.8.8
+echo "##### L7 NSLOOKUP"; nslookup google.com
+echo "##### L8 ARRANQUE"; uptime -s
+echo "##### FIN"
+} 2&gt;&amp;1 | tee ~/red_linux_$(hostname).txt</pre>
+<p><strong>No edites el archivo generado.</strong> Si algo ha salido mal, corrige la configuración y vuelve a ejecutar el bloque completo.</p>
+
+<!-- ENTREGA -->
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Qué entregas</h3>
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 10px 14px; margin: 10px 0; border-radius: 4px;"><strong>Usa la plantilla de entrega</strong> (<code>plantilla-entrega-practicas.html</code>, en el curso de Aeducar). Elige «Red TCP/IP en el cliente · Linux»: los apartados ya vienen con su título, pegas las capturas con Ctrl+V, cargas el <code>.txt</code> en el Anexo y la guardas como PDF.</div>
+<p>Un único PDF llamado <code>RedLinux_Apellido_Nombre.pdf</code> con estos apartados, <strong>en este orden y con estos títulos</strong>:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 18%;">Título</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Contenido</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>L0 Datos</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Apellidos, nombre, grupo y fecha.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>L1 Netplan</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de <code>nano</code> con tu archivo y captura de <code>sudo netplan try</code> aceptado.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>L2–L7 Verificación</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de la terminal de cada comando de la misión 4 y, debajo de cada una, una frase que explique qué demuestra.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>L8 Persistencia</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Captura de <code>ip -br a</code> después de reiniciar.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>L9 Incidencias</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Errores que te salieron y cómo los resolviste (o «Sin incidencias»).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Anexo</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Contenido completo de <code>red_linux_&lt;equipo&gt;.txt</code> pegado <strong>como texto</strong> (no como imagen), con letra monoespaciada.</td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">En las capturas debe verse tu usuario en el prompt de la terminal.</p>
+
+<h3 style="color: #2e7d32; border-bottom: 2px solid #2e7d32; padding-bottom: 4px;">Rúbrica</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e7d32; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Criterio</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: center; width: 15%;">Puntos</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Archivo Netplan correcto: <code>enp0s3</code> por DHCP, <code>enp0s8</code> estática con /24, sin puerta de enlace, DNS, permisos 600</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">3</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">IP aplicada y una sola ruta por defecto</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">2</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Conectividad con el servidor y con Internet</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">2</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">DNS configurado y resolución de nombres</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Persistencia tras reinicio</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Explicaciones, incidencias y estructura del PDF</td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td></tr>
+  <tr style="background: #eaf7ea;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Total</strong></td><td style="padding: 8px; border: 1px solid #ccc; text-align: center;"><strong>10</strong></td></tr>
+</table>
+<p style="font-size: 13px; color: #555;">Sin el anexo de texto la práctica se califica como máximo con un 5.</p>
+
+</div>

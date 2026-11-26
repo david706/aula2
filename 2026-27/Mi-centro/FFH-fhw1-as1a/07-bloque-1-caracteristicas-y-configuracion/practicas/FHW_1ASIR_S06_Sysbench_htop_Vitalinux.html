@@ -1,0 +1,189 @@
+<div lang="es" style="max-width:960px;margin:0 auto;background-color:#ffffff;color:#151515;font-family:Arial,sans-serif;font-size:11pt;line-height:1.6;">
+  <div style="padding:20px 24px;background-color:#dceaff;border:1px solid #17458d;border-left:6px solid #17458d;border-radius:8px;color:#151515;">
+    <p style="margin:0;font-weight:bold;color:#123266;">FUNDAMENTOS DE HARDWARE · 1.º ASIR</p>
+    <h2 style="margin:6px 0;font-size:22pt;line-height:1.2;color:#123266;">P3 · Mide y observa el rendimiento de tu equipo</h2>
+    <p style="margin:8px 0 0;color:#151515;">Componentes y periféricos · Sesión 6 de 10 · CE RA1.e</p>
+    <p style="margin:2px 0 0;font-weight:bold;color:#151515;">Práctica individual en clase · Vitalinux · 100 min</p>
+  </div>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">Inicio · ¿Qué vamos a hacer? (10 min)</h3>
+  <p style="margin:0 0 10px;">Un <strong>benchmark</strong> pone al equipo a hacer una tarea y mide cuánto trabajo realiza por segundo. Hoy vas a medir tres componentes con <strong>Sysbench</strong>: la <strong>CPU</strong> hará cálculos, la <strong>RAM</strong> recibirá datos y el <strong>disco</strong> leerá archivos de prueba.</p>
+  <p style="margin:0 0 10px;">Mientras tanto, vas a <strong>observar</strong> lo que pasa dentro del equipo con <strong>htop</strong>, un monitor de procesos que muestra en tiempo real el uso de cada núcleo, la memoria y los programas en marcha.</p>
+  <p style="margin:0 0 10px;">Anota tus resultados en tu cuaderno o en un archivo de texto propio. <strong>No hay que entregar nada</strong>: los usarás al final de la sesión para comparar y comentar en clase.</p>
+  <div style="margin:10px 0;padding:10px 14px;background-color:#eaf1fd;border-left:4px solid #17458d;color:#151515;">
+    <p style="margin:0 0 4px;"><strong>Piensa antes de empezar</strong></p>
+    <ul style="margin:0;padding-left:22px;">
+      <li>¿En cuál de las tres pruebas crees que se notará más la diferencia entre un SSD y un disco mecánico?</li>
+      <li>Si la CPU tiene 4 núcleos, ¿crees que hará 4 veces más cálculos usando los 4 a la vez?</li>
+    </ul>
+  </div>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">1. Conoce tu equipo (10 min)</h3>
+  <ol style="margin:0 0 10px;padding-left:24px;">
+    <li>Anota el número de tu puesto y si trabajas en un equipo físico o en una máquina virtual (MV).</li>
+    <li>Cierra las aplicaciones que no necesites. Abre <strong>Terminal</strong> con tu cuenta habitual.</li>
+    <li>Ejecuta estos comandos uno a uno y responde a las preguntas de debajo.</li>
+  </ol>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">sysbench --version
+htop --version
+nproc
+lscpu | grep -E "Model name|Nombre del modelo|^CPU\(s\)|Thread|Hilo"
+free -h
+lsblk -d -o NAME,ROTA,SIZE,MODEL</code></pre>
+  <ul style="margin:0 0 10px;padding-left:22px;">
+    <li><strong>CPU:</strong> ¿qué modelo es? ¿Cuántas CPU lógicas tiene (<code style="color:#151515;">nproc</code>)?</li>
+    <li><strong>RAM:</strong> en la línea <strong>Mem:</strong>, ¿cuánta hay en <strong>total</strong>? ¿Y cuánta está <strong>disponible</strong>?</li>
+    <li><strong>Disco:</strong> en <code style="color:#151515;">lsblk</code>, la columna <strong>ROTA</strong> vale <strong>1</strong> si el disco gira (mecánico) y <strong>0</strong> si no gira (SSD). ¿Qué tipo tiene tu equipo? En una MV este dato puede no coincidir con el disco real del ordenador anfitrión.</li>
+  </ul>
+  <p style="margin:8px 0;">Si <code style="color:#151515;">sysbench</code> o <code style="color:#151515;">htop</code> no aparecen, avisa al profesorado. Si falta htop, puedes seguir la práctica con <code style="color:#151515;">top</code>, que ya viene instalado.</p>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">2. Aprende a manejar htop (20 min)</h3>
+  <p style="margin:0 0 10px;">Abre un <strong>segundo terminal</strong> y colócalo al lado del primero. En él ejecuta:</p>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">htop</code></pre>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">A. Lee la parte de arriba</h4>
+  <ul style="margin:0 0 10px;padding-left:22px;">
+    <li><strong>Barras numeradas (0, 1, 2…):</strong> una por cada CPU lógica. ¿Cuántas ves? ¿Coincide con <code style="color:#151515;">nproc</code>?</li>
+    <li><strong>Mem:</strong> memoria RAM en uso respecto al total. <strong>Swp:</strong> memoria de intercambio (swap) en el disco.</li>
+    <li><strong>Tasks:</strong> número de procesos y cuántos se están ejecutando (<em>running</em>).</li>
+    <li><strong>Load average:</strong> carga media en el último minuto, 5 minutos y 15 minutos. Como orientación, si supera el número de CPU lógicas, hay tareas esperando turno.</li>
+    <li><strong>Uptime:</strong> tiempo que lleva encendido el equipo.</li>
+  </ul>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">B. Lee la lista de procesos</h4>
+  <p style="margin:0 0 6px;">Cada fila es un proceso. Fíjate en estas columnas:</p>
+  <div class="table-responsive" style="overflow-x:auto;">
+    <table class="table table-bordered" border="1" cellpadding="6" style="width:100%;max-width:750px;border-collapse:collapse;border:1px solid #697786;background-color:#ffffff;color:#151515;font-size:10.5pt;">
+      <thead style="background-color:#dceaff;color:#151515;">
+        <tr><th scope="col">Columna</th><th scope="col">Qué indica</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">PID</th><td>Número que identifica al proceso.</td></tr>
+        <tr><th scope="row">USER</th><td>Usuario que lo ha lanzado.</td></tr>
+        <tr><th scope="row">RES</th><td>RAM física que ocupa de verdad el proceso.</td></tr>
+        <tr><th scope="row">S</th><td>Estado: <strong>R</strong> ejecutándose, <strong>S</strong> dormido (esperando), <strong>D</strong> esperando al disco.</td></tr>
+        <tr><th scope="row">CPU%</th><td>Uso de CPU. 100&nbsp;% equivale a un núcleo completo.</td></tr>
+        <tr><th scope="row">MEM%</th><td>Porcentaje de la RAM total que ocupa.</td></tr>
+        <tr><th scope="row">Command</th><td>Programa y opciones con las que se ha lanzado.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">C. Prueba las teclas</h4>
+  <p style="margin:0 0 6px;">Algunos terminales usan las teclas F para sus propios menús. Si una tecla F no responde, usa la letra equivalente.</p>
+  <div class="table-responsive" style="overflow-x:auto;">
+    <table class="table table-bordered" border="1" cellpadding="6" style="width:100%;max-width:750px;border-collapse:collapse;border:1px solid #697786;background-color:#ffffff;color:#151515;font-size:10.5pt;">
+      <thead style="background-color:#dceaff;color:#151515;">
+        <tr><th scope="col">Tecla</th><th scope="col">Acción</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row"><kbd>P</kbd> (mayúscula)</th><td>Ordena por uso de CPU.</td></tr>
+        <tr><th scope="row"><kbd>M</kbd> (mayúscula)</th><td>Ordena por uso de memoria.</td></tr>
+        <tr><th scope="row"><kbd>t</kbd> o <kbd>F5</kbd></th><td>Vista en árbol: qué proceso ha lanzado a cuál.</td></tr>
+        <tr><th scope="row"><kbd>u</kbd></th><td>Muestra solo los procesos de un usuario.</td></tr>
+        <tr><th scope="row"><kbd>/</kbd> o <kbd>F3</kbd></th><td>Busca un proceso por su nombre.</td></tr>
+        <tr><th scope="row"><kbd>\</kbd> o <kbd>F4</kbd></th><td>Filtra la lista para ver solo lo que contiene un texto.</td></tr>
+        <tr><th scope="row"><kbd>k</kbd> o <kbd>F9</kbd></th><td>Envía una señal al proceso seleccionado (por ejemplo, para terminarlo).</td></tr>
+        <tr><th scope="row"><kbd>h</kbd> o <kbd>F1</kbd></th><td>Ayuda.</td></tr>
+        <tr><th scope="row"><kbd>q</kbd> o <kbd>F10</kbd></th><td>Salir de htop.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin:10px 0 6px;"><strong>Ejercicio.</strong> Contesta en tus notas:</p>
+  <ol style="margin:0 0 10px;padding-left:24px;">
+    <li>Ordena por memoria (<kbd>M</kbd>). ¿Qué proceso ocupa más RAM ahora mismo?</li>
+    <li>Activa la vista en árbol (<kbd>t</kbd>). Busca tu <code style="color:#151515;">htop</code>: ¿de qué proceso «cuelga»?</li>
+    <li>Pulsa <kbd>u</kbd> y elige tu usuario. ¿Cuántos procesos tienes tú en marcha?</li>
+  </ol>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">D. Pon a trabajar un núcleo y detén el proceso</h4>
+  <p style="margin:0 0 6px;">En el <strong>primer terminal</strong> ejecuta este comando. Genera texto sin parar y lo tira, así que solo gasta CPU:</p>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">yes &gt; /dev/null</code></pre>
+  <ol style="margin:0 0 10px;padding-left:24px;">
+    <li>En htop, busca el proceso <strong>yes</strong> (<kbd>/</kbd> y escribe <em>yes</em>). Anota su <strong>PID</strong> y su <strong>CPU%</strong>.</li>
+    <li>Mira las barras de arriba: ¿cuántos núcleos se han llenado?</li>
+    <li>Con <strong>yes</strong> seleccionado, pulsa <kbd>k</kbd>, elige <strong>15 SIGTERM</strong> y pulsa <kbd>Intro</kbd>. Comprueba en el primer terminal que el comando ha terminado.</li>
+  </ol>
+  <p style="margin:6px 0;">Termina solo procesos tuyos que hayas lanzado tú. Si algo se queda bloqueado, en su terminal también puedes pulsar <kbd>Ctrl</kbd>+<kbd>C</kbd>.</p>
+  <p style="margin:6px 0;"><strong>Reto opcional.</strong> Abre dos terminales más y lanza <code style="color:#151515;">yes &gt; /dev/null</code> en cada uno. ¿Qué pasa con las barras y con el <em>load average</em>? Termina todos los <strong>yes</strong> antes de seguir.</p>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">3. Mide con Sysbench mientras observas (35 min)</h3>
+  <p style="margin:0 0 10px;">Deja <strong>htop</strong> abierto en el segundo terminal y ejecuta las pruebas en el primero, una cada vez. Cada medición dura unos 15 segundos. De cada resultado, anota también el tiempo de <strong>total time</strong>.</p>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">A. CPU con un solo hilo</h4>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">sysbench cpu --threads=1 --time=15 run</code></pre>
+  <p style="margin:6px 0;"><strong>Anota el número de <samp>events per second</samp>.</strong> En htop, mira el <strong>CPU%</strong> de <strong>sysbench</strong> y cuántas barras se llenan.</p>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">B. CPU con todos los hilos</h4>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">sysbench cpu --threads=$(nproc) --time=15 run</code></pre>
+  <p style="margin:6px 0;"><code style="color:#151515;">$(nproc)</code> se sustituye por el número de CPU lógicas de tu equipo. <strong>Anota los <samp>events per second</samp>.</strong> En htop, ¿cuántas barras se llenan ahora? ¿Qué valor máximo alcanza el <strong>CPU%</strong> de sysbench?</p>
+  <p style="margin:6px 0;"><strong>Calcula:</strong> divide el resultado de B entre el de A. ¿Sale igual que el número de CPU lógicas? Si sale menos, piensa en por qué: los hilos que comparten núcleo físico, la temperatura o los recursos asignados a la MV.</p>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">C. RAM · ¿A qué velocidad escribe datos?</h4>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">sysbench memory --time=15 --memory-block-size=64M run</code></pre>
+  <p style="margin:6px 0;"><strong>Anota la cifra que aparece entre paréntesis junto a <samp>MiB/sec</samp>.</strong> Son los mebibytes que escribe por segundo. Fíjate en la diferencia: la RAM total del apartado 1 es <strong>capacidad</strong>; esta cifra es <strong>velocidad</strong>.</p>
+  <p style="margin:6px 0;">En htop, mira la barra <strong>Mem</strong> durante la prueba. ¿Sube mucho? Piensa por qué: la prueba escribe una y otra vez sobre el mismo bloque de 64 MiB.</p>
+
+  <h4 style="margin:16px 0 4px;color:#123266;font-size:12pt;">D. Disco · ¿Cuántas lecturas hace por segundo?</h4>
+  <p style="margin:0 0 6px;">Comprueba dónde está tu carpeta personal y cuánto espacio libre tiene.</p>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">df -h "$HOME"</code></pre>
+  <p style="margin:6px 0;">Sigue si la primera columna empieza por <strong>/dev/</strong> y hay al menos <strong>2 GiB libres</strong> en <strong>Disp</strong> o <strong>Avail</strong>. En una MV medirás el disco virtual. Si tienes dudas con la salida, pide ayuda antes de seguir.</p>
+  <p style="margin:6px 0;">Esta vez, en el segundo terminal, sal de htop (<kbd>q</kbd>) y ejecuta <code style="color:#151515;">vmstat 1</code>. Muestra una línea por segundo; fíjate en las columnas <strong>bi</strong> (bloques leídos del disco) y <strong>wa</strong> (% de tiempo que la CPU espera al disco).</p>
+  <p style="margin:6px 0;">En el primer terminal, pega este bloque entero. Prepara 256 MiB de archivos temporales, hace la prueba de lectura y borra los archivos al terminar.</p>
+  <pre style="margin:8px 0;padding:10px 14px;background-color:#f1f3f5;border:1px solid #697786;color:#151515;font-size:11pt;white-space:pre-wrap;overflow-wrap:anywhere;"><code style="color:#151515;">(
+  carpeta=$(mktemp -d "$HOME/P3-disco.XXXXXX") || exit 1
+  cd "$carpeta" || exit 1
+  trap 'sysbench fileio --file-num=4 cleanup; cd "$HOME" &amp;&amp; rmdir -- "$carpeta"' EXIT
+  trap 'exit 130' INT
+
+  sysbench fileio --file-num=4 --file-total-size=256M prepare &amp;&amp;
+  sysbench fileio --file-num=4 --file-total-size=256M \
+    --file-test-mode=rndrd --file-extra-flags=direct --time=15 run
+)</code></pre>
+  <p style="margin:6px 0;"><strong>Anota el número de <samp>reads/s</samp>.</strong> Son las lecturas por segundo. Si aparece un error, escribe <strong>ND</strong> (no disponible) y anota qué ha pasado.</p>
+  <p style="margin:6px 0;">En <code style="color:#151515;">vmstat</code>, ¿cuánto suben <strong>bi</strong> y <strong>wa</strong> durante la prueba? Pulsa <kbd>Ctrl</kbd>+<kbd>C</kbd> para parar vmstat.</p>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">4. Compara con otro puesto (15 min)</h3>
+  <p style="margin:0 0 10px;">Copia esta tabla en tus notas y complétala con tus resultados. En la columna <strong>Referencia</strong>, pon los de un compañero o compañera que haya usado los mismos comandos, o los que facilite el profesorado.</p>
+  <div class="table-responsive" style="overflow-x:auto;">
+    <table class="table table-bordered" border="1" cellpadding="8" style="width:100%;max-width:750px;border-collapse:collapse;border:1px solid #697786;background-color:#ffffff;color:#151515;font-size:11pt;">
+      <thead style="background-color:#dceaff;color:#151515;">
+        <tr>
+          <th scope="col">Prueba</th>
+          <th scope="col">Unidad</th>
+          <th scope="col">Mi resultado</th>
+          <th scope="col">Referencia</th>
+          <th scope="col">Lo que vi en htop / vmstat</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">CPU 1 hilo</th><td>eventos/s</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><th scope="row">CPU todos los hilos</th><td>eventos/s</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><th scope="row">RAM</th><td>MiB/s</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><th scope="row">Disco</th><td>lecturas/s</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin:8px 0;">Comentad en pareja: ¿en qué prueba hay más diferencia entre los dos puestos? ¿Puede explicarse por el tipo de disco, el número de núcleos o los recursos asignados a la MV?</p>
+  <div style="margin:10px 0;padding:10px 14px;background-color:#eaf1fd;border-left:4px solid #17458d;color:#151515;">
+    <p style="margin:0 0 4px;"><strong>Ejemplo simulado para practicar</strong></p>
+    <ul style="margin:0 0 4px;padding-left:22px;">
+      <li>Puesto A obtiene 850 eventos/s en CPU (1 hilo), 3.300 eventos/s (4 hilos), 6.000 MiB/s en RAM y 900 lecturas/s en disco.</li>
+      <li>Puesto B obtiene 1.100 eventos/s en CPU (1 hilo), 2.150 eventos/s (2 hilos), 7.500 MiB/s en RAM y 300 lecturas/s en disco.</li>
+    </ul>
+    <p style="margin:0;">B tiene un núcleo más rápido, pero A gana con todos los hilos porque tiene más. A lee muchas más veces por segundo: probablemente tiene SSD y B un disco mecánico. Usa estas cifras si no puedes medir en tu puesto.</p>
+  </div>
+
+  <h3 style="margin:22px 0 6px;color:#123266;font-size:15pt;">Cierre · Puesta en común (10 min)</h3>
+  <div style="margin:8px 0;padding:12px 16px;background-color:#fff1c4;border-left:4px solid #805600;color:#151515;">
+    <p style="margin:0 0 6px;"><strong>Comentamos en clase:</strong></p>
+    <ul style="margin:0;padding-left:22px;">
+      <li>¿Acertaste la predicción del inicio sobre el SSD y el disco mecánico?</li>
+      <li>¿La prueba con todos los hilos multiplicó el resultado por el número de CPU lógicas?</li>
+      <li>¿Por qué no basta con mirar la cantidad de RAM para saber si un equipo es rápido?</li>
+      <li>Si un equipo de la oficina «va lento», ¿qué mirarías primero en htop?</li>
+    </ul>
+  </div>
+  <p style="margin:8px 0;">En la próxima sesión usaremos herramientas para comprobar el estado de los componentes.</p>
+  <p style="margin:18px 0 0;padding-top:8px;border-top:1px solid #697786;">Para saber más: <a style="color:#16428b;text-decoration:underline;" href="https://manpages.ubuntu.com/manpages/jammy/man1/sysbench.1.html">manual de Sysbench</a> · <a style="color:#16428b;text-decoration:underline;" href="https://manpages.ubuntu.com/manpages/jammy/man1/htop.1.html">manual de htop</a> · <a style="color:#16428b;text-decoration:underline;" href="https://manpages.ubuntu.com/manpages/jammy/man8/vmstat.8.html">manual de vmstat</a></p>
+</div>

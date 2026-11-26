@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Instalación de Odoo con Docker · Arranque automático</title>
+  <style>
+    :root{--azul:#24364b;--verde:#247e74;--tinta:#1f2937;--papel:#fff;--fondo:#f3f6f5;--linea:#d7e0dd;--suave:#e5f3f0;--aviso:#fff4ce;--codigo:#17212b}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--fondo);color:var(--tinta);font:16px/1.55 Arial,Helvetica,sans-serif}
+    main{max-width:1000px;margin:28px auto;padding:0 18px 40px}
+    header{padding:32px;border-radius:18px;background:linear-gradient(135deg,var(--azul),var(--verde));color:#fff;box-shadow:0 10px 28px #24364b26}
+    h1{margin:0 0 8px;font-size:2rem;line-height:1.15} header p{margin:0;color:#eaf7f4}
+    section{margin-top:20px;padding:24px;background:var(--papel);border:1px solid var(--linea);border-radius:14px}
+    h2{margin:0 0 14px;color:var(--azul);font-size:1.4rem} h3{color:var(--azul);font-size:1.05rem}
+    code{font-family:Consolas,"Courier New",monospace}
+    pre{overflow:auto;padding:16px;border-radius:10px;background:var(--codigo);color:#e8f4f1;line-height:1.45;white-space:pre}
+    .objetivo,.correcto,.aviso{padding:14px 16px;border-radius:10px;margin:14px 0}
+    .objetivo,.correcto{background:var(--suave);border-left:5px solid var(--verde)}
+    .aviso{background:var(--aviso);border-left:5px solid #d59b13}
+    .paso{display:inline-block;margin-right:8px;padding:3px 9px;border-radius:999px;background:var(--verde);color:#fff;font-size:.82rem;font-weight:bold}
+    table{width:100%;border-collapse:collapse} th,td{padding:10px;border:1px solid var(--linea);text-align:left;vertical-align:top} th{background:var(--azul);color:#fff}
+    details{margin:12px 0;border:1px solid var(--linea);border-radius:10px;background:#fff}
+    summary{cursor:pointer;padding:14px 16px;color:var(--azul);font-weight:bold}.contenido{padding:0 16px 16px}
+    a{color:#176a62} footer{text-align:center;color:#5d6a66;margin-top:24px;font-size:.9rem}
+    @media print{body{background:#fff}main{max-width:none;margin:0}header,section{box-shadow:none;break-inside:avoid}details{break-inside:avoid}.contenido{display:block!important}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Odoo con Docker y arranque automático</h1>
+    <p>Guía paso a paso · SGE · 2.º DAM · Ubuntu Server 24.04 LTS</p>
+  </header>
+
+  <section>
+    <h2>Objetivo</h2>
+    <div class="objetivo"><strong>Resultado:</strong> una instalación formada por Odoo 19 y PostgreSQL 15. Los datos quedan guardados en volúmenes y los contenedores vuelven a arrancar si fallan o si se reinicia la máquina virtual.</div>
+    <table>
+      <thead><tr><th>Servicio</th><th>Función</th><th>Acceso</th></tr></thead>
+      <tbody>
+        <tr><td>Odoo</td><td>Aplicación ERP</td><td><code>http://IP-DE-LA-MV:8069</code></td></tr>
+        <tr><td>PostgreSQL</td><td>Base de datos de Odoo</td><td>Solo desde la red interna de Docker</td></tr>
+      </tbody>
+    </table>
+    <div class="aviso"><strong>Importante:</strong> Odoo utiliza PostgreSQL, no MariaDB. En PostgreSQL se mantiene <code>POSTGRES_DB: postgres</code>; la base <code>empresa_dam2</code> se creará después desde la página de Odoo.</div>
+    <h3>Sistema operativo del laboratorio</h3>
+    <div class="correcto"><strong>Decisión para el curso:</strong> utilizaremos <strong>Ubuntu Server 24.04 LTS</strong> tanto para Docker como para la instalación nativa de Odoo 19. Así todos los equipos parten de la misma plantilla y evitamos diferencias de versiones.</div>
+    <table>
+      <thead><tr><th>Práctica</th><th>Sistema</th><th>Instalación</th></tr></thead>
+      <tbody>
+        <tr><td>Primera instalación</td><td>Ubuntu Server 24.04 LTS</td><td>Docker + Compose + Odoo 19 + PostgreSQL</td></tr>
+        <tr><td>Instalación comparativa</td><td>Ubuntu Server 24.04 LTS</td><td>Odoo 19 nativo mediante el paquete oficial <code>.deb</code></td></tr>
+      </tbody>
+    </table>
+    <div class="aviso"><strong>No utilizar Ubuntu 26.04 en estas prácticas:</strong> el paquete <code>odoo_19.0.latest_all.deb</code> está preparado para Ubuntu 24.04 <code>noble</code>. No se deben mezclar repositorios ni forzar dependencias de versiones diferentes.</div>
+    <details>
+      <summary>¿Por qué no utilizamos la versión más reciente de Ubuntu?</summary>
+      <div class="contenido">
+        <p>Ubuntu 24.04 incluye Python 3.12 y es la versión para la que se preparó el paquete de Odoo 19. Ubuntu 26.04 incorpora una generación posterior de Python y cambios en varios paquetes del sistema.</p>
+        <p>Al intentar instalar el paquete de Odoo 19 en Ubuntu 26.04 pueden aparecer dependencias incompatibles o con nombres diferentes, como <code>python3-freezegun</code> y <code>python3-renderpm</code>. Resolverlo exigiría instalar Odoo desde el código fuente, crear un entorno virtual y adaptar dependencias.</p>
+        <p>Para aprender Docker, Compose, PostgreSQL, Odoo y Python interesa disponer primero de un entorno estable y repetible. Por eso utilizamos Ubuntu Server 24.04 LTS en todas las máquinas del laboratorio.</p>
+      </div>
+    </details>
+    <details open>
+      <summary>¿Por qué utilizamos Odoo 19 y no Odoo 20?</summary>
+      <div class="contenido">
+        <p><strong>Odoo 20 es una versión estable, no una versión experimental.</strong> Sin embargo, acaba de publicarse y todavía tiene menos recorrido en instalaciones educativas y de producción.</p>
+        <p>Para este curso elegimos Odoo 19 porque:</p>
+        <ul>
+          <li>ha recibido más correcciones y lleva más tiempo utilizándose;</li>
+          <li>dispone de más documentación, ejemplos y soluciones conocidas;</li>
+          <li>los módulos comunitarios y complementos tienen mayor disponibilidad;</li>
+          <li>su instalación está comprobada con Ubuntu Server 24.04 LTS y Python 3.12;</li>
+          <li>permite preparar actividades que no cambien durante el curso;</li>
+          <li>facilita distinguir un error del alumnado de una incidencia reciente de la plataforma.</li>
+        </ul>
+        <p>La decisión no significa que Odoo 20 sea malo o inestable. Se prioriza Odoo 19 porque necesitamos un entorno <strong>maduro, documentado, reproducible y común para todo el grupo</strong>. Odoo 20 puede reservarse para una demostración final o una actividad comparativa.</p>
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="paso">1</span>Instalar Docker</h2>
+    <pre><code>sudo apt update
+sudo apt install docker.io docker-compose-v2 -y
+sudo systemctl enable --now docker
+sudo usermod -aG docker "$USER"
+newgrp docker</code></pre>
+    <p>Comprobamos la instalación:</p>
+    <pre><code>docker --version
+docker compose version
+systemctl is-enabled docker
+systemctl is-active docker</code></pre>
+    <p>Los dos últimos comandos deben responder <code>enabled</code> y <code>active</code>.</p>
+  </section>
+
+  <section>
+    <h2><span class="paso">2</span>Preparar el proyecto</h2>
+    <pre><code>mkdir -p ~/odoo/addons
+cd ~/odoo
+nano compose.yaml</code></pre>
+    <p>Pegamos este contenido completo:</p>
+    <pre><code>services:
+
+  db:
+    image: postgres:15
+    container_name: odoo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  odoo:
+    image: odoo:19.0
+    container_name: odoo-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - datos-odoo:/var/lib/odoo
+      - ./addons:/mnt/extra-addons
+
+volumes:
+  datos-postgres:
+  datos-odoo:</code></pre>
+    <p>Guardamos en Nano con <strong>Ctrl+O</strong>, <strong>Enter</strong> y <strong>Ctrl+X</strong>.</p>
+    <div class="correcto"><strong>¿Qué hace <code>restart: unless-stopped</code>?</strong> Docker intenta volver a levantar el contenedor si se cae y también después de reiniciar Ubuntu. No lo arrancará automáticamente si el administrador lo detuvo expresamente.</div>
+  </section>
+
+  <section>
+    <h2><span class="paso">3</span>Validar y arrancar</h2>
+    <pre><code>cd ~/odoo
+docker compose config
+docker compose pull
+docker compose up -d</code></pre>
+    <p>La primera descarga puede tardar varios minutos. Comprobamos el estado:</p>
+    <pre><code>docker compose ps
+docker compose logs --tail=50 odoo</code></pre>
+    <p>Los contenedores esperados son <code>odoo-db</code> y <code>odoo-web</code>. PostgreSQL debe aparecer como <code>healthy</code>.</p>
+  </section>
+
+  <section>
+    <h2><span class="paso">4</span>Crear la base de datos de Odoo</h2>
+    <ol>
+      <li>Averigua la IP con <code>hostname -I</code>.</li>
+      <li>Abre <code>http://IP-DE-LA-MV:8069</code> en el navegador.</li>
+      <li>Indica <strong>Master Password</strong>: <code>admin</code>, salvo que se haya cambiado.</li>
+      <li>Escribe como nombre de base de datos <code>empresa_dam2</code>.</li>
+      <li>Completa correo, contraseña, idioma y país.</li>
+      <li>Pulsa <strong>Create database</strong> y espera sin actualizar la página.</li>
+    </ol>
+    <div class="aviso">No crees <code>empresa_dam2</code> mediante <code>POSTGRES_DB</code>. Si PostgreSQL crea una base vacía con ese nombre, Odoo puede intentar usarla sin que existan sus tablas y mostrar el error <code>ir_module_module does not exist</code>.</div>
+  </section>
+
+  <section>
+    <h2><span class="paso">5</span>Probar el rearranque automático</h2>
+    <p>Primero comprobamos que los servicios están funcionando:</p>
+    <pre><code>cd ~/odoo
+docker compose ps</code></pre>
+    <p>Reiniciamos la máquina virtual:</p>
+    <pre><code>sudo reboot</code></pre>
+    <p>Cuando Ubuntu vuelva a arrancar, entramos de nuevo y comprobamos:</p>
+    <pre><code>cd ~/odoo
+docker compose ps</code></pre>
+    <p>Odoo y PostgreSQL deben aparecer otra vez como iniciados sin ejecutar <code>docker compose up -d</code>.</p>
+  </section>
+
+  <section>
+    <h2>Comandos de supervivencia</h2>
+    <table>
+      <thead><tr><th>Acción</th><th>Comando</th></tr></thead>
+      <tbody>
+        <tr><td>Ver contenedores</td><td><code>docker compose ps</code></td></tr>
+        <tr><td>Ver registros de Odoo</td><td><code>docker compose logs -f odoo</code></td></tr>
+        <tr><td>Ver registros de PostgreSQL</td><td><code>docker compose logs -f db</code></td></tr>
+        <tr><td>Reiniciar los servicios</td><td><code>docker compose restart</code></td></tr>
+        <tr><td>Detener sin borrar datos</td><td><code>docker compose down</code></td></tr>
+        <tr><td>Volver a arrancar</td><td><code>docker compose up -d</code></td></tr>
+      </tbody>
+    </table>
+    <div class="aviso"><strong>No utilices <code>docker compose down -v</code></strong> salvo que quieras borrar los volúmenes y perder las bases de datos y archivos de Odoo.</div>
+  </section>
+
+  <section>
+    <h2>Solución de errores</h2>
+    <details open><summary>Odoo no abre en el navegador</summary><div class="contenido"><pre><code>cd ~/odoo
+docker compose ps
+docker compose logs --tail=80 odoo</code></pre><p>Comprueba también la IP de la MV, el modo de red de VirtualBox y que el puerto 8069 no esté bloqueado.</p></div></details>
+    <details><summary>Error: ir_module_module does not exist</summary><div class="contenido"><p>La base existe pero no está inicializada. Si es una instalación nueva y no contiene datos, detén Odoo, elimina únicamente esa base defectuosa y vuelve a crearla desde el navegador.</p><pre><code>docker compose stop odoo
+docker exec -it odoo-db psql -U odoo -d postgres \
+  -c "DROP DATABASE empresa_dam2 WITH (FORCE);"
+docker compose start odoo</code></pre></div></details>
+    <details><summary>Permission denied al utilizar Docker</summary><div class="contenido"><p>Cierra la sesión de Ubuntu y vuelve a entrar. También puedes ejecutar temporalmente <code>newgrp docker</code>.</p></div></details>
+    <details><summary>Docker Compose no encuentra el archivo</summary><div class="contenido"><p>Entra en la carpeta del proyecto antes de ejecutar los comandos:</p><pre><code>cd ~/odoo
+ls
+docker compose ps</code></pre></div></details>
+  </section>
+
+  <section>
+    <h2>Lista final de comprobación</h2>
+    <ul>
+      <li>Docker está <code>enabled</code> y <code>active</code>.</li>
+      <li>El archivo se llama exactamente <code>compose.yaml</code>.</li>
+      <li>PostgreSQL utiliza <code>POSTGRES_DB: postgres</code>.</li>
+      <li>Los dos servicios tienen <code>restart: unless-stopped</code>.</li>
+      <li><code>odoo-db</code> aparece como <code>healthy</code>.</li>
+      <li>Odoo responde en el puerto 8069.</li>
+      <li>Después de reiniciar la MV, ambos contenedores vuelven a arrancar.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Fuentes oficiales</h2>
+    <ul>
+      <li><a href="https://hub.docker.com/_/odoo">Imagen oficial de Odoo</a></li>
+      <li><a href="https://docs.docker.com/engine/containers/start-containers-automatically/">Políticas de reinicio de Docker</a></li>
+      <li><a href="https://docs.docker.com/compose/how-tos/startup-order/">Orden de inicio y healthcheck en Docker Compose</a></li>
+    </ul>
+  </section>
+
+  <footer>SGE · 2.º DAM · Instalación de Odoo con Docker</footer>
+</main>
+</body>
+</html>

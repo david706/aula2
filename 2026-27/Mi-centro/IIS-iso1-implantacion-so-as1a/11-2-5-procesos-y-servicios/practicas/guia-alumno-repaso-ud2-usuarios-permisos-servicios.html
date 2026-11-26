@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía del alumno · Repaso UD2 (RA2): usuarios, permisos y servicios — ISO</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1em 0 .3em;font-size:1.05rem}
+.time{display:inline-block;background:var(--navy);color:#fff;border-radius:999px;padding:1px 10px;font-size:.8rem;font-weight:700;vertical-align:middle;margin-left:6px}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.9rem;line-height:1.5}
+pre i{color:#8fd19e;font-style:normal}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.analogia{border-left:6px solid var(--navy2);background:#eef4fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.box{border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:#fbfcfd}
+.box h4{margin:.1em 0 .4em;color:var(--navy)}
+.step{display:flex;gap:10px;align-items:flex-start;margin:.5em 0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.step input{margin-top:5px;width:18px;height:18px;flex:none}
+.step.done{background:#e9f5ec;border-color:#b6dcbf}
+.q{background:var(--navy);color:#fff;border-radius:10px;padding:10px 14px;margin:.6em 0;cursor:pointer}
+.q .ans{display:none;margin-top:8px;background:rgba(255,255,255,.14);border-radius:8px;padding:8px 12px}
+.q.open .ans{display:block}
+.q small{opacity:.75;display:block;margin-top:4px}
+.q code{background:rgba(255,255,255,.2);color:#fff}
+.resp{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font:inherit;margin:-.2em 0 .6em}
+details{margin:.6em 0;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fbfcfd}
+summary{cursor:pointer;font-weight:700;color:var(--navy2)}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.85rem}.grid2{grid-template-columns:1fr}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none;break-inside:avoid}.q .ans{display:block}details{display:block}details>*{display:block}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+<div class="k">&gt; módulo ISO 0369 · UD2 · RA2 · guía del alumno · UD2 + repaso UD1</div>
+<h1>Repaso UD2 (usuarios, permisos y servicios) y teoría de la UD1</h1>
+<p>Lo esencial de la unidad explicado en una página, una actividad para hacer en tus máquinas virtuales y las preguntas con las que cerramos.</p>
+<div class="pills"><span class="pill">srv-ubuntu · pc-ubuntu</span><span class="pill">srv-win · pc-win</span><span class="pill">Grupos: contabilidad · direccion · almacen · becarios</span></div>
+</div></div>
+<div class="pbar"><div class="in"><span>Tu avance</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+
+<div class="wrap">
+
+<div class="card"><div class="analogia"><b>La idea que une toda la unidad:</b> un sistema operativo es un edificio. Los <b>usuarios</b> son las personas, los <b>grupos</b> son los departamentos, los <b>permisos</b> son las llaves de cada sala y los <b>servicios</b> son el personal de mantenimiento que trabaja aunque no haya nadie en recepción.</div>
+</div>
+
+<!-- ============ 1 USUARIOS ============ -->
+<div class="card"><h2>1. Usuarios y grupos</h2><span class="time">10 min</span>
+<p>Un usuario es una identidad con un número (UID en Linux, SID en Windows). Lo que de verdad importa al sistema es ese número, no el nombre. Un grupo junta usuarios para dar permisos <b>una sola vez</b> en lugar de uno por uno.</p>
+<div class="info">Regla de oro: <b>los permisos se dan a grupos, no a personas</b>. Si mañana entra alguien nuevo en almacén, lo metes en el grupo y ya tiene todo lo que necesita.</div>
+
+<div class="grid2">
+<div class="box"><h4>Linux (srv-ubuntu)</h4>
+<pre><i># crear los departamentos</i>
+sudo groupadd contabilidad
+sudo groupadd almacen
+<i># usuario con carpeta, shell y grupo</i>
+sudo useradd -m -s /bin/bash \
+  -g almacen -G becarios luis
+sudo passwd luis
+<i># añadir grupo SIN quitar los otros</i>
+sudo usermod -aG contabilidad luis
+<i># obligar a cambiarla al entrar</i>
+sudo chage -d 0 luis
+<i># comprobar</i>
+id luis
+sudo chage -l luis</pre></div>
+<div class="box"><h4>Windows (srv-win / pc-win)</h4>
+<pre><i>REM cmd como administrador</i>
+net localgroup almacen /add
+net user luis P4ss-temp /add ^
+  /logonpasswordchg:yes
+net localgroup almacen luis /add
+<i>REM comprobar</i>
+net user luis</pre>
+<pre><i># PowerShell</i>
+$p = Read-Host -AsSecureString
+New-LocalUser luis -Password $p
+Add-LocalGroupMember almacen -Member luis
+Get-LocalGroupMember almacen</pre></div>
+</div>
+<div class="warn"><b>Errores típicos:</b> olvidar la <code>-a</code> en <code>usermod -aG</code> (borra los grupos que ya tenía), olvidar <code>-m</code> (el usuario se queda sin carpeta personal) y dar por hecho que la contraseña caduca sin mirarlo con <code>chage -l</code> o <code>net user</code>.</div>
+<p class="muted"><code>New-LocalUser</code> no tiene una opción directa para «cambiar contraseña en el próximo inicio». Por eso, para ese caso concreto, la forma más corta en Windows es <code>net user … /logonpasswordchg:yes</code>.</p>
+</div>
+
+<!-- ============ 2 PERMISOS ============ -->
+<div class="card"><h2>2. Permisos</h2><span class="time">10 min</span>
+<h3>Linux: tres tríos y tres letras</h3>
+<p>Cada archivo tiene un <b>dueño</b>, un <b>grupo</b> y <b>el resto</b>. A cada uno se le dan tres letras: <code>r</code> (leer, 4), <code>w</code> (escribir, 2) y <code>x</code> (ejecutar o entrar en el directorio, 1).</p>
+<pre>drwxrws---  2 root almacen  4096  /srv/almacen
+ └┬┘└┬┘└┬┘
+ dueño grupo otros     <i>→ 770 + bit SGID (la s) = 2770</i></pre>
+<table><tr><th>Comando</th><th>Para qué</th><th>Ejemplo</th></tr>
+<tr><td><code>chown</code></td><td>Cambiar dueño y grupo</td><td><code>sudo chown root:almacen /srv/almacen</code></td></tr>
+<tr><td><code>chmod</code></td><td>Cambiar las letras</td><td><code>sudo chmod 2770 /srv/almacen</code></td></tr>
+<tr><td><code>setfacl</code></td><td>Dar permiso a alguien que no es ni dueño ni grupo</td><td><code>sudo setfacl -m g:direccion:rx /srv/almacen</code></td></tr></table>
+<div class="err"><b>Ojo con los directorios:</b> para «leer y escribir» en una carpeta hace falta también la <code>x</code>. Sin <code>x</code> no se puede entrar, aunque tengas <code>rw</code>. Por eso en una carpeta de grupo se pone <code>rwx</code> (7), no <code>rw-</code> (6).</div>
+<div class="info">En Linux <b>solo se aplica un trío</b>: si eres el dueño, el de dueño; si no, el de grupo si perteneces; si no, el de otros. No se suman.</div>
+
+<h3>Windows: NTFS y la herencia</h3>
+<p>En NTFS cada carpeta tiene una lista de entradas (ACL). Los permisos de todos tus grupos <b>se suman</b>, excepto un <b>Denegar</b>, que siempre gana.</p>
+<pre><i>REM lectura y escritura (Modificar) al grupo almacen, heredando a subcarpetas y archivos</i>
+icacls C:\Datos\Almacen /grant almacen:(OI)(CI)M
+<i>REM cortar la herencia copiando lo que había</i>
+icacls C:\Datos\Almacen /inheritance:d
+<i>REM ver el resultado</i>
+icacls C:\Datos\Almacen</pre>
+<pre><i># Lo mismo con PowerShell</i>
+$acl  = Get-Acl C:\Datos\Almacen
+$regla = New-Object System.Security.AccessControl.FileSystemAccessRule(
+  "almacen","Modify","ContainerInherit,ObjectInherit","None","Allow")
+$acl.AddAccessRule($regla)
+Set-Acl C:\Datos\Almacen $acl
+(Get-Acl C:\Datos\Almacen).Access | ft IdentityReference,FileSystemRights</pre>
+<table><tr><th></th><th>Linux</th><th>Windows NTFS</th></tr>
+<tr><td>¿Se suman los permisos?</td><td>No: se aplica un trío</td><td>Sí, salvo Denegar</td></tr>
+<tr><td>Herencia</td><td>No (salvo SGID para el grupo y ACL por defecto)</td><td>Sí, de la carpeta padre</td></tr>
+<tr><td>Ver permisos</td><td><code>ls -l</code>, <code>getfacl</code></td><td><code>icacls</code>, <code>Get-Acl</code></td></tr></table>
+<div class="warn"><code>chmod 777</code> o «Todos: Control total» no son una solución: son abrir la puerta del edificio a cualquiera. Se da <b>el mínimo necesario</b>.</div>
+</div>
+
+<!-- ============ 3 SERVICIOS ============ -->
+<div class="card"><h2>3. Servicios</h2><span class="time">10 min</span>
+<p>Un servicio es un programa que corre en segundo plano sin que nadie inicie sesión: SSH, DNS, la cola de impresión… Siempre hay que distinguir dos preguntas:</p>
+<div class="grid2">
+<div class="box"><h4>¿Está funcionando AHORA?</h4><p>Linux: <code>start</code> / <code>stop</code> → <code>is-active</code><br>Windows: <code>Start-Service</code> → estado <i>Running</i></p></div>
+<div class="box"><h4>¿Arrancará al REINICIAR?</h4><p>Linux: <code>enable</code> / <code>disable</code> → <code>is-enabled</code><br>Windows: tipo de inicio <i>Automatic</i></p></div>
+</div>
+<div class="grid2">
+<div class="box"><h4>Linux</h4>
+<pre>systemctl status ssh
+systemctl is-active ssh
+systemctl is-enabled ssh
+sudo systemctl enable --now ssh
+<i># qué ha pasado (registro)</i>
+journalctl -u ssh -n 20
+journalctl -u ssh --since today</pre></div>
+<div class="box"><h4>Windows</h4>
+<pre>Get-Service Spooler
+Get-Service | ? Status -eq Running
+Set-Service Spooler -StartupType Automatic
+Start-Service Spooler</pre>
+<pre>sc.exe query Spooler
+sc.exe qc Spooler
+sc.exe config Spooler start= auto</pre></div>
+</div>
+<div class="err">En <code>sc.exe config</code> el espacio va <b>después</b> del igual: <code>start= auto</code>. Sin ese espacio, el comando falla. Y en PowerShell hay que escribir <code>sc.exe</code>, porque <code>sc</code> a secas es otro comando.</div>
+<div class="ok">Un cambio de servicio no está comprobado hasta que <b>reinicias</b> la máquina y vuelves a mirar el estado.</div>
+</div>
+
+<!-- ============ 4 ACTIVIDAD ============ -->
+<div class="card"><h2>4. Actividad: hazlo en tus máquinas</h2><span class="time">30 min</span>
+<p>Escribe primero los comandos <b>sin mirar</b> y después ejecútalos en la VM indicada. Copia la <b>salida real</b> (o haz captura). Marca cada paso cuando lo tengas comprobado.</p>
+
+<h3>Tarea A · Usuario en Windows con contraseña expirada <span class="muted">(srv-win o pc-win)</span></h3>
+<div class="step"><input type="checkbox"><div>Crea el usuario <code>becario1</code>, mételo en el grupo <code>becarios</code> y haz que tenga que cambiar la contraseña al iniciar sesión.</div></div>
+<div class="step"><input type="checkbox"><div>Compruébalo con <code>net user becario1</code>: busca la línea que indica que la contraseña debe cambiarse.</div></div>
+<div class="step"><input type="checkbox"><div>Inicia sesión como <code>becario1</code> y confirma que Windows te pide la contraseña nueva.</div></div>
+
+<h3>Tarea B · Lectura y escritura en un directorio de Linux <span class="muted">(srv-ubuntu)</span></h3>
+<div class="step"><input type="checkbox"><div>Crea <code>/srv/almacen</code> para que el grupo <code>almacen</code> pueda leer y escribir, y el resto no entre.</div></div>
+<div class="step"><input type="checkbox"><div>Haz que los archivos nuevos hereden el grupo <code>almacen</code>.</div></div>
+<div class="step"><input type="checkbox"><div>Comprueba como un usuario del grupo que puede crear un archivo y como uno de fuera que no puede entrar.</div></div>
+
+<h3>Tarea C · Estado de un servicio en los dos sistemas</h3>
+<div class="step"><input type="checkbox"><div>En <b>srv-ubuntu</b>: di si <code>ssh</code> está activo ahora y si arrancará al reiniciar. Mira sus últimas 10 líneas de registro.</div></div>
+<div class="step"><input type="checkbox"><div>En <b>srv-win</b>: di el estado del servicio <code>Spooler</code> (cola de impresión) y su tipo de inicio.</div></div>
+<div class="step"><input type="checkbox"><div>Reinicia una de las dos máquinas y comprueba que el resultado coincide con lo que dijiste.</div></div>
+</div>
+
+<!-- ============ 5 DOCUMENTAR ============ -->
+<div class="card"><h2>5. Cómo se documenta una tarea de configuración</h2><span class="time">10 min</span>
+<p>Todo lo que entregues en la UD2 debe poder repetirlo otra persona sin preguntarte nada. Cada tarea lleva:</p>
+<table><tr><th>Elemento</th><th>Qué poner</th></tr>
+<tr><td><b>Objetivo</b></td><td>Qué se quería conseguir, en una frase.</td></tr>
+<tr><td><b>Máquina</b></td><td>Dónde se hizo: srv-ubuntu, pc-ubuntu, srv-win o pc-win.</td></tr>
+<tr><td><b>Comandos</b></td><td>Exactos, en orden, tal como se teclearon.</td></tr>
+<tr><td><b>Salida real</b></td><td>Copia o captura de lo que devolvió el sistema, no lo que «debería» salir.</td></tr>
+<tr><td><b>Verificación</b></td><td>La prueba de que funciona: con otro usuario, desde otra máquina o tras reiniciar.</td></tr>
+<tr><td><b>Incidencias</b></td><td>Qué falló, por qué y cómo se resolvió. Si no falló nada, se escribe «Sin incidencias».</td></tr></table>
+<h3>Ejemplo de incidencias bien documentadas</h3>
+<table><tr><th>Qué pasó</th><th>Causa</th><th>Cómo se resolvió</th></tr>
+<tr><td><code>net user becario1 1234 /add /logonpasswordchg:yes</code> devolvió «La contraseña no cumple los requisitos de la directiva de contraseñas».</td><td>La política de srv-win exige longitud mínima y complejidad.</td><td>Se repitió con una contraseña temporal que cumple la política. Comprobado con <code>net accounts</code>.</td></tr>
+<tr><td><code>sudo -u pedro touch /srv/almacen/prueba.txt</code> devolvió <code>Permission denied</code>.</td><td>Se había puesto <code>chmod 660</code>: sin <code>x</code> en el grupo no se puede entrar en el directorio.</td><td><code>sudo chmod 2770 /srv/almacen</code> y se repitió la prueba como pedro: el archivo se crea.</td></tr>
+<tr><td>Tras reiniciar srv-ubuntu, <code>ssh</code> estaba <i>inactive</i>.</td><td>Se había hecho <code>start</code> pero no <code>enable</code>.</td><td><code>sudo systemctl enable --now ssh</code>, nuevo reinicio y <code>systemctl is-enabled ssh</code> → <code>enabled</code>.</td></tr></table>
+<div class="info">Una buena incidencia tiene <b>tres partes</b>: el mensaje de error real (copiado, no resumido), la causa y el comando con el que se arregló, más la comprobación de que ya funciona. «Me dio un error y lo arreglé» no vale.</div>
+
+<h3>Modelo completo de una tarea documentada</h3>
+<div class="box">
+<p><b>Objetivo:</b> que el grupo <code>almacen</code> pueda leer y escribir en <code>/srv/almacen</code> y nadie más pueda entrar.</p>
+<p><b>Máquina:</b> srv-ubuntu.</p>
+<p><b>Comandos:</b></p>
+<pre>sudo groupadd almacen
+sudo useradd -m -s /bin/bash -G almacen pedro
+sudo mkdir -p /srv/almacen
+sudo chown root:almacen /srv/almacen
+sudo chmod 2770 /srv/almacen</pre>
+<p><b>Salida real:</b></p>
+<pre>$ ls -ld /srv/almacen
+drwxrws--- 2 root almacen 4096 nov 25 10:14 /srv/almacen</pre>
+<p><b>Verificación:</b></p>
+<pre>$ sudo -u pedro touch /srv/almacen/prueba.txt
+$ ls -l /srv/almacen
+-rw-r--r-- 1 pedro almacen 0 nov 25 10:16 prueba.txt
+$ sudo -u luis ls /srv/almacen
+ls: no se puede abrir el directorio '/srv/almacen': Permiso denegado</pre>
+<p><b>Incidencias:</b> el primer intento con <code>chmod 660</code> dio «Permiso denegado» a pedro al crear el archivo, porque el directorio no tenía <code>x</code> para el grupo. Se corrigió con <code>chmod 2770</code> y se repitió la verificación con resultado correcto.</p>
+</div>
+
+<div class="warn">Nunca escribas contraseñas reales en el documento. Pon <code>********</code> o «contraseña temporal entregada al usuario».</div>
+<div class="err"><b>Los dos fallos que más se repiten:</b> entregar comandos sin salida (no demuestra nada) y no comprobar tras reiniciar (un servicio con <code>start</code> pero sin <code>enable</code> parece bien hasta que se apaga la máquina).</div>
+<div class="info"><b>Entregas pendientes de la UD2:</b> revisa en Aeducar que tienes subidas las de usuarios, grupos y permisos con este formato antes del plazo.</div>
+</div>
+
+<!-- ============ 6 UD1 ============ -->
+<div class="card"><h2>6. Repaso UD1 (RA1): teoría para el examen</h2><span class="time">30 min</span>
+<p>La UD1 es «entender la máquina»: qué hace un sistema operativo, cómo arranca, cómo se reparte el disco y cómo se organizan los archivos. Aquí tienes lo esencial de cada tema.</p>
+
+<h3>6.1 Arquitectura del sistema operativo</h3>
+<p>El sistema operativo es el programa que hace de intermediario entre el hardware y los programas del usuario. Sus funciones son:</p>
+<table><tr><th>Función</th><th>Qué hace</th><th>Ejemplo que ya has visto</th></tr>
+<tr><td><b>Procesos</b></td><td>Decide qué programa usa la CPU y cuánto tiempo (planificación), y crea y termina procesos.</td><td><code>ps</code>, <code>top</code>, <code>kill</code>, Administrador de tareas</td></tr>
+<tr><td><b>Memoria</b></td><td>Reparte la RAM entre procesos, los aísla y usa el disco cuando falta RAM (memoria virtual).</td><td>swap en Linux, <code>pagefile.sys</code> en Windows</td></tr>
+<tr><td><b>Archivos</b></td><td>Organiza los datos del disco en archivos y carpetas, y controla quién accede a ellos.</td><td>ext4, NTFS, permisos</td></tr>
+<tr><td><b>Entrada/salida</b></td><td>Habla con los dispositivos (disco, teclado, red, impresora) a través de los controladores (drivers).</td><td><code>/dev</code> en Linux, Administrador de dispositivos</td></tr>
+<tr><td><b>Seguridad e interfaz</b></td><td>Usuarios, contraseñas y permisos, y la forma de comunicarse con el usuario (terminal o escritorio gráfico).</td><td>Toda la UD2</td></tr></table>
+
+<p>El <b>núcleo</b> (kernel) es la parte del sistema que tiene control total del hardware. Hay tres diseños:</p>
+<table><tr><th>Tipo</th><th>Cómo es</th><th>Ventaja / inconveniente</th><th>Ejemplos</th></tr>
+<tr><td><b>Monolítico</b></td><td>Todo (procesos, memoria, archivos, drivers) corre dentro del núcleo.</td><td>Muy rápido. Un fallo en un driver puede tumbar todo el sistema.</td><td><b>Linux</b> (con módulos que se cargan y descargan)</td></tr>
+<tr><td><b>Micronúcleo</b></td><td>El núcleo hace lo mínimo; el resto son servicios fuera del núcleo.</td><td>Muy estable: si falla un servicio, se reinicia solo ese. Más lento.</td><td>Minix, QNX</td></tr>
+<tr><td><b>Híbrido</b></td><td>Base de micronúcleo, pero con muchos servicios metidos dentro del núcleo por rendimiento.</td><td>Equilibrio entre los dos.</td><td><b>Windows</b> (NT), macOS</td></tr></table>
+<div class="analogia"><b>Analogía:</b> el monolítico es un restaurante donde el chef lo hace todo (rápido, pero si se pone enfermo cierra). El micronúcleo es uno donde cada tarea tiene su encargado (si falla uno, se sustituye). El híbrido es el chef con algunos ayudantes de confianza en la cocina.</div>
+
+<h3>6.2 Licencias</h3>
+<table><tr><th>Tipo</th><th>¿Gratis?</th><th>¿Ves el código?</th><th>Qué significa</th></tr>
+<tr><td><b>Software libre</b></td><td>Normalmente</td><td>Sí</td><td>Cuatro libertades: usarlo, estudiarlo, modificarlo y redistribuirlo. «Libre» habla de libertad, no de precio.</td></tr>
+<tr><td><b>GPL</b></td><td>—</td><td>Sí</td><td>Licencia libre con <i>copyleft</i>: si distribuyes una versión modificada, también debe ser GPL. La usa el núcleo Linux.</td></tr>
+<tr><td><b>Permisivas</b> (MIT, BSD, Apache)</td><td>—</td><td>Sí</td><td>Libres sin copyleft: puedes meter el código en un programa cerrado.</td></tr>
+<tr><td><b>Propietario</b></td><td>No siempre</td><td>No</td><td>Lo usas según el contrato de licencia (EULA). Windows, Office.</td></tr>
+<tr><td><b>Freeware</b></td><td>Sí</td><td>No</td><td>Gratis, pero cerrado. No es lo mismo que libre.</td></tr>
+<tr><td><b>Shareware</b></td><td>De prueba</td><td>No</td><td>Lo pruebas gratis con límite de tiempo o de funciones; luego pagas.</td></tr></table>
+<p><b>Licencias de Windows según cómo se compran:</b></p>
+<ul><li><b>OEM:</b> viene con el equipo y va ligada a esa placa base. No se puede pasar a otro ordenador.</li>
+<li><b>Retail</b> (caja o tienda): la compras tú y puedes trasladarla a otro equipo (desinstalándola del anterior).</li>
+<li><b>Por volumen:</b> para empresas y centros; una clave o un servidor de activación (KMS) para muchos equipos.</li></ul>
+
+<h3>6.3 Arranque</h3>
+<p>Al encender: el <b>firmware</b> comprueba el hardware (POST) → busca el <b>gestor de arranque</b> → este carga el <b>núcleo</b> → el núcleo arranca el primer proceso (<code>systemd</code> en Linux) y los servicios.</p>
+<table><tr><th></th><th>BIOS (Legacy)</th><th>UEFI</th></tr>
+<tr><td>Época</td><td>Antigua (desde los 80)</td><td>Actual</td></tr>
+<tr><td>Tabla de particiones</td><td>MBR</td><td>GPT</td></tr>
+<tr><td>Dónde busca el arranque</td><td>En el primer sector del disco</td><td>En una partición propia, la <b>ESP</b> (FAT32, montada en <code>/boot/efi</code>)</td></tr>
+<tr><td>Arranque seguro</td><td>No</td><td><b>Secure Boot</b>: solo arranca software firmado</td></tr></table>
+<ul><li><b>GRUB:</b> gestor de arranque de Linux. Muestra el menú para elegir sistema o núcleo. Se configura en <code>/etc/default/grub</code> y se aplica con <code>sudo update-grub</code>.</li>
+<li><b>Windows Boot Manager:</b> el de Windows. Se consulta y modifica con <code>bcdedit</code>.</li>
+<li><b>Arranque dual:</b> dos sistemas en el mismo equipo. Se instala <b>primero Windows y después Linux</b>, porque Windows no reconoce a Linux y sobrescribe el gestor de arranque; GRUB sí detecta a Windows y lo añade a su menú.</li></ul>
+
+<h3>6.4 Particionado</h3>
+<p>Una <b>partición</b> es un trozo del disco que el sistema trata como si fuera un disco independiente.</p>
+<table><tr><th></th><th>MBR</th><th>GPT</th></tr>
+<tr><td>Tamaño máximo de disco</td><td>2 TiB</td><td>Prácticamente ilimitado</td></tr>
+<tr><td>Número de particiones</td><td>4 primarias, o 3 primarias + 1 <b>extendida</b> que contiene <b>lógicas</b></td><td>128 en Windows, sin primarias ni extendidas</td></tr>
+<tr><td>Seguridad</td><td>Una sola copia de la tabla: si se daña, se pierde todo</td><td>Copia de la tabla al final del disco y comprobación de errores (CRC)</td></tr>
+<tr><td>Firmware</td><td>BIOS</td><td>UEFI</td></tr></table>
+<p><b>Esquema típico de Linux:</b></p>
+<ul><li><code>/</code> (raíz): el sistema.</li>
+<li><b>swap</b>: memoria de intercambio; el sistema la usa cuando se llena la RAM (y para hibernar).</li>
+<li><code>/home</code> <b>separada</b>: tus datos van aparte. Si reinstalas o cambias de distribución, formateas <code>/</code> y conservas <code>/home</code>.</li>
+<li><code>/boot/efi</code>: la partición ESP, solo en equipos UEFI.</li></ul>
+<pre>lsblk          <i># discos y particiones en árbol</i>
+sudo fdisk -l  <i># tabla de particiones (dice si es gpt o dos/MBR)</i>
+df -h          <i># espacio usado de lo que está montado</i></pre>
+<p class="muted">En Windows: <code>diskmgmt.msc</code> (Administración de discos) o <code>diskpart</code> → <code>list disk</code> (un asterisco en la columna GPT indica que el disco es GPT).</p>
+
+<h3>6.5 Sistemas de archivos</h3>
+<p>El sistema de archivos es la forma de organizar los datos dentro de una partición. Sin él, la partición es espacio en blanco.</p>
+<table><tr><th></th><th>ext4</th><th>NTFS</th><th>FAT32</th><th>exFAT</th></tr>
+<tr><td>Sistema</td><td>Linux</td><td>Windows</td><td>Todos</td><td>Todos (actuales)</td></tr>
+<tr><td>Archivo máximo</td><td>16 TiB</td><td>Enorme (sin límite práctico)</td><td><b>4 GiB</b></td><td>Sin límite práctico</td></tr>
+<tr><td>Permisos</td><td>Sí (rwx)</td><td>Sí (ACL)</td><td>No</td><td>No</td></tr>
+<tr><td>Diario (journaling)</td><td>Sí</td><td>Sí</td><td>No</td><td>No</td></tr>
+<tr><td>Uso típico</td><td>Disco de Linux</td><td>Disco de Windows</td><td>USB antiguos, partición ESP</td><td>USB y tarjetas SD grandes</td></tr></table>
+<div class="info"><b>Journaling</b> (diario): antes de escribir, el sistema apunta lo que va a hacer. Si se va la luz a mitad, al arrancar repasa el diario y deja el disco coherente. Por eso ext4 y NTFS se recuperan mejor de un apagón que FAT32.</div>
+<div class="warn">Pregunta típica: «no puedo copiar una ISO de 5 GB a mi USB». El USB está en <b>FAT32</b> (máximo 4 GiB por archivo). Solución: formatearlo en exFAT o NTFS.</div>
+
+<h3>6.6 Árbol de directorios de Linux</h3>
+<p>En Linux hay <b>un solo árbol</b> que empieza en <code>/</code> (la raíz). Los discos y USB no tienen letra: se «montan» en una carpeta del árbol. Esta organización sigue el estándar <b>FHS</b> y es la misma en Ubuntu, Vitalinux o Fedora.</p>
+<pre>/
+├── bin    <i>programas básicos (ls, cp…); hoy es un enlace a /usr/bin</i>
+├── boot   <i>núcleo y GRUB</i>
+├── dev    <i>dispositivos como archivos (/dev/sda = primer disco)</i>
+├── etc    <i>configuración del sistema (passwd, hosts, netplan…)</i>
+├── home   <i>carpetas personales (/home/luis)</i>
+├── media  <i>USB y CD montados automáticamente</i>
+├── mnt    <i>montajes manuales temporales</i>
+├── opt    <i>programas de terceros</i>
+├── proc   <i>información de procesos y del núcleo (no está en disco)</i>
+├── root   <i>carpeta personal del administrador root</i>
+├── tmp    <i>temporales, se borran al reiniciar</i>
+├── usr    <i>programas y bibliotecas instalados</i>
+└── var    <i>datos que cambian: registros (/var/log), colas, cachés</i></pre>
+<div class="info">Regla para recordarlo: <b>configuración en <code>/etc</code></b>, <b>registros en <code>/var/log</code></b>, <b>datos del usuario en <code>/home</code></b>, <b>programas en <code>/usr</code></b>. Y <code>/root</code> no es lo mismo que <code>/</code>: es solo la carpeta de casa del usuario root.</div>
+
+<h3>6.7 Árbol de directorios de Windows</h3>
+<p>En Windows hay <b>un árbol por unidad</b>, cada una con su letra: <code>C:\</code>, <code>D:\</code>, un USB en <code>E:\</code>…</p>
+<pre>C:\
+├── Windows                <i>el sistema operativo</i>
+│   └── System32           <i>programas y drivers del sistema; aquí está el Registro (config)</i>
+├── Program Files          <i>programas de 64 bits</i>
+├── Program Files (x86)    <i>programas de 32 bits</i>
+├── ProgramData            <i>datos compartidos de los programas (oculta)</i>
+└── Users                  <i>carpetas personales (C:\Users\luis), equivale a /home</i></pre>
+<table><tr><th>Para qué</th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Carpetas de usuarios</td><td><code>/home</code></td><td><code>C:\Users</code></td></tr>
+<tr><td>Configuración del sistema</td><td><code>/etc</code> (archivos de texto)</td><td>Registro (<code>regedit</code>)</td></tr>
+<tr><td>Programas instalados</td><td><code>/usr</code>, <code>/opt</code></td><td><code>C:\Program Files</code></td></tr>
+<tr><td>Registros</td><td><code>/var/log</code>, <code>journalctl</code></td><td>Visor de eventos</td></tr>
+<tr><td>Temporales</td><td><code>/tmp</code></td><td><code>C:\Windows\Temp</code> y <code>%TEMP%</code></td></tr></table>
+
+<h3>6.8 Rutas</h3>
+<table><tr><th></th><th>Linux</th><th>Windows</th></tr>
+<tr><td>Separador</td><td><code>/</code></td><td><code>\</code></td></tr>
+<tr><td>Ruta absoluta (desde la raíz)</td><td><code>/home/luis/notas.txt</code></td><td><code>C:\Users\luis\notas.txt</code></td></tr>
+<tr><td>Ruta relativa (desde donde estás)</td><td><code>docs/notas.txt</code>, <code>../ana</code></td><td><code>docs\notas.txt</code>, <code>..\ana</code></td></tr>
+<tr><td>Mayúsculas</td><td><b>Distingue</b>: <code>Notas.txt</code> ≠ <code>notas.txt</code></td><td><b>No distingue</b>: es el mismo archivo</td></tr>
+<tr><td>Carpeta personal</td><td><code>~</code></td><td><code>%USERPROFILE%</code></td></tr></table>
+<p><code>.</code> es la carpeta actual y <code>..</code> la de arriba, en los dos sistemas. Una ruta es <b>absoluta</b> si empieza por <code>/</code> (o por la letra de unidad en Windows); si no, es relativa.</p>
+
+<h3>6.9 Instalación y máquinas virtuales</h3>
+<table><tr><th>Tipo</th><th>Qué es</th><th>Cuándo</th></tr>
+<tr><td><b>Limpia</b></td><td>Se formatea y se instala desde cero.</td><td>Equipo nuevo o sistema muy dañado. Es la más estable.</td></tr>
+<tr><td><b>Actualización</b></td><td>Se instala la versión nueva encima, conservando programas y datos.</td><td>Pasar de Windows 10 a 11, o de una versión de Ubuntu a la siguiente.</td></tr>
+<tr><td><b>Desatendida</b></td><td>Las respuestas del instalador van en un archivo y nadie tiene que estar delante.</td><td>Muchos equipos iguales (<code>autounattend.xml</code> en Windows, <i>autoinstall</i> en Ubuntu).</td></tr></table>
+<p><b>Requisitos mínimos:</b> antes de instalar se comprueban CPU, RAM, disco y firmware. Ejemplo: Windows 11 pide CPU de 64 bits compatible, 4 GB de RAM, 64 GB de disco, UEFI con Secure Boot y TPM 2.0.</p>
+<p><b>Virtualización:</b> un <b>hipervisor</b> permite ejecutar varias máquinas virtuales en un mismo equipo.</p>
+<div class="grid2">
+<div class="box"><h4>Tipo 1 (nativo, bare metal)</h4><p>Se instala directamente sobre el hardware, sin sistema debajo. Más rendimiento. Para servidores.</p><p class="muted">VMware ESXi, Hyper-V, Proxmox (KVM)</p></div>
+<div class="box"><h4>Tipo 2 (alojado)</h4><p>Es un programa que se instala encima de tu sistema operativo. Más cómodo para aprender y probar.</p><p class="muted"><b>VirtualBox</b>, VMware Workstation</p></div></div>
+<p>En VirtualBox has usado: <b>instantáneas</b> (volver a un estado anterior), las <b>Guest Additions</b> (mejor pantalla, portapapeles compartido) y los modos de red <b>NAT</b> (salir a Internet) y <b>red interna</b> (que las VM se vean entre ellas).</p>
+
+<h3>6.10 Vitalinux</h3>
+<p><b>Vitalinux</b> es la distribución Linux del Gobierno de Aragón para los centros educativos. Vitalinux 3 está basada en <b>Xubuntu 22.04</b> (Ubuntu con escritorio XFCE, ligero), así que casi todo lo de Ubuntu vale igual: <code>apt</code>, el árbol de directorios, <code>systemctl</code>… Los equipos se gestionan de forma centralizada desde el centro.</p>
+<p><b>La filosofía del código abierto:</b> el código se puede ver, estudiar, mejorar y compartir. Para un centro educativo supone no pagar licencias, poder adaptarlo y no depender de un solo fabricante.</p>
+<table><tr><th>Comando</th><th>Qué hace</th><th>Ejemplo</th></tr>
+<tr><td><code>pwd</code></td><td>Dice en qué carpeta estás</td><td><code>pwd</code> → <code>/home/luis</code></td></tr>
+<tr><td><code>ls</code></td><td>Lista el contenido</td><td><code>ls -la</code> (con ocultos y detalles)</td></tr>
+<tr><td><code>cd</code></td><td>Cambia de carpeta</td><td><code>cd /etc</code>, <code>cd ..</code>, <code>cd ~</code></td></tr>
+<tr><td><code>mkdir</code></td><td>Crea una carpeta</td><td><code>mkdir -p practicas/ud1</code></td></tr>
+<tr><td><code>cp</code></td><td>Copia</td><td><code>cp notas.txt copia.txt</code>, <code>cp -r carpeta destino</code></td></tr>
+<tr><td><code>mv</code></td><td>Mueve o renombra</td><td><code>mv viejo.txt nuevo.txt</code></td></tr>
+<tr><td><code>rm</code></td><td>Borra (sin papelera)</td><td><code>rm archivo</code>, <code>rm -r carpeta</code></td></tr></table>
+<div class="err"><code>rm</code> no tiene papelera: lo que borras desaparece. Y <code>sudo rm -r</code> sobre una ruta equivocada puede romper el sistema. Lee la ruta dos veces antes de pulsar Intro.</div>
+
+<h3>Autotest UD1</h3>
+<p>Contesta sin mirar arriba.</p>
+<div class="q">¿Qué tipo de núcleo tiene Linux y cuál Windows? ¿Qué ventaja tiene un micronúcleo?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿Software libre significa gratis? ¿En qué se diferencia del freeware?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">Compras un portátil con Windows (licencia OEM) y se rompe la placa. ¿Puedes usar la licencia en otro equipo?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">Un disco de 4 TB, ¿MBR o GPT? ¿Por qué?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">Quieres arranque dual Windows + Ubuntu. ¿Qué instalas primero y por qué?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿Por qué no puedes copiar un archivo de 6 GB a un USB? ¿Cómo lo solucionas?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿Dónde buscas la configuración de red en Linux, y los registros? ¿Qué hay en <code>/root</code>?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">Estás en <code>/home/luis</code>. ¿La ruta <code>../ana/notas.txt</code> es absoluta o relativa? ¿A qué ruta absoluta equivale?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">VirtualBox, ¿hipervisor de tipo 1 o de tipo 2? Pon un ejemplo del otro tipo.</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿En qué distribución se basa Vitalinux 3 y qué comando usarías para saber en qué carpeta estás?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+</div>
+
+<!-- ============ 7 CIERRE ============ -->
+<div class="card"><h2>7. Cierre: comprobación oral</h2><span class="time">15 min</span>
+<p>Contesta por escrito y prepárate para explicarlo en voz alta.</p>
+<div class="q">¿Qué elementos deben incluirse en la documentación de una tarea de configuración del software de base?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿Cuál es el comando para crear un usuario en Windows con la contraseña expirada?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">¿Cómo se asignan permisos de lectura y escritura a un directorio en Linux para un grupo?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">Un servicio está <i>active</i> pero <i>disabled</i>. ¿Qué pasa al reiniciar?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+<div class="q">luis está en contabilidad (Modificar) y en becarios (Lectura) sobre una carpeta NTFS. ¿Qué puede hacer?</div><textarea class="resp" rows="2" placeholder="Tu respuesta…"></textarea>
+
+<div class="ok"><b>Para casa, de cara al examen:</b> termina el autotest de la UD1 (apartado 6) y vuelve a la teoría de cada pregunta que no te haya salido sin mirar.</div>
+</div>
+
+</div>
+<script>
+(function(){
+ var KEY='iso_alumno_repaso_ud2_ups',boxes=[].slice.call(document.querySelectorAll('.step input'));
+ var st={};try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ function upd(){var n=0;boxes.forEach(function(b){if(b.checked)n++;b.closest('.step').classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+boxes.length;document.getElementById('bar').style.width=(100*n/boxes.length)+'%';}
+ boxes.forEach(function(b,i){if(st[i])b.checked=true;b.addEventListener('change',function(){st[i]=b.checked;try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}upd()})});
+ upd();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía práctica · Windows 11 + Ubuntu en VirtualBox · ISO</title>
+<style>
+:root{
+  --bg:#f4f1e9;
+  --panel:#ffffff;
+  --text:#1f2937;
+  --muted:#5f6875;
+  --navy:#24364b;
+  --teal:#247e74;
+  --orange:#d97832;
+  --line:#ddd7ca;
+  --soft:#eef3f1;
+  --danger:#9f3a2f;
+  --ok:#2f6f52;
+  --code:#151a20;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  line-height:1.55;
+  font-size:16px;
+}
+header{
+  background:var(--navy);
+  color:#fff;
+  padding:42px 22px 34px;
+}
+.hero{
+  max-width:980px;
+  margin:auto;
+}
+.badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:14px;
+}
+.badge{
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  padding:5px 10px;
+  font-size:.78rem;
+}
+h1{
+  margin:0 0 10px;
+  font-size:clamp(1.8rem,4vw,2.7rem);
+  line-height:1.12;
+}
+.hero p{
+  margin:0;
+  max-width:760px;
+  color:#e8edf3;
+}
+main{
+  max-width:980px;
+  margin:0 auto;
+  padding:26px 22px 70px;
+}
+.intro{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px;
+  margin-bottom:22px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:14px;
+  margin:18px 0;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px;
+}
+.card h3{margin:0 0 8px;color:var(--navy)}
+.card p{margin:0;color:var(--muted)}
+details{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  margin:14px 0;
+  overflow:hidden;
+}
+summary{
+  cursor:pointer;
+  list-style:none;
+  padding:18px 20px;
+  font-weight:700;
+  color:var(--navy);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{
+  content:"+";
+  display:inline-grid;
+  place-items:center;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background:var(--teal);
+  color:#fff;
+  font-weight:700;
+  flex:0 0 auto;
+}
+details[open] summary::before{content:"−"}
+.details-body{
+  padding:0 20px 22px;
+  border-top:1px solid var(--line);
+}
+h2{
+  color:var(--navy);
+  margin:34px 0 12px;
+  font-size:1.5rem;
+}
+h3{color:var(--navy)}
+.lead{color:var(--muted)}
+.step{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:12px;
+  margin:14px 0;
+}
+.num{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--navy);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  font-weight:700;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:15px 0;
+  font-size:.94rem;
+}
+th,td{
+  padding:10px 12px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  vertical-align:top;
+}
+th{
+  background:var(--navy);
+  color:#fff;
+}
+tr:nth-child(even) td{background:#faf9f6}
+code{
+  font-family:Consolas,"Courier New",monospace;
+}
+.terminal{
+  background:var(--code);
+  color:#e7edf3;
+  border-radius:12px;
+  padding:15px 17px;
+  overflow-x:auto;
+  margin:14px 0;
+}
+.terminal code{
+  white-space:pre;
+  display:block;
+}
+.tip,.warn,.task{
+  border-radius:12px;
+  padding:14px 16px;
+  margin:14px 0;
+}
+.tip{background:#eaf4f1;border-left:5px solid var(--teal)}
+.warn{background:#fbefea;border-left:5px solid var(--danger)}
+.task{background:#fff5e9;border-left:5px solid var(--orange)}
+.checklist{
+  list-style:none;
+  padding:0;
+  margin:12px 0;
+}
+.checklist li{
+  margin:8px 0;
+  padding-left:28px;
+  position:relative;
+}
+.checklist li::before{
+  content:"☐";
+  position:absolute;
+  left:0;
+  top:0;
+  color:var(--teal);
+  font-weight:700;
+}
+.kicker{
+  display:inline-block;
+  color:var(--orange);
+  font-weight:700;
+  font-size:.82rem;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+footer{
+  max-width:980px;
+  margin:0 auto;
+  padding:0 22px 50px;
+  color:var(--muted);
+  font-size:.86rem;
+}
+@media(max-width:650px){
+  th:nth-child(3),td:nth-child(3){display:none}
+}
+@media print{
+  body{background:#fff}
+  header{background:#fff;color:#000;border-bottom:2px solid #000}
+  .hero p{color:#333}
+  details{break-inside:avoid}
+  details .details-body{display:block!important}
+  summary::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">ISO · 0369</span>
+      <span class="badge">1.º ASIR</span>
+      <span class="badge">Curso 26/27</span>
+      <span class="badge">VirtualBox · Windows 11 · Ubuntu</span>
+    </div>
+    <h1>Guía práctica de instalación de sistemas operativos</h1>
+    <p>Una guía paso a paso para preparar máquinas virtuales, instalar Windows 11 y Ubuntu, practicar el particionado y realizar las comprobaciones básicas desde consola.</p>
+  </div>
+</header>
+
+<main>
+
+<section class="intro">
+  <span class="kicker">Cómo usar esta guía</span>
+  <h2 style="margin-top:6px">Trabaja por bloques y guarda evidencias</h2>
+  <p>Abre cada bloque únicamente cuando llegues a esa parte de la práctica. No se trata solo de “conseguir que arranque”: debes ser capaz de explicar qué has configurado, por qué y cómo comprobarlo.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>1. Preparar</h3>
+      <p>Crear correctamente la máquina virtual, asignar recursos y conectar la ISO.</p>
+    </div>
+    <div class="card">
+      <h3>2. Instalar</h3>
+      <p>Completar la instalación de Windows 11 y Ubuntu siguiendo decisiones justificadas.</p>
+    </div>
+    <div class="card">
+      <h3>3. Comprobar</h3>
+      <p>Usar comandos del sistema para demostrar que la instalación funciona.</p>
+    </div>
+    <div class="card">
+      <h3>4. Documentar</h3>
+      <p>Guardar las capturas y explicaciones indicadas al final de cada bloque.</p>
+    </div>
+  </div>
+</section>
+
+<h2>Bloque 0 · Antes de empezar</h2>
+
+<details open>
+  <summary>Material necesario</summary>
+  <div class="details-body">
+    <ul class="checklist">
+      <li>Oracle VirtualBox instalado.</li>
+      <li>ISO de Windows 11.</li>
+      <li>ISO de Ubuntu Desktop.</li>
+      <li>Espacio suficiente en disco para crear las máquinas virtuales.</li>
+      <li>Carpeta de trabajo para guardar capturas y documentación.</li>
+    </ul>
+    <div class="tip"><b>Consejo:</b> nombra las máquinas virtuales de forma clara. Por ejemplo: <code>ISO_Win11_2627</code> y <code>ISO_Ubuntu_2627</code>.</div>
+  </div>
+</details>
+
+<details>
+  <summary>Qué debes aprender realmente</summary>
+  <div class="details-body">
+    <ul>
+      <li>Diferenciar hardware físico y hardware virtual.</li>
+      <li>Asignar RAM, CPU y almacenamiento a una máquina virtual.</li>
+      <li>Entender el papel de EFI/UEFI y TPM en Windows 11.</li>
+      <li>Distinguir una instalación automática de un particionado manual.</li>
+      <li>Identificar particiones, sistemas de archivos y puntos de montaje en Linux.</li>
+      <li>Realizar comprobaciones básicas con terminal y CMD.</li>
+    </ul>
+  </div>
+</details>
+
+<h2>Bloque 1 · Instalación de Windows 11</h2>
+
+<details open>
+  <summary>1.1 Crear la máquina virtual</summary>
+  <div class="details-body">
+    <p class="lead">Configura una máquina virtual adecuada para Windows 11.</p>
+    <table>
+      <thead>
+        <tr><th>Parámetro</th><th>Valor</th><th>Qué estás configurando</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>RAM</td><td>4096 MB</td><td>Memoria disponible para el sistema invitado.</td></tr>
+        <tr><td>CPU</td><td>2 vCPU</td><td>Procesadores virtuales asignados.</td></tr>
+        <tr><td>Disco</td><td>64 GB VDI dinámico</td><td>Almacenamiento virtual.</td></tr>
+        <tr><td>EFI</td><td>Activado</td><td>Arranque moderno tipo UEFI.</td></tr>
+        <tr><td>TPM</td><td>TPM 2.0</td><td>Requisito de seguridad de Windows 11.</td></tr>
+        <tr><td>Red</td><td>NAT o puente</td><td>Acceso de red de la máquina virtual.</td></tr>
+      </tbody>
+    </table>
+    <div class="task"><b>Evidencia W1:</b> captura de la configuración general de la máquina virtual antes de iniciar la instalación.</div>
+  </div>
+</details>
+
+<details>
+  <summary>1.2 Instalar Windows 11</summary>
+  <div class="details-body">
+    <div class="step"><div class="num">1</div><div>Inicia la máquina virtual con la ISO de Windows 11 conectada.</div></div>
+    <div class="step"><div class="num">2</div><div>Selecciona idioma, formato de hora y teclado.</div></div>
+    <div class="step"><div class="num">3</div><div>Pulsa <b>Instalar ahora</b>.</div></div>
+    <div class="step"><div class="num">4</div><div>Cuando se solicite una clave de producto, utiliza la opción <b>No tengo clave de producto</b>.</div></div>
+    <div class="step"><div class="num">5</div><div>Selecciona Windows 11 Pro.</div></div>
+    <div class="step"><div class="num">6</div><div>Elige <b>Instalación personalizada: instalar solo Windows</b> y utiliza el espacio sin asignar del disco virtual.</div></div>
+
+    <div class="task"><b>Evidencia W2:</b> captura de la pantalla de selección del disco o partición durante la instalación.</div>
+  </div>
+</details>
+
+<details>
+  <summary>1.3 Crear una cuenta local durante OOBE</summary>
+  <div class="details-body">
+    <p>Cuando Windows entre en la fase OOBE y solicite conexión o cuenta Microsoft, prueba los métodos indicados por el profesor.</p>
+
+    <h3>Método A · OOBE\BYPASSNRO</h3>
+    <div class="step"><div class="num">1</div><div>Abre CMD con <code>Shift + F10</code> o <code>Fn + Shift + F10</code>.</div></div>
+    <div class="terminal"><code>C:\&gt; OOBE\BYPASSNRO</code></div>
+    <p>Tras el reinicio, busca la opción para continuar sin conexión y crear una cuenta local.</p>
+
+    <h3>Método B · Interfaz local directa</h3>
+    <div class="terminal"><code>C:\&gt; start ms-cxh:localonly</code></div>
+
+    <h3>Método C · Creación manual desde consola</h3>
+    <div class="terminal"><code>C:\&gt; net user "AlumnoISO" "Password123" /add
+C:\&gt; net localgroup Administradores "AlumnoISO" /add
+C:\&gt; cd oobe
+C:\&gt; msoobe.exe &amp;&amp; shutdown -r -t 0</code></div>
+
+    <div class="warn"><b>Importante:</b> anota qué método has utilizado y qué ha ocurrido. Si un método no funciona, eso también forma parte de la práctica: documenta el mensaje o comportamiento observado.</div>
+  </div>
+</details>
+
+<details>
+  <summary>1.4 Comprobaciones en Windows 11</summary>
+  <div class="details-body">
+    <p>Una vez dentro del escritorio abre CMD y realiza estas comprobaciones:</p>
+    <div class="terminal"><code>C:\&gt; whoami
+C:\&gt; net user AlumnoISO
+C:\&gt; slmgr.vbs /dli</code></div>
+
+    <ul class="checklist">
+      <li>Identifica el usuario con el que has iniciado sesión.</li>
+      <li>Comprueba que la cuenta local existe.</li>
+      <li>Comprueba el estado de licencia mostrado por Windows.</li>
+      <li>Anota si la instalación aparece activada, sin activar o en periodo de gracia.</li>
+    </ul>
+    <div class="task"><b>Evidencia W3:</b> captura del escritorio y de las comprobaciones realizadas en CMD.</div>
+  </div>
+</details>
+
+<h2>Bloque 2 · Instalación de Ubuntu Desktop</h2>
+
+<details open>
+  <summary>2.1 Crear la máquina virtual para Ubuntu</summary>
+  <div class="details-body">
+    <table>
+      <thead>
+        <tr><th>Parámetro</th><th>Valor recomendado</th><th>Objetivo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Nombre</td><td><code>ISO_Ubuntu2627</code></td><td>Identificar claramente la máquina.</td></tr>
+        <tr><td>RAM</td><td>4096 MB</td><td>Permitir el uso fluido del instalador gráfico.</td></tr>
+        <tr><td>CPU</td><td>2 vCPU</td><td>Mejorar la respuesta durante la instalación.</td></tr>
+        <tr><td>Disco</td><td>80 GB VDI dinámico</td><td>Disponer de espacio para particionado manual.</td></tr>
+      </tbody>
+    </table>
+    <div class="task"><b>Evidencia U1:</b> captura de la configuración de la máquina virtual.</div>
+  </div>
+</details>
+
+<details>
+  <summary>2.2 Particionado manual</summary>
+  <div class="details-body">
+    <p>Durante la instalación selecciona la opción de particionado manual o instalación personalizada y crea una estructura equivalente a la siguiente:</p>
+
+    <table>
+      <thead>
+        <tr><th>Partición</th><th>Tamaño</th><th>Sistema / montaje</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>/dev/sda1</code></td><td>30 GB</td><td>ext4 · <code>/</code></td></tr>
+        <tr><td><code>/dev/sda2</code></td><td>25 GB</td><td>ext4 · <code>/home</code></td></tr>
+        <tr><td><code>/dev/sda3</code></td><td>4 GB</td><td>swap</td></tr>
+        <tr><td><code>/dev/sda4</code></td><td>20 GB</td><td>FAT32/NTFS · espacio compartido</td></tr>
+      </tbody>
+    </table>
+
+    <div class="tip">
+      <b>Pregunta de control:</b> ¿por qué puede ser útil separar <code>/home</code> de la partición raíz <code>/</code>?
+    </div>
+
+    <div class="task"><b>Evidencia U2:</b> captura del esquema de particiones antes de confirmar los cambios.</div>
+  </div>
+</details>
+
+<details>
+  <summary>2.3 Comprobaciones desde terminal</summary>
+  <div class="details-body">
+    <p>Cuando Ubuntu esté instalado abre una terminal con <code>Ctrl + Alt + T</code>.</p>
+
+    <div class="terminal"><code>$ lsblk -f
+$ df -h -T
+$ sudo fdisk -l /dev/sda</code></div>
+
+    <p>Después crea un punto de montaje y monta la partición compartida:</p>
+
+    <div class="terminal"><code>$ sudo mkdir -p /media/datos_compartidos
+$ sudo mount /dev/sda4 /media/datos_compartidos</code></div>
+
+    <ul class="checklist">
+      <li>Localiza qué partición corresponde a <code>/</code>.</li>
+      <li>Localiza la partición montada en <code>/home</code>.</li>
+      <li>Comprueba que existe el área swap.</li>
+      <li>Comprueba que la partición compartida está montada.</li>
+    </ul>
+
+    <div class="task"><b>Evidencia U3:</b> captura de la salida de <code>lsblk -f</code>, <code>df -h -T</code> y <code>fdisk</code>.</div>
+  </div>
+</details>
+
+<h2>Bloque 3 · Relacionar Windows y Linux</h2>
+
+<details>
+  <summary>3.1 Simulación de arranque dual</summary>
+  <div class="details-body">
+    <p>La práctica de Ubuntu reserva una partición adicional para representar un escenario de convivencia entre sistemas.</p>
+    <p>En tu informe responde:</p>
+    <ol>
+      <li>¿En qué partición instalarías un segundo sistema operativo?</li>
+      <li>¿Qué ocurriría con el gestor de arranque?</li>
+      <li>¿Qué función tendría GRUB 2 en un equipo con varios sistemas operativos?</li>
+      <li>¿Qué sistema de archivos utilizarías para una partición de datos que pueda ser utilizada por Windows y Linux?</li>
+    </ol>
+  </div>
+</details>
+
+<details>
+  <summary>3.2 Windows frente a Ubuntu: qué cambia</summary>
+  <div class="details-body">
+    <table>
+      <thead>
+        <tr><th>Aspecto</th><th>Windows 11</th><th>Ubuntu</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Instalación</td><td>Asistente gráfico y OOBE</td><td>Instalador gráfico con opciones de particionado</td></tr>
+        <tr><td>Usuario</td><td>Cuenta local o Microsoft</td><td>Cuenta local creada durante la instalación</td></tr>
+        <tr><td>Discos</td><td>Letras de unidad</td><td>Dispositivos y puntos de montaje</td></tr>
+        <tr><td>Comprobación</td><td>CMD y herramientas del sistema</td><td>Terminal y utilidades GNU/Linux</td></tr>
+        <tr><td>Arranque</td><td>Windows Boot Manager</td><td>GRUB 2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+<h2>Bloque 4 · Entrega</h2>
+
+<section class="intro">
+  <span class="kicker">Checklist final</span>
+  <h2 style="margin-top:6px">Un único PDF de evidencias</h2>
+  <ul class="checklist">
+    <li>W1 · Configuración de la máquina virtual de Windows.</li>
+    <li>W2 · Instalación y selección del disco.</li>
+    <li>W3 · Escritorio y comprobaciones en CMD.</li>
+    <li>U1 · Configuración de la máquina virtual de Ubuntu.</li>
+    <li>U2 · Esquema de particionado manual.</li>
+    <li>U3 · Comprobaciones realizadas desde terminal.</li>
+    <li>Respuesta breve a las preguntas sobre arranque dual y GRUB.</li>
+    <li>Conclusión: tres diferencias que hayas observado entre instalar Windows y Ubuntu.</li>
+  </ul>
+
+  <div class="tip"><b>Formato recomendado:</b> portada sencilla + evidencias ordenadas + explicación breve debajo de cada captura. Exporta el documento final a PDF antes de subirlo a Aeducar.</div>
+</section>
+
+<details>
+  <summary>Autoevaluación antes de entregar</summary>
+  <div class="details-body">
+    <ul class="checklist">
+      <li>Puedo explicar qué es una máquina virtual.</li>
+      <li>Sé qué función tienen RAM, vCPU y disco virtual.</li>
+      <li>Puedo diferenciar EFI/UEFI de una instalación tradicional.</li>
+      <li>Entiendo qué son <code>/</code>, <code>/home</code> y swap.</li>
+      <li>Sé usar <code>lsblk</code>, <code>df</code> y <code>fdisk</code> para revisar discos.</li>
+      <li>Puedo explicar qué hace un gestor de arranque.</li>
+      <li>Las capturas de mi informe demuestran lo que afirmo.</li>
+    </ul>
+  </div>
+</details>
+
+</main>
+
+<footer>
+  <p><b>Implantación de Sistemas Operativos · ISO (0369)</b><br>
+  1.º ASIR · Curso 2026/27 · Recurso preparado para Aeducar.</p>
+  <p>Para imprimir o guardar esta guía como PDF utiliza la función de impresión del navegador (<b>Ctrl + P</b>).</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>El proceso de instalación</title>
+<style>
+  :root{
+    --bg:#f6f3ec; --paper:#ffffff; --ink:#201d17; --ink-soft:#5c574c; --rule:#dcd5c4;
+    --accent:#0d8a73; --accent-soft:#e4f3ef;
+    --win:#1f5fa8; --win-soft:#eaf1fb;
+    --lin:#b5550c; --lin-soft:#fbeee0;
+    --code-bg:#211e18; --code-fg:#f1ede1; --warn:#a8721f; --warn-soft:#f6ecd9;
+    --good:#1f7a4d; --good-soft:#e8f5ee;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+      --accent:#52c7ab; --accent-soft:#163029;
+      --win:#7badec; --win-soft:#1c2b3e;
+      --lin:#e8974f; --lin-soft:#302215;
+      --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; --warn-soft:#2e2715;
+      --good:#6fd6a4; --good-soft:#132a1f; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17150f; --paper:#201d17; --ink:#efe9da; --ink-soft:#b4ac98; --rule:#39342a;
+    --accent:#52c7ab; --accent-soft:#163029;
+    --win:#7badec; --win-soft:#1c2b3e;
+    --lin:#e8974f; --lin-soft:#302215;
+    --code-bg:#0f0e0a; --code-fg:#eae4d4; --warn:#e0ad5d; --warn-soft:#2e2715;
+    --good:#6fd6a4; --good-soft:#132a1f; color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg); color:var(--ink); margin:0;
+    font-family:"Source Serif 4","Iowan Old Style",Georgia,serif;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+    padding-block:44px 90px;
+  }
+  h1,h2,h3,.eyebrow,code,pre,.tag,.toggle-theme{font-family:"Fira Code","JetBrains Mono",ui-monospace,Consolas,monospace}
+  .wrap{max-width:760px;margin:0 auto}
+  .topbar{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:6px}
+  .eyebrow{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0}
+  .toggle-theme{
+    border:1px solid var(--rule); background:var(--paper); color:var(--ink-soft); cursor:pointer;
+    font-size:11px; padding:5px 10px; border-radius:20px; flex:none;
+  }
+  h1{font-family:"Source Serif 4",Georgia,serif; font-weight:700; font-size:clamp(28px,5.4vw,40px); line-height:1.12; margin:8px 0 10px; text-wrap:balance}
+  .epigraph{font-family:"Source Serif 4",Georgia,serif; font-style:italic; color:var(--accent); font-size:17px; line-height:1.5; max-width:58ch; margin:0 0 14px; border-left:3px solid var(--accent); padding-left:14px}
+  .sub{color:var(--ink-soft); font-size:16px; line-height:1.6; max-width:64ch; margin:0 0 20px}
+  .banner{
+    background:var(--warn-soft); border:1px solid var(--rule); border-left:3px solid var(--warn);
+    border-radius:3px; padding:14px 16px; font-size:13.5px; line-height:1.6; margin-bottom:30px;
+  }
+  .banner b{color:var(--ink)}
+  .source{
+    background:var(--accent-soft); border:1px solid var(--rule); border-left:3px solid var(--accent);
+    border-radius:3px; padding:12px 16px; font-size:13px; line-height:1.6; margin-bottom:36px; color:var(--ink-soft);
+  }
+  .source b{color:var(--ink)}
+  nav.toc{
+    background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:16px 18px; margin-bottom:40px;
+  }
+  nav.toc .t{font-family:"Fira Code",monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px}
+  nav.toc ol{margin:0; padding-left:20px; columns:2; column-gap:20px}
+  nav.toc li{font-size:13.5px; line-height:1.9; break-inside:avoid}
+  nav.toc a{color:var(--ink); text-decoration:none; border-bottom:1px dotted var(--rule)}
+  nav.toc a:hover{color:var(--accent); border-color:var(--accent)}
+
+  section{margin-bottom:46px; scroll-margin-top:20px}
+  .sec-head{display:flex; align-items:baseline; gap:10px; margin-bottom:14px; border-bottom:1px solid var(--rule); padding-bottom:8px}
+  .sec-num{font-family:"Fira Code",monospace; font-size:12px; color:var(--accent); font-weight:700; flex:none}
+  h2{font-family:"Source Serif 4",Georgia,serif; font-size:22px; margin:0; line-height:1.25}
+  h3{font-family:"Source Serif 4",Georgia,serif; font-size:17px; margin:22px 0 10px; color:var(--ink)}
+  p{font-size:15px; line-height:1.68; margin:0 0 12px; color:var(--ink)}
+  ul,ol{margin:0 0 14px; padding-left:21px}
+  li{font-size:15px; line-height:1.62; margin-bottom:6px}
+  li b{color:var(--ink)}
+  code{background:var(--accent-soft); padding:1px 6px; border-radius:3px; font-size:0.87em}
+  pre{background:var(--code-bg); color:var(--code-fg); padding:13px 15px; border-radius:6px; overflow-x:auto; font-size:13px; line-height:1.6; margin:10px 0}
+  pre code{background:none; padding:0}
+
+  .panel{background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:18px 20px; margin-bottom:16px}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:620px){.grid2{grid-template-columns:1fr}}
+  .col-win{border-top:3px solid var(--win)} .col-win h3{color:var(--win); margin-top:0}
+  .col-lin{border-top:3px solid var(--lin)} .col-lin h3{color:var(--lin); margin-top:0}
+
+  table{width:100%; border-collapse:collapse; margin:10px 0 18px; font-size:13.5px}
+  th,td{border:1px solid var(--rule); padding:8px 10px; text-align:left; vertical-align:top; line-height:1.5}
+  th{background:var(--accent-soft); font-family:"Fira Code",monospace; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft)}
+  td code{white-space:nowrap}
+
+  .steps{list-style:none; margin:0 0 16px; padding:0; counter-reset:stp}
+  .steps li{
+    counter-increment:stp; position:relative; padding-left:36px; margin-bottom:12px; font-size:15px; line-height:1.6;
+  }
+  .steps li::before{
+    content:counter(stp); position:absolute; left:0; top:0; width:24px; height:24px; border-radius:50%;
+    background:var(--accent); color:var(--paper); font-family:"Fira Code",monospace; font-size:12px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .badge{display:inline-block; font-family:"Fira Code",monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+    padding:2px 8px; border-radius:20px; margin-left:8px; vertical-align:middle}
+  .badge.win{background:var(--win-soft); color:var(--win)}
+  .badge.lin{background:var(--lin-soft); color:var(--lin)}
+
+  details.sol{
+    border:1px solid var(--rule); border-radius:6px; margin:10px 0 4px; background:var(--paper); overflow:hidden;
+  }
+  details.sol > summary{
+    cursor:pointer; list-style:none; padding:10px 14px; font-size:13px; font-weight:600; color:var(--good);
+    background:var(--good-soft); display:flex; align-items:center; gap:8px;
+  }
+  details.sol > summary::-webkit-details-marker{display:none}
+  details.sol > summary::before{content:"▸"; transition:transform .15s}
+  details.sol[open] > summary::before{transform:rotate(90deg)}
+  details.sol .inner{padding:12px 16px}
+  details.sol .inner p:last-child{margin-bottom:0}
+
+  details.hint{
+    border:1px dashed var(--rule); border-radius:6px; margin:8px 0; background:transparent;
+  }
+  details.hint > summary{
+    cursor:pointer; list-style:none; padding:8px 12px; font-size:12.5px; color:var(--warn); display:flex; gap:7px; align-items:center;
+  }
+  details.hint > summary::-webkit-details-marker{display:none}
+  details.hint > summary::before{content:"💡"}
+  details.hint .inner{padding:4px 12px 10px; font-size:13.5px; color:var(--ink-soft); line-height:1.55}
+
+  .case{background:var(--paper); border:1px solid var(--rule); border-radius:8px; padding:14px 16px; margin-bottom:12px}
+  .case .ct{font-family:"Fira Code",monospace; font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px}
+  .case p{margin-bottom:8px; font-size:14px}
+  .case .q{font-weight:600}
+
+  footer{margin-top:50px; padding-top:18px; border-top:1px solid var(--rule); font-size:12.5px; color:var(--ink-soft); line-height:1.6}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <p class="eyebrow">ISO · 1º ASIR</p>
+    <button class="toggle-theme" id="themeBtn" type="button">🌓 tema</button>
+  </div>
+  <h1>El proceso de instalación</h1>
+  <p class="epigraph">De la caja al escritorio: comprobar que el equipo está listo, entender cómo arranca, preparar el medio, instalar el sistema — Linux o Windows — y dejarlo actualizado y documentado.</p>
+  <p class="sub">Consideraciones previas, arranque de la máquina, preparación del medio, instalación de Linux, instalación desatendida y lo que viene justo después de instalar.</p>
+
+  <nav class="toc">
+    <div class="t">Contenido</div>
+    <ol>
+      <li><a href="#s1">Consideraciones previas</a></li>
+      <li><a href="#s2">La secuencia de arranque</a></li>
+      <li><a href="#s3">Elegir el medio de instalación</a></li>
+      <li><a href="#s4">Descargar la ISO</a></li>
+      <li><a href="#s5">Crear el medio de arranque</a></li>
+      <li><a href="#s6">Configurar el arranque (BIOS/UEFI)</a></li>
+      <li><a href="#s7">Instalar GNU/Linux</a></li>
+      <li><a href="#s8">Instalación desatendida</a></li>
+      <li><a href="#s9">Después de instalar: actualizaciones y drivers</a></li>
+      <li><a href="#s10">Documentar y formar</a></li>
+      <li><a href="#s11">Ejercicios</a></li>
+    </ol>
+  </nav>
+
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2>Consideraciones previas a la instalación</h2></div>
+    <p>Antes de instalar nada hay que preparar el terreno. Esto implica comprobar los requisitos hardware del equipo, reunir la documentación del proveedor y del propio proceso, y entender cómo arranca el equipo — eso último lo vemos en el apartado 2.</p>
+
+    <h3>Requisitos hardware</h3>
+    <p>Todo sistema operativo exige un mínimo de CPU, RAM, almacenamiento y «otros» requisitos (gráfica, TPM, arquitectura de 32/64 bits, conexión a Internet…) para funcionar correctamente. Comprobarlos antes de instalar evita sorpresas a mitad de proceso.</p>
+    <table>
+      <tr><th>Requisito</th><th>Windows 11</th><th>Ubuntu 22.04 LTS</th></tr>
+      <tr><td>CPU</td><td>1 GHz, 2 núcleos o más, 64 bits, compatible con la lista de Microsoft</td><td>2 GHz dual-core (recomendado)</td></tr>
+      <tr><td>RAM</td><td>4 GB mínimo</td><td>4 GB mínimo (2 GB en instalación mínima)</td></tr>
+      <tr><td>Almacenamiento</td><td>64 GB mínimo</td><td>25 GB mínimo</td></tr>
+      <tr><td>Otros</td><td>Firmware UEFI con Secure Boot, <b>TPM 2.0</b>, gráfica compatible DirectX 12/WDDM 2.0</td><td>Resolución mínima 1024×768; sin TPM obligatorio</td></tr>
+    </table>
+    <p>Fijaos en la diferencia clave: Windows 11 exige <b>TPM 2.0</b> y Secure Boot de forma obligatoria — algo que Ubuntu no pide — y es la causa más habitual de que un equipo «compatible» con Windows 10 no pueda actualizarse directamente a Windows 11.</p>
+
+    <h3>Documentación del proveedor de software</h3>
+    <p>Antes de instalar conviene revisar la documentación oficial del fabricante: notas de la versión, requisitos detallados, compatibilidad de drivers y procedimientos de instalación recomendados. Evita incompatibilidades que solo se descubrirían a mitad de la instalación.</p>
+
+    <h3>Documentación sobre la instalación</h3>
+    <p>Además de lo anterior, el propio técnico debe ir documentando lo que hace. Una ficha de instalación típica recoge:</p>
+    <table>
+      <tr><th>Apartado</th><th>Contenido</th></tr>
+      <tr><td>Portada</td><td>Equipo, fecha, técnico responsable</td></tr>
+      <tr><td>Descripción hardware físico</td><td>Modelo, CPU, RAM, disco, periféricos</td></tr>
+      <tr><td>Selección del SO</td><td>Sistema y versión elegidos, y por qué</td></tr>
+      <tr><td>Proceso de instalación</td><td>Pasos seguidos, capturas, incidencias</td></tr>
+      <tr><td>Configuración realizada</td><td>Red, usuarios, particiones, software adicional</td></tr>
+      <tr><td>Referencias</td><td>Manuales y fuentes consultadas</td></tr>
+    </table>
+  </section>
+
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2>La secuencia de arranque</h2></div>
+    <p>Antes de poder instalar nada, hay que entender qué pasa dentro del equipo entre que pulsas el botón de encendido y aparece el instalador en pantalla. Son tres pasos, siempre en este orden:</p>
+
+    <h3>Paso 1 · Encendido y POST</h3>
+    <p>Al pulsar el botón de encendido, la fuente de alimentación suministra corriente y el firmware ejecuta el <b>POST</b> (<i>Power-On Self-Test</i>): comprueba que CPU, RAM y el resto de componentes básicos funcionan antes de seguir.</p>
+    <table>
+      <tr><th>Generación</th><th>Método de aviso de error</th><th>Ejemplo real</th></tr>
+      <tr><td>BIOS clásica (años 90–2000s)</td><td>Pitidos del altavoz interno (<i>speaker</i>)</td><td>«1 largo + 2 cortos» = error de vídeo</td></tr>
+      <tr><td>BIOS/UEFI híbrida (2010–2015)</td><td>Pitidos + mensajes breves en pantalla</td><td>«Keyboard not detected», «CMOS error»</td></tr>
+      <tr><td>UEFI moderna (actual)</td><td>Códigos LED o numéricos en la placa base</td><td>Código «55» = RAM no instalada</td></tr>
+      <tr><td>Equipos avanzados</td><td>Diagnóstico visual y pantalla de arranque con barras o logs</td><td>LEDs CPU / DRAM / VGA / BOOT</td></tr>
+    </table>
+
+    <h3>Paso 2 · Ejecución del firmware (BIOS/UEFI)</h3>
+    <p>El firmware, almacenado en ROM/flash, detecta, inicializa y comprueba el hardware, y permite acceder a la configuración de arranque (<i>boot order</i>) y otros parámetros. Orden de arranque configurable típico: 1) red (PXE), 2) medio extraíble (USB, DVD), 3) disco duro interno.</p>
+    <p><b>BIOS</b> (Basic Input/Output System) es el firmware clásico, nacido en 1975; al principio se configuraba con jumpers en la placa, luego con una interfaz de texto. <b>UEFI</b> (Unified Extensible Firmware Interface), de 2007, es su reemplazo moderno: interfaz gráfica, soporte de red, compatibilidad con discos grandes (GPT) y más opciones de personalización. Desde 2010 UEFI va sustituyendo poco a poco a la BIOS clásica.</p>
+    <p>Para acceder al <i>setup</i> del firmware se pulsa una tecla concreta durante los primeros segundos del arranque: <code>Supr</code>, <code>Esc</code>, <code>F2</code>, <code>F9</code>, <code>F10</code>, <code>F12</code>… depende del fabricante.</p>
+
+    <h3>Paso 3 · Arranque del sistema</h3>
+    <p>El firmware busca en el dispositivo de arranque el sector de arranque o gestor de arranque. Si lo encuentra, cede el control al sistema operativo:</p>
+    <ul>
+      <li><b>BIOS (clásico):</b> BIOS → MBR → cargador del SO → kernel.</li>
+      <li><b>UEFI (moderno):</b> UEFI → cargador EFI → kernel.</li>
+    </ul>
+    <p>Si no lo encuentra, pasa al siguiente dispositivo del <i>boot order</i>; si ninguno es válido, muestra el error «No bootable device found».</p>
+
+    <h3>Para no liarse con los términos</h3>
+    <table>
+      <tr><th>Etapa</th><th>Elemento que interviene</th><th>Qué hace</th><th>Dónde está</th></tr>
+      <tr><td>① Firmware (BIOS/UEFI)</td><td>Orden de arranque (<i>boot order</i>)</td><td>Decide desde qué dispositivo intentar el inicio (USB, disco, red…)</td><td>En la configuración del firmware (CMOS/NVRAM)</td></tr>
+      <tr><td>② Dispositivo seleccionado</td><td>Sector de arranque (MBR / partición EFI)</td><td>Contiene el primer código que el firmware ejecuta para arrancar</td><td>En el disco o unidad de arranque</td></tr>
+      <tr><td>③ Sistema operativo</td><td>Cargador de arranque (<i>bootloader</i>)</td><td>Programa que carga el núcleo (kernel) en memoria y le pasa el control</td><td>En el disco del sistema, tras el sector/partición de arranque</td></tr>
+    </table>
+  </section>
+
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Elegir el medio de instalación</h2></div>
+    <p>Para instalar un sistema operativo por primera vez en un equipo necesitas un <b>medio de instalación</b> distinto del disco duro donde vas a instalar. Puede ser:</p>
+    <ul>
+      <li>Un <b>pendrive USB de instalación</b> — el método más habitual en un equipo físico.</li>
+      <li>Una <b>imagen ISO</b> cargada directamente en una máquina virtual (VirtualBox, VMware…) — lo que vosotros hacéis en el aula.</li>
+    </ul>
+    <p>El objetivo siempre es el mismo: arrancar el equipo desde ese medio para cargar un <b>entorno temporal de instalación</b> que te permita copiar y configurar el sistema operativo en el disco duro.</p>
+
+    <h3>Ojo, no confundir con un USB Live</h3>
+    <p>Un sistema operativo <b>Live</b> se ejecuta directamente desde el pendrive o DVD, <b>sin instalarse</b> en el disco. Sirve para probar, reparar o usar el sistema de forma temporal — no para instalarlo. Ejemplos: Ubuntu Live (probar antes de instalar), Kali Linux (auditoría), Tails OS (anonimato), Clonezilla Live (copias de discos).</p>
+  </section>
+
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Descargar la ISO</h2></div>
+    <p>La imagen ISO contiene todo el instalador del sistema operativo en un único archivo. Debe descargarse siempre desde la fuente oficial del desarrollador.</p>
+    <ol class="steps">
+      <li>Elegir el sistema operativo (Windows, Ubuntu, Debian…).</li>
+      <li>Comprobar la <b>compatibilidad con el hardware</b> del equipo: arquitectura 32/64 bits, RAM, espacio en disco, TPM, etc. (ver tabla del apartado 1).</li>
+      <li>Descargar la ISO desde la <b>web oficial</b> del proveedor.</li>
+      <li><i>(Opcional, pero recomendable)</i> Verificar la integridad de la ISO comparando su código hash (<code>SHA256</code>) con el publicado por el proveedor — así te aseguras de que la descarga no se ha corrompido ni manipulado.</li>
+    </ol>
+  </section>
+
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Crear el medio de arranque</h2></div>
+    <p>Con la ISO ya descargada, toca preparar un USB para poder arrancar el equipo físico desde él. Herramientas más habituales:</p>
+    <ul>
+      <li><b>Rufus</b> — Windows, la más usada en clase.</li>
+      <li><b>Ventoy</b> — multiplataforma, permite llevar varias ISOs en el mismo pendrive.</li>
+      <li><b>Balena Etcher</b> — Windows, Linux y macOS.</li>
+      <li><b>Media Creation Tool</b> — oficial de Microsoft, solo Windows.</li>
+    </ul>
+    <p>Proceso general: insertar el pendrive (8 GB o más) → seleccionar la ISO → elegir el modo de arranque (UEFI/BIOS) → iniciar la creación del medio.</p>
+    <h3>¿Qué lleva dentro un pendrive de arranque?</h3>
+    <ul>
+      <li>Un <b>sector de arranque (boot sector)</b> con el código inicial que la BIOS/UEFI puede ejecutar.</li>
+      <li>Un <b>bootloader</b> (GRUB, ISOLINUX…) de pocos MB.</li>
+      <li>Los <b>archivos del sistema operativo</b> extraídos de la ISO.</li>
+      <li>A veces, un <b>entorno temporal</b> (Windows PE o similar).</li>
+      <li>Un <b>sistema de archivos compatible</b> (normalmente FAT32 o NTFS) para que el firmware pueda leerlo — de hecho el firmware UEFI solo sabe leer particiones FAT32, por eso el formateo por defecto en Rufus suele ser ese.</li>
+    </ul>
+  </section>
+
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2>Configurar el arranque (BIOS/UEFI)</h2></div>
+    <p>Para iniciar la instalación, el equipo debe arrancar desde el dispositivo USB que contiene la imagen. Dos formas de conseguirlo:</p>
+    <ul>
+      <li>Entrar en la <b>BIOS/UEFI</b> (setup) y cambiar el orden de arranque (<i>boot order</i>) para que el USB vaya primero.</li>
+      <li>Usar el <b>menú de arranque rápido</b> (<i>boot menu</i>) y seleccionar el USB manualmente para esa única vez, sin tocar la configuración permanente.</li>
+    </ul>
+    <p>Teclas habituales para entrar: <code>F2</code>, <code>F12</code>, <code>Esc</code>, <code>Supr</code> — dependen del fabricante de la placa.</p>
+  </section>
+
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Instalar GNU/Linux</h2></div>
+    <p><b>De UNIX a GNU/Linux, en cuatro frases:</b> UNIX nació en los 70 como sistema potente pero propietario. En los 80, el proyecto GNU impulsó un sistema libre y abierto compatible con UNIX. En 1991 Linus Torvalds creó el núcleo <b>Linux</b>, que completó ese sistema libre. Al combinar el kernel Linux con las herramientas GNU nació lo que hoy llamamos <b>GNU/Linux</b> — y de ahí surgieron cientos de distribuciones adaptadas a distintos usos.</p>
+
+    <h3>Familia, distro, sabor, entorno</h3>
+    <ul>
+      <li><b>Familia:</b> base común que comparte tecnología y gestor de paquetes. Ej.: Debian, Red Hat, SUSE, Arch.</li>
+      <li><b>Distribución (distro):</b> versión creada por una comunidad o empresa con un propósito concreto. Ej.: Ubuntu, Fedora, openSUSE, Manjaro.</li>
+      <li><b>Sabor (flavour):</b> variante oficial de una distro con distinto entorno o enfoque. Ej.: Ubuntu → Kubuntu, Xubuntu, Lubuntu.</li>
+      <li><b>Entorno de escritorio:</b> interfaz gráfica y estilo visual. Ej.: GNOME, KDE Plasma, XFCE, Cinnamon.</li>
+    </ul>
+    <table>
+      <tr><th>Nivel</th><th>Qué representa</th><th>En Ubuntu 22.04 LTS</th></tr>
+      <tr><td>Familia</td><td>Base técnica (paquetes, repositorios, gestor de paquetes)</td><td><b>Debian</b></td></tr>
+      <tr><td>Distribución</td><td>Versión adaptada de esa familia</td><td><b>Ubuntu</b> (desarrollada por Canonical)</td></tr>
+      <tr><td>Sabor</td><td>Variante oficial con distinto entorno o enfoque</td><td>Ubuntu estándar (no Kubuntu, ni Xubuntu…)</td></tr>
+      <tr><td>Entorno de escritorio</td><td>Interfaz gráfica y herramientas principales</td><td><b>GNOME</b> (adaptado por Canonical)</td></tr>
+    </table>
+
+    <h3>Elementos clave en la instalación</h3>
+    <ul>
+      <li>Estructura <b>flexible</b> de particiones.</li>
+      <li>Sistema de archivos propio: <code>ext4</code>.</li>
+      <li>Gestor de arranque: <b>GRUB2</b>.</li>
+      <li>Creación del primer usuario, con privilegios <code>sudo</code>.</li>
+      <li>Entorno de escritorio configurable.</li>
+      <li>Repositorios de software y controladores libres.</li>
+    </ul>
+
+    <h3>Particionado del disco</h3>
+    <p>👉 El instalador suele proponer una estructura de particionado automática. No hace falta crearla a mano, pero sí conocer su propósito:</p>
+    <table>
+      <tr><th>Partición</th><th>Función</th><th>Recomendación</th></tr>
+      <tr><td><code>/</code> (raíz)</td><td>Sistema operativo y aplicaciones</td><td>Obligatoria</td></tr>
+      <tr><td><code>/home</code></td><td>Archivos personales de usuario</td><td>Recomendable</td></tr>
+      <tr><td><code>swap</code></td><td>Memoria virtual</td><td>Recomendable</td></tr>
+      <tr><td><code>/boot/efi</code></td><td>Arranque (UEFI)</td><td>Solo si el sistema usa UEFI</td></tr>
+    </table>
+
+    <h3>Sistema de archivos y el estándar FHS</h3>
+    <p>Linux usa <code>ext4</code> (no NTFS). Las aplicaciones se instalan automáticamente en carpetas del sistema dentro de <code>/</code>: <code>/usr/bin</code> (ejecutables), <code>/usr/lib</code> (librerías), <code>/opt</code> (software externo); los ajustes personales de cada app van en <code>/home/usuario</code>.</p>
+    <p>Todo sigue una misma estructura, consistente y predecible, respetada por cualquier distro: el <b>FHS</b> (<i>Filesystem Hierarchy Standard</i>). Gracias a él, un paquete se puede instalar en Ubuntu, Debian o Fedora sin adaptaciones — es el mismo papel que en Windows cumplen rutas fijas como <code>C:\Windows</code> o <code>C:\Program Files</code>.</p>
+
+    <h3>Permisos y rol del usuario</h3>
+    <p>En Linux hay dos niveles: <b>usuario normal</b> (tareas diarias) y <b>administrador / root</b> (tareas del sistema). Ubuntu no trabaja con la cuenta root directamente: usa <code>sudo</code> cuando hace falta, lo que da un control temporal de administrador con trazabilidad de quién lo usó.</p>
+  </section>
+
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2>Instalación desatendida</h2></div>
+    <p>Una instalación <b>desatendida</b> es la que se realiza sin intervención manual del usuario. En lugar de responder a cada pantalla del instalador (idioma, zona horaria, tipo de instalación, particiones, usuario, contraseña…), todas esas opciones se definen de antemano en un <b>archivo de respuesta</b>.</p>
+    <ul>
+      <li>Ahorra tiempo en instalaciones repetitivas (un aula, una empresa).</li>
+      <li>Permite aplicar una configuración idéntica en varios equipos.</li>
+      <li>Reduce errores humanos al automatizar la selección de opciones.</li>
+      <li>Facilita la reinstalación o el despliegue masivo de sistemas.</li>
+    </ul>
+    <p>Para automatizarla hace falta: la imagen ISO del sistema, y un archivo de respuesta con las opciones predefinidas (idioma, zona horaria, usuario, red…). El instalador lee esos datos y hace todo el proceso sin intervención manual.</p>
+
+    <h3>No es lo mismo que clonar una imagen</h3>
+    <table>
+      <tr><th>Concepto</th><th>Imagen clonada</th><th>Instalación desatendida</th></tr>
+      <tr><td>Método</td><td>Copia directa de los bloques del disco</td><td>Ejecución normal del instalador</td></tr>
+      <tr><td>Intervención</td><td>No se instala, solo se copia</td><td>Instalación automática mediante respuestas</td></tr>
+      <tr><td>Flexibilidad</td><td>Limitada (idéntica al original)</td><td>Adaptable (configurable por respuesta)</td></tr>
+      <tr><td>Uso típico</td><td>Restauración rápida</td><td>Despliegues automatizados</td></tr>
+    </table>
+
+    <div class="grid2">
+      <div class="panel col-win">
+        <h3>Windows <span class="badge win">XML</span></h3>
+        <p>La configuración se define en un <b>archivo de respuesta XML</b> que debe corresponder exactamente a la versión de Windows a instalar. Requiere el <b>Windows ADK</b>, que incluye <b>Windows SIM</b> (System Image Manager) para crearlo.</p>
+        <p>Puede incluir: clave de licencia, nombre de usuario y organización, idioma, zona horaria, configuración de red, componentes opcionales.</p>
+      </div>
+      <div class="panel col-lin">
+        <h3>GNU/Linux <span class="badge lin">según familia</span></h3>
+        <p>Se usa una imagen ISO modificada o una instalación por red (PXE). La configuración previa se guarda en un archivo de respuesta que define idioma, zona horaria y teclado, usuarios y contraseñas, particionado, red/hostname/gestor de arranque y paquetes a instalar.</p>
+        <p>No hay un único sistema: cada familia tiene su propio método y formato.</p>
+        <table style="margin-top:6px">
+          <tr><th>Familia</th><th>Método</th><th>Archivo principal</th></tr>
+          <tr><td>Debian</td><td>Preseed</td><td><code>preseed.cfg</code></td></tr>
+          <tr><td>Red Hat</td><td>Kickstart</td><td><code>ks.cfg</code></td></tr>
+          <tr><td>SUSE</td><td>AutoYaST</td><td><code>autoinst.xml</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Después de instalar: actualizaciones y drivers</h2></div>
+    <p>Todo sistema debe adaptarse a los cambios y mantenerse actualizado. Una <b>actualización de software</b> modifica partes del sistema para corregir errores o vulnerabilidades, mejorar estabilidad y rendimiento, o aumentar la seguridad. También existen actualizaciones de hardware (sustitución de componentes), tras las cuales puede ser necesario actualizar el software o firmware asociado.</p>
+    <h3>Tipos de software, para tenerlo claro</h3>
+    <ul>
+      <li><b>Sistema operativo:</b> conjunto de programas que gestionan el hardware.</li>
+      <li><b>Firmware:</b> software básico instalado por el fabricante en un dispositivo.</li>
+      <li><b>Aplicación:</b> programa con interfaz gráfica para una tarea concreta.</li>
+      <li><b>Programa:</b> conjunto de instrucciones que ejecuta una tarea.</li>
+      <li><b>Librería:</b> funciones que usan otros programas.</li>
+      <li><b>Paquete:</b> contenedor de programas, librerías o drivers.</li>
+      <li><b>Parche:</b> corrección de errores en un software.</li>
+      <li><b>Driver:</b> instrucciones que permiten al SO comunicarse con un dispositivo.</li>
+    </ul>
+    <div class="grid2">
+      <div class="panel col-win">
+        <h3>Windows</h3>
+        <p>El servicio <b>Windows Update</b> mantiene el sistema actualizado; por defecto las actualizaciones se descargan e instalan automáticamente. Tipos: de seguridad, de calidad, de características, de controladores (drivers). Las aplicaciones instaladas <b>no</b> se actualizan por Windows Update, sino por sus propios sistemas o desde la Microsoft Store.</p>
+      </div>
+      <div class="panel col-lin">
+        <h3>GNU/Linux</h3>
+        <p>Las actualizaciones se gestionan con el gestor de paquetes de cada distro, normalmente desde repositorios oficiales: <code>apt update && apt upgrade</code> (Debian/Ubuntu), <code>dnf update</code> (Red Hat/Fedora), <code>zypper update</code> (openSUSE). A diferencia de Windows, sistema y aplicaciones instaladas por el gestor se actualizan juntos desde una sola herramienta.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2>Documentar y formar</h2></div>
+    <p>Elaborar manuales y guías de uso es parte fundamental del trabajo del administrador de sistemas. La documentación debe hacerse <b>durante</b> el proceso de instalación, para recoger todos los pasos y configuraciones realizadas — no de memoria al final. También hay que planificar la formación de los usuarios: copias de seguridad y actualizaciones previas a la instalación, uso de los dispositivos y aplicaciones que acompañan al sistema. Además, la prevención de riesgos laborales debe contemplar formación sobre uso seguro de equipos, ergonomía y condiciones del puesto de trabajo.</p>
+    <table>
+      <tr><th>Mala práctica</th><th>Buena práctica</th></tr>
+      <tr><td>Notas personales en una libreta o archivos sueltos</td><td>Documentar el proceso en un formato digital estructurado (informe o wiki)</td></tr>
+      <tr><td>Sin capturas, versiones del sistema ni fechas</td><td>Capturas, comandos usados, versiones y fechas</td></tr>
+      <tr><td>Documento no compartido con el resto del equipo</td><td>Guardado en una ubicación compartida accesible para todos</td></tr>
+      <tr><td>Sin control de versiones ni trazabilidad</td><td>Se actualiza cada vez que se modifica el procedimiento</td></tr>
+      <tr><td>Cada técnico repite el proceso «a su manera»</td><td>Todos siguen las mismas instrucciones y mantienen coherencia</td></tr>
+    </table>
+  </section>
+
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Ejercicios</h2></div>
+
+    <h3>1 · Diagnóstico POST</h3>
+    <p>Mira tu propio equipo (o el de la máquina física del aula, no la VM): ¿qué método de aviso usa su firmware si falla el POST — pitidos, mensajes en pantalla, LEDs, código numérico? Búscalo en la documentación de la placa base si no lo sabes de memoria.</p>
+    <details class="hint"><summary>Pista</summary><div class="inner">Mira el manual de la placa base (modelo exacto) o el logo que aparece al arrancar: casi siempre indica si es BIOS clásica, híbrida o UEFI moderna.</div></details>
+    <details class="sol"><summary>Cómo contrastarlo</summary><div class="inner"><p>No hay una única respuesta correcta — depende del hardware real de cada uno. Lo importante es que sepáis identificar en qué categoría de la tabla del apartado 2 cae vuestro equipo y por qué.</p></div></details>
+
+    <h3>2 · Elige el método correcto</h3>
+    <p>Para cada situación, decide si conviene una <b>imagen clonada</b>, una <b>instalación desatendida</b>, o una instalación manual normal.</p>
+    <div class="case"><div class="ct">Caso A</div><p>20 ordenadores idénticos en un aula, todos con el mismo sistema y programas. Al final del día deben volver a su estado inicial.</p></div>
+    <div class="case"><div class="ct">Caso B</div><p>5 ordenadores nuevos con hardware distinto cada uno, todos deben llevar Windows 11.</p></div>
+    <div class="case"><div class="ct">Caso C</div><p>Una sala de servidores sin lector USB: los equipos deben instalarse por red (PXE) de forma completamente automatizada y repetible.</p></div>
+    <details class="sol"><summary>Solución razonada</summary><div class="inner">
+      <p><b>Caso A — Imagen clonada.</b> Hardware idéntico y se necesita volver siempre al mismo estado exacto: clonar es más rápido que reinstalar, y no hace falta adaptar nada.</p>
+      <p><b>Caso B — Instalación desatendida.</b> Hardware distinto en cada equipo, así que una imagen clonada podría dar problemas de compatibilidad; un archivo de respuesta permite automatizar sin perder flexibilidad.</p>
+      <p><b>Caso C — Instalación desatendida por red (PXE + archivo de respuesta).</b> Sin USB no se puede clonar fácilmente ni arrancar desde medio físico; el archivo de respuesta vía red es la solución estándar para este escenario.</p>
+    </div></details>
+
+    <h3>3 · Encaja los conceptos (Ubuntu 22.04 LTS)</h3>
+    <p>Completa: Ubuntu 22.04 LTS pertenece a la familia <b>______</b>, es una distribución desarrollada por <b>______</b>, en su sabor <b>______</b>, con el entorno de escritorio <b>______</b>.</p>
+    <details class="hint"><summary>Pista</summary><div class="inner">Repasa la tabla «En nuestro caso… Ubuntu 22.04 LTS» del apartado 7.</div></details>
+    <details class="sol"><summary>Solución</summary><div class="inner"><p>Familia <b>Debian</b> · distribución desarrollada por <b>Canonical</b> · sabor <b>estándar</b> (ni Kubuntu, ni Xubuntu…) · entorno de escritorio <b>GNOME</b>.</p></div></details>
+  </section>
+
+  <footer>El proceso de instalación — ISO, 1º ASIR.</footer>
+</div>
+
+<script>
+(function(){
+  var btn = document.getElementById('themeBtn');
+  var root = document.documentElement;
+  try{
+    var saved = localStorage.getItem('pi-theme');
+    if(saved) root.setAttribute('data-theme', saved);
+  }catch(e){}
+  btn.addEventListener('click', function(){
+    var current = root.getAttribute('data-theme');
+    var mql = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var next;
+    if(!current){ next = mql ? 'light' : 'dark'; }
+    else if(current === 'dark'){ next = 'light'; }
+    else { next = 'dark'; }
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem('pi-theme', next); }catch(e){}
+  });
+})();
+</script>
+
+</body></html>

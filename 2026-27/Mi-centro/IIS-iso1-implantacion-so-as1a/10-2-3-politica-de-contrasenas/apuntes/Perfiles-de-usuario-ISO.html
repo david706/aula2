@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuentas y perfiles de usuario</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #1f2430;
+    --muted: #5b6475;
+    --border: #dde1ea;
+    --accent: #3b5bdb;
+    --win: #0a6ed1;
+    --win-bg: #e7f1fc;
+    --lin: #c2410c;
+    --lin-bg: #fdeee5;
+    --warn-bg: #fff6db;
+    --warn-border: #e8b923;
+    --key-bg: #e9f7ef;
+    --key-border: #2f9e5b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161c;
+      --card: #1d2029;
+      --text: #e6e8ee;
+      --muted: #a2a9b8;
+      --border: #333847;
+      --accent: #7c95f5;
+      --win: #5eb0ff;
+      --win-bg: #18293d;
+      --lin: #ff9a62;
+      --lin-bg: #3a2418;
+      --warn-bg: #3a3218;
+      --warn-border: #c9a227;
+      --key-bg: #17321f;
+      --key-border: #4cc47e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, Ubuntu, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  header {
+    background: linear-gradient(135deg, var(--win), var(--accent) 50%, var(--lin));
+    color: #fff;
+    border-radius: 14px;
+    padding: 28px 24px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 1.9rem; line-height: 1.2; }
+  header p { margin: 0; opacity: .95; }
+  .tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags span {
+    background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 999px;
+    padding: 2px 12px;
+    font-size: .85rem;
+  }
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  nav.toc h2 { margin: 0 0 8px; font-size: 1.05rem; }
+  nav.toc ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 32px; }
+  nav.toc a { color: var(--accent); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 20px;
+  }
+  section h2 {
+    margin: 0 0 12px;
+    font-size: 1.35rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); color: #fff; font-size: 1rem; font-weight: 700;
+  }
+  h3 { margin: 20px 0 8px; font-size: 1.08rem; }
+  p { margin: 8px 0; }
+  ul { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+  code {
+    font-family: Consolas, "Ubuntu Mono", monospace;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    font-size: .9em;
+    word-break: break-word;
+  }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  th, td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--bg); }
+  th.win { background: var(--win-bg); color: var(--win); }
+  th.lin { background: var(--lin-bg); color: var(--lin); }
+  td:first-child { font-weight: 600; }
+  .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; }
+  .os-card { border-radius: 10px; padding: 14px 16px; border: 1px solid var(--border); }
+  .os-card.win { background: var(--win-bg); border-color: var(--win); }
+  .os-card.lin { background: var(--lin-bg); border-color: var(--lin); }
+  .os-card h3 { margin-top: 0; }
+  .os-card.win h3 { color: var(--win); }
+  .os-card.lin h3 { color: var(--lin); }
+  .analogy {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0;
+  }
+  .analogy div {
+    border: 1px dashed var(--border); border-radius: 10px; padding: 12px 14px; background: var(--bg);
+  }
+  .analogy strong { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+  .note, .key {
+    border-left: 5px solid; border-radius: 8px; padding: 12px 16px; margin: 14px 0;
+  }
+  .note { background: var(--warn-bg); border-color: var(--warn-border); }
+  .key { background: var(--key-bg); border-color: var(--key-border); }
+  .summary ol { padding-left: 24px; }
+  .summary li { margin: 8px 0; }
+  footer { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 24px; }
+  @media (max-width: 680px) {
+    header h1 { font-size: 1.5rem; }
+    nav.toc ol { columns: 1; }
+    .two-cols, .analogy { grid-template-columns: 1fr; }
+    section { padding: 16px; }
+  }
+  @media print {
+    body { background: #fff; color: #000; font-size: 12pt; }
+    header { background: none; color: #000; border: 2px solid #000; }
+    .tags span { border-color: #000; }
+    nav.toc { display: none; }
+    section { break-inside: avoid-page; border-color: #999; }
+    .wrap { max-width: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Cuentas y perfiles de usuario</h1>
+  <p>Teoría comparada: Windows 11 y Linux</p>
+  <div class="tags">
+    <span>1º ASIR</span>
+    <span>Implantación de Sistemas Operativos</span>
+    <span>Gestión de usuarios</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>Contenido</h2>
+  <ol>
+    <li><a href="#s1">Cuenta y perfil no son lo mismo</a></li>
+    <li><a href="#s2">El identificador real: SID y UID</a></li>
+    <li><a href="#s3">Dónde se guarda la cuenta</a></li>
+    <li><a href="#s4">Qué contiene un perfil</a></li>
+    <li><a href="#s5">Cómo se relacionan cuenta y perfil</a></li>
+    <li><a href="#s6">Cómo se crea el perfil</a></li>
+    <li><a href="#s7">Personalizar los perfiles</a></li>
+    <li><a href="#s8">Tipos de perfil</a></li>
+    <li><a href="#s9">Dar de baja a un usuario</a></li>
+    <li><a href="#s10">Directivas de contraseñas</a></li>
+    <li><a href="#resumen">Ideas clave</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">1</span> Cuenta y perfil no son lo mismo</h2>
+  <ul>
+    <li>La <strong>cuenta</strong> identifica al usuario: quién es, qué contraseña tiene y a qué grupos pertenece.</li>
+    <li>El <strong>perfil</strong> es el conjunto de carpetas y configuración personal de ese usuario: escritorio, documentos, fondo de pantalla, ajustes de los programas…</li>
+  </ul>
+  <div class="analogy">
+    <div><strong>📋 Cuenta = ficha de matrícula</strong>Tu nombre, tu número de expediente y tu contraseña. Dice <em>quién eres</em>.</div>
+    <div><strong>🗄️ Perfil = taquilla</strong>Tus cosas, tu configuración y tus archivos. Es <em>lo que es tuyo</em>.</div>
+  </div>
+  <p>Son <strong>independientes</strong>: se puede borrar una cuenta y que su perfil siga en el disco, o tener una carpeta de perfil sin ninguna cuenta asociada. Igual que en el instituto: si te dan de baja, borran la ficha, pero la taquilla sigue llena hasta que alguien la vacía.</p>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">2</span> El identificador real: SID y UID</h2>
+  <p>El sistema operativo no identifica a los usuarios por su nombre, sino por un <strong>identificador numérico único</strong>. El nombre es solo una etiqueta para las personas. Por eso se puede cambiar el nombre de un usuario sin que pierda sus archivos.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th></th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Identificador</td><td><strong>SID</strong> (Security Identifier)</td><td><strong>UID</strong> (User Identifier)</td></tr>
+    <tr><td>Formato</td><td><code>S-1-5-21-xxxx-xxxx-xxxx-1001</code></td><td>Un número: <code>1001</code></td></tr>
+    <tr><td>Parte final</td><td><strong>RID</strong>: 500 = Administrador; 1000 o más = usuarios creados</td><td>0 = root; menos de 1000 = cuentas del sistema; 1000 o más = usuarios normales</td></tr>
+    <tr><td>¿Se reutiliza?</td><td>No. Un usuario nuevo siempre recibe un SID nuevo</td><td><strong>Sí.</strong> Si se borra un usuario, su UID puede asignarse a otro</td></tr>
+  </table>
+  </div>
+  <div class="key">Los <strong>permisos</strong> de archivos y carpetas se guardan con este identificador, no con el nombre. Esa es la "unión" entre la cuenta y su perfil.</div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">3</span> Dónde se guarda la cuenta</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th></th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Cuentas locales</td><td>Base de datos <strong>SAM</strong></td><td><code>/etc/passwd</code>: nombre, UID, grupo, carpeta personal, shell</td></tr>
+    <tr><td>Contraseñas</td><td>Dentro de la SAM, cifradas (hash)</td><td><code>/etc/shadow</code>, cifradas (hash), solo legible por root</td></tr>
+    <tr><td>Grupos</td><td>SAM</td><td><code>/etc/group</code></td></tr>
+    <tr><td>Cuentas de red</td><td>Active Directory</td><td>LDAP / Samba</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">4</span> Qué contiene un perfil</h2>
+  <div class="two-cols">
+    <div class="os-card win">
+      <h3>Windows 11 · <code>C:\Users\nombre</code></h3>
+      <ul>
+        <li>Carpetas visibles: Escritorio, Documentos, Descargas, Imágenes…</li>
+        <li><strong>AppData</strong> (oculta): configuración de los programas.
+          <ul>
+            <li><code>Local</code>: datos solo de este equipo.</li>
+            <li><code>Roaming</code>: datos que viajan con el usuario en un perfil móvil.</li>
+            <li><code>LocalLow</code>: aplicaciones con permisos reducidos.</li>
+          </ul>
+        </li>
+        <li><strong>NTUSER.DAT</strong>: la parte del <strong>registro</strong> propia del usuario. Al iniciar sesión se carga como <code>HKEY_CURRENT_USER</code>.</li>
+      </ul>
+    </div>
+    <div class="os-card lin">
+      <h3>Linux · <code>/home/nombre</code></h3>
+      <ul>
+        <li>Carpetas visibles: Escritorio, Documentos, Descargas…</li>
+        <li><strong>Archivos ocultos</strong> (empiezan por punto):
+          <ul>
+            <li><code>.bashrc</code> y <code>.profile</code>: configuración de la terminal.</li>
+            <li><code>.config</code>: configuración de los programas.</li>
+            <li><code>.local</code>: datos de las aplicaciones.</li>
+            <li><code>.cache</code>: archivos temporales.</li>
+          </ul>
+        </li>
+        <li>En Linux <strong>no hay registro</strong>: toda la configuración son archivos de texto dentro del perfil.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">5</span> Cómo se relacionan cuenta y perfil</h2>
+  <ul>
+    <li><strong>Windows:</strong> el registro tiene una lista (<code>ProfileList</code>) que asocia cada <strong>SID</strong> con la ruta de su carpeta de perfil.</li>
+    <li><strong>Linux:</strong> en <code>/etc/passwd</code>, cada cuenta indica cuál es su carpeta personal, y los archivos de esa carpeta pertenecen a su <strong>UID</strong>.</li>
+  </ul>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">6</span> Cómo se crea el perfil</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th></th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Plantilla</td><td><code>C:\Users\Default</code> (carpeta oculta)</td><td><code>/etc/skel</code></td></tr>
+    <tr><td>Cuándo se crea</td><td>En el <strong>primer inicio de sesión</strong> del usuario</td><td><strong>Al crear el usuario</strong> (<code>adduser</code>)</td></tr>
+    <tr><td>Excepción</td><td>—</td><td>Los usuarios de red pueden crearlo en el primer inicio de sesión</td></tr>
+    <tr><td>Carpeta compartida por todos</td><td><code>C:\Users\Public</code></td><td>No existe una por defecto</td></tr>
+  </table>
+  </div>
+  <div class="note">⚠️ En los dos sistemas, lo que se pone en la plantilla <strong>solo afecta a los perfiles que se creen después</strong>. Los que ya existen no cambian.</div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">7</span> Personalizar los perfiles: qué se puede modificar</h2>
+  <p>Un administrador puede preparar cómo será el entorno de los usuarios: el fondo de pantalla, los archivos del escritorio, los accesos directos a programas… Hay <strong>tres formas de hacerlo</strong>, y se diferencian en <strong>a quién afectan</strong>:</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Forma</th><th>A quién afecta</th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>1. Modificar la plantilla</td><td>Solo a los usuarios que se creen <strong>después</strong></td><td><code>C:\Users\Default</code></td><td><code>/etc/skel</code></td></tr>
+    <tr><td>2. Configuración para todos</td><td>A <strong>todos</strong> los usuarios, también a los que ya existen</td><td>Carpetas públicas y <strong>directivas</strong> (GPO)</td><td>Carpetas del sistema: <code>/etc/xdg</code>, <code>/usr/share/applications</code>, valores por defecto de <strong>dconf</strong></td></tr>
+    <tr><td>3. Modificar un perfil concreto</td><td>Solo a <strong>ese</strong> usuario</td><td>Su carpeta <code>C:\Users\nombre</code> y su registro (<code>NTUSER.DAT</code>)</td><td>Su carpeta <code>/home/nombre</code></td></tr>
+  </table>
+  </div>
+
+  <h3>Qué se puede personalizar</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Elemento</th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Fondo de pantalla (papel tapiz)</td><td>Se guarda en el registro del usuario. Para todos, con la directiva <em>Tapiz del escritorio</em></td><td>Se guarda en la configuración del escritorio del usuario. Para todos, con valores por defecto del sistema (dconf)</td></tr>
+    <tr><td>Archivos en el escritorio (p. ej. <code>Normas-Empresa.txt</code>)</td><td>En el Escritorio de <strong>Default</strong>, o en <code>C:\Users\Public\Desktop</code> para que lo vean todos</td><td>En <code>/etc/skel/Escritorio</code></td></tr>
+    <tr><td>Accesos directos a programas</td><td>Escritorio de Default o Escritorio público; menú Inicio para todos los usuarios</td><td>Lanzadores (<code>.desktop</code>) en el Escritorio de <code>/etc/skel</code>; menú en <code>/usr/share/applications</code></td></tr>
+    <tr><td>Programas que se abren al iniciar sesión</td><td>Carpeta <em>Inicio</em> del usuario o la de todos los usuarios</td><td><code>~/.config/autostart</code> (un usuario) o <code>/etc/xdg/autostart</code> (todos)</td></tr>
+    <tr><td>Ajustes de un programa (página de inicio del navegador, idioma…)</td><td><code>AppData</code> del perfil Default, o directivas del programa</td><td>Carpeta <code>.config</code> dentro de <code>/etc/skel</code></td></tr>
+    <tr><td>Configuración de la terminal</td><td>—</td><td><code>.bashrc</code> y <code>.profile</code> en <code>/etc/skel</code></td></tr>
+  </table>
+  </div>
+
+  <div class="key">💡 <strong>En el perfil no se instalan los programas, se guarda su configuración.</strong> Los programas se instalan para todo el equipo (<code>C:\Program Files</code> en Windows, <code>/usr</code> en Linux). En el perfil se preparan sus accesos directos y sus ajustes.</div>
+
+  <h3>Impedir que el usuario cambie la configuración</h3>
+  <p>Personalizar no es lo mismo que <strong>bloquear</strong>. Si pones un fondo en la plantilla, el usuario puede cambiarlo después. Para que no pueda hacerlo:</p>
+  <ul>
+    <li><strong>Windows:</strong> usar <strong>directivas</strong> (impiden cambiar el fondo, ocultan el Panel de control…) o un <strong>perfil obligatorio</strong> (los cambios se pierden al cerrar sesión).</li>
+    <li><strong>Linux:</strong> <strong>bloquear</strong> claves de configuración con dconf, o <strong>restaurar el perfil</strong> en cada inicio de sesión, como hacen los equipos de los institutos con Vitalinux.</li>
+  </ul>
+
+  <h3>Programas solo para un usuario</h3>
+  <p>Aunque lo normal es instalar para todo el equipo, algunos programas se pueden instalar <strong>solo para un usuario</strong>, dentro de su perfil:</p>
+  <ul>
+    <li><strong>Windows:</strong> en <code>AppData\Local\Programs</code>. Lo hacen, por ejemplo, Visual Studio Code o Teams cuando eliges la instalación "para el usuario actual".</li>
+    <li><strong>Linux:</strong> en <code>~/.local</code>, o con Flatpak en modo usuario.</li>
+  </ul>
+  <p>Estos programas <strong>se borran al eliminar el perfil</strong>, y los demás usuarios no los ven.</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">8</span> Tipos de perfil</h2>
+  <div class="two-cols">
+    <div class="os-card win">
+      <h3>Windows</h3>
+      <ul>
+        <li><strong>Local:</strong> se guarda solo en el equipo. Es el normal.</li>
+        <li><strong>Móvil (roaming):</strong> se guarda en un servidor y se descarga en cualquier equipo de la red donde el usuario inicie sesión.</li>
+        <li><strong>Obligatorio:</strong> el usuario no puede guardar cambios; al cerrar sesión todo vuelve a como estaba. Se consigue renombrando <code>NTUSER.DAT</code> a <code>NTUSER.MAN</code>. Se usa en aulas y cibercafés.</li>
+        <li><strong>Temporal:</strong> Windows lo crea cuando no consigue cargar el perfil del usuario, por ejemplo si se borró mal. Todo se pierde al cerrar sesión. Es un <strong>síntoma de error</strong>.</li>
+      </ul>
+    </div>
+    <div class="os-card lin">
+      <h3>Linux</h3>
+      <ul>
+        <li><strong>Local:</strong> carpeta en <code>/home</code>.</li>
+        <li><strong>En red:</strong> la carpeta <code>/home</code> está en un servidor (NFS, Samba) y el usuario la tiene en cualquier equipo.</li>
+        <li>No existe un "perfil obligatorio" como tal. Se consigue algo parecido restaurando el perfil desde una copia en cada inicio de sesión, que es lo que hacen muchas distribuciones educativas.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">9</span> Dar de baja a un usuario correctamente</h2>
+  <p>Al borrar solo la cuenta, el perfil se queda en el disco: es un <strong>perfil huérfano</strong>.</p>
+  <div class="table-wrap">
+  <table>
+    <tr><th></th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Borrar solo la cuenta</td><td>La carpeta queda y, en los permisos, aparece "Cuenta desconocida" con el SID</td><td>La carpeta queda y aparece un <strong>número</strong> en lugar del nombre del dueño</td></tr>
+    <tr><td>Riesgo</td><td>Ocupa espacio y quedan datos personales sin control</td><td>Además, si se crea otro usuario con <strong>el mismo UID, hereda todos esos archivos</strong></td></tr>
+    <tr><td>Error típico</td><td>Borrar la carpeta a mano: la entrada en el registro sigue y puede provocar perfiles temporales</td><td>Usar <code>userdel</code> sin la opción de borrar la carpeta</td></tr>
+    <tr><td>Vía correcta</td><td><em>Configuración → Cuentas → Otros usuarios → Quitar</em>, o <em>Propiedades del sistema → Perfiles de usuario → Eliminar</em></td><td><code>deluser --remove-home</code> (haciendo copia de seguridad antes si hace falta)</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10</span> Directivas de contraseñas</h2>
+  <p>Son reglas que <strong>afectan a todos los usuarios del equipo</strong>:</p>
+  <ul>
+    <li><strong>Longitud mínima:</strong> número mínimo de caracteres.</li>
+    <li><strong>Vigencia máxima:</strong> cada cuántos días hay que cambiar la contraseña.</li>
+    <li><strong>Vigencia mínima:</strong> cuántos días hay que esperar antes de poder cambiarla otra vez. Evita que el usuario la cambie varias veces seguidas para volver a la de siempre.</li>
+    <li><strong>Bloqueo de cuenta:</strong> cuántos intentos fallidos se permiten y cuánto tiempo queda bloqueada la cuenta.</li>
+  </ul>
+  <div class="table-wrap">
+  <table>
+    <tr><th></th><th class="win">Windows 11</th><th class="lin">Linux</th></tr>
+    <tr><td>Dónde se configuran</td><td>Directiva de seguridad local (o GPO en un dominio)</td><td>PAM (<code>pwquality</code>, <code>faillock</code>) y <code>/etc/login.defs</code></td></tr>
+  </table>
+  </div>
+  <div class="note">⚠️ El administrador (o root) puede saltarse algunas de estas normas. Por eso las directivas se comprueban <strong>iniciando sesión como un usuario normal</strong>, nunca como administrador.</div>
+</section>
+
+<!-- Resumen -->
+<section id="resumen" class="summary">
+  <h2><span class="num">★</span> Ideas clave</h2>
+  <ol>
+    <li>Cuenta y perfil son cosas distintas. Se unen por el <strong>SID</strong> (Windows) o el <strong>UID</strong> (Linux).</li>
+    <li>El perfil se crea a partir de una plantilla: <strong>Default</strong> en Windows y <strong>/etc/skel</strong> en Linux.</li>
+    <li>Windows crea el perfil en el <strong>primer inicio de sesión</strong>; Linux, <strong>al crear el usuario</strong>.</li>
+    <li>El perfil guarda la <strong>configuración</strong> de los programas, no los programas. La <strong>plantilla</strong> prepara a los usuarios nuevos; las <strong>directivas</strong> o la configuración del sistema afectan a todos y además pueden <strong>impedir</strong> cambios.</li>
+    <li>Al dar de baja a alguien hay que <strong>eliminar también su perfil</strong>, y por la vía correcta.</li>
+    <li>En Linux los UID se reutilizan, por eso un perfil huérfano es un <strong>riesgo de seguridad</strong>.</li>
+    <li>Las directivas de contraseñas afectan a todo el equipo y se prueban <strong>como el usuario</strong>.</li>
+  </ol>
+</section>
+
+<footer>Implantación de Sistemas Operativos · 1º ASIR</footer>
+
+</div>
+</body>
+</html>

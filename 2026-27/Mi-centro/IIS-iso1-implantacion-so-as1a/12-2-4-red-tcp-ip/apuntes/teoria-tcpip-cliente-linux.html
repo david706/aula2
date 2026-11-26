@@ -1,0 +1,335 @@
+<div style="font-family: Arial, Helvetica, sans-serif; font-size: 15px; line-height: 1.6; color: #222; max-width: 900px;">
+
+<div style="background: #1f4e79; color: #ffffff; padding: 18px 22px; border-radius: 8px; margin-bottom: 20px;">
+  <p style="margin: 0; font-size: 13px;">UD2 · Administración del software de base · Teoría · Linux</p>
+  <h2 style="margin: 6px 0 0 0; color: #ffffff;">Red TCP/IP en un cliente Ubuntu con Netplan</h2>
+</div>
+
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 12px 16px; margin-bottom: 22px; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Criterio de evaluación:</strong> RA2.d</p>
+  <p style="margin: 6px 0 0 0;"><strong>Objetivo:</strong> configurar la red TCP/IP de un cliente Ubuntu Desktop con Netplan (IP, máscara, puerta de enlace y DNS), comprobar que funciona y saber diagnosticar los errores típicos.</p>
+</div>
+
+<!-- 1 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">1. Los cuatro datos que necesita un equipo para tener red</h3>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 22%;">Dato</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Para qué sirve</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 26%;">Ejemplo</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>Dirección IP</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Identifica al equipo en la red. No puede repetirse dentro de la misma red.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.50</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Máscara</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Separa la parte de <em>red</em> de la parte de <em>equipo</em>. Así el equipo sabe quién es su vecino.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>/24</code> = <code>255.255.255.0</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>Puerta de enlace</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Router al que se envía todo lo que va <strong>fuera</strong> de mi red (por ejemplo, a Internet). Solo debe haber <strong>una</strong>.</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.1</code> en una oficina real</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>DNS</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Traduce nombres a IP (<code>google.com</code> → <code>142.250.x.x</code>).</td><td style="padding: 8px; border: 1px solid #ccc;"><code>8.8.8.8</code>, <code>8.8.4.4</code></td></tr>
+</table>
+
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Para recordar:</strong> IP → quién soy · Máscara → quién es mi vecino · Puerta de enlace → por dónde salgo · DNS → cómo traduzco nombres.</p>
+</div>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">1.1 La máscara: ¿vecino o hay que salir?</h4>
+<p style="margin-top: 4px;">Con <code>/24</code> los tres primeros números son la red. En <code>192.168.100.0/24</code> los equipos van del <code>.1</code> al <code>.254</code> (el <code>.0</code> es la dirección de red y el <code>.255</code> la de difusión).</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 7px; border: 1px solid #ccc;">CIDR</th><th style="padding: 7px; border: 1px solid #ccc;">Máscara</th><th style="padding: 7px; border: 1px solid #ccc;">Equipos posibles</th>
+  </tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/8</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">255.0.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">16.777.214</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/16</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">255.255.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">65.534</td></tr>
+  <tr style="background: #fff4d6;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>/24</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>255.255.255.0</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>254</strong></td></tr>
+</table>
+<p>Ejemplo: <code>192.168.100.50/24</code> quiere hablar con <code>192.168.100.10</code> → misma red, se hablan <strong>directamente</strong>. Si quiere hablar con <code>8.8.8.8</code> → otra red, el paquete va a la <strong>puerta de enlace</strong>.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">Resumen rápido: clases de IP, públicas y privadas</h4>
+<p style="margin-top: 4px;">Las IPv4 se agrupaban en <strong>clases</strong> según el primer número. Hoy se usa CIDR (la máscara puede ser cualquiera), pero las clases siguen usándose para hablar de las redes.</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #2e75b6; color: #fff;">
+    <th style="padding: 7px; border: 1px solid #ccc;">Clase</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Primer número</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Máscara por defecto</th>
+    <th style="padding: 7px; border: 1px solid #ccc;">Rango privado</th>
+  </tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>A</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">1 – 126</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/8 · 255.0.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>10.0.0.0</code> – <code>10.255.255.255</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>B</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">128 – 191</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/16 · 255.255.0.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>172.16.0.0</code> – <code>172.31.255.255</code></td></tr>
+  <tr style="background: #fff4d6;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><strong>C</strong></td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">192 – 223</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">/24 · 255.255.255.0</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;"><code>192.168.0.0</code> – <code>192.168.255.255</code></td></tr>
+  <tr><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">D</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">224 – 239</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;" colspan="2">Multidifusión (multicast): un emisor, varios receptores</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">E</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;">240 – 255</td><td style="padding: 7px; border: 1px solid #ccc; text-align: center;" colspan="2">Experimental, no se usa</td></tr>
+</table>
+<ul>
+  <li><strong>IP privada:</strong> solo vale dentro de una red local. No circula por Internet y se puede repetir en otras empresas. Para salir a Internet, el router la traduce a su IP pública (<strong>NAT</strong>).</li>
+  <li><strong>IP pública:</strong> única en todo Internet. La asigna el proveedor (ISP). Ejemplo: <code>8.8.8.8</code>.</li>
+  <li><strong>Direcciones especiales:</strong> <code>127.0.0.1</code> loopback (el propio equipo; por eso el 127 no está en la clase A) · <code>169.254.x.x</code> APIPA (sin DHCP) · <code>0.0.0.0</code> «cualquier red» (ruta por defecto) · <code>255.255.255.255</code> difusión.</li>
+</ul>
+<p>Nuestra red <code>192.168.100.0/24</code> es <strong>privada de clase C</strong>.</p>
+
+<!-- 2 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">2. Nuestro escenario: la red de la Ferretería Aragón</h3>
+<p>Cada máquina virtual tiene <strong>dos adaptadores de red</strong> en VirtualBox:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Equipo</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Adaptador 1 · NAT</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Adaptador 2 · Red interna <code>ferreteria</code></th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Ubuntu Server</td><td style="padding: 8px; border: 1px solid #ccc;">DHCP (10.0.2.x)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.10/24</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;">Windows Server</td><td style="padding: 8px; border: 1px solid #ccc;">DHCP (10.0.2.x)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.11/24</code></td></tr>
+  <tr style="background: #fff4d6;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Ubuntu Desktop (este tema)</strong></td><td style="padding: 8px; border: 1px solid #ccc;">DHCP (10.0.2.x) · <code>enp0s3</code></td><td style="padding: 8px; border: 1px solid #ccc;"><strong><code>192.168.100.50/24</code> · <code>enp0s8</code></strong></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;">Windows 11</td><td style="padding: 8px; border: 1px solid #ccc;">DHCP (10.0.2.x)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>192.168.100.51/24</code></td></tr>
+</table>
+<ul>
+  <li>El <strong>NAT</strong> (adaptador 1) da la salida a Internet. Por DHCP recibe IP, puerta de enlace (<code>10.0.2.2</code>) y DNS. <strong>No se toca.</strong></li>
+  <li>La <strong>red interna</strong> (adaptador 2) une las máquinas de la ferretería entre sí. No tiene servidor DHCP, así que la IP se pone <strong>a mano (estática)</strong>.</li>
+  <li><strong>En la red interna no se pone puerta de enlace</strong>: la puerta de enlace ya la da el NAT. Si pones otra, tendrás <strong>dos rutas por defecto</strong> y puedes quedarte sin Internet.</li>
+</ul>
+
+<div style="background: #eaf2fb; border-left: 5px solid #1f4e79; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>En una ferretería real</strong> solo habría una tarjeta de red y un router en <code>192.168.100.1</code>: ahí sí pondríamos esa puerta de enlace en el cliente. En el laboratorio el papel del router lo hace el NAT de VirtualBox.</p>
+</div>
+
+<!-- 3 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">3. Ver la configuración actual</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">ip -br a          # resumen: interfaz, estado, IP
+ip a              # detalle (incluye la MAC: link/ether)
+ip route          # tabla de rutas (la línea "default" es la puerta de enlace)
+route -n          # lo mismo, formato clásico (paquete net-tools)
+resolvectl dns    # servidores DNS de cada interfaz</pre>
+<p>Antes de configurar, la salida de <code>ip -br a</code> será parecida a:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">lo        UNKNOWN  127.0.0.1/8 ::1/128
+enp0s3    UP       10.0.2.15/24 ...      <span style="color: #9cdcfe;">← NAT, por DHCP</span>
+enp0s8    UP                             <span style="color: #9cdcfe;">← red interna, sin IP todavía</span></pre>
+<p style="font-size: 13px; color: #555;">Si tu interfaz interna no se llama <code>enp0s8</code>, usa el nombre que veas. Si no aparece, el adaptador 2 no está habilitado en VirtualBox.</p>
+
+<!-- 4 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">4. ¿Qué es Netplan?</h3>
+<p><strong>Netplan</strong> es el sistema de configuración de red de Ubuntu. Escribimos la configuración en un archivo <strong>YAML</strong> dentro de <code>/etc/netplan/</code> y Netplan se la pasa a un <strong>renderer</strong>, que es quien gestiona la red de verdad:</p>
+<ul>
+  <li><code>NetworkManager</code> → Ubuntu <strong>Desktop</strong> (nuestro caso).</li>
+  <li><code>networkd</code> → Ubuntu <strong>Server</strong>.</li>
+</ul>
+<p>Todos los <code>.yaml</code> de <code>/etc/netplan/</code> se leen en <strong>orden alfabético</strong> y se combinan. En Ubuntu Desktop suele existir ya <code>01-network-manager-all.yaml</code>. Nosotros crearemos <code>/etc/netplan/01-netcfg.yaml</code>.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">4.1 Reglas de YAML (la causa de casi todos los errores)</h4>
+<ul style="margin-top: 4px;">
+  <li>La <strong>sangría</strong> marca la estructura: <strong>espacios</strong>, 2 por nivel. <strong>Nunca tabuladores.</strong></li>
+  <li>Detrás de <code>:</code> va <strong>un espacio</strong>: <code>dhcp4: false</code>.</li>
+  <li>Las listas van entre corchetes <code>[a, b]</code> o con guion <code>- a</code> en líneas separadas.</li>
+  <li>Distingue mayúsculas y minúsculas: <code>enp0s8</code> ≠ <code>Enp0s8</code>.</li>
+</ul>
+
+<!-- 5 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">5. El archivo de configuración</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;"># /etc/netplan/01-netcfg.yaml
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    enp0s3:
+      dhcp4: true                  <span style="color: #6a9955;"># NAT: lo da todo por DHCP</span>
+    enp0s8:
+      dhcp4: false                 <span style="color: #6a9955;"># red interna: IP fija</span>
+      addresses:
+        - 192.168.100.50/24        <span style="color: #6a9955;"># IP + máscara</span>
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+      <span style="color: #6a9955;"># sin puerta de enlace: la da el NAT</span></pre>
+
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 32%;">Clave</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Significado</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>network:</code></td><td style="padding: 8px; border: 1px solid #ccc;">Raíz obligatoria.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>version: 2</code></td><td style="padding: 8px; border: 1px solid #ccc;">Versión del formato. Siempre 2.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>renderer: NetworkManager</code></td><td style="padding: 8px; border: 1px solid #ccc;">Quién aplica la configuración (Desktop).</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ethernets:</code></td><td style="padding: 8px; border: 1px solid #ccc;">Tarjetas de red por cable. (También existen <code>wifis:</code>, <code>bridges:</code>…)</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>dhcp4: true / false</code></td><td style="padding: 8px; border: 1px solid #ccc;">Activa o desactiva DHCP en IPv4.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>addresses:</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP con su máscara en formato CIDR. <strong>La máscara va incluida</strong> (<code>/24</code>).</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>nameservers: addresses:</code></td><td style="padding: 8px; border: 1px solid #ccc;">Servidores DNS.</td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>routes: - to: default via: X</code></td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace. <strong>No la usamos en la red interna.</strong></td></tr>
+</table>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">5.1 Cómo se escribe la puerta de enlace (cuando sí hace falta)</h4>
+<p style="margin-top: 4px;">En una red con router propio, por ejemplo la ferretería real con una sola tarjeta:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">    enp0s3:
+      dhcp4: false
+      addresses: [192.168.100.50/24]
+      routes:
+        - to: default
+          via: 192.168.100.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]</pre>
+<p>En tutoriales antiguos verás <code>gateway4: 192.168.100.1</code>. Funciona, pero está <strong>obsoleto</strong>: Netplan avisa <em>"gateway4 has been deprecated"</em>. Usa <code>routes</code>.</p>
+
+<!-- 6 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">6. Editar y aplicar</h3>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">ls -l /etc/netplan/                              <span style="color: #6a9955;"># qué archivos hay</span>
+sudo nano /etc/netplan/01-netcfg.yaml            <span style="color: #6a9955;"># Ctrl+O, Intro, Ctrl+X</span>
+sudo chmod 600 /etc/netplan/01-netcfg.yaml       <span style="color: #6a9955;"># solo root puede leerlo</span>
+sudo netplan generate                            <span style="color: #6a9955;"># comprueba la sintaxis, no aplica</span>
+sudo netplan try                                 <span style="color: #6a9955;"># aplica; si no pulsas Intro en 120 s, vuelve atrás</span>
+sudo netplan apply                               <span style="color: #6a9955;"># aplica de forma definitiva</span></pre>
+<ul>
+  <li><code>chmod 600</code>: repaso de la sesión de permisos → lectura y escritura solo para el propietario (root). Si no lo haces, Netplan avisa <em>"Permissions ... are too open"</em>.</li>
+  <li><code>netplan try</code> es tu red de seguridad: si te quedas sin conexión, la configuración anterior vuelve sola.</li>
+  <li>Para ver la configuración combinada de todos los archivos: <code>sudo netplan get</code>.</li>
+</ul>
+
+<!-- 7 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">7. Comprobar que funciona</h3>
+<p>Comprueba siempre <strong>de dentro hacia fuera</strong>:</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left; width: 30%;">Comando</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qué compruebo</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Resultado correcto</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ip -br a</code></td><td style="padding: 8px; border: 1px solid #ccc;">IP y máscara</td><td style="padding: 8px; border: 1px solid #ccc;"><code>enp0s8 UP 192.168.100.50/24</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ip route</code> / <code>route -n</code></td><td style="padding: 8px; border: 1px solid #ccc;">Puerta de enlace</td><td style="padding: 8px; border: 1px solid #ccc;"><strong>Una sola</strong> línea <code>default via 10.0.2.2 dev enp0s3</code> y una línea <code>192.168.100.0/24 dev enp0s8</code>. En <code>route -n</code>: una sola fila <code>0.0.0.0</code> con flags <code>UG</code>.</td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>resolvectl dns</code></td><td style="padding: 8px; border: 1px solid #ccc;">DNS</td><td style="padding: 8px; border: 1px solid #ccc;"><code>Link ... (enp0s8): 8.8.8.8 8.8.4.4</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 192.168.100.10</code></td><td style="padding: 8px; border: 1px solid #ccc;">Llego al servidor de la ferretería</td><td style="padding: 8px; border: 1px solid #ccc;"><code>4 received, 0% packet loss</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><code>ping -c 4 8.8.8.8</code></td><td style="padding: 8px; border: 1px solid #ccc;">Salgo a Internet</td><td style="padding: 8px; border: 1px solid #ccc;"><code>0% packet loss</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><code>nslookup google.com</code></td><td style="padding: 8px; border: 1px solid #ccc;">Resuelvo nombres</td><td style="padding: 8px; border: 1px solid #ccc;">Líneas <code>Name: google.com</code> y <code>Address: ...</code></td></tr>
+</table>
+<ul>
+  <li><code>ping</code> en Linux no para solo: usa <code>-c 4</code> o <strong>Ctrl+C</strong>.</li>
+  <li>Si <code>route -n</code> no existe: <code>sudo apt install net-tools</code> (o usa <code>ip route</code>). Si <code>nslookup</code> no existe: <code>sudo apt install dnsutils</code>.</li>
+  <li>Es normal que <code>nslookup</code> muestre <code>Server: 127.0.0.53</code>: es <em>systemd-resolved</em>, un intermediario local que reenvía la consulta a los DNS reales.</li>
+</ul>
+
+<!-- 8 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">8. ¿Y en otras distribuciones?</h3>
+<p>Netplan es propio de Ubuntu. Cada familia de Linux usa su herramienta, pero los <strong>cuatro datos son los mismos</strong> y los comandos de comprobación (<code>ip a</code>, <code>ip route</code>, <code>ping</code>) funcionan en todas.</p>
+<table style="border-collapse: collapse; width: 100%; margin: 10px 0;">
+  <tr style="background: #1f4e79; color: #fff;">
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Distribución</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Herramienta</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Dónde se guarda</th>
+    <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Aplicar</th>
+  </tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>Ubuntu</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Netplan (+ NetworkManager o networkd)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>/etc/netplan/*.yaml</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>netplan apply</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Fedora / RHEL / Rocky</strong></td><td style="padding: 8px; border: 1px solid #ccc;">NetworkManager (<code>nmcli</code>, <code>nmtui</code>)</td><td style="padding: 8px; border: 1px solid #ccc;"><code>/etc/NetworkManager/system-connections/*.nmconnection</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>nmcli con up</code></td></tr>
+  <tr><td style="padding: 8px; border: 1px solid #ccc;"><strong>Arch Linux</strong></td><td style="padding: 8px; border: 1px solid #ccc;">Lo eliges tú: systemd-networkd o NetworkManager</td><td style="padding: 8px; border: 1px solid #ccc;"><code>/etc/systemd/network/*.network</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>networkctl reload</code></td></tr>
+  <tr style="background: #f5f5f5;"><td style="padding: 8px; border: 1px solid #ccc;"><strong>Debian</strong> (clásico)</td><td style="padding: 8px; border: 1px solid #ccc;">ifupdown</td><td style="padding: 8px; border: 1px solid #ccc;"><code>/etc/network/interfaces</code></td><td style="padding: 8px; border: 1px solid #ccc;"><code>systemctl restart networking</code></td></tr>
+</table>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">8.1 Fedora con <code>nmcli</code></h4>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">nmcli device status                         <span style="color: #6a9955;"># interfaces y su estado</span>
+sudo nmcli con add type ethernet ifname enp0s8 con-name ferreteria \
+     ipv4.method manual ipv4.addresses 192.168.100.50/24 \
+     ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli con up ferreteria
+nmcli con show ferreteria | grep ipv4</pre>
+<p style="font-size: 13px; color: #555;">Con puerta de enlace se añadiría <code>ipv4.gateway 192.168.100.1</code>. Si prefieres menús en la terminal: <code>nmtui</code>. Esto también funciona en Ubuntu Desktop, porque usa NetworkManager.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">8.2 Arch Linux con systemd-networkd</h4>
+<p style="margin-top: 4px;">Archivo <code>/etc/systemd/network/20-ferreteria.network</code>:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">[Match]
+Name=enp0s8
+
+[Network]
+Address=192.168.100.50/24
+DNS=8.8.8.8
+DNS=8.8.4.4
+<span style="color: #6a9955;"># Gateway=192.168.100.1   (solo si hiciera falta)</span></pre>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">sudo systemctl enable --now systemd-networkd systemd-resolved
+sudo networkctl reload
+networkctl status enp0s8</pre>
+<p style="font-size: 13px; color: #555;">Arch no trae nada configurado de serie: tras instalarlo, eres tú quien activa el gestor de red. No mezcles networkd y NetworkManager sobre la misma interfaz.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">8.3 Debian clásico</h4>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;"># /etc/network/interfaces
+auto enp0s8
+iface enp0s8 inet static
+    address 192.168.100.50/24
+    # gateway 192.168.100.1   (solo si hiciera falta)</pre>
+<p style="font-size: 13px; color: #555;">Los DNS se ponen en <code>/etc/resolv.conf</code> (<code>nameserver 8.8.8.8</code>). Se aplica con <code>sudo systemctl restart networking</code>.</p>
+
+<h4 style="color: #2e75b6; margin-bottom: 4px;">8.4 Cambio temporal (cualquier distribución)</h4>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5;">sudo ip addr add 192.168.100.50/24 dev enp0s8
+sudo ip link set enp0s8 up
+sudo ip route add default via 192.168.100.1    <span style="color: #6a9955;"># solo si hiciera falta</span></pre>
+<p>Sirve para hacer pruebas rápidas, pero <strong>se pierde al reiniciar</strong>. Para que sea permanente hay que usar la herramienta de la distribución.</p>
+
+<!-- 9 -->
+<h3 style="color: #c0392b; border-bottom: 2px solid #c0392b; padding-bottom: 4px;">9. Errores típicos y cómo resolverlos</h3>
+
+<p><strong>Error 1 · Sangría incorrecta.</strong> <code>addresses</code> no está alineada con <code>dhcp4</code>, así que Netplan no sabe a qué interfaz pertenece:</p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px; line-height: 1.5;">    enp0s8:
+      dhcp4: false
+     addresses: [192.168.100.50/24]     <span style="color: #ff6b6b;">← 5 espacios; deben ser 6</span></pre>
+<p><strong>Qué verás:</strong> <code>netplan generate</code> o <code>try</code> muestran un error de YAML indicando <strong>línea y columna</strong>. <strong>Solución:</strong> ve a esa línea, alinea con espacios (nunca tabuladores) y repite.</p>
+
+<p><strong>Error 2 · Falta el espacio tras los dos puntos.</strong></p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">      dhcp4:false                       <span style="color: #ff6b6b;">← debe ser  dhcp4: false</span></pre>
+<p><strong>Qué verás:</strong> error de sintaxis YAML con número de línea. <strong>Solución:</strong> añade el espacio.</p>
+
+<p><strong>Error 3 · Falta la máscara.</strong></p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">      addresses: [192.168.100.50]       <span style="color: #ff6b6b;">← falta /24</span></pre>
+<p><strong>Qué verás:</strong> Netplan indica que a la dirección le falta la longitud del prefijo. <strong>Solución:</strong> escribe <code>192.168.100.50/24</code>.</p>
+
+<p><strong>Error 4 · Puerta de enlace en la red interna.</strong> Añadir <code>routes: - to: default via: 192.168.100.1</code> en <code>enp0s8</code>.</p>
+<p><strong>Qué verás:</strong> Netplan no da error, pero <code>ip route</code> muestra <strong>dos</strong> líneas <code>default</code>. Si gana la de la red interna, <code>ping 8.8.8.8</code> falla porque en <code>192.168.100.1</code> no hay ningún router. <strong>Solución:</strong> quita el bloque <code>routes</code> de <code>enp0s8</code> y vuelve a aplicar.</p>
+
+<p><strong>Error 5 · Configurar la interfaz equivocada.</strong> Poner la IP fija en <code>enp0s3</code> (NAT) en vez de en <code>enp0s8</code>.</p>
+<p><strong>Qué verás:</strong> se pierde Internet (el NAT deja de dar IP y puerta de enlace) y <code>enp0s8</code> sigue sin IP. <strong>Solución:</strong> <code>enp0s3</code> con <code>dhcp4: true</code> y la IP fija en <code>enp0s8</code>.</p>
+
+<p><strong>Error 6 · La IP no aparece tras aplicar.</strong></p>
+<p><strong>Causas:</strong> nombre de interfaz mal escrito, olvidaste <code>netplan apply</code>, otro archivo de <code>/etc/netplan/</code> configura la misma interfaz (compruébalo con <code>sudo netplan get</code>), o el adaptador 2 está deshabilitado en VirtualBox (la interfaz no aparece o está <code>DOWN</code>).</p>
+
+<p><strong>Error 7 · Hay ping a <code>8.8.8.8</code> pero no a <code>google.com</code>.</strong></p>
+<p><strong>Causa:</strong> falla el <strong>DNS</strong>. Revisa <code>nameservers</code> (que esté dentro de la interfaz y con la sangría correcta) y <code>resolvectl dns</code>.</p>
+
+<p><strong>Error 8 · Conflicto de IP.</strong> Dos máquinas con la misma IP: la conexión funciona a ratos y se corta.</p>
+<p><strong>Cómo detectarlo:</strong></p>
+<pre style="background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; font-family: Consolas, 'Courier New', monospace; font-size: 14px;">ip neigh          <span style="color: #6a9955;"># qué MAC responde a cada IP vecina</span></pre>
+<p>Compara la MAC con la de la máquina que debería tener esa IP (<code>link/ether</code> en <code>ip a</code>).</p>
+
+<p><strong>Avisos (no son errores, pero corrígelos):</strong> <em>"Permissions ... are too open"</em> → <code>sudo chmod 600 /etc/netplan/*.yaml</code> · <em>"gateway4 has been deprecated"</em> → usa <code>routes</code>.</p>
+
+<div style="background: #fff4d6; border-left: 5px solid #e0a800; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+  <p style="margin: 0;"><strong>Escalera de diagnóstico:</strong> el primer peldaño que falla te dice qué revisar.</p>
+  <table style="border-collapse: collapse; width: 100%; margin: 8px 0 0 0;">
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">1. <code>ip -br a</code> → ¿tengo IP y la interfaz está UP?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → interfaz, YAML, VirtualBox</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">2. <code>ping 192.168.100.10</code> → ¿llego a mi red?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → IP, máscara, adaptador 2</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">3. <code>ping 8.8.8.8</code> → ¿salgo a Internet?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → puerta de enlace (<code>ip route</code>)</td></tr>
+    <tr><td style="padding: 6px; border: 1px solid #e0c060;">4. <code>nslookup google.com</code> → ¿resuelvo nombres?</td><td style="padding: 6px; border: 1px solid #e0c060;">No → DNS</td></tr>
+  </table>
+</div>
+
+<!-- 10 -->
+<h3 style="color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: 4px;">10. Comprueba lo que has aprendido</h3>
+<p>Intenta responder antes de abrir cada pregunta para ver la solución.</p>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">1. ¿Qué cuatro datos necesita un equipo para tener conectividad completa?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> IP, máscara, puerta de enlace y DNS.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">2. Escribe <code>/24</code> en formato decimal.</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>255.255.255.0</code>.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">3. <code>192.168.100.50/24</code> quiere hablar con <code>192.168.100.200</code>. ¿Pasa por la puerta de enlace?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> No: los dos están en <code>192.168.100.0/24</code>, se hablan directamente.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">4. ¿Por qué no ponemos puerta de enlace en <code>enp0s8</code>?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Porque la salida a Internet ya la da el NAT; una segunda puerta de enlace crea dos rutas por defecto.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">5. Hay ping a <code>8.8.8.8</code> pero no a <code>google.com</code>. ¿Qué revisas?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Los DNS (<code>nameservers</code>, <code>resolvectl dns</code>).</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">6. ¿Qué diferencia hay entre <code>netplan try</code> y <code>netplan apply</code>?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>try</code> aplica y vuelve atrás si no confirmas en 120 s; <code>apply</code> aplica de forma definitiva.</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">7. <code>ip route</code> muestra dos líneas <code>default</code>. ¿Qué ha pasado?</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> Se ha puesto una puerta de enlace también en la red interna (error 4).</div>
+</details>
+<details style="border: 1px solid #c8d6e5; border-radius: 6px; margin: 8px 0; background: #f8fbff;">
+  <summary style="padding: 10px 14px; cursor: pointer; font-weight: bold;">8. Di la clase y si es pública o privada: <code>10.0.5.3</code>, <code>172.20.1.1</code>, <code>8.8.8.8</code>.</summary>
+  <div style="padding: 10px 14px; border-top: 1px solid #c8d6e5; background: #eaf7ea;"><strong>Solución:</strong> <code>10.0.5.3</code> clase A privada · <code>172.20.1.1</code> clase B privada · <code>8.8.8.8</code> clase A pública.</div>
+</details>
+
+</div>

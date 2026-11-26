@@ -1,0 +1,502 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Módulos de Odoo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cabecera compacta, barra de módulos pegajosa con filtro, y una ficha por módulo con el mismo esquema
+   (qué hace · flujo · modelos · se conecta con · práctica). Antes, el mapa de dependencias y el flujo comercial. */
+:root{
+  --bg:#f6f4ee; --paper:#ffffff; --ink:#1c1a17; --muted:#5f5a52; --line:#dcd7cc;
+  --accent:#6f3c8f; --accent-ink:#ffffff; --soft:#efe7f4;
+  --ok:#2d7a4f; --warn:#b06a12; --info:#2b5c9e;
+  --fd:"Archivo",system-ui,sans-serif; --fb:"Source Sans 3",system-ui,sans-serif; --fm:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --ok:#5fbf87; --warn:#e0a24a; --info:#7aa6e6; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14131a; --paper:#1d1b24; --ink:#eceaf2; --muted:#a39fae; --line:#332f3d;
+  --accent:#b58ad1; --accent-ink:#1a1020; --soft:#2a2135; --ok:#5fbf87; --warn:#e0a24a; --info:#7aa6e6; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.55;margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:28px 64px}
+h1,h2,h3{font-family:var(--fd);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700}
+h2{font-size:1.45rem;font-weight:600;margin-top:48px;padding-top:18px;border-top:2px solid var(--line)}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0;max-width:68ch}
+.eyebrow{font-family:var(--fm);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lead{font-size:1.1rem;color:var(--muted);margin-top:10px;max-width:70ch}
+code,.mono{font-family:var(--fm);font-size:.86em}
+code{background:var(--soft);padding:1px 6px;border-radius:4px}
+a{color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:.9rem;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:600}
+
+/* arquitectura */
+.arch{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.arch>div{background:var(--paper);border:1px solid var(--line);padding:14px 16px;min-width:0}
+.arch h3{font-size:1rem}
+.arch p{font-size:.92rem;color:var(--muted);margin-top:6px;max-width:none}
+.arch .mono{display:block;margin-top:8px;color:var(--ink)}
+@media (max-width:720px){.arch{grid-template-columns:1fr}}
+
+/* mapa de dependencias (svg) */
+.map{background:var(--paper);border:1px solid var(--line);margin-top:18px;overflow-x:auto}
+.map svg{display:block;width:100%;min-width:640px;height:auto}
+.map text{font-family:var(--fb);font-size:13px;fill:var(--ink)}
+.map .t{font-family:var(--fm);font-size:11px;fill:var(--muted)}
+.map .box{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.map .base{fill:var(--soft);stroke:var(--accent)}
+.map .edge{fill:none;stroke:var(--muted);stroke-width:1.3;marker-end:url(#arr)}
+.caption{font-size:.88rem;color:var(--muted);margin-top:8px}
+
+/* flujo comercial */
+.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:18px;counter-reset:paso}
+.flow>div{background:var(--paper);border:1px solid var(--line);padding:12px 12px 14px;min-width:0;position:relative;border-left-width:0}
+.flow>div:first-child{border-left-width:1px}
+.flow>div::before{counter-increment:paso;content:counter(paso);font-family:var(--fm);font-size:.72rem;color:var(--muted)}
+.flow h3{font-size:.98rem;margin-top:2px}
+.flow .doc{font-family:var(--fm);font-size:.72rem;color:var(--accent);margin-top:4px;word-break:break-all}
+.flow p{font-size:.86rem;color:var(--muted);margin-top:6px;max-width:none}
+.flow .mod{display:inline-block;margin-top:8px;font-size:.72rem;padding:2px 7px;border-radius:999px;background:var(--soft);color:var(--ink)}
+@media (max-width:860px){.flow{grid-template-columns:repeat(3,1fr)}.flow>div{border-left-width:1px;margin:-1px 0 0 -1px}}
+@media (max-width:520px){.flow{grid-template-columns:1fr}}
+
+/* barra de módulos */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;margin-top:40px;border-bottom:1px solid var(--line)}
+.bar .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font-family:var(--fd);font-size:.84rem;font-weight:500;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:focus-visible,.tab:focus-visible,.copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bar input{flex:1 1 180px;min-width:0;font:inherit;font-size:.92rem;padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+.count{font-size:.85rem;color:var(--muted);white-space:nowrap}
+
+/* fichas */
+.cards{display:grid;gap:18px;margin-top:22px}
+.card{background:var(--paper);border:1px solid var(--line);padding:0;min-width:0}
+.card[hidden]{display:none}
+.card .head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;padding:16px 20px 12px;border-bottom:1px solid var(--line)}
+.card .head h3{font-size:1.25rem}
+.card .head .mono{color:var(--muted);font-size:.78rem}
+.tag{font-size:.72rem;padding:2px 8px;border-radius:999px;font-family:var(--fd);font-weight:500}
+.tag.core{background:var(--soft);color:var(--ink)}
+.tag.ra{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid var(--line);padding-inline:12px}
+.tab{font:inherit;font-size:.9rem;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:10px 10px;cursor:pointer;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.panel{padding:16px 20px 20px}
+.panel[hidden]{display:none}
+.panel p{max-width:72ch}
+.panel ul,.panel ol{margin:8px 0 0;padding-left:20px;max-width:72ch}
+.panel li{margin-top:5px}
+.panel li+li{margin-top:5px}
+.states{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+.states span{font-family:var(--fm);font-size:.78rem;padding:3px 9px;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.states i{color:var(--muted);font-style:normal}
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin-top:10px}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fd);font-weight:600;font-size:.82rem}
+td code{white-space:nowrap}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.links button{font:inherit;font-size:.86rem;border:1px dashed var(--line);background:var(--bg);color:var(--ink);padding:5px 10px;border-radius:6px;cursor:pointer}
+.links button b{color:var(--accent);font-weight:600}
+.practica{border-left:3px solid var(--accent);padding-left:14px}
+.practica .eyebrow{color:var(--accent)}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line)}
+
+/* tabla comparativa */
+.cmp td:first-child{font-weight:600}
+.y{color:var(--ok);font-weight:600}.n{color:var(--muted)}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+@media (prefers-reduced-motion:no-preference){.chip,.tab{transition:background .15s,color .15s}}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">0491 · Sistemas de Gestión Empresarial · 2º DAM</p>
+  <h1 style="margin-top:6px">Módulos de Odoo y cómo funcionan</h1>
+  <p class="lead">Guía de referencia para la instalación de clase (Odoo 17 Community sobre Linux y PostgreSQL). Cada módulo tiene la misma ficha: qué hace, el flujo de trabajo con sus estados, los modelos de datos que verás en la base de datos y en Python, con qué otros módulos se conecta y la práctica que lo cierra.</p>
+  <div class="meta">
+    <span>Versión de referencia <b>Odoo 17 Community</b></span>
+    <span>Servidor <b>Python 3.10+ · PostgreSQL 12+</b></span>
+    <span>Puerto web <b class="mono">8069</b></span>
+    <span>Longpolling <b class="mono">8072</b></span>
+  </div>
+
+  <h2>Cómo está construido</h2>
+  <p class="lead" style="font-size:1rem">Odoo es una aplicación web de tres capas. Todo módulo, sea Ventas o uno que programéis en RA5, se cuelga de esa misma estructura: define modelos (tablas), vistas (XML) y lógica (Python).</p>
+  <div class="arch">
+    <div>
+      <h3>Cliente web</h3>
+      <p>Navegador. Interfaz en JavaScript (framework OWL) que pide los datos al servidor por JSON-RPC. Las vistas kanban, lista, formulario, calendario y pivot son las mismas para todos los módulos.</p>
+      <span class="mono">http://servidor:8069/odoo</span>
+    </div>
+    <div>
+      <h3>Servidor de aplicaciones</h3>
+      <p>Proceso Python <code>odoo-bin</code>. Carga los módulos de <code>addons_path</code>, expone el ORM y ejecuta la lógica de negocio. Los módulos se instalan desde <em>Aplicaciones</em> y guardan su estado en <code>ir_module_module</code>.</p>
+      <span class="mono">/etc/odoo/odoo.conf · systemctl status odoo</span>
+    </div>
+    <div>
+      <h3>Base de datos</h3>
+      <p>PostgreSQL. Una base de datos por empresa. Cada modelo <code>sale.order</code> es una tabla <code>sale_order</code>: el punto se convierte en guion bajo. Aquí van las consultas SQL de RA3 y las copias de seguridad de RA2.</p>
+      <span class="mono">pg_dump -Fc empresa &gt; empresa.dump</span>
+    </div>
+  </div>
+
+  <h2>Mapa de dependencias</h2>
+  <p class="lead" style="font-size:1rem">Al instalar un módulo, Odoo instala antes los que necesita. Por eso al marcar <em>Ventas</em> aparecen también <em>Facturación</em> y <em>Productos</em> sin pedirlo.</p>
+  <div class="map">
+    <svg viewBox="0 0 900 400" role="img" aria-label="Mapa de dependencias entre módulos de Odoo">
+      <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor" style="fill:var(--muted)"/></marker></defs>
+      <!-- base -->
+      <rect class="box base" x="330" y="330" width="240" height="46" rx="4"/>
+      <text x="450" y="349" text-anchor="middle" style="font-weight:600">base · web · mail</text>
+      <text class="t" x="450" y="366" text-anchor="middle">usuarios, empresas, contactos (res.partner), chatter</text>
+      <!-- product / account / stock -->
+      <rect class="box" x="60" y="230" width="200" height="46" rx="4"/>
+      <text x="160" y="249" text-anchor="middle" style="font-weight:600">Productos</text><text class="t" x="160" y="266" text-anchor="middle">product</text>
+      <rect class="box" x="350" y="230" width="200" height="46" rx="4"/>
+      <text x="450" y="249" text-anchor="middle" style="font-weight:600">Facturación / Contabilidad</text><text class="t" x="450" y="266" text-anchor="middle">account</text>
+      <rect class="box" x="640" y="230" width="200" height="46" rx="4"/>
+      <text x="740" y="249" text-anchor="middle" style="font-weight:600">Inventario</text><text class="t" x="740" y="266" text-anchor="middle">stock</text>
+      <!-- nivel operaciones -->
+      <rect class="box" x="60" y="120" width="160" height="46" rx="4"/>
+      <text x="140" y="139" text-anchor="middle" style="font-weight:600">CRM</text><text class="t" x="140" y="156" text-anchor="middle">crm</text>
+      <rect class="box" x="260" y="120" width="160" height="46" rx="4"/>
+      <text x="340" y="139" text-anchor="middle" style="font-weight:600">Ventas</text><text class="t" x="340" y="156" text-anchor="middle">sale_management</text>
+      <rect class="box" x="460" y="120" width="160" height="46" rx="4"/>
+      <text x="540" y="139" text-anchor="middle" style="font-weight:600">Compras</text><text class="t" x="540" y="156" text-anchor="middle">purchase</text>
+      <rect class="box" x="660" y="120" width="180" height="46" rx="4"/>
+      <text x="750" y="139" text-anchor="middle" style="font-weight:600">Fabricación</text><text class="t" x="750" y="156" text-anchor="middle">mrp</text>
+      <!-- nivel superior -->
+      <rect class="box" x="60" y="20" width="200" height="46" rx="4"/>
+      <text x="160" y="39" text-anchor="middle" style="font-weight:600">Empleados · Ausencias</text><text class="t" x="160" y="56" text-anchor="middle">hr · hr_holidays</text>
+      <rect class="box" x="300" y="20" width="200" height="46" rx="4"/>
+      <text x="400" y="39" text-anchor="middle" style="font-weight:600">Punto de venta</text><text class="t" x="400" y="56" text-anchor="middle">point_of_sale</text>
+      <rect class="box" x="540" y="20" width="200" height="46" rx="4"/>
+      <text x="640" y="39" text-anchor="middle" style="font-weight:600">Sitio web · Tienda</text><text class="t" x="640" y="56" text-anchor="middle">website · website_sale</text>
+      <!-- edges (hacia abajo = depende de) -->
+      <path class="edge" d="M160 276 L420 330"/>
+      <path class="edge" d="M450 276 L450 330"/>
+      <path class="edge" d="M740 276 L480 330"/>
+      <path class="edge" d="M140 166 L150 230"/>
+      <path class="edge" d="M320 166 L190 230"/>
+      <path class="edge" d="M360 166 L430 230"/>
+      <path class="edge" d="M520 166 L470 230"/>
+      <path class="edge" d="M560 166 L700 230"/>
+      <path class="edge" d="M750 166 L745 230"/>
+      <path class="edge" d="M160 66 L450 330" style="stroke-dasharray:4 4"/>
+      <path class="edge" d="M400 66 L380 120"/>
+      <path class="edge" d="M400 66 L720 120" style="opacity:.5"/>
+      <path class="edge" d="M640 66 L360 120"/>
+    </svg>
+  </div>
+  <p class="caption">Las flechas apuntan al módulo del que se depende. Ventas y Compras comparten Productos y Facturación; Inventario se activa solo si hay productos almacenables. Empleados cuelga directamente de la base (línea discontinua).</p>
+
+  <h2>El flujo comercial completo</h2>
+  <p class="lead" style="font-size:1rem">Es el hilo de RA3: un cliente, de la oferta al cobro. Cada paso genera un documento con su propia secuencia y queda enlazado con el anterior mediante botones inteligentes en el formulario.</p>
+  <div class="flow">
+    <div><h3>Cliente</h3><div class="doc">res.partner</div><p>Alta del contacto con NIF, dirección, posición fiscal y plazo de pago.</p><span class="mod">Contactos</span></div>
+    <div><h3>Presupuesto</h3><div class="doc">sale.order · S00012</div><p>Líneas de producto, precios de la tarifa, impuestos. Se envía por correo en PDF.</p><span class="mod">Ventas</span></div>
+    <div><h3>Pedido</h3><div class="doc">sale.order · estado sale</div><p>Al confirmar, el mismo registro cambia de estado y reserva stock.</p><span class="mod">Ventas</span></div>
+    <div><h3>Albarán</h3><div class="doc">stock.picking · WH/OUT/00008</div><p>Entrega: se validan cantidades y baja el stock del almacén.</p><span class="mod">Inventario</span></div>
+    <div><h3>Factura</h3><div class="doc">account.move · INV/2026/00005</div><p>Se crea desde el pedido. Al confirmarla genera los asientos contables.</p><span class="mod">Facturación</span></div>
+    <div><h3>Cobro</h3><div class="doc">account.payment</div><p>Registrar pago o conciliar el extracto bancario. La factura pasa a <em>pagada</em>.</p><span class="mod">Facturación</span></div>
+  </div>
+  <p class="caption">El flujo de compras es simétrico: proveedor → solicitud de presupuesto → pedido de compra → recepción (WH/IN) → factura de proveedor → pago.</p>
+
+  <div class="bar" id="bar">
+    <div class="row">
+      <button class="chip" data-f="todos" aria-pressed="true">Todos</button>
+      <button class="chip" data-f="comercial" aria-pressed="false">Comercial</button>
+      <button class="chip" data-f="logistica" aria-pressed="false">Logística</button>
+      <button class="chip" data-f="finanzas" aria-pressed="false">Finanzas</button>
+      <button class="chip" data-f="personas" aria-pressed="false">Personas</button>
+      <button class="chip" data-f="tecnico" aria-pressed="false">Técnico</button>
+      <input id="q" type="search" placeholder="Buscar: albarán, account.move, tarifa…" aria-label="Buscar en las fichas">
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="cards" id="cards">
+
+    <!-- CRM -->
+    <article class="card" id="crm" data-f="comercial" data-k="crm oportunidad iniciativa lead pipeline kanban etapa cliente potencial actividad">
+      <div class="head"><h3>CRM</h3><span class="mono">crm</span><span class="tag core">Semana 8</span><span class="tag ra">RA2 · RA3</span></div>
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button>
+      </div>
+      <div class="panel"><p>Gestiona la relación con clientes <em>antes</em> de que compren. Las oportunidades se mueven por un embudo (pipeline) en vista kanban: cada columna es una etapa y cada tarjeta un posible negocio con un importe esperado y una probabilidad. Es la parte "CRM" del ERP-CRM del currículo.</p>
+        <ul><li>Iniciativas (leads): contactos sin cualificar, llegan por formulario web o correo.</li><li>Oportunidades: iniciativas cualificadas con importe, fecha de cierre y comercial asignado.</li><li>Actividades: llamadas, reuniones y correos programados sobre cada oportunidad.</li><li>Informes: previsión de ventas, ratio de conversión por etapa y por comercial.</li></ul></div>
+      <div class="panel" hidden><ol><li>Entra una iniciativa (manual, formulario del sitio web o alias de correo <code>ventas@</code>).</li><li>Se convierte en oportunidad: se crea o enlaza el <code>res.partner</code>.</li><li>Avanza por etapas arrastrando la tarjeta: Nuevo → Cualificado → Propuesta → Ganado.</li><li>Botón <em>Nuevo presupuesto</em>: crea un <code>sale.order</code> vinculado a la oportunidad.</li><li>Ganado o Perdido. Si se pierde, se indica el motivo para los informes.</li></ol>
+        <div class="states"><span>Nuevo</span><i>→</i><span>Cualificado</span><i>→</i><span>Propuesta</span><i>→</i><span>Ganado</span><i>/</i><span>Perdido</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>crm.lead</code></td><td><code>crm_lead</code></td><td>Iniciativa y oportunidad en el mismo modelo; el campo <code>type</code> vale <code>lead</code> u <code>opportunity</code>.</td></tr>
+        <tr><td><code>crm.stage</code></td><td><code>crm_stage</code></td><td>Etapas del embudo, configurables por equipo.</td></tr>
+        <tr><td><code>crm.team</code></td><td><code>crm_team</code></td><td>Equipos de ventas; se comparte con el módulo Ventas.</td></tr>
+        <tr><td><code>mail.activity</code></td><td><code>mail_activity</code></td><td>Actividades programadas (viene del módulo mail).</td></tr></table></div></div>
+      <div class="panel" hidden><p>Una oportunidad ganada suele terminar en un presupuesto de Ventas. El contacto es el mismo <code>res.partner</code> que usará Facturación.</p>
+        <div class="links"><button data-go="ventas">→ <b>Ventas</b> crea el presupuesto desde la oportunidad</button><button data-go="contactos">→ <b>Contactos</b> comparte la ficha de cliente</button><button data-go="web">→ <b>Sitio web</b> alimenta iniciativas con formularios</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Configurar un equipo de ventas con cinco etapas propias, cargar diez iniciativas desde un CSV, cualificar tres, generar presupuesto de una y perder otra con motivo. Entregar captura del embudo y del informe de conversión.</p></div>
+    </article>
+
+    <!-- Ventas -->
+    <article class="card" id="ventas" data-f="comercial" data-k="ventas presupuesto pedido sale order tarifa pricelist cliente factura albarán descuento impuesto">
+      <div class="head"><h3>Ventas</h3><span class="mono">sale_management</span><span class="tag core">Semana 8 · 12</span><span class="tag ra">RA2 · RA3</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Gestiona presupuestos y pedidos de cliente. Es el módulo central del flujo comercial: desde el pedido se generan el albarán y la factura, y los botones inteligentes del formulario permiten saltar a ellos.</p>
+        <ul><li>Tarifas (pricelists): precios por cliente, por cantidad o por fecha.</li><li>Plantillas de presupuesto con líneas predefinidas y validez.</li><li>Política de facturación por producto: cantidades pedidas o cantidades entregadas.</li><li>Firma y pago en línea del presupuesto a través del portal del cliente.</li></ul></div>
+      <div class="panel" hidden><ol><li>Nuevo presupuesto: cliente, fecha de validez, tarifa, plazo de pago.</li><li>Líneas: producto, cantidad, precio unitario, impuestos (se calculan por posición fiscal).</li><li>Enviar por correo: genera el PDF con el informe QWeb <code>sale.report_saleorder</code>.</li><li>Confirmar: pasa a pedido, se crea el <code>stock.picking</code> si hay productos almacenables.</li><li>Crear factura: borrador de <code>account.move</code> con las cantidades facturables.</li></ol>
+        <div class="states"><span>draft</span><i>→</i><span>sent</span><i>→</i><span>sale</span><i>→</i><span>done</span><i>/</i><span>cancel</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>sale.order</code></td><td><code>sale_order</code></td><td>Cabecera. Presupuesto y pedido son el mismo registro; cambia <code>state</code>.</td></tr>
+        <tr><td><code>sale.order.line</code></td><td><code>sale_order_line</code></td><td>Líneas: <code>product_id</code>, <code>product_uom_qty</code>, <code>price_unit</code>, <code>qty_delivered</code>, <code>qty_invoiced</code>.</td></tr>
+        <tr><td><code>product.pricelist</code></td><td><code>product_pricelist</code></td><td>Tarifas y sus reglas (<code>product.pricelist.item</code>).</td></tr>
+        <tr><td><code>account.payment.term</code></td><td><code>account_payment_term</code></td><td>Plazos de pago (30 días, 50 % anticipo…).</td></tr></table></div>
+        <p style="margin-top:10px">Consulta SQL de RA3: <code>SELECT name, state, amount_total FROM sale_order WHERE state='sale' ORDER BY date_order;</code></p></div>
+      <div class="panel" hidden><div class="links"><button data-go="crm">← <b>CRM</b> origen de la oportunidad</button><button data-go="inventario">→ <b>Inventario</b> albarán de salida al confirmar</button><button data-go="facturacion">→ <b>Facturación</b> factura desde el pedido</button><button data-go="productos">↔ <b>Productos</b> catálogo y tarifas</button><button data-go="web">← <b>Tienda</b> los pedidos web son sale.order</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Con el supuesto de empresa del curso: crear tres clientes con plazos de pago distintos, una tarifa con descuento por volumen, un presupuesto de cinco líneas, confirmarlo, entregar parcialmente y facturar solo lo entregado. Comprobar en PostgreSQL que <code>qty_delivered</code> y <code>qty_invoiced</code> coinciden con la interfaz.</p></div>
+    </article>
+
+    <!-- Compras -->
+    <article class="card" id="compras" data-f="logistica" data-k="compras proveedor purchase order solicitud presupuesto recepción factura proveedor reabastecimiento">
+      <div class="head"><h3>Compras</h3><span class="mono">purchase</span><span class="tag core">Semana 8 · 13</span><span class="tag ra">RA2 · RA3</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>El espejo de Ventas hacia los proveedores. Gestiona solicitudes de presupuesto, pedidos de compra, recepciones y el control de facturas de proveedor contra lo recibido.</p>
+        <ul><li>Tarifas de proveedor en la ficha del producto (precio, plazo de entrega, cantidad mínima).</li><li>Acuerdos de compra y licitaciones (varias ofertas para una misma necesidad).</li><li>Control de facturas: sobre cantidades pedidas o sobre cantidades recibidas.</li><li>Generación automática desde las reglas de reabastecimiento de Inventario.</li></ul></div>
+      <div class="panel" hidden><ol><li>Solicitud de presupuesto (RFQ) al proveedor, manual o creada por una regla de stock mínimo.</li><li>Confirmar pedido de compra: se crea la recepción <code>WH/IN</code>.</li><li>Recibir la mercancía: validar el albarán de entrada, el stock sube.</li><li>Factura de proveedor: se crea desde el pedido y se compara con lo recibido (3-way match).</li><li>Registrar pago.</li></ol>
+        <div class="states"><span>draft</span><i>→</i><span>sent</span><i>→</i><span>to approve</span><i>→</i><span>purchase</span><i>→</i><span>done</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>purchase.order</code></td><td><code>purchase_order</code></td><td>Cabecera de la solicitud y el pedido.</td></tr>
+        <tr><td><code>purchase.order.line</code></td><td><code>purchase_order_line</code></td><td>Líneas con <code>qty_received</code> y <code>qty_invoiced</code>.</td></tr>
+        <tr><td><code>product.supplierinfo</code></td><td><code>product_supplierinfo</code></td><td>Tarifa de proveedor por producto.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="inventario">→ <b>Inventario</b> recepción WH/IN y reglas de reabastecimiento</button><button data-go="facturacion">→ <b>Facturación</b> factura de proveedor (account.move tipo in_invoice)</button><button data-go="fabricacion">↔ <b>Fabricación</b> compra de componentes</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Dar de alta dos proveedores para un mismo producto con precios distintos, fijar una regla de stock mínimo, vender por debajo del mínimo y comprobar que el planificador genera la solicitud al proveedor más barato. Recibir, facturar y pagar.</p></div>
+    </article>
+
+    <!-- Inventario -->
+    <article class="card" id="inventario" data-f="logistica" data-k="inventario stock almacén albarán picking ubicación lote número serie reabastecimiento orderpoint inventario físico quant">
+      <div class="head"><h3>Inventario</h3><span class="mono">stock</span><span class="tag core">Semana 8 · 13</span><span class="tag ra">RA2 · RA3 · RA4</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Controla las existencias con un modelo de doble entrada: cada movimiento saca producto de una ubicación y lo mete en otra. Los proveedores y los clientes son ubicaciones virtuales, así que la suma siempre cuadra.</p>
+        <ul><li>Almacenes y ubicaciones jerárquicas (<code>WH/Stock/Estantería A</code>).</li><li>Tipos de operación: recepciones, entregas, transferencias internas.</li><li>Trazabilidad por lotes y números de serie.</li><li>Reglas de reabastecimiento (mínimo/máximo) y rutas: comprar, fabricar, dropshipping.</li><li>Ajustes de inventario (recuento físico) y valoración del stock.</li></ul></div>
+      <div class="panel" hidden><ol><li>Un pedido de venta confirmado crea una entrega <code>WH/OUT</code> en estado <em>esperando</em> o <em>preparado</em> según haya stock.</li><li>El almacenero abre la operación, comprueba cantidades y pulsa <em>Validar</em>.</li><li>Cada línea genera un <code>stock.move</code> de <code>WH/Stock</code> a <code>Partners/Customers</code>.</li><li>Las existencias (<code>stock.quant</code>) se recalculan; el pedido marca <code>qty_delivered</code>.</li><li>El planificador revisa cada noche las reglas de reabastecimiento y lanza compras o fabricaciones.</li></ol>
+        <div class="states"><span>draft</span><i>→</i><span>waiting</span><i>→</i><span>confirmed</span><i>→</i><span>assigned</span><i>→</i><span>done</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>stock.picking</code></td><td><code>stock_picking</code></td><td>El albarán: agrupa movimientos con un origen, destino y tipo de operación.</td></tr>
+        <tr><td><code>stock.move</code></td><td><code>stock_move</code></td><td>Movimiento previsto de un producto entre dos ubicaciones.</td></tr>
+        <tr><td><code>stock.move.line</code></td><td><code>stock_move_line</code></td><td>Detalle real con lote, paquete y cantidad hecha.</td></tr>
+        <tr><td><code>stock.quant</code></td><td><code>stock_quant</code></td><td>Existencias actuales por producto, ubicación y lote.</td></tr>
+        <tr><td><code>stock.location</code></td><td><code>stock_location</code></td><td>Ubicaciones físicas y virtuales.</td></tr>
+        <tr><td><code>stock.warehouse.orderpoint</code></td><td><code>stock_warehouse_orderpoint</code></td><td>Reglas de reabastecimiento mínimo/máximo.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="ventas">← <b>Ventas</b> crea las entregas</button><button data-go="compras">← <b>Compras</b> crea las recepciones</button><button data-go="fabricacion">↔ <b>Fabricación</b> consume componentes y produce</button><button data-go="facturacion">→ <b>Contabilidad</b> valoración de existencias</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Crear un almacén con tres ubicaciones, un producto con seguimiento por lote, recibir dos lotes, vender uno y localizar en <code>stock_move_line</code> qué lote salió. Hacer un ajuste de inventario y explicar el movimiento que genera.</p></div>
+    </article>
+
+    <!-- Facturación / Contabilidad -->
+    <article class="card" id="facturacion" data-f="finanzas" data-k="facturación contabilidad factura account move asiento diario plan contable impuesto iva pago conciliación banco">
+      <div class="head"><h3>Facturación y Contabilidad</h3><span class="mono">account</span><span class="tag core">Semana 9</span><span class="tag ra">RA2 · RA3</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Emite facturas de cliente, registra las de proveedor y lleva los asientos. En Community el módulo se llama <em>Facturación</em>; la contabilidad completa (libro mayor, balance, cierre) es Enterprise, aunque los asientos se generan igual y se pueden consultar en la base de datos.</p>
+        <ul><li>Plan contable español (localización <code>l10n_es</code>) con cuentas, impuestos (IVA 21/10/4 %, recargo) y posiciones fiscales.</li><li>Diarios: ventas, compras, banco, caja, operaciones varias.</li><li>Plazos de pago y seguimiento de cobros.</li><li>Conciliación bancaria importando extractos.</li></ul></div>
+      <div class="panel" hidden><ol><li>Factura en borrador creada desde el pedido (o manual).</li><li>Confirmar: se asigna el número de la secuencia <code>INV/2026/00005</code> y se genera el asiento: 430 Clientes al debe, 700 Ventas y 477 IVA repercutido al haber.</li><li>Enviar e imprimir el PDF.</li><li>Registrar pago: asiento en el diario de banco y conciliación con la factura.</li><li>La factura pasa a <em>pagado</em>; el saldo del cliente queda a cero.</li></ol>
+        <div class="states"><span>draft</span><i>→</i><span>posted</span><i>→</i><span>cancel</span><i>·</i><span>payment_state: not_paid → partial → paid</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>account.move</code></td><td><code>account_move</code></td><td>Asiento. Una factura es un asiento con <code>move_type</code> = <code>out_invoice</code>, <code>in_invoice</code>, <code>out_refund</code>…</td></tr>
+        <tr><td><code>account.move.line</code></td><td><code>account_move_line</code></td><td>Apuntes: cuenta, debe, haber, impuesto. Las líneas de factura y las contables conviven aquí.</td></tr>
+        <tr><td><code>account.account</code></td><td><code>account_account</code></td><td>Plan de cuentas.</td></tr>
+        <tr><td><code>account.journal</code></td><td><code>account_journal</code></td><td>Diarios.</td></tr>
+        <tr><td><code>account.tax</code></td><td><code>account_tax</code></td><td>Impuestos y su cálculo.</td></tr>
+        <tr><td><code>account.payment</code></td><td><code>account_payment</code></td><td>Pagos y cobros.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="ventas">← <b>Ventas</b> facturas de cliente</button><button data-go="compras">← <b>Compras</b> facturas de proveedor</button><button data-go="inventario">← <b>Inventario</b> asientos de valoración</button><button data-go="pos">← <b>Punto de venta</b> cierre de sesión</button><button data-go="contactos">↔ <b>Contactos</b> cuentas a cobrar y pagar por cliente</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Instalar la localización española, revisar los impuestos creados, confirmar una factura y localizar su asiento en <code>account_move_line</code>: comprobar que debe y haber suman igual. Hacer una factura rectificativa y explicar qué apuntes invierte.</p></div>
+    </article>
+
+    <!-- Productos / Contactos -->
+    <article class="card" id="productos" data-f="tecnico" data-k="productos product template variante categoría unidad medida coste precio almacenable consumible servicio">
+      <div class="head"><h3>Productos</h3><span class="mono">product</span><span class="tag core">Base compartida</span><span class="tag ra">RA2 · RA4</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>No aparece como aplicación propia, pero lo instala todo lo demás. Define el catálogo: qué se vende, qué se compra y qué se almacena. El tipo de producto decide el comportamiento del resto de módulos.</p>
+        <ul><li><strong>Almacenable</strong>: controla existencias y genera albaranes.</li><li><strong>Consumible</strong>: se entrega pero no se cuenta el stock.</li><li><strong>Servicio</strong>: no hay movimiento físico; puede facturarse por horas.</li></ul></div>
+      <div class="panel" hidden><p>Un producto se crea una vez y se reutiliza en todas partes: precio de venta en Ventas, precio de coste en Compras, cuentas de ingreso y gasto en Facturación, rutas en Inventario. Las variantes (talla, color) son <code>product.product</code> que cuelgan de una misma plantilla.</p></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>product.template</code></td><td><code>product_template</code></td><td>Plantilla: nombre, tipo, categoría, precios, impuestos.</td></tr>
+        <tr><td><code>product.product</code></td><td><code>product_product</code></td><td>Variante concreta; siempre hay al menos una por plantilla. Es la que referencian las líneas de pedido y los movimientos.</td></tr>
+        <tr><td><code>product.category</code></td><td><code>product_category</code></td><td>Categorías con método de valoración y cuentas por defecto.</td></tr>
+        <tr><td><code>uom.uom</code></td><td><code>uom_uom</code></td><td>Unidades de medida y conversiones.</td></tr></table></div>
+        <p style="margin-top:10px">Pregunta típica de examen: por qué <code>sale_order_line.product_id</code> apunta a <code>product_product</code> y no a <code>product_template</code>.</p></div>
+      <div class="panel" hidden><div class="links"><button data-go="ventas">→ <b>Ventas</b></button><button data-go="compras">→ <b>Compras</b></button><button data-go="inventario">→ <b>Inventario</b></button><button data-go="fabricacion">→ <b>Fabricación</b> listas de materiales</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Importar un catálogo de 30 productos desde XLSX con categorías y tipos mezclados. Crear un producto con dos atributos y seis variantes. Añadir un campo personalizado desde Studio… no: en Community se hace desde Ajustes técnicos → Modelos, y eso es RA4.</p></div>
+    </article>
+
+    <!-- Contactos -->
+    <article class="card" id="contactos" data-f="tecnico" data-k="contactos partner res.partner cliente proveedor empresa nif dirección posición fiscal">
+      <div class="head"><h3>Contactos</h3><span class="mono">contacts · base</span><span class="tag core">Base compartida</span><span class="tag ra">RA2 · RA3</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Un único modelo para clientes, proveedores, empleados como personas, direcciones de entrega y la propia empresa. Odoo no distingue cliente de proveedor en la ficha: es la misma persona o empresa, y lo que cambia es qué documentos tiene asociados.</p></div>
+      <div class="panel" hidden><p>Una empresa (<code>is_company</code>) puede tener contactos hijos: personas de contacto, dirección de facturación y dirección de entrega. Al elegir un cliente en un presupuesto, Odoo propone esas direcciones. La posición fiscal de la ficha decide los impuestos aplicados (intracomunitario, canarias, exento).</p></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>res.partner</code></td><td><code>res_partner</code></td><td>Cualquier persona u organización. Campos clave: <code>vat</code>, <code>parent_id</code>, <code>type</code> (contact, invoice, delivery), <code>property_payment_term_id</code>.</td></tr>
+        <tr><td><code>res.company</code></td><td><code>res_company</code></td><td>La empresa que usa Odoo (multiempresa posible).</td></tr>
+        <tr><td><code>res.users</code></td><td><code>res_users</code></td><td>Usuarios del sistema; cada uno tiene su partner.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="crm">→ <b>CRM</b></button><button data-go="ventas">→ <b>Ventas</b></button><button data-go="facturacion">→ <b>Facturación</b></button><button data-go="rrhh">→ <b>Empleados</b> cada empleado tiene su partner</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Crear una empresa cliente con tres direcciones de distinto tipo y una posición fiscal intracomunitaria. Hacerle un presupuesto y comprobar que los impuestos cambian. Consultar en SQL todos los partners con <code>parent_id</code> no nulo.</p></div>
+    </article>
+
+    <!-- RRHH -->
+    <article class="card" id="rrhh" data-f="personas" data-k="empleados recursos humanos rrhh hr departamento ausencias vacaciones contrato asistencias gastos reclutamiento">
+      <div class="head"><h3>Empleados y Ausencias</h3><span class="mono">hr · hr_holidays · hr_attendance</span><span class="tag core">Semana 3</span><span class="tag ra">RA1 · RA2</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>El área de recursos humanos del ERP. En Community cubre la ficha de empleado, el organigrama por departamentos, las ausencias con flujo de aprobación, el control de asistencia y los gastos. La nómina española es un módulo aparte y de pago.</p>
+        <ul><li>Empleados: datos personales, puesto, responsable, horario de trabajo.</li><li>Ausencias: tipos (vacaciones, enfermedad), asignaciones anuales y solicitudes.</li><li>Asistencias: fichaje de entrada y salida, incluso en modo kiosco.</li><li>Gastos: el empleado sube el ticket, el responsable aprueba, contabilidad reembolsa.</li></ul></div>
+      <div class="panel" hidden><ol><li>El empleado solicita una ausencia indicando tipo y fechas.</li><li>Odoo comprueba el saldo disponible para ese tipo.</li><li>El responsable del departamento aprueba o rechaza (puede requerir doble aprobación).</li><li>La ausencia aparece en el calendario del equipo y descuenta del saldo.</li></ol>
+        <div class="states"><span>confirm</span><i>→</i><span>validate1</span><i>→</i><span>validate</span><i>/</i><span>refuse</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>hr.employee</code></td><td><code>hr_employee</code></td><td>Ficha de empleado; enlaza con <code>res.users</code> y <code>res.partner</code>.</td></tr>
+        <tr><td><code>hr.department</code></td><td><code>hr_department</code></td><td>Departamentos jerárquicos.</td></tr>
+        <tr><td><code>hr.leave</code></td><td><code>hr_leave</code></td><td>Solicitud de ausencia.</td></tr>
+        <tr><td><code>hr.leave.allocation</code></td><td><code>hr_leave_allocation</code></td><td>Días asignados por tipo y empleado.</td></tr>
+        <tr><td><code>hr.attendance</code></td><td><code>hr_attendance</code></td><td>Fichajes con hora de entrada y salida.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="contactos">↔ <b>Contactos</b></button><button data-go="facturacion">→ <b>Contabilidad</b> reembolso de gastos</button><button data-go="proyecto">→ <b>Proyecto</b> imputación de horas por empleado</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Montar tres departamentos con sus responsables, asignar 22 días de vacaciones a cada empleado, pedir una ausencia como empleado y aprobarla como responsable usando dos usuarios distintos. Reproducir el control de faltas del centro con tipos de ausencia propios.</p></div>
+    </article>
+
+    <!-- Fabricación -->
+    <article class="card" id="fabricacion" data-f="logistica" data-k="fabricación mrp orden producción lista materiales bom componentes centro trabajo">
+      <div class="head"><h3>Fabricación</h3><span class="mono">mrp</span><span class="tag core">Ampliación</span><span class="tag ra">RA4</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Convierte componentes en productos terminados siguiendo una lista de materiales. Útil en el supuesto empresarial de RA4 si la empresa monta algo (equipos informáticos, por ejemplo). Es un buen ejemplo de módulo que depende de Inventario y lo extiende.</p></div>
+      <div class="panel" hidden><ol><li>Definir la lista de materiales (BoM) del producto: componentes y cantidades.</li><li>Crear una orden de producción, manual o lanzada por una regla de reabastecimiento con ruta <em>Fabricar</em>.</li><li>Comprobar disponibilidad de componentes (se reservan del stock).</li><li>Producir: los componentes se consumen y el producto terminado entra en stock.</li></ol>
+        <div class="states"><span>draft</span><i>→</i><span>confirmed</span><i>→</i><span>progress</span><i>→</i><span>done</span></div></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>mrp.bom</code></td><td><code>mrp_bom</code></td><td>Lista de materiales; sus líneas en <code>mrp_bom_line</code>.</td></tr>
+        <tr><td><code>mrp.production</code></td><td><code>mrp_production</code></td><td>Orden de producción.</td></tr>
+        <tr><td><code>stock.move</code></td><td><code>stock_move</code></td><td>Los consumos y la producción son movimientos de stock normales.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="inventario">↔ <b>Inventario</b></button><button data-go="compras">← <b>Compras</b> componentes</button><button data-go="ventas">← <b>Ventas</b> fabricar bajo pedido</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Producto "PC montado" con lista de materiales de seis componentes. Venderlo sin stock y seguir la cadena: pedido → orden de fabricación → compra de componentes faltantes → producción → entrega.</p></div>
+    </article>
+
+    <!-- Punto de venta -->
+    <article class="card" id="pos" data-f="comercial" data-k="punto de venta pos tpv caja sesión ticket tienda física">
+      <div class="head"><h3>Punto de venta</h3><span class="mono">point_of_sale</span><span class="tag core">Ampliación</span><span class="tag ra">RA4</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Un TPV en el navegador que funciona sin conexión y sincroniza al recuperarla. Pensado para tienda física o restauración. Cada caja abre una sesión, vende y al cerrar genera un único asiento resumen en contabilidad.</p></div>
+      <div class="panel" hidden><ol><li>Abrir sesión con el efectivo inicial.</li><li>Vender: productos, cliente opcional, pago en efectivo o tarjeta, ticket impreso.</li><li>Cerrar sesión: arqueo de caja y diferencias.</li><li>Odoo genera los movimientos de stock y el asiento contable de la sesión completa.</li></ol></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>pos.config</code></td><td><code>pos_config</code></td><td>Cada caja o terminal.</td></tr>
+        <tr><td><code>pos.session</code></td><td><code>pos_session</code></td><td>Apertura y cierre.</td></tr>
+        <tr><td><code>pos.order</code></td><td><code>pos_order</code></td><td>Cada ticket y sus líneas.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="inventario">→ <b>Inventario</b> salidas al cerrar sesión</button><button data-go="facturacion">→ <b>Contabilidad</b> asiento de la sesión</button><button data-go="productos">← <b>Productos</b> disponibles en TPV</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Configurar una caja, vender cinco tickets con métodos de pago distintos, cerrar con una diferencia de caja y localizar el asiento resultante en <code>account_move</code>.</p></div>
+    </article>
+
+    <!-- Sitio web -->
+    <article class="card" id="web" data-f="comercial" data-k="sitio web website tienda online ecommerce carrito formulario portal cliente">
+      <div class="head"><h3>Sitio web y Tienda</h3><span class="mono">website · website_sale</span><span class="tag core">Ampliación</span><span class="tag ra">RA4 · RA5</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Constructor de páginas con bloques arrastrables y, sobre él, una tienda en línea. Usa el mismo catálogo de productos y crea pedidos de venta normales. El portal del cliente (ver presupuestos, firmar, pagar, descargar facturas) también vive aquí.</p></div>
+      <div class="panel" hidden><ol><li>El visitante añade productos al carrito: existe ya un <code>sale.order</code> en borrador.</li><li>Datos de envío y pago (pasarela o transferencia).</li><li>El pedido se confirma y sigue el flujo comercial habitual.</li></ol></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>website</code></td><td><code>website</code></td><td>Cada sitio (puede haber varios).</td></tr>
+        <tr><td><code>website.page</code> · <code>ir.ui.view</code></td><td><code>website_page</code></td><td>Páginas; el contenido es una vista QWeb.</td></tr>
+        <tr><td><code>sale.order</code></td><td><code>sale_order</code></td><td>El carrito con <code>website_id</code> informado.</td></tr></table></div>
+        <p style="margin-top:10px">Para RA5: un controlador HTTP propio se escribe con <code>@http.route('/mi/ruta', auth='public', website=True)</code> y devuelve una plantilla QWeb.</p></div>
+      <div class="panel" hidden><div class="links"><button data-go="ventas">→ <b>Ventas</b></button><button data-go="crm">→ <b>CRM</b> formularios de contacto</button><button data-go="productos">← <b>Productos</b> publicados</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Publicar seis productos, hacer una compra como visitante y seguirla desde el back-office hasta la factura. En RA5, añadir una página <code>/catalogo</code> que liste los productos publicados con un controlador propio.</p></div>
+    </article>
+
+    <!-- Proyecto -->
+    <article class="card" id="proyecto" data-f="personas" data-k="proyecto tareas project task hojas de horas timesheet kanban">
+      <div class="head"><h3>Proyecto y Hojas de horas</h3><span class="mono">project · hr_timesheet</span><span class="tag core">Ampliación</span><span class="tag ra">RA3</span></div>
+      <div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">Qué hace</button><button class="tab" role="tab" aria-selected="false">Flujo</button><button class="tab" role="tab" aria-selected="false">Modelos</button><button class="tab" role="tab" aria-selected="false">Se conecta con</button><button class="tab" role="tab" aria-selected="false">Práctica</button></div>
+      <div class="panel"><p>Tableros kanban de tareas por proyecto, con etapas, responsables, fechas límite y horas imputadas. Sirve para facturar servicios por tiempo y para que el alumnado vea un módulo que no mueve ni stock ni dinero.</p></div>
+      <div class="panel" hidden><ol><li>Crear proyecto y etapas (Por hacer, En curso, Hecho).</li><li>Un producto de tipo servicio con política "crear tarea" genera la tarea al confirmar la venta.</li><li>Los empleados imputan horas en la tarea.</li><li>Las horas pasan a la factura si el servicio se factura por tiempo.</li></ol></div>
+      <div class="panel" hidden><div class="tw"><table><tr><th>Modelo</th><th>Tabla</th><th>Para qué sirve</th></tr>
+        <tr><td><code>project.project</code></td><td><code>project_project</code></td><td>Proyecto.</td></tr>
+        <tr><td><code>project.task</code></td><td><code>project_task</code></td><td>Tarea con etapa, asignados y fechas.</td></tr>
+        <tr><td><code>account.analytic.line</code></td><td><code>account_analytic_line</code></td><td>Cada línea de horas imputadas.</td></tr></table></div></div>
+      <div class="panel" hidden><div class="links"><button data-go="ventas">← <b>Ventas</b> servicios que crean tareas</button><button data-go="rrhh">← <b>Empleados</b> quién imputa</button><button data-go="facturacion">→ <b>Facturación</b> por horas</button></div></div>
+      <div class="panel practica" hidden><p class="eyebrow">Práctica propuesta</p><p>Vender 10 horas de "instalación de ERP" como servicio, imputar 7 en la tarea y comprobar que la factura propone 7 horas.</p></div>
+    </article>
+
+    <div class="empty" id="empty" hidden>Ninguna ficha coincide con la búsqueda.</div>
+  </div>
+
+  <h2>Community o Enterprise</h2>
+  <p class="lead" style="font-size:1rem">En clase usamos Community (licencia LGPL v3, gratuita). Conviene que el alumnado sepa qué falta respecto a la versión de pago, porque es lo que verá en una empresa.</p>
+  <div class="tw"><table class="cmp">
+    <tr><th>Módulo o función</th><th>Community</th><th>Enterprise</th></tr>
+    <tr><td>CRM, Ventas, Compras, Inventario, Fabricación básica</td><td class="y">Sí</td><td class="y">Sí</td></tr>
+    <tr><td>Facturación y asientos contables</td><td class="y">Sí</td><td class="y">Sí</td></tr>
+    <tr><td>Contabilidad completa: informes financieros, cierre, conciliación avanzada</td><td class="n">No</td><td class="y">Sí</td></tr>
+    <tr><td>Studio (personalización sin código)</td><td class="n">No (se usa el modo desarrollador)</td><td class="y">Sí</td></tr>
+    <tr><td>Nómina, Firma, Documentos, Calidad, Mantenimiento, Helpdesk</td><td class="n">No</td><td class="y">Sí</td></tr>
+    <tr><td>Aplicación móvil nativa</td><td class="n">Solo navegador</td><td class="y">Sí</td></tr>
+    <tr><td>Hosting en Odoo.sh / Online</td><td class="n">Solo instalación propia</td><td class="y">Sí</td></tr>
+    <tr><td>Código fuente</td><td class="y">Abierto, GitHub <span class="mono">odoo/odoo</span></td><td class="n">Privado, acceso con suscripción</td></tr>
+  </table></div>
+
+  <h2>Dónde encaja cada módulo en el curso</h2>
+  <div class="tw"><table>
+    <tr><th>RA</th><th>Qué se hace con Odoo</th><th>Módulos implicados</th></tr>
+    <tr><td>RA1 · Identificar</td><td>Comparar Odoo con SAP, Dynamics y Dolibarr; comprobar requisitos de la MV, PostgreSQL y puertos.</td><td>Ninguno todavía: arquitectura y entorno</td></tr>
+    <tr><td>RA2 · Implantar</td><td>Instalar servidor y módulos, crear la BD de empresa, usuarios y permisos, localización española, copias de seguridad.</td><td>Ventas, Compras, Inventario, CRM, Facturación</td></tr>
+    <tr><td>RA3 · Explotar</td><td>Flujo comercial completo, compras y almacén, filtros, agrupaciones, vistas pivot, importación y exportación, consultas SQL.</td><td>Todos los anteriores más Contactos y Productos</td></tr>
+    <tr><td>RA4 · Adaptar</td><td>Supuesto empresarial: elegir módulos, añadir campos y vistas en modo desarrollador, informes personalizados, automatizaciones.</td><td>Según el supuesto: Fabricación, TPV, Sitio web, Proyecto</td></tr>
+    <tr><td>RA5 · Desarrollar</td><td>Crear un módulo propio en Python: modelo, vista XML, menú, controlador y permisos. Herencia de <code>sale.order</code>.</td><td>Estructura de addon: <code>__manifest__.py</code>, <code>models/</code>, <code>views/</code>, <code>security/</code></td></tr>
+  </table></div>
+
+  <footer>Material de referencia del módulo 0491 (RD 450/2010). Los nombres técnicos corresponden a Odoo 17 Community; en otras versiones pueden variar ligeramente. Semanas según la temporalización 2026/2027.</footer>
+</div>
+
+<script>
+(function(){
+  var cards=[].slice.call(document.querySelectorAll('.card'));
+  var chips=[].slice.call(document.querySelectorAll('.chip'));
+  var q=document.getElementById('q'), count=document.getElementById('count'), empty=document.getElementById('empty');
+  var filtro='todos';
+
+  // pestañas por ficha
+  cards.forEach(function(c){
+    var tabs=[].slice.call(c.querySelectorAll('.tab')), panels=[].slice.call(c.querySelectorAll('.panel'));
+    tabs.forEach(function(t,i){ t.addEventListener('click',function(){
+      tabs.forEach(function(x,j){ x.setAttribute('aria-selected', j===i?'true':'false'); panels[j].hidden = j!==i; });
+    });});
+  });
+
+  function aplicar(){
+    var txt=(q.value||'').trim().toLowerCase(), n=0;
+    cards.forEach(function(c){
+      var okF = filtro==='todos' || c.dataset.f===filtro;
+      var hay = (c.dataset.k+' '+c.textContent).toLowerCase();
+      var okT = !txt || hay.indexOf(txt)>=0;
+      c.hidden = !(okF && okT); if(!c.hidden) n++;
+    });
+    empty.hidden = n>0;
+    count.textContent = n+' de '+cards.length+' módulos';
+  }
+  chips.forEach(function(ch){ ch.addEventListener('click',function(){
+    filtro=ch.dataset.f; chips.forEach(function(x){ x.setAttribute('aria-pressed', x===ch?'true':'false'); }); aplicar();
+  });});
+  q.addEventListener('input',aplicar);
+
+  // enlaces entre fichas
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-go]'); if(!b) return;
+    var dest=document.getElementById(b.dataset.go); if(!dest) return;
+    filtro='todos'; q.value=''; chips.forEach(function(x){ x.setAttribute('aria-pressed', x.dataset.f==='todos'?'true':'false'); }); aplicar();
+    dest.querySelector('.tab').click();
+    dest.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  // ancla de la URL (#ventas)
+  var h=(location.hash||'').replace('#','');
+  if(h && document.getElementById(h) && document.getElementById(h).classList.contains('card')){
+    setTimeout(function(){ document.getElementById(h).scrollIntoView(); },50);
+  }
+  aplicar();
+})();
+</script>
+
+</body></html>

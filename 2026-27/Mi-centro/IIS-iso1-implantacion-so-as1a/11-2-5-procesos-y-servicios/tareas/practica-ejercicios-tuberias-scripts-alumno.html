@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ejercicios: tuberías, stdin/stdout y scripts (if, for, while) en Bash y BAT — ISO</title>
+<style>
+:root{--navy:#1f4e79;--navy2:#2b6ca3;--orange:#e07a2b;--green:#3f8a52;--red:#b8422f;--ink:#1e2a35;--muted:#5b6b7a;--bg:#f4f7fa;--line:#d6dee6}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.55}
+.top{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:26px 20px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.top .wrap{padding:0}
+.top h1{margin:.1em 0;font-size:1.65rem;line-height:1.2}
+.top .k{font-family:Consolas,"Courier New",monospace;color:#ffd28a;font-size:.9rem}
+.top p{margin:.4em 0;opacity:.95}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:.85rem}
+.pbar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px}
+.pbar .in{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:12px;font-size:.9rem;color:var(--muted)}
+.pbar .bar{flex:1;height:8px;background:#e4eaf0;border-radius:999px;overflow:hidden}
+.pbar .bar span{display:block;height:100%;width:0;background:var(--orange);transition:width .3s}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+h2{color:var(--navy);margin:.1em 0 .5em;font-size:1.3rem;border-bottom:3px solid var(--orange);padding-bottom:.15em;display:inline-block}
+h3{color:var(--navy2);margin:1.1em 0 .3em;font-size:1.05rem}
+table{width:100%;border-collapse:collapse;margin:.6em 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--navy);color:#fff}
+tr:nth-child(even) td{background:var(--bg)}
+code{font-family:Consolas,"Courier New",monospace;background:#e9eef3;padding:1px 5px;border-radius:4px;font-size:.92em}
+pre{background:#1e2a35;color:#e8f0f7;border-radius:10px;padding:12px 16px;overflow:auto;font-size:.88rem;line-height:1.5}
+pre.win{background:#012456}
+pre i{color:#8fd19e;font-style:normal}
+.tag{display:inline-block;border-radius:999px;padding:1px 10px;font-size:.75rem;font-weight:700;color:#fff;vertical-align:middle;margin-left:6px}
+.tag.bash{background:var(--green)}.tag.bat{background:#1565c0}.tag.lvl{background:var(--muted)}
+.ok{border-left:6px solid var(--green);background:#e9f5ec;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.warn{border-left:6px solid var(--orange);background:#fff4e5;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.err{border-left:6px solid var(--red);background:#fbe9e6;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.info{border-left:6px solid var(--navy2);background:#e8f1fa;border-radius:8px;padding:10px 14px;margin:.8em 0}
+.muted{color:var(--muted);font-size:.9rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ex{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:.7em 0;background:#fbfcfd}
+.ex.done{background:#e9f5ec;border-color:#b6dcbf}
+.ex .h{display:flex;gap:10px;align-items:flex-start}
+.ex .h input{margin-top:5px;width:18px;height:18px;flex:none}
+.ex ul{margin:.3em 0 0 1.2em;padding:0}
+textarea.cmd{width:100%;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-family:Consolas,"Courier New",monospace;font-size:.88rem;margin-top:6px;background:#fff}
+@media (max-width:700px){.top h1{font-size:1.3rem}.card{padding:14px}table{font-size:.82rem}.grid2{grid-template-columns:1fr}}
+@media print{body{background:#fff}.pbar{display:none}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+<div class="k">&gt; módulo ISO 0369 · 1º ASIR · práctica de terminal</div>
+<h1>Ejercicios: tuberías, stdin/stdout y scripts con if, for y while</h1>
+<p>Primero comandos sueltos y tuberías; después scripts en Bash y en BAT. Hazlo todo en la terminal: escribe tu respuesta y compruébala ejecutándola.</p>
+<div class="pills"><span class="pill">Linux: srv-ubuntu / pc-ubuntu</span><span class="pill">Windows: pc-win (cmd, no PowerShell)</span><span class="pill">Carpeta: ~/practica_terminal y C:\practica_terminal</span></div>
+</div></div>
+<div class="pbar"><div class="in"><span>Ejercicios hechos</span><div class="bar"><span id="bar"></span></div><span id="cnt">0 / 0</span></div></div>
+
+<div class="wrap">
+
+<!-- ===== 0 ===== -->
+<div class="card"><h2>0. Lo que tienes que tener claro</h2>
+<table><tr><th>Canal</th><th>Nº</th><th>Por defecto</th><th>Se redirige con</th></tr>
+<tr><td><b>stdin</b> (entrada)</td><td>0</td><td>Teclado</td><td><code>&lt; fichero</code> · <code>cmd1 | cmd2</code></td></tr>
+<tr><td><b>stdout</b> (salida normal)</td><td>1</td><td>Pantalla</td><td><code>&gt;</code> (sobrescribe) · <code>&gt;&gt;</code> (añade) · <code>|</code></td></tr>
+<tr><td><b>stderr</b> (errores)</td><td>2</td><td>Pantalla</td><td><code>2&gt;</code> · <code>2&gt;&gt;</code> · <code>2&gt;&amp;1</code> (junto a stdout)</td></tr></table>
+<div class="info">La tubería <code>|</code> conecta el <b>stdout</b> de un comando con el <b>stdin</b> del siguiente. Los errores (stderr) <b>no</b> pasan por la tubería: siguen saliendo por pantalla. Para tirar algo: <code>/dev/null</code> en Linux y <code>nul</code> en Windows.</div>
+
+<h3>Comandos típicos de Linux</h3>
+<table><tr><th>Comando</th><th>Para qué</th><th>Opciones que más se usan</th></tr>
+<tr><td><code>cat</code></td><td>Mostrar un fichero</td><td><code>-n</code> numera líneas</td></tr>
+<tr><td><code>head</code> / <code>tail</code></td><td>Primeras / últimas líneas</td><td><code>-n 5</code> · <code>tail -f</code> sigue el fichero en directo</td></tr>
+<tr><td><code>grep</code></td><td>Líneas que contienen un texto</td><td><code>-i</code> sin mayúsculas · <code>-v</code> las que NO · <code>-c</code> cuenta · <code>-r</code> recursivo</td></tr>
+<tr><td><code>cut</code></td><td>Sacar columnas</td><td><code>-d';' -f1,3</code></td></tr>
+<tr><td><code>sort</code></td><td>Ordenar</td><td><code>-n</code> numérico · <code>-r</code> inverso · <code>-u</code> sin repetidos · <code>-t';' -k4</code> por columna</td></tr>
+<tr><td><code>uniq</code></td><td>Quitar repetidos <b>seguidos</b> (ordena antes)</td><td><code>-c</code> cuenta · <code>-d</code> solo los repetidos</td></tr>
+<tr><td><code>wc</code></td><td>Contar</td><td><code>-l</code> líneas · <code>-w</code> palabras · <code>-c</code> bytes</td></tr>
+<tr><td><code>tr</code></td><td>Cambiar caracteres</td><td><code>tr 'a-z' 'A-Z'</code> · <code>tr -d ' '</code></td></tr>
+<tr><td><code>tee</code></td><td>Ver en pantalla y guardar a la vez</td><td><code>-a</code> añade</td></tr>
+<tr><td><code>find</code></td><td>Buscar ficheros</td><td><code>find /etc -name "*.conf"</code> · <code>-type d</code> · <code>-size +1M</code></td></tr>
+<tr><td><code>ps</code> / <code>df</code> / <code>du</code> / <code>free</code></td><td>Procesos / disco / tamaño de carpetas / memoria</td><td><code>ps aux</code> · <code>df -h</code> · <code>du -sh</code> · <code>free -h</code></td></tr>
+<tr><td><code>who</code> / <code>id</code> / <code>ip a</code></td><td>Quién está conectado / mis grupos / mis IP</td><td></td></tr></table>
+
+<h3>Y su equivalente en CMD</h3>
+<table><tr><th>Linux</th><th>CMD</th><th>Linux</th><th>CMD</th></tr>
+<tr><td><code>cat</code></td><td><code>type</code></td><td><code>grep -v</code></td><td><code>find /v</code></td></tr>
+<tr><td><code>grep</code></td><td><code>find "txt"</code> · <code>findstr</code></td><td><code>wc -l</code></td><td><code>find /c /v ""</code></td></tr>
+<tr><td><code>grep -i</code></td><td><code>find /i</code></td><td><code>sort -r</code></td><td><code>sort /r</code></td></tr>
+<tr><td><code>grep -c</code></td><td><code>find /c</code></td><td><code>ls</code></td><td><code>dir /b</code></td></tr>
+<tr><td><code>ps</code></td><td><code>tasklist</code></td><td><code>ip a</code></td><td><code>ipconfig</code></td></tr></table>
+</div>
+
+<!-- ===== 1 DATOS ===== -->
+<div class="card"><h2>1. Prepara el fichero de datos</h2>
+<p>Todos los ejercicios usan <code>empleados.txt</code> (formato <code>nombre;departamento;ciudad;sueldo</code>). Hay una línea repetida a propósito.</p>
+<div class="grid2">
+<div><span class="tag bash">BASH</span>
+<pre>mkdir -p ~/practica_terminal
+cd ~/practica_terminal
+cat &gt; empleados.txt &lt;&lt;EOF
+ana;contabilidad;Zaragoza;1850
+luis;almacen;Huesca;1500
+marta;direccion;Zaragoza;3200
+pedro;almacen;Teruel;1450
+sara;becarios;Zaragoza;700
+juan;contabilidad;Huesca;1900
+elena;direccion;Huesca;3000
+hugo;becarios;Teruel;650
+irene;almacen;Zaragoza;1550
+luis;almacen;Huesca;1500
+EOF
+cat -n empleados.txt</pre></div>
+<div><span class="tag bat">CMD</span>
+<pre class="win">mkdir C:\practica_terminal
+cd /d C:\practica_terminal
+(
+echo ana;contabilidad;Zaragoza;1850
+echo luis;almacen;Huesca;1500
+echo marta;direccion;Zaragoza;3200
+echo pedro;almacen;Teruel;1450
+echo sara;becarios;Zaragoza;700
+echo juan;contabilidad;Huesca;1900
+echo elena;direccion;Huesca;3000
+echo hugo;becarios;Teruel;650
+echo irene;almacen;Zaragoza;1550
+echo luis;almacen;Huesca;1500
+) &gt; empleados.txt
+type empleados.txt</pre></div>
+</div>
+<p class="muted">En CMD el bloque <code>( … ) &gt; fichero</code> hace el papel del <code>&lt;&lt;EOF</code> de Bash, que en Windows no existe. Escríbelo en un .bat o línea a línea en la consola.</p>
+</div>
+
+<!-- ===== 2 REDIRECCIONES ===== -->
+<div class="card"><h2>2. stdin, stdout y stderr</h2><span class="tag bash">BASH</span>
+<p>Antes de ejecutar, <b>predice</b> qué saldrá en pantalla y qué en cada fichero. Después compruébalo.</p>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.1</b> <code>echo "hola" &gt; a.txt; echo "adios" &gt; a.txt; cat a.txt</code>. ¿Qué contiene <code>a.txt</code>? ¿Y si el segundo es <code>&gt;&gt;</code>?</div></div><textarea class="cmd" rows="2" placeholder="Tu predicción y lo que ha salido…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.2</b> <code>ls /etc/hostname /noexiste &gt; salida.txt 2&gt; errores.txt</code>. ¿Qué sale en pantalla? ¿Qué hay en cada fichero?</div></div><textarea class="cmd" rows="2" placeholder="…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.3</b> Repite 2.2 guardando <b>todo</b> (salida y errores) en <code>todo.txt</code>.</div></div><textarea class="cmd" rows="1" placeholder="comando…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.4</b> <code>ls /noexiste | wc -l</code>. ¿Por qué sale el error en pantalla y el número es 0?</div></div><textarea class="cmd" rows="2" placeholder="…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.5</b> Busca todos los <code>.conf</code> de <code>/etc</code> como usuario normal <b>sin</b> que salgan los «Permiso denegado».</div></div><textarea class="cmd" rows="1" placeholder="comando…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.6</b> Cuenta las líneas de <code>empleados.txt</code> de forma que salga <b>solo el número</b>, sin el nombre del fichero (pista: stdin).</div></div><textarea class="cmd" rows="1" placeholder="comando…"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>2.7</b> Muestra <code>df -h /</code> en pantalla <b>y</b> guárdalo a la vez en <code>disco.txt</code>. Después añade <code>free -h</code> al mismo fichero sin borrar lo anterior.</div></div><textarea class="cmd" rows="2" placeholder="comandos…"></textarea></div>
+</div>
+
+<!-- ===== 3 TUBERÍAS LINUX ===== -->
+<div class="card"><h2>3. Tuberías en Linux</h2><span class="tag bash">BASH</span>
+<p>Construye la tubería <b>de comando en comando</b>: ejecuta el primero, mira la salida, añade <code>| siguiente</code> y vuelve a mirar.</p>
+<h3>Con empleados.txt</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.1</b> Solo los nombres.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.2</b> Los empleados de almacén.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.3</b> Cuántos empleados hay en Zaragoza.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.4</b> La lista de departamentos, ordenada y sin repetir.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.5</b> Cuántos empleados hay en cada ciudad, de más a menos.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.6</b> Qué línea está repetida.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.7</b> Los 3 empleados que más cobran.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.8</b> Los nombres en MAYÚSCULAS, ordenados y sin repetir.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.9</b> Todos los que <b>no</b> son becarios, guardados en <code>plantilla.txt</code>.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.10</b> El nombre del empleado con el sueldo más bajo (solo el nombre).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<h3>Con el sistema</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.11</b> Cuántos usuarios del sistema tienen como shell <code>/bin/bash</code> (en <code>/etc/passwd</code>).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.12</b> Los nombres de los usuarios del sistema (primera columna de <code>/etc/passwd</code>), ordenados alfabéticamente.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.13</b> Los 5 procesos que más memoria usan (con la cabecera).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.14</b> Cuántos ficheros <code>.conf</code> hay en <code>/etc</code> (incluidas subcarpetas), sin errores en pantalla.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.15</b> Solo las líneas con tus direcciones IPv4 (<code>ip a</code>).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.16</b> Las 5 carpetas que más ocupan dentro de <code>/var</code>, de mayor a menor.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>3.17</b> Los 10 últimos mensajes de error del sistema (<code>journalctl</code>).</div></div><textarea class="cmd" rows="1"></textarea></div>
+</div>
+
+<!-- ===== 4 CMD ===== -->
+<div class="card"><h2>4. Tuberías en CMD</h2><span class="tag bat">CMD</span>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.1</b> Cuántas líneas tiene <code>empleados.txt</code>.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.2</b> Los empleados de almacén, ordenados.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.3</b> Cuántos empleados hay en Zaragoza.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.4</b> Los que <b>no</b> son becarios, en orden inverso, guardados en <code>plantilla.txt</code>.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.5</b> Solo tu dirección IPv4 (<code>ipconfig</code>).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.6</b> Cuántos procesos <code>svchost.exe</code> hay en marcha.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.7</b> Cuántos ficheros <code>.exe</code> hay en <code>C:\Windows</code>.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.8</b> Cuántos puertos están en escucha (<code>netstat -an</code>, estado LISTENING).</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>4.9</b> Lista <code>C:\noexiste</code> sin que salga el error en pantalla.</div></div><textarea class="cmd" rows="1"></textarea></div>
+<div class="warn">En CMD, <code>echo texto&gt; f.txt</code> pega bien el texto, pero <code>echo texto 1&gt; f.txt</code> se come el «1» (lo toma como stdout). Lo seguro es <code>&gt; f.txt echo texto 1</code>.</div>
+</div>
+
+<!-- ===== 5 SINTAXIS ===== -->
+<div class="card"><h2>5. Chuleta: if, for y while en Bash y en BAT</h2>
+<div class="grid2">
+<div><span class="tag bash">BASH</span>
+<pre><i>#!/bin/bash</i>
+<i># variables y lectura</i>
+nombre="Ana"
+read -p "Número: " n
+echo "Hola $nombre, has puesto $n"
+echo "Primer argumento: $1  Total: $#"
+
+<i># if  (espacios dentro de [ ] obligatorios)</i>
+if [ "$n" -gt 10 ]; then
+    echo "mayor que 10"
+elif [ "$n" -eq 10 ]; then
+    echo "es 10"
+else
+    echo "menor"
+fi
+
+<i># for sobre una lista, un rango o ficheros</i>
+for dep in contabilidad almacen; do
+    echo "$dep"
+done
+for i in {1..5}; do echo "$i"; done
+for f in /etc/*.conf; do echo "$f"; done
+
+<i># while: contador</i>
+i=1
+while [ $i -le 5 ]; do
+    echo "$i"
+    i=$((i+1))
+done
+
+<i># while: leer un fichero línea a línea</i>
+while IFS=';' read -r a b c d; do
+    echo "$a está en $b"
+done &lt; empleados.txt</pre>
+<table><tr><th>Números</th><th>Texto</th><th>Ficheros</th></tr>
+<tr><td><code>-eq -ne -lt -le -gt -ge</code></td><td><code>= != -z</code> (vacío)</td><td><code>-f</code> fichero · <code>-d</code> dir · <code>-e</code> existe</td></tr></table>
+<p class="muted">Cálculos: <code>$((a+b))</code>. Ejecutar: <code>chmod +x s.sh</code> y <code>./s.sh</code>.</p>
+</div>
+<div><span class="tag bat">BAT</span>
+<pre class="win">@echo off
+setlocal enabledelayedexpansion
+rem variables y lectura
+set nombre=Ana
+set /p n=Numero:
+echo Hola %nombre%, has puesto %n%
+echo Primer argumento: %1
+
+rem if
+if %n% GTR 10 (
+    echo mayor que 10
+) else if %n% EQU 10 (
+    echo es 10
+) else (
+    echo menor
+)
+
+rem for sobre una lista, un rango o ficheros
+for %%d in (contabilidad almacen) do echo %%d
+for /L %%i in (1,1,5) do echo %%i
+for %%f in (C:\Windows\*.ini) do echo %%f
+
+rem "while": no existe, se hace con goto
+set i=1
+:bucle
+if %i% GTR 5 goto fin
+echo %i%
+set /a i+=1
+goto bucle
+:fin
+
+rem leer un fichero linea a linea
+for /f "tokens=1-4 delims=;" %%a in (empleados.txt) do (
+    echo %%a esta en %%b
+)</pre>
+<table><tr><th>Números</th><th>Texto</th><th>Ficheros</th></tr>
+<tr><td><code>EQU NEQ LSS LEQ GTR GEQ</code></td><td><code>==</code> · <code>/i</code> sin mayúsculas</td><td><code>if exist f</code> · <code>if not exist</code></td></tr></table>
+<p class="muted">Cálculos: <code>set /a r=a+b</code>. En un .bat las variables del for llevan <b>dos</b> <code>%%</code>; en la consola, una.</p>
+</div></div>
+<div class="err"><b>La trampa de BAT:</b> dentro de un bloque <code>( … )</code> las <code>%var%</code> se sustituyen <b>una sola vez</b>, antes de ejecutar el bloque. Si cambias una variable dentro de un <code>for</code> o un <code>if</code> y quieres ver su valor nuevo, activa <code>setlocal enabledelayedexpansion</code> y escríbela como <code>!var!</code>.</div>
+</div>
+
+<!-- ===== 6 SCRIPTS BASH ===== -->
+<div class="card"><h2>6. Scripts en Bash</h2><span class="tag bash">BASH</span>
+<p>Un fichero por ejercicio dentro de <code>~/practica_terminal</code>. Empieza siempre por <code>#!/bin/bash</code> y pruébalo con datos correctos <b>y</b> incorrectos.</p>
+
+<h3>if</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B1 · par_impar.sh</b> <span class="tag lvl">fácil</span><ul><li>Pide un número por teclado y dice si es par o impar.</li><li>Si lo que escribe no es un número, muestra un error por <b>stderr</b> y sale con <code>exit 1</code>.</li></ul><p class="muted">Pista: <code>$((n % 2))</code>. Para comprobar que es un número: <code>[[ "$n" =~ ^[0-9]+$ ]]</code>.</p></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B2 · que_es.sh</b> <span class="tag lvl">fácil</span><ul><li>Recibe una ruta como argumento (<code>./que_es.sh /etc</code>).</li><li>Dice si es un fichero, un directorio o si no existe.</li><li>Si no le pasan argumento, muestra cómo se usa y sale con error.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B3 · usuario.sh</b> <span class="tag lvl">medio</span><ul><li>Pide un nombre de usuario y dice si existe en el sistema.</li><li>Si existe, muestra sus grupos y dice si pertenece al grupo <code>sudo</code>.</li></ul><p class="muted">Pista: <code>id usuario &amp;&gt;/dev/null</code> devuelve éxito si existe; <code>id -nG usuario | grep -qw sudo</code>.</p></div></div></div>
+
+<h3>for</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B4 · tabla.sh</b> <span class="tag lvl">fácil</span><ul><li>Recibe un número como argumento y muestra su tabla de multiplicar del 1 al 10 (<code>7 x 3 = 21</code>).</li><li>Guarda además la tabla en <code>tabla_7.txt</code> (el número que toque) con <code>tee</code>.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B5 · departamentos.sh</b> <span class="tag lvl">fácil</span><ul><li>Con un <code>for</code> sobre la lista <code>contabilidad direccion almacen becarios</code>, crea <code>empresa/&lt;departamento&gt;</code>.</li><li>Dentro de cada una crea un <code>LEEME.txt</code> con el texto «Carpeta del departamento X».</li><li>Al final muestra el árbol con <code>ls -R empresa</code>.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B6 · contar_conf.sh</b> <span class="tag lvl">medio</span><ul><li>Recorre todos los <code>/etc/*.conf</code> y escribe en <code>informe_conf.txt</code> una línea por fichero: <code>nombre: N líneas</code>.</li><li>Los que no se puedan leer no deben ensuciar la pantalla: sus errores van a <code>errores.log</code>.</li><li>Al terminar muestra los 5 ficheros con más líneas (tubería sobre el informe).</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B7 · sueldos_dep.sh</b> <span class="tag lvl">medio</span><ul><li>Para cada departamento distinto de <code>empleados.txt</code> (sácalos con una tubería dentro del <code>for</code>), muestra cuántos empleados tiene.</li></ul><p class="muted">Pista: <code>for dep in $(cut -d';' -f2 empleados.txt | sort -u); do …</code></p></div></div></div>
+
+<h3>while</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B8 · nominas.sh</b> <span class="tag lvl">medio</span><ul><li>Lee <code>empleados.txt</code> línea a línea con <code>while read</code>.</li><li>Muestra <code>nombre (departamento): sueldo €</code> y añade <code>[ALTO]</code> si cobra más de 2000.</li><li>Al final muestra la suma total de sueldos.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B9 · adivina.sh</b> <span class="tag lvl">medio</span><ul><li>Genera un número secreto del 1 al 10 (<code>$((RANDOM % 10 + 1))</code>).</li><li>Mientras no aciertes, pide otro número y dice «mayor» o «menor».</li><li>Al acertar, dice en cuántos intentos.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B10 · menu.sh</b> <span class="tag lvl">medio</span><ul><li>Bucle <code>while</code> con un menú: 1) fecha y hora, 2) usuarios conectados, 3) espacio en disco de <code>/</code>, 4) memoria libre, 5) salir.</li><li>Usa <code>if/elif</code> para elegir. Una opción no válida muestra un error y vuelve al menú.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>B11 · numerar.sh</b> <span class="tag lvl">medio</span><ul><li>Un <b>filtro</b>: lee de stdin línea a línea y devuelve cada línea numerada (<code>1: …</code>).</li><li>Debe funcionar con <code>cat empleados.txt | ./numerar.sh</code>, con <code>./numerar.sh &lt; empleados.txt</code> y dentro de una tubería: <code>grep almacen empleados.txt | ./numerar.sh &gt; almacen.txt</code>.</li></ul></div></div></div>
+</div>
+
+<!-- ===== 7 SCRIPTS BAT ===== -->
+<div class="card"><h2>7. Scripts en BAT</h2><span class="tag bat">BAT</span>
+<p>Guárdalos en <code>C:\practica_terminal</code> y ejecútalos desde <b>cmd</b>. Empieza con <code>@echo off</code>.</p>
+
+<h3>if</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W1 · par_impar.bat</b> <span class="tag lvl">fácil</span><ul><li>Pide un número con <code>set /p</code> y dice si es par o impar.</li><li>Si no escriben nada, muestra un error y sale con <code>exit /b 1</code>.</li></ul><p class="muted">Pista: en un .bat el resto se escribe <code>%%</code>: <code>set /a r=n %% 2</code>.</p></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W2 · que_es.bat</b> <span class="tag lvl">fácil</span><ul><li>Recibe una ruta como argumento (<code>que_es.bat C:\Windows</code>) y dice si es carpeta, fichero o no existe.</li><li>Sin argumento: muestra cómo se usa.</li></ul><p class="muted">Pista: <code>if exist "%~1\"</code> (con la barra al final) solo es cierto para carpetas.</p></div></div></div>
+
+<h3>for</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W3 · tabla.bat</b> <span class="tag lvl">fácil</span><ul><li>Recibe un número y muestra su tabla del 1 al 10 con <code>for /L</code>.</li><li>Guarda la tabla en <code>tabla_N.txt</code>.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W4 · departamentos.bat</b> <span class="tag lvl">fácil</span><ul><li>Con un <code>for</code> sobre <code>contabilidad direccion almacen becarios</code> crea <code>empresa\&lt;departamento&gt;</code> con su <code>LEEME.txt</code>.</li><li>Si la carpeta ya existe, no debe salir error (pista: <code>if not exist</code> o <code>2&gt;nul</code>).</li><li>Al final muestra el árbol con <code>tree empresa /f</code>.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W5 · nominas.bat</b> <span class="tag lvl">medio</span><ul><li>Con <code>for /f</code> lee <code>empleados.txt</code> y muestra <code>nombre (departamento): sueldo</code>, marcando <code>[ALTO]</code> si supera 2000.</li><li>Al final muestra la suma total (necesitarás <code>!total!</code>).</li></ul></div></div></div>
+
+<h3>«while» con goto</h3>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W6 · adivina.bat</b> <span class="tag lvl">medio</span><ul><li>Número secreto del 1 al 10 con <code>%random%</code>. Bucle con <code>goto</code> hasta que aciertes, diciendo «mayor» o «menor» y contando intentos.</li></ul></div></div></div>
+<div class="ex"><div class="h"><input type="checkbox"><div><b>W7 · menu.bat</b> <span class="tag lvl">medio</span><ul><li>Menú que se repite: 1) fecha y hora, 2) usuario actual y equipo, 3) dirección IPv4, 4) procesos que más memoria usan… o lo que elijas, 5) salir.</li><li>Opción no válida: mensaje de error y vuelta al menú.</li></ul></div></div></div>
+</div>
+
+<!-- ===== 8 RETO ===== -->
+<div class="card"><h2>8. Reto final (Bash y BAT)</h2>
+<div class="ok"><b>informe_departamento.sh</b> y <b>informe_departamento.bat</b>:
+<ol style="margin:.4em 0 0 1.2em;padding:0">
+<li>Pide un departamento por teclado (stdin). Debe funcionar también con <code>echo almacen | ./informe_departamento.sh</code> y <code>echo almacen| informe_departamento.bat</code>.</li>
+<li>Si el departamento no existe en <code>empleados.txt</code>, escribe el error en <code>errores.log</code> (añadiendo, con fecha) y termina con código de error.</li>
+<li>Si existe, recorre sus empleados <b>sin repetidos</b> y muestra nombre, ciudad y sueldo.</li>
+<li>Muestra el número de empleados y la suma de sueldos del departamento.</li>
+<li>Todo lo que sale en pantalla se <b>añade</b> también a <code>informe_&lt;departamento&gt;.txt</code>, con una cabecera con fecha.</li>
+</ol></div>
+<h3>Qué entregar</h3>
+<ul><li>Los scripts de los apartados 6, 7 y 8.</li>
+<li>Para cada uno: una captura con una ejecución correcta y otra con un dato incorrecto.</li>
+<li>Las respuestas de los apartados 2, 3 y 4 (copia esta página a PDF con las cajas rellenas, o pégalas en tu documento).</li>
+<li>Una incidencia que te haya pasado, con el error real, la causa y la solución.</li></ul>
+</div>
+
+</div>
+<script>
+(function(){
+ var KEY='iso_ejercicios_tuberias_scripts',ex=[].slice.call(document.querySelectorAll('.ex')),st={};
+ try{st=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}}
+ function upd(){var n=0;ex.forEach(function(e){var b=e.querySelector('input');if(b.checked)n++;e.classList.toggle('done',b.checked)});
+  document.getElementById('cnt').textContent=n+' / '+ex.length;document.getElementById('bar').style.width=(100*n/ex.length)+'%';}
+ ex.forEach(function(e,i){var b=e.querySelector('input'),t=e.querySelector('textarea');
+  if(st['c'+i])b.checked=true; if(t&&st['t'+i])t.value=st['t'+i];
+  b.addEventListener('change',function(){st['c'+i]=b.checked;save();upd()});
+  if(t)t.addEventListener('input',function(){st['t'+i]=t.value;save()});});
+ upd();
+})();
+</script>
+</body>
+</html>

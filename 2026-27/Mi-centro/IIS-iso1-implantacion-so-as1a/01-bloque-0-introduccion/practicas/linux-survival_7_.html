@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Survival · Kit ISO</title>
+<style>
+
+/* ============ TOKENS ============ */
+:root{
+  --paper: #f2f1e9;
+  --paper-line: #c9d3d1;
+  --ink: #16262a;
+  --ink-soft: #45585c;
+  --petrol-900: #0a2a30;
+  --petrol-800: #0f3a42;
+  --petrol-700: #155059;
+  --petrol-600: #1c6b74;
+  --cyan: #6fc7c9;
+  --orange: #d8712f;
+  --orange-soft: #f4dcc3;
+  --panel-radius: 2px;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+@font-face{
+  font-family:'Space Grotesk';
+  src: local('Space Grotesk');
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+    var(--paper);
+  background-blend-mode: multiply;
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.5;
+}
+
+img,svg{display:block;max-width:100%;}
+
+/* ============ HERO / BOOT ============ */
+.hero{
+  position:relative;
+  background: radial-gradient(1200px 500px at 20% -10%, var(--petrol-700), var(--petrol-900) 60%);
+  color:#eef6f5;
+  padding: 56px 24px 40px;
+  overflow:hidden;
+  border-bottom: 6px solid var(--orange);
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px;
+  pointer-events:none;
+}
+.hero-inner{ position:relative; max-width: 880px; margin: 0 auto; }
+.kit-tag{
+  display:inline-flex; align-items:center; gap:8px;
+  font-family: var(--mono); font-size: 13px; color: var(--cyan);
+  border: 1px solid rgba(111,199,201,.5);
+  padding: 4px 10px; border-radius: var(--panel-radius);
+  margin-bottom: 22px;
+}
+.hero h1{
+  font-size: clamp(32px, 6vw, 54px);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.hero p.sub{
+  font-size: 18px;
+  color: #b7d4d2;
+  margin: 0 0 32px;
+  max-width: 46ch;
+}
+.boot-log{
+  font-family: var(--mono);
+  font-size: 14px;
+  background: rgba(4,18,21,.8);
+  border: 1px solid rgba(111,199,201,.25);
+  border-radius: var(--panel-radius);
+  padding: 18px 20px;
+  max-width: 460px;
+}
+.boot-log div{ color:#8fd6d3; opacity:0; animation: boot-in .35s ease-out forwards; white-space:nowrap; }
+.boot-log div span.ok{ color:#8fd6d3; float:right; margin-left: 24px;}
+.hero .boot-log div:nth-child(1){animation-delay:.1s}
+.hero .boot-log div:nth-child(2){animation-delay:.4s}
+.hero .boot-log div:nth-child(3){animation-delay:.7s}
+.hero .boot-log div:nth-child(4){animation-delay:1.0s}
+.hero .boot-log div:nth-child(5){animation-delay:1.3s; color:#f0b273; font-weight:600;}
+#boss-status.boot-log div{ animation-delay: 0s; }
+#boss-status.boot-log div:nth-child(1){ animation-delay: .05s; }
+#boss-status.boot-log div:nth-child(2){ animation-delay: .30s; }
+#boss-status.boot-log div:nth-child(3){ animation-delay: .55s; }
+#boss-status.boot-log div:nth-child(4){ animation-delay: .80s; }
+#boss-status.boot-log div:nth-child(5){ animation-delay: 1.05s; }
+#boss-status.boot-log div:nth-child(6){ animation-delay: 1.30s; }
+#boss-status.boot-log div:nth-child(7){ animation-delay: 1.55s; }
+#boss-status.boot-log div:nth-child(8){ animation-delay: 1.80s; }
+#boss-status.boot-log div:nth-child(9){ animation-delay: 2.05s; }
+@keyframes boot-in{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
+@media (prefers-reduced-motion: reduce){
+  .boot-log div{ animation: none !important; opacity:1 !important; }
+}
+
+/* ============ LEVEL NAV ============ */
+.level-nav{
+  position: sticky; top:0; z-index: 20;
+  background: var(--petrol-900);
+  border-bottom: 1px solid var(--petrol-700);
+  overflow-x:auto;
+}
+.level-nav-inner{
+  display:flex; max-width: 960px; margin:0 auto;
+}
+.level-btn{
+  font-family: var(--mono);
+  font-size: 13px;
+  color: #7fa8a5;
+  background: none; border:none; cursor:pointer;
+  padding: 14px 16px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  white-space: nowrap;
+  display:flex; flex-direction:column; gap:2px; align-items:flex-start;
+  border-bottom: 3px solid transparent;
+}
+.level-btn b{ color:#dfeceb; font-family:var(--sans); font-weight:600; font-size:13px; }
+.level-btn.active{ color: var(--cyan); border-bottom-color: var(--orange); background: rgba(255,255,255,.03); }
+.level-btn.active b{ color:#fff; }
+.level-btn[disabled]{ opacity:.35; cursor:not-allowed; }
+.level-btn .num{ font-size:15px; }
+
+/* ============ LEVEL PANEL ============ */
+.level{ display:none; max-width: 780px; margin: 0 auto; padding: 48px 24px 90px; }
+.level.active{ display:block; }
+
+.level-mark{
+  display:flex; align-items:baseline; gap:14px; margin-bottom: 6px;
+}
+.level-mark .n{
+  font-family: var(--mono); font-size: 44px; color: var(--petrol-800);
+  font-weight:700; line-height:1;
+}
+.level-mark .t{
+  font-family: var(--mono); font-size:13px; letter-spacing: .06em;
+  color: var(--ink-soft);
+}
+.level h2{
+  font-size: clamp(26px, 4vw, 36px);
+  margin: 4px 0 10px;
+  color: var(--petrol-900);
+}
+.level-quote{
+  font-size: 17px;
+  color: var(--ink-soft);
+  border-left: 3px solid var(--orange);
+  padding-left: 16px;
+  margin: 0 0 40px;
+  max-width: 52ch;
+}
+
+/* ---- diagram frame (blueprint) ---- */
+.blueprint{
+  background: var(--petrol-900);
+  border-radius: var(--panel-radius);
+  padding: 22px 18px 18px;
+  margin: 0 0 34px;
+  position:relative;
+}
+.blueprint::before,.blueprint::after{
+  content:""; position:absolute; width:14px; height:14px;
+  border: 2px solid var(--cyan); opacity:.7;
+}
+.blueprint::before{ top:8px; left:8px; border-right:none; border-bottom:none; }
+.blueprint::after{ bottom:8px; right:8px; border-left:none; border-top:none; }
+.blueprint svg{ width:100%; height:auto; }
+.blueprint .cap{
+  font-family: var(--mono); font-size:12px; color: var(--cyan);
+  margin-top:10px; text-align:center; letter-spacing:.04em;
+}
+
+/* ---- command block ---- */
+.block{ margin-bottom: 30px; }
+.block-head{
+  display:flex; align-items:center; gap:10px;
+  font-family: var(--mono); font-size: 13px;
+  color: var(--petrol-800); font-weight:700;
+  letter-spacing: .03em;
+  margin-bottom: 10px;
+}
+.block-head .icon{ font-size:17px; }
+.block p{ margin: 6px 0 12px; color: var(--ink); }
+
+.term{
+  background: var(--petrol-900);
+  color: #d8f0ee;
+  font-family: var(--mono);
+  font-size: 14.5px;
+  border-radius: var(--panel-radius);
+  padding: 14px 16px;
+  margin: 0 0 4px;
+  overflow-x:auto;
+}
+.term .ln{ display:flex; gap:10px; }
+.term .ln + .ln{ margin-top:2px; }
+.term .prompt{ color: var(--cyan); user-select:none; }
+.term .cmt{ color:#5c8482; }
+
+.hint{
+  font-family: var(--mono); font-size: 13px; color: var(--ink-soft);
+  border-left: 2px solid var(--paper-line);
+  padding-left:12px; margin: 10px 0 0;
+}
+.hint b{ color: var(--petrol-800); }
+
+/* ---- callouts ---- */
+.callout{
+  border-radius: var(--panel-radius);
+  padding: 16px 18px;
+  margin: 26px 0;
+}
+.callout.tip{
+  background: var(--orange-soft);
+  border: 1px solid var(--orange);
+}
+.callout.tip .head{ color:#9a4c17; }
+.callout.note{
+  background: #e7f0ef;
+  border: 1px solid var(--petrol-600);
+}
+.callout.note .head{ color: var(--petrol-800); }
+.callout .head{
+  font-family: var(--mono); font-weight:700; font-size: 13px;
+  display:flex; align-items:center; gap:8px; margin-bottom:8px;
+}
+.callout p{ margin:0; font-size:14.5px; }
+.callout code{ font-family: var(--mono); background: rgba(0,0,0,.06); padding:1px 5px; border-radius:2px; }
+
+/* ---- mission ---- */
+.mission{
+  background: var(--petrol-800);
+  color: #eef6f5;
+  border-radius: var(--panel-radius);
+  padding: 22px 22px 24px;
+  margin: 34px 0 10px;
+  position: relative;
+  border: 1px solid var(--petrol-600);
+}
+.mission .head{
+  font-family: var(--mono); font-size: 13px; color: var(--orange);
+  font-weight:700; letter-spacing:.04em; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.mission p{ margin: 0 0 14px; color:#cfe6e4; font-size:14.5px;}
+.mission .term{ background: rgba(0,0,0,.35); }
+.mission .checklist{ list-style:none; margin:14px 0 0; padding:0; font-family:var(--mono); font-size:13.5px; }
+.mission .checklist li{ padding:5px 0; color:#a9cfcd; display:flex; gap:10px; align-items:flex-start;}
+.mission .checklist li::before{ content:"□"; color: var(--cyan); }
+
+/* ---- final boss countdown ---- */
+.boss-timer{
+  display:flex; align-items:center; justify-content:center; gap:16px;
+  flex-wrap: wrap;
+  background: var(--petrol-900);
+  border: 1px solid var(--petrol-600);
+  border-radius: var(--panel-radius);
+  padding: 16px 20px;
+  margin: 0 0 28px;
+  position: relative;
+  overflow: hidden;
+  min-height: 60px;
+}
+.boss-timer.bt-crashing{
+  min-height: 190px;
+  flex-direction: column;
+  gap: 6px;
+}
+.bt-matrix{
+  position:absolute; inset:0; width:100%; height:100%;
+  display:none;
+}
+.boss-timer.bt-crashing .bt-matrix{ display:block; }
+.bt-label{ font-family: var(--mono); font-size:12px; color:#a9cfcd; letter-spacing:.05em; position:relative; z-index:1; }
+.bt-clock{
+  font-family: var(--mono); font-size: 30px; font-weight:700;
+  color: var(--cyan); letter-spacing: .04em; min-width: 84px; text-align:center;
+  position:relative; z-index:1;
+}
+.boss-timer.bt-crashing .bt-label,
+.boss-timer.bt-crashing .bt-clock{
+  text-shadow: 0 0 6px #000, 0 0 10px #000;
+}
+.boss-timer.bt-warn .bt-clock{ color: var(--orange); }
+.boss-timer.bt-danger .bt-clock{ color:#f0b273; animation: bt-pulse 1s ease-in-out infinite; }
+@keyframes bt-pulse{ 0%,100%{opacity:1;} 50%{opacity:.45;} }
+
+.boss-timer.bt-crashing{ border-color:#ff4d3d; animation: bt-shake .12s linear infinite; }
+.boss-timer.bt-crashing .bt-label{ color:#ff9d80; font-size:13px; }
+.boss-timer.bt-crashing .bt-clock{
+  font-size:20px; text-transform:lowercase; letter-spacing:0; color:#ff9d80;
+}
+.boss-timer.bt-crashing .bt-reset{ display:none; }
+@keyframes bt-shake{
+  0%{transform:translateX(0);} 25%{transform:translateX(-2px);}
+  75%{transform:translateX(2px);} 100%{transform:translateX(0);}
+}
+
+.boss-timer.bt-down{ border-color:#c0392b; }
+.boss-timer.bt-down .bt-label{ color:#ff9d80; }
+.boss-timer.bt-down .bt-label::before{
+  content:'● '; color:#ff4d3d; animation: bt-pulse 1.1s ease-in-out infinite;
+}
+.boss-timer.bt-down .bt-clock{ color:#ff6b4a; }
+
+.bt-reset{
+  font-family: var(--mono); font-size:12px;
+  background: none; color:#7fa8a5; border:1px solid var(--petrol-600);
+  border-radius: var(--panel-radius); padding:6px 12px; cursor:pointer;
+  position:relative; z-index:1;
+}
+.bt-reset:hover{ color:#eef6f5; border-color: var(--cyan); }
+
+/* ---- checkpoint / unlock terminal ---- */
+.checkpoint{
+  background: var(--petrol-900);
+  color: #eef6f5;
+  border: 1px solid var(--orange);
+  border-radius: var(--panel-radius);
+  padding: 22px 22px 24px;
+  margin: 44px 0 10px;
+  position: relative;
+}
+.checkpoint .head{
+  font-family: var(--mono); font-size: 13px; color: var(--orange);
+  font-weight:700; letter-spacing:.04em; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.checkpoint p{ margin: 0 0 14px; color:#cfe6e4; font-size:14.5px; }
+.checkpoint .term{ background: rgba(0,0,0,.35); }
+.cp-input{
+  background: transparent; border: none; border-bottom: 1px solid var(--cyan);
+  color:#eef6f5; font-family: var(--mono); font-size: 14.5px;
+  flex: 1; outline: none; padding: 1px 4px; min-width: 0;
+}
+.cp-input::placeholder{ color: #5c8482; }
+.cp-feedback{ font-family: var(--mono); font-size: 13.5px; min-height: 18px; margin-top: 6px; }
+.cp-feedback.ok{ color:#8fe0b0; }
+.cp-feedback.err{ color:#f0a273; }
+.cp-btn{
+  font-family: var(--mono); background: var(--orange); color:#241004;
+  border:none; border-radius: var(--panel-radius); padding: 10px 18px;
+  font-weight:700; cursor:pointer; margin-top: 6px; font-size:13px;
+}
+.cp-btn:hover{ background:#e8823a; }
+.cp-code{
+  display:none; font-family: var(--mono); font-size:13px;
+  background: rgba(0,0,0,.4); border: 1px dashed var(--orange);
+  padding: 10px 14px; margin-top: 12px; color:#ffd9b0; letter-spacing:.05em;
+}
+
+/* ---- locked level preview ---- */
+.locked-preview{
+  background: var(--petrol-900); color:#cfe6e4;
+  border-radius: var(--panel-radius);
+  padding: 30px 24px; text-align:center;
+}
+.locked-preview .big-lock{ font-size:38px; margin-bottom:10px; }
+.locked-preview h3{ font-family: var(--sans); color:#fff; margin:0 0 8px; font-size:19px; }
+.locked-preview p{ font-family: var(--mono); font-size:13px; color:#a9cfcd; max-width:44ch; margin:0 auto; }
+.locked-preview .teaser{ margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+.locked-preview .teaser span{
+  border:1px solid var(--petrol-600); border-radius:20px; padding:5px 12px;
+  font-size:12px; font-family:var(--mono); color: var(--cyan);
+}
+
+/* ---- level footer nav ---- */
+.level-footer{
+  margin-top: 54px; padding-top: 24px;
+  border-top: 1px dashed var(--paper-line);
+  display:flex; justify-content:space-between; align-items:center;
+  font-family: var(--mono); font-size:13px; color: var(--ink-soft);
+}
+.level-footer button{
+  font-family: var(--mono); font-size: 13px;
+  background: var(--petrol-800); color:#eef6f5;
+  border:none; border-radius: var(--panel-radius);
+  padding: 10px 16px; cursor:pointer;
+}
+.level-footer button:hover{ background: var(--petrol-700); }
+.level-footer button[disabled]{ opacity:.3; cursor:not-allowed; }
+
+@media (max-width: 620px){
+  .hero{ padding: 40px 18px 30px; }
+  .boot-log{ font-size:12.5px; max-width:100%; }
+  .level{ padding: 34px 16px 70px; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="kit-tag">🐧 kit / linux-survival / v1</span>
+    <h1>Linux Survival</h1>
+    <p class="sub">Tu kit de supervivencia para ISO. Sin memorizar comandos: aprendiendo a leer un sistema.</p>
+    <div class="boot-log">
+      <div>Cargando terminal.......... <span class="ok">[ OK ]</span></div>
+      <div>Montando sistema de archivos <span class="ok">[ OK ]</span></div>
+      <div>Detectando usuario......... <span class="ok">[ OK ]</span></div>
+      <div>Preparando misión 00....... <span class="ok">[ OK ]</span></div>
+      <div>STATUS: READY_</div>
+    </div>
+  </div>
+</header>
+
+<nav class="level-nav">
+  <div class="level-nav-inner" id="nav"></div>
+</nav>
+
+<!-- ============ LEVEL 00 ============ -->
+<section class="level active" data-level="00">
+  <div class="level-mark"><span class="n">00</span><span class="t">MISIÓN · BOOT</span></div>
+  <h2>Bienvenido a Linux</h2>
+  <p class="level-quote">Antes de escribir un solo comando, tienes que entender qué es lo que te está escuchando.</p>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🖥️</span> LA TERMINAL</div>
+    <p>Es la ventana donde escribes. No hace nada por sí sola: solo envía lo que escribes a otro programa y te devuelve la respuesta.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⚙️</span> LA SHELL</div>
+    <p>Es el programa que interpreta lo que escribes. La más común en Linux se llama <code>bash</code>. Cuando pulsas <strong>Enter</strong>, es la shell quien decide qué hacer con tu orden.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📍</span> EL PROMPT</div>
+    <p>Es la línea que te dice: "estoy listo, escribe algo". Contiene más información de la que parece.</p>
+    <div class="term">
+      <div class="ln"><span>alumno@iso-lab:~$</span><span class="cmt">▍</span></div>
+    </div>
+    <div class="hint">
+      Léelo así: <b>alumno</b> (quién eres) @ <b>iso-lab</b> (en qué máquina) : <b>~</b> (dónde estás) $ (nivel de usuario normal — sería <b>#</b> para root)
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⌨️</span> ATAJOS QUE TE SALVAN</div>
+    <p>No son comandos: son teclas que la terminal entiende en cualquier momento, incluso a media escritura.</p>
+    <div class="term">
+      <div class="ln"><span>Ctrl + C</span><span class="cmt"># cancela lo que se está ejecutando</span></div>
+      <div class="ln"><span>Ctrl + L</span><span class="cmt"># limpia la pantalla (igual que el comando clear)</span></div>
+      <div class="ln"><span>↑ / ↓</span><span class="cmt"># recorren los comandos anteriores</span></div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">🚨 CUANDO ALGO FALLA</div>
+    <p>Si ves algo como <code>bash: comnd: command not found</code>, la shell no te está castigando: te está diciendo exactamente qué palabra no reconoce. Casi siempre es una errata. Léelo antes de asustarte.</p>
+  </div>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#6fc7c9" stroke-width="1.4">
+        <line x1="280" y1="30" x2="280" y2="60"/>
+        <line x1="120" y1="60" x2="440" y2="60"/>
+        <line x1="120" y1="60" x2="120" y2="90"/>
+        <line x1="280" y1="60" x2="280" y2="90"/>
+        <line x1="440" y1="60" x2="440" y2="90"/>
+      </g>
+      <g>
+        <rect x="250" y="8" width="60" height="26" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+        <text x="280" y="26" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#eef6f5">/</text>
+
+        <rect x="80" y="90" width="80" height="26" rx="2" fill="#155059" stroke="#6fc7c9"/>
+        <text x="120" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#eef6f5">home</text>
+
+        <rect x="240" y="90" width="80" height="26" rx="2" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="280" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#9fc0be">etc</text>
+
+        <rect x="400" y="90" width="80" height="26" rx="2" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="440" y="108" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#9fc0be">var</text>
+
+        <line x1="120" y1="116" x2="120" y2="140" stroke="#6fc7c9" stroke-width="1.4"/>
+        <rect x="80" y="140" width="80" height="26" rx="2" fill="#1c6b74" stroke="#6fc7c9"/>
+        <text x="120" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#eef6f5">alumno</text>
+      </g>
+    </svg>
+    <div class="cap">/ es la raíz de todo. /home/alumno es tu territorio: se abrevia como ~</div>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 00</div>
+    <p>Abre una terminal y responde, solo mirando el prompt, sin ejecutar nada todavía:</p>
+    <ul class="checklist">
+      <li>¿Qué usuario eres?</li>
+      <li>¿En qué máquina estás?</li>
+      <li>¿Eres usuario normal o root?</li>
+    </ul>
+    <p style="margin-top:14px;">Después, ejecuta esto y comprueba que la respuesta coincide con el símbolo <code style="font-family:var(--mono);">~</code> de tu prompt:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>pwd</span></div>
+    </div>
+  </div>
+
+  <div class="level-footer">
+    <button disabled>Inicio del kit</button>
+    <span>NIVEL 00 / 10</span>
+    <button onclick="goTo('01')">01 · Navegación →</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 01 ============ -->
+<section class="level" data-level="01">
+  <div class="level-mark"><span class="n">01</span><span class="t">MISIÓN · NAVEGACIÓN</span></div>
+  <h2>No perderte en Linux</h2>
+  <p class="level-quote">Antes de administrar un sistema, tienes que saber dónde estás.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 226" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#6fc7c9" stroke-width="1.4">
+        <line x1="280" y1="34" x2="280" y2="55"/>
+        <line x1="280" y1="55" x2="120" y2="80"/>
+        <line x1="120" y1="106" x2="120" y2="140"/>
+        <line x1="120" y1="166" x2="60" y2="190"/>
+        <line x1="120" y1="166" x2="220" y2="190"/>
+      </g>
+      <rect x="250" y="8" width="60" height="26" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+      <text x="280" y="26" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#eef6f5">/</text>
+
+      <rect x="80" y="80" width="80" height="26" rx="2" fill="#155059" stroke="#6fc7c9"/>
+      <text x="120" y="98" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#eef6f5">home</text>
+
+      <rect x="80" y="140" width="80" height="26" rx="2" fill="#1c6b74" stroke="#6fc7c9"/>
+      <text x="120" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#eef6f5">alumno</text>
+
+      <rect x="15" y="190" width="90" height="26" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+      <text x="60" y="208" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" fill="#eef6f5">Documentos</text>
+
+      <rect x="175" y="190" width="90" height="26" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+      <text x="220" y="208" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11.5" fill="#eef6f5">Descargas</text>
+    </svg>
+    <div class="cap">Estás aquí: /home/alumno — dos carpetas por debajo de la raíz</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📍</span> SENSOR DE POSICIÓN</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>pwd</span></div></div>
+    <p>Muestra el directorio exacto en el que te encuentras ahora mismo.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">👁️</span> RADAR</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>ls</span></div>
+      <div class="ln"><span class="prompt">$</span><span>ls -la</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">ls</code> muestra lo que contiene el directorio actual. Añadiendo <code style="font-family:var(--mono)">-la</code> ves también los archivos ocultos, los permisos y el propietario de cada uno.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🚶</span> MOVIMIENTO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cd Documentos</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cd ..</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cd ~</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cd /</span></div>
+    </div>
+    <div class="hint"><b>cd carpeta</b> entra · <b>cd ..</b> sube un nivel · <b>cd ~</b> vuelve a tu carpeta personal · <b>cd /</b> va a la raíz</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧹</span> LIMPIAR LA PANTALLA</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>clear</span></div></div>
+    <p>Borra todo lo que se ve en la terminal. No borra nada del sistema — es solo la pantalla, no la memoria.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🕓</span> MEMORIA DEL SISTEMA</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>history</span></div></div>
+    <p>Muestra todos los comandos que has ejecutado antes, numerados. Puedes repetir cualquiera con <code style="font-family:var(--mono)">!</code> seguido de su número.</p>
+    <div class="hint">Ejemplo: si <b>history</b> muestra <b>42  pwd</b>, entonces <code style="font-family:var(--mono)">!42</code> vuelve a ejecutar ese <code style="font-family:var(--mono)">pwd</code>.</div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p>Pulsa <code>TAB</code> mientras escribes una ruta. Linux completa automáticamente nombres de archivos y carpetas — y si hay varias opciones, pulsándolo dos veces te las muestra todas.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>Un administrador no recuerda todas las opciones de todos los comandos: sabe encontrarlas. Prueba <code>man ls</code> o <code>ls --help</code> antes de buscar en internet.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 01</div>
+    <p>Sin usar el gestor gráfico de archivos, construye esta estructura partiendo de tu carpeta personal:</p>
+    <div class="term">
+      <div class="ln"><span>linux-survival/</span></div>
+      <div class="ln"><span>├── practicas/</span></div>
+      <div class="ln"><span>├── evidencias/</span></div>
+      <div class="ln"><span>└── scripts/</span></div>
+    </div>
+    <p style="margin-top:14px;">Al terminar, confirma con un único comando que sigues dentro de <code>linux-survival</code> y que las tres carpetas existen.</p>
+    <ul class="checklist">
+      <li>Usaste solo <code style="font-family:var(--mono)">cd</code> para moverte, nunca clics</li>
+      <li>Comprobaste el resultado con <code style="font-family:var(--mono)">ls</code></li>
+    </ul>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('00')">← 00 · Boot</button>
+    <span>NIVEL 01 / 10</span>
+    <button onclick="goTo('02')">02 · Archivos →</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 02 ============ -->
+<section class="level" data-level="02">
+  <div class="level-mark"><span class="n">02</span><span class="t">MISIÓN · ARCHIVOS</span></div>
+  <h2>Manipular el sistema</h2>
+  <p class="level-quote">Ahora que sabes moverte, toca construir y destruir — con cuidado, porque aquí no hay papelera.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#6fc7c9" stroke-width="1.4">
+        <line x1="280" y1="30" x2="280" y2="60"/>
+        <line x1="280" y1="60" x2="120" y2="90"/>
+        <line x1="120" y1="90" x2="120" y2="112"/>
+        <line x1="120" y1="112" x2="60" y2="140" stroke-dasharray="3 3"/>
+        <line x1="120" y1="112" x2="180" y2="140" stroke-dasharray="3 3"/>
+      </g>
+      <rect x="250" y="8" width="60" height="26" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+      <text x="280" y="26" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="14" fill="#eef6f5">/</text>
+
+      <rect x="80" y="86" width="80" height="26" rx="2" fill="#155059" stroke="#6fc7c9"/>
+      <text x="120" y="104" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" fill="#eef6f5">alumno</text>
+
+      <rect x="20" y="140" width="80" height="26" rx="2" fill="#d8712f" stroke="#f0b273" stroke-dasharray="4 3"/>
+      <text x="60" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#241004">+ carpeta/</text>
+
+      <rect x="140" y="140" width="90" height="26" rx="2" fill="#d8712f" stroke="#f0b273" stroke-dasharray="4 3"/>
+      <text x="185" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#241004">+ archivo.txt</text>
+    </svg>
+    <div class="cap">Los nodos naranjas son lo que tú creas — el sistema no viene con ellos de fábrica</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🏗️</span> CONSTRUCCIÓN</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>mkdir carpeta</span></div>
+      <div class="ln"><span class="prompt">$</span><span>mkdir -p ruta/con/subcarpetas</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">mkdir</code> crea un directorio. Con <code style="font-family:var(--mono)">-p</code> crea de golpe toda una ruta, aunque las carpetas intermedias no existan todavía.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📄</span> CREAR ARCHIVOS</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>touch nota.txt</span></div></div>
+    <p>Crea un archivo vacío. Si ya existe, no lo borra ni lo vacía: solo actualiza su fecha de modificación.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📋</span> COPIAR</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cp nota.txt copia.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cp -r carpeta/ destino/</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">cp</code> copia archivos. Para copiar una carpeta entera necesitas <code style="font-family:var(--mono)">-r</code> (recursivo) — si no, <code style="font-family:var(--mono)">cp</code> se negará y te lo dirá.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🚚</span> MOVER Y RENOMBRAR</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>mv nota.txt evidencias/</span></div></div>
+    <p>Linux no tiene un comando "rename" aparte: <code style="font-family:var(--mono)">mv</code> mueve y renombra a la vez. Si el destino es una carpeta, mueve; si es un nombre nuevo en el mismo sitio, renombra.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">🚨 EL COMANDO QUE NO PERDONA</div>
+    <p><code>rm</code> borra de verdad — no hay papelera de reciclaje que lo recupere. Antes de pulsar Enter, comprueba con <code>pwd</code> y <code>ls</code> dónde estás y qué vas a borrar. Con <code>rm -r carpeta/</code> borras la carpeta entera, sin avisos.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🗑️</span> ELIMINAR</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>rm archivo.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>rm -r carpeta/</span></div>
+    </div>
+    <p>Elimina archivos con <code style="font-family:var(--mono)">rm</code>, y carpetas enteras añadiendo <code style="font-family:var(--mono)">-r</code>.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>El comodín <code>*</code> sustituye a "cualquier cosa": <code>rm *.txt</code> borra todos los .txt del directorio actual. Pruébalo primero con <code>ls *.txt</code> para ver qué afectaría, antes de usarlo con <code>rm</code>.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 02</div>
+    <p>Sobre la estructura que construiste en la misión anterior:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>touch practicas/borrador.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cp practicas/borrador.txt evidencias/entrega.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>rm practicas/borrador.txt</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Creaste el archivo dentro de <code style="font-family:var(--mono)">practicas/</code></li>
+      <li>Lo copiaste a <code style="font-family:var(--mono)">evidencias/</code> con otro nombre</li>
+      <li>Comprobaste con <code style="font-family:var(--mono)">ls</code> antes de borrar el original</li>
+    </ul>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('01')">← 01 · Navegación</button>
+    <span>NIVEL 02 / 10</span>
+    <button onclick="goTo('03')">03 · Investigación →</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 03 ============ -->
+<section class="level" data-level="03">
+  <div class="level-mark"><span class="n">03</span><span class="t">MISIÓN · INVESTIGACIÓN</span></div>
+  <h2>Encontrar información</h2>
+  <p class="level-quote">En un sistema real no memorizas dónde está algo: aprendes a preguntárselo.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+      <path d="M180 20 H340 L380 60 V160 H180 Z" fill="#0f3a42" stroke="#6fc7c9" stroke-width="1.4"/>
+      <path d="M340 20 L340 60 L380 60 Z" fill="none" stroke="#6fc7c9" stroke-width="1.4"/>
+      <line x1="200" y1="50" x2="345" y2="50" stroke="#6fc7c9" stroke-width="2" opacity=".45"/>
+      <line x1="200" y1="70" x2="345" y2="70" stroke="#6fc7c9" stroke-width="2" opacity=".45"/>
+      <line x1="200" y1="90" x2="345" y2="90" stroke="#d8712f" stroke-width="3"/>
+      <line x1="200" y1="110" x2="345" y2="110" stroke="#6fc7c9" stroke-width="2" opacity=".45"/>
+      <line x1="200" y1="130" x2="345" y2="130" stroke="#6fc7c9" stroke-width="2" opacity=".45"/>
+      <circle cx="352" cy="90" r="19" fill="none" stroke="#d8712f" stroke-width="3.5"/>
+      <line x1="365" y1="103" x2="384" y2="122" stroke="#d8712f" stroke-width="4.5" stroke-linecap="round"/>
+    </svg>
+    <div class="cap">grep 'error' encuentra la aguja sin obligarte a leer el pajar entero</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">👀</span> LEER SIN EDITAR</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat archivo.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>less archivo.txt</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">cat</code> vuelca todo el archivo de golpe — bien para archivos cortos, mal para uno de 10.000 líneas. <code style="font-family:var(--mono)">less</code> lo abre página a página: <b>espacio</b> avanza, <b>b</b> retrocede, <b>/palabra</b> busca dentro, <b>q</b> sale.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">✂️</span> VER SOLO UN TROZO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>head -n 5 archivo.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>tail -n 5 archivo.txt</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">head</code> muestra las primeras líneas, <code style="font-family:var(--mono)">tail</code> las últimas. Útil cuando el archivo es enorme y solo te interesa el principio o el final — como un registro que crece cada segundo.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">📝 UN ATAJO PARA TENER ALGO QUE BUSCAR</div>
+    <p>Para practicar necesitas contenido real. <code>echo "texto" > archivo</code> escribe texto en el archivo (lo sobrescribe si ya existía). <code>echo "texto" >> archivo</code> añade una línea más al final, sin borrar lo anterior. Más abajo verás por qué funciona esto.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔗</span> TUBERÍAS — CONECTAR COMANDOS</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>ls -la | grep txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>history | grep cd</span></div>
+      <div class="ln"><span class="prompt">$</span><span>cat sistema.log | grep error | wc -l</span></div>
+    </div>
+    <p>El símbolo <code style="font-family:var(--mono)">|</code> (pipe, se lee "tubería") toma la salida de un comando y la convierte en la entrada del siguiente. En vez de guardar resultados a medias, encadenas herramientas pequeñas — así piensan los comandos de Linux entre sí.</p>
+    <div class="hint">Léelo como una cadena de montaje, de izquierda a derecha: <b>cat</b> saca el contenido del archivo → <b>grep</b> se queda solo con las líneas de error → <b>wc -l</b> cuenta cuántas hay.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📤</span> REDIRECCIÓN — MANDAR LA SALIDA A OTRO SITIO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>comando > salida.txt</span><span class="cmt"># sobrescribe salida.txt</span></div>
+      <div class="ln"><span class="prompt">$</span><span>comando >> salida.txt</span><span class="cmt"># añade al final, sin borrar</span></div>
+      <div class="ln"><span class="prompt">$</span><span>comando 2> errores.txt</span><span class="cmt"># guarda solo los errores</span></div>
+      <div class="ln"><span class="prompt">$</span><span>comando 2> /dev/null</span><span class="cmt"># tira los errores a la nada</span></div>
+    </div>
+    <p>Por omisión, todo lo que imprime un comando va a la pantalla. Con <code style="font-family:var(--mono)">></code> lo mandas a un archivo en vez de verlo.</p>
+    <div class="hint"><b>1</b> es la salida normal (stdout) — es la que usa <code style="font-family:var(--mono)">></code> por defecto. <b>2</b> es la de errores (stderr). <code style="font-family:var(--mono)">/dev/null</code> no es un archivo real: es un agujero negro que borra todo lo que le mandas, útil cuando un error no te importa.</div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ COMBINÁNDOLO TODO</div>
+    <p><code>grep timeout sistema.log 2> /dev/null | wc -l</code> — busca "timeout", descarta cualquier error silenciosamente, y cuenta cuántas líneas coincidieron. Tres ideas pequeñas, una sola línea.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔍</span> GREP — BUSCAR DENTRO DE ARCHIVOS</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>grep kernel sistema.log</span></div>
+      <div class="ln"><span class="prompt">$</span><span>grep --color error sistema.log</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">grep</code> muestra solo las líneas que contienen lo que buscas. Con <code style="font-family:var(--mono)">--color</code> resalta la coincidencia dentro de la línea, en vez de solo darte la línea entera.</p>
+    <div class="hint">Ejemplo real: <code style="font-family:var(--mono)">grep 'processor' /proc/cpuinfo | wc -l</code> cuenta cuántos núcleos tiene la máquina — combinando grep con otro comando.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧭</span> FIND — BUSCAR ARCHIVOS</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>find . -name "*.log"</span></div>
+      <div class="ln"><span class="prompt">$</span><span>find . -maxdepth 1 -type f</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">find</code> no busca dentro de los archivos, busca <em>los archivos mismos</em>: por nombre, por tipo, por profundidad de carpetas. <code style="font-family:var(--mono)">-maxdepth 1</code> le dice que no baje a subcarpetas.</p>
+    <div class="hint">Y se combinan: <code style="font-family:var(--mono)">find . -maxdepth 1 -type f | xargs grep -F 'error'</code> — primero find localiza los archivos del directorio actual, luego grep busca dentro de cada uno.</div>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p><code>which comando</code> te dice la ruta exacta del programa que se ejecuta cuando escribes ese nombre. <code>apropos palabra</code> lista comandos relacionados con esa palabra, para cuando sabes lo que quieres hacer pero no el nombre del comando.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>Ya viste que las tuberías conectan comandos pequeños en vez de depender de uno gigante que lo haga todo. Esa es la filosofía de Unix entera: aprende a combinar <code>find</code>, <code>grep</code> y <code>wc</code> antes que a memorizar opciones sueltas de cada uno.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 03</div>
+    <p>Dentro de <code>practicas/</code>, crea un pequeño registro de sistema:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>echo "kernel: booteando" > sistema.log</span></div>
+      <div class="ln"><span class="prompt">$</span><span>echo "kernel: red configurada" >> sistema.log</span></div>
+      <div class="ln"><span class="prompt">$</span><span>echo "error: disco casi lleno" >> sistema.log</span></div>
+      <div class="ln"><span class="prompt">$</span><span>echo "kernel: listo" >> sistema.log</span></div>
+    </div>
+    <p style="margin-top:14px;">Ahora, sin abrir el archivo con <code>cat</code>:</p>
+    <ul class="checklist">
+      <li>Usa <code style="font-family:var(--mono)">head -n 2</code> para ver solo el arranque</li>
+      <li>Usa <code style="font-family:var(--mono)">grep error</code> para encontrar el problema</li>
+      <li>Usa <code style="font-family:var(--mono)">find linux-survival -name "*.log"</code> para confirmar dónde vive el archivo</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Usa lo que acabas de aprender: <code>grep</code> y una tubería. No hay una única forma correcta de escribirlo.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-03.txt</span></div>
+      <div class="ln"><span>Cuenta cuántas líneas de sistema.log contienen la palabra "error",</span></div>
+      <div class="ln"><span>usando una tubería:</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp03-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint03();">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint03()">Verificar</button>
+    <div class="cp-feedback" id="cp03-feedback"></div>
+    <div class="cp-code" id="cp03-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('02')">← 02 · Archivos</button>
+    <span>NIVEL 03 / 10</span>
+    <button id="footer-next-04" data-requires="04" disabled>04 · Identidad 🔒</button>
+  </div>
+</section>
+
+<!-- ============ LEVEL 04 ============ -->
+<section class="level" data-level="04">
+  <div class="level-mark"><span class="n">04</span><span class="t">MISIÓN · IDENTIDAD</span></div>
+  <h2>Usuarios y permisos</h2>
+  <p class="level-quote">En Linux, quién eres decide qué puedes tocar. Todo archivo tiene dueño, grupo, y reglas para el resto.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 190" xmlns="http://www.w3.org/2000/svg">
+      <text x="280" y="28" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="15" fill="#eef6f5">-rwxr-xr-x</text>
+      <g font-family="JetBrains Mono, monospace" font-size="12" fill="#eef6f5">
+        <rect x="40"  y="50" width="140" height="90" rx="3" fill="#1c6b74" stroke="#6fc7c9"/>
+        <text x="110" y="70" text-anchor="middle" font-weight="bold">USUARIO</text>
+        <text x="110" y="95" text-anchor="middle">rwx</text>
+        <text x="110" y="115" text-anchor="middle" fill="#bfe6e4" font-size="10">lee, escribe, ejecuta</text>
+
+        <rect x="210" y="50" width="140" height="90" rx="3" fill="#155059" stroke="#6fc7c9"/>
+        <text x="280" y="70" text-anchor="middle" font-weight="bold">GRUPO</text>
+        <text x="280" y="95" text-anchor="middle">r-x</text>
+        <text x="280" y="115" text-anchor="middle" fill="#bfe6e4" font-size="10">lee, ejecuta</text>
+
+        <rect x="380" y="50" width="140" height="90" rx="3" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="450" y="70" text-anchor="middle" font-weight="bold">OTROS</text>
+        <text x="450" y="95" text-anchor="middle">r-x</text>
+        <text x="450" y="115" text-anchor="middle" fill="#9fc0be" font-size="10">solo leen y ejecutan</text>
+      </g>
+    </svg>
+    <div class="cap">Tres bloques de tres letras: r (leer), w (escribir), x (ejecutar) — para dueño, grupo y el resto del mundo</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🪪</span> QUIÉN ERES</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>whoami</span></div>
+      <div class="ln"><span class="prompt">$</span><span>id</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">whoami</code> dice tu nombre de usuario. <code style="font-family:var(--mono)">id</code> da más detalle: tu UID (número de usuario), tu GID (grupo principal) y todos los grupos a los que perteneces.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🛡️</span> SUDO — PODER TEMPORAL</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>sudo apt update</span></div></div>
+    <p><code style="font-family:var(--mono)">sudo</code> ejecuta un único comando como root (el superusuario), y te pide tu propia contraseña para confirmarlo. No te convierte en root para siempre: solo presta ese poder para esa línea.</p>
+    <div class="hint">Cuanto más simple sea el comando después de <b>sudo</b>, mejor. No hay deshacer cuando algo sale mal como root.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔧</span> CAMBIAR PERMISOS</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>chmod +x script.sh</span></div>
+      <div class="ln"><span class="prompt">$</span><span>chmod 755 script.sh</span></div>
+    </div>
+    <p>La forma con letras (<code style="font-family:var(--mono)">+x</code>) añade un permiso sin tocar los demás. La forma numérica lo fija todo de golpe: cada dígito es la suma de <b>r=4, w=2, x=1</b> para usuario, grupo y otros. <b>755</b> = rwx para ti, r-x para el resto.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">👤</span> CAMBIAR DUEÑO</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>sudo chown usuario:grupo archivo</span></div></div>
+    <p><code style="font-family:var(--mono)">chown</code> cambia quién es el dueño de un archivo o carpeta. Casi siempre necesita <code style="font-family:var(--mono)">sudo</code>, porque estás tocando algo que no es tuyo.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">🚨 SUDO NO PERDONA MÁS QUE RM</div>
+    <p>¿Recuerdas que <code>rm</code> no tiene papelera? Con <code>sudo rm -r carpeta/</code> el poder de borrar se extiende a todo el sistema, no solo a tus archivos. Antes de escribir <b>sudo</b>, para y relee el comando completo.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>No memorices tablas de números — súmalos: <code>r=4, w=2, x=1</code>. Si quieres rwx completo, es 4+2+1=7. Si quieres solo lectura, es 4. <code>chmod 644</code> es "yo leo y escribo, el resto solo lee".</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 04</div>
+    <p>Dentro de <code>scripts/</code>, crea un script mínimo y prepáralo para ejecutarse:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>echo "echo hola desde mi script" > saluda.sh</span></div>
+      <div class="ln"><span class="prompt">$</span><span>chmod +x saluda.sh</span></div>
+      <div class="ln"><span class="prompt">$</span><span>./saluda.sh</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Comprobaste con <code style="font-family:var(--mono)">ls -l</code> que aparece la x en los permisos</li>
+      <li>Ejecutaste el script con <code style="font-family:var(--mono)">./</code> delante — sin eso, Linux no sabe que quieres correrlo desde aquí</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Dale permiso de ejecución a <code>saluda.sh</code> usando letras, no números.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-04.txt</span></div>
+      <div class="ln"><span>Escribe el comando que hace ejecutable a saluda.sh:</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp04-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('04', ['chmod','+x'], 'ISO-7F2A-05');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('04', ['chmod','+x'], 'ISO-7F2A-05')">Verificar</button>
+    <div class="cp-feedback" id="cp04-feedback"></div>
+    <div class="cp-code" id="cp04-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('03')">← 03 · Investigación</button>
+    <span>NIVEL 04 / 10</span>
+    <button id="footer-next-05" data-requires="05" disabled>05 · Software 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 05 ============ -->
+<section class="level" data-level="05">
+  <div class="level-mark"><span class="n">05</span><span class="t">MISIÓN · SOFTWARE</span></div>
+  <h2>Instalar y mantener</h2>
+  <p class="level-quote">Tu sistema no trae todo de fábrica — pero casi todo está a un comando de distancia.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="12" fill="#eef6f5">
+        <rect x="15" y="45" width="130" height="50" rx="3" fill="#155059" stroke="#6fc7c9"/>
+        <text x="80" y="75" text-anchor="middle">apt update</text>
+        <line x1="145" y1="70" x2="195" y2="70" stroke="#6fc7c9" stroke-width="1.6"/>
+        <polygon points="195,65 205,70 195,75" fill="#6fc7c9"/>
+
+        <rect x="210" y="45" width="140" height="50" rx="3" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="280" y="70" text-anchor="middle" fill="#9fc0be" font-size="11">índice actualizado</text>
+        <line x1="350" y1="70" x2="400" y2="70" stroke="#6fc7c9" stroke-width="1.6"/>
+        <polygon points="400,65 410,70 400,75" fill="#6fc7c9"/>
+
+        <rect x="415" y="45" width="130" height="50" rx="3" fill="#d8712f" stroke="#f0b273"/>
+        <text x="480" y="70" text-anchor="middle" fill="#241004">apt install</text>
+      </g>
+    </svg>
+    <div class="cap">update prepara la lista — install es quien de verdad trae el paquete</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔄</span> ACTUALIZAR EL ÍNDICE</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>sudo apt update</span></div></div>
+    <p>No instala ni actualiza nada todavía: solo refresca la lista de qué versiones existen en los repositorios. Es el paso que casi siempre se olvida y luego da errores raros.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⬆️</span> ACTUALIZAR PAQUETES</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>sudo apt upgrade</span></div></div>
+    <p>Ahora sí: instala las versiones más nuevas de lo que ya tienes. <code style="font-family:var(--mono)">update</code> mira el catálogo, <code style="font-family:var(--mono)">upgrade</code> compra lo que cambió.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📦</span> INSTALAR Y DESINSTALAR</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>sudo apt install tree</span></div>
+      <div class="ln"><span class="prompt">$</span><span>sudo apt remove tree</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">install</code> trae un paquete nuevo y todo lo que necesita para funcionar. <code style="font-family:var(--mono)">remove</code> lo quita, pero deja su configuración por si vuelves a instalarlo.</p>
+    <div class="hint">Si quieres borrar también la configuración: <code style="font-family:var(--mono)">sudo apt purge tree</code>.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧩</span> DPKG — BAJO EL CAPÓ</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>dpkg -l | grep tree</span></div>
+      <div class="ln"><span class="prompt">$</span><span>sudo dpkg -i paquete.deb</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">apt</code> es la capa cómoda; <code style="font-family:var(--mono)">dpkg</code> es la herramienta de más bajo nivel que hay debajo, y la que usas para instalar un .deb que descargaste a mano.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p><code>apt search palabra</code> busca paquetes por nombre o descripción. <code>apt show paquete</code> te da la ficha completa antes de instalar nada.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>Todo comando que instala, actualiza o borra software necesita <code>sudo</code> — estás modificando el sistema para todos los usuarios, no solo tu carpeta personal.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 05</div>
+    <p>Instala una herramienta real y confirma que quedó en el sistema:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>sudo apt update</span></div>
+      <div class="ln"><span class="prompt">$</span><span>sudo apt install cowsay</span></div>
+      <div class="ln"><span class="prompt">$</span><span>dpkg -l | grep cowsay</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Actualizaste el índice antes de instalar</li>
+      <li>Confirmaste con dpkg que el paquete quedó registrado</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Escribe el comando que instala un paquete llamado <code>htop</code>.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-05.txt</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp05-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('05', ['apt','install'], 'ISO-9M4T-06');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('05', ['apt','install'], 'ISO-9M4T-06')">Verificar</button>
+    <div class="cp-feedback" id="cp05-feedback"></div>
+    <div class="cp-code" id="cp05-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('04')">← 04 · Identidad</button>
+    <span>NIVEL 05 / 10</span>
+    <button id="footer-next-06" data-requires="06" disabled>06 · Procesos 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 06 ============ -->
+<section class="level" data-level="06">
+  <div class="level-mark"><span class="n">06</span><span class="t">MISIÓN · PROCESOS</span></div>
+  <h2>Saber qué está funcionando</h2>
+  <p class="level-quote">Todo lo que corre en tu sistema es, en el fondo, un proceso con un número.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 170" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#6fc7c9" stroke-width="1.4">
+        <line x1="280" y1="30" x2="280" y2="55"/>
+        <line x1="280" y1="55" x2="150" y2="85"/>
+        <line x1="280" y1="55" x2="410" y2="85"/>
+        <line x1="150" y1="85" x2="150" y2="110"/>
+        <line x1="150" y1="110" x2="90" y2="135"/>
+        <line x1="150" y1="110" x2="210" y2="135"/>
+      </g>
+      <g font-family="JetBrains Mono, monospace" font-size="12" fill="#eef6f5">
+        <rect x="230" y="8" width="100" height="24" rx="2" fill="#0f3a42" stroke="#6fc7c9"/>
+        <text x="280" y="24" text-anchor="middle" font-size="11">systemd · PID 1</text>
+
+        <rect x="105" y="60" width="90" height="24" rx="2" fill="#155059" stroke="#6fc7c9"/>
+        <text x="150" y="76" text-anchor="middle" font-size="11">bash</text>
+
+        <rect x="365" y="60" width="90" height="24" rx="2" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="410" y="76" text-anchor="middle" font-size="10" fill="#9fc0be">nginx.service</text>
+
+        <rect x="50" y="110" width="80" height="24" rx="2" fill="#1c6b74" stroke="#6fc7c9"/>
+        <text x="90" y="126" text-anchor="middle" font-size="10">top</text>
+
+        <rect x="165" y="110" width="90" height="24" rx="2" fill="#d8712f" stroke="#f0b273"/>
+        <text x="210" y="126" text-anchor="middle" font-size="10" fill="#241004">proceso colgado</text>
+      </g>
+    </svg>
+    <div class="cap">Todo proceso cuelga de un padre — hasta llegar a systemd, PID 1, el primero de todos</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📋</span> LISTAR PROCESOS</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>ps aux</span></div></div>
+    <p>Muestra una foto de todos los procesos activos: quién los lanzó, cuánta CPU y memoria usan, y su PID (el número que los identifica).</p>
+    <div class="hint">Combínalo con lo que ya sabes: <code style="font-family:var(--mono)">ps aux | grep nginx</code> encuentra solo lo que te interesa.</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📊</span> MONITOR EN VIVO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>top</span></div>
+      <div class="ln"><span class="prompt">$</span><span>htop</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">top</code> viene instalado de serie y se actualiza sola; <code style="font-family:var(--mono)">htop</code> es la misma idea con colores y con el ratón. Pulsa <b>q</b> para salir de cualquiera de las dos.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔪</span> TERMINAR PROCESOS</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>kill PID</span></div>
+      <div class="ln"><span class="prompt">$</span><span>kill -9 PID</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">kill PID</code> le pide al proceso que se cierre de forma ordenada. Con <code style="font-family:var(--mono)">-9</code> lo fuerzas: no le da tiempo a guardar nada, úsalo solo cuando el proceso no responde a nada más.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⚙️</span> SERVICIOS DEL SISTEMA</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>systemctl status nginx</span></div>
+      <div class="ln"><span class="prompt">$</span><span>sudo systemctl restart nginx</span></div>
+    </div>
+    <p>Un servicio es un proceso que arranca solo con el sistema y se supervisa a sí mismo. <code style="font-family:var(--mono)">status</code> te dice si está vivo; <code style="font-family:var(--mono)">restart</code> lo reinicia sin tener que buscarle el PID a mano.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p><code>pgrep nombre</code> te da el PID sin pasar por <code>ps | grep</code>. <code>pkill nombre</code> lo mata directamente por nombre — más rápido, pero más fácil de equivocarse de proceso.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>Antes de matar un proceso a lo bruto, prueba <code>systemctl restart</code> si es un servicio. Reinicia limpio, sin dejar nada a medias.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 06</div>
+    <p>Lanza un proceso de prueba, obsérvalo, y termínalo tú mismo:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>sleep 300 &</span></div>
+      <div class="ln"><span class="prompt">$</span><span>ps aux | grep sleep</span></div>
+      <div class="ln"><span class="prompt">$</span><span>kill PID</span></div>
+    </div>
+    <ul class="checklist">
+      <li>El <code style="font-family:var(--mono)">&</code> al final lo manda a segundo plano, para seguir usando la terminal</li>
+      <li>Localizaste su PID antes de matarlo — nunca a ciegas</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Escribe el comando para comprobar el estado del servicio <code>nginx</code>, sin reiniciarlo todavía.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-06.txt</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp06-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('06', ['systemctl','status'], 'ISO-2Q8H-07');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('06', ['systemctl','status'], 'ISO-2Q8H-07')">Verificar</button>
+    <div class="cp-feedback" id="cp06-feedback"></div>
+    <div class="cp-code" id="cp06-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('05')">← 05 · Software</button>
+    <span>NIVEL 06 / 10</span>
+    <button id="footer-next-07" data-requires="07" disabled>07 · Almacenamiento 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 07 ============ -->
+<section class="level" data-level="07">
+  <div class="level-mark"><span class="n">07</span><span class="t">MISIÓN · ALMACENAMIENTO</span></div>
+  <h2>Discos y espacio</h2>
+  <p class="level-quote">Antes de instalar algo más, comprueba si de verdad tienes sitio.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 120" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="12">
+        <rect x="30" y="40" width="500" height="34" rx="3" fill="#0f3a42" stroke="#6fc7c9"/>
+        <rect x="30" y="40" width="345" height="34" rx="3" fill="#1c6b74"/>
+        <text x="202" y="63" text-anchor="middle" fill="#eef6f5">usado · 69%</text>
+        <text x="452" y="63" text-anchor="middle" fill="#9fc0be">libre · 31%</text>
+      </g>
+      <text x="280" y="24" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#6fc7c9">df -h /</text>
+    </svg>
+    <div class="cap">df mide el disco entero — du mide lo que ocupan tus archivos dentro de él</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧱</span> VER LOS DISCOS</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>lsblk</span></div></div>
+    <p>Lista los discos y particiones conectados al sistema, en forma de árbol, con su tamaño y dónde está montada cada una.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📏</span> ESPACIO LIBRE</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>df -h</span></div></div>
+    <p><code style="font-family:var(--mono)">df</code> (disk free) muestra cuánto espacio queda por partición. La <code style="font-family:var(--mono)">-h</code> es la misma de siempre: números legibles (GB, MB) en vez de bloques.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📂</span> QUÉ OCUPA ESPACIO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>du -sh carpeta/</span></div>
+      <div class="ln"><span class="prompt">$</span><span>du -sh * | sort -rh | head</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">du</code> (disk usage) mide carpetas y archivos concretos. La segunda línea es tu mejor amiga cuando el disco se llena: ordena de mayor a menor y te dice exactamente quién es el culpable.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔌</span> MONTAR UNIDADES</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>mount /dev/sdb1 /mnt/usb</span></div></div>
+    <p>Un disco conectado no está disponible hasta que lo montas en una carpeta. <code style="font-family:var(--mono)">umount /mnt/usb</code> lo desconecta de forma segura antes de retirarlo físicamente.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">🚨 NUNCA DESCONECTES SIN UMOUNT</div>
+    <p>Sacar un USB sin <code>umount</code> antes es como cerrar un libro a media frase: puede que la última escritura no se haya guardado del todo. Siempre <code>umount</code> primero.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p><code>df</code> = espacio del disco entero. <code>du</code> = espacio de una carpeta concreta. Si alguna vez no cuadran, casi siempre es un archivo borrado que un proceso todavía tiene abierto.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 07</div>
+    <p>Diagnostica el espacio de tu propio kit:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>df -h</span></div>
+      <div class="ln"><span class="prompt">$</span><span>du -sh linux-survival/</span></div>
+      <div class="ln"><span class="prompt">$</span><span>lsblk</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Identificaste qué partición es la raíz (<code style="font-family:var(--mono)">/</code>)</li>
+      <li>Comparaste el tamaño de tu carpeta con el espacio libre total</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Escribe el comando que muestra qué carpetas del directorio actual ocupan más espacio, de mayor a menor.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-07.txt</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp07-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('07', ['du','sort'], 'ISO-5R1B-08');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('07', ['du','sort'], 'ISO-5R1B-08')">Verificar</button>
+    <div class="cp-feedback" id="cp07-feedback"></div>
+    <div class="cp-code" id="cp07-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('06')">← 06 · Procesos</button>
+    <span>NIVEL 07 / 10</span>
+    <button id="footer-next-08" data-requires="08" disabled>08 · Red 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 08 ============ -->
+<section class="level" data-level="08">
+  <div class="level-mark"><span class="n">08</span><span class="t">MISIÓN · RED</span></div>
+  <h2>Saber si "hay red" y por qué</h2>
+  <p class="level-quote">Cuando algo "no tiene internet", casi siempre es uno de cuatro puntos en una cadena.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 110" xmlns="http://www.w3.org/2000/svg">
+      <g font-family="JetBrains Mono, monospace" font-size="11" fill="#eef6f5">
+        <rect x="10"  y="35" width="110" height="40" rx="3" fill="#1c6b74" stroke="#6fc7c9"/>
+        <text x="65" y="58" text-anchor="middle">tu equipo</text>
+        <line x1="120" y1="55" x2="155" y2="55" stroke="#6fc7c9" stroke-width="1.6"/>
+        <polygon points="155,50 165,55 155,60" fill="#6fc7c9"/>
+
+        <rect x="170" y="35" width="120" height="40" rx="3" fill="#155059" stroke="#6fc7c9"/>
+        <text x="230" y="58" text-anchor="middle" font-size="10">puerta de enlace</text>
+        <line x1="290" y1="55" x2="325" y2="55" stroke="#6fc7c9" stroke-width="1.6"/>
+        <polygon points="325,50 335,55 325,60" fill="#6fc7c9"/>
+
+        <rect x="340" y="35" width="90" height="40" rx="3" fill="#0f3a42" stroke="#3d5a5c" stroke-dasharray="3 3"/>
+        <text x="385" y="58" text-anchor="middle" fill="#9fc0be">internet</text>
+        <line x1="430" y1="55" x2="465" y2="55" stroke="#6fc7c9" stroke-width="1.6"/>
+        <polygon points="465,50 475,55 465,60" fill="#6fc7c9"/>
+
+        <rect x="480" y="35" width="75" height="40" rx="3" fill="#d8712f" stroke="#f0b273"/>
+        <text x="517" y="58" text-anchor="middle" fill="#241004" font-size="10">servidor</text>
+      </g>
+    </svg>
+    <div class="cap">ip a comprueba el primer tramo · ip route el segundo · ping el resto de la cadena</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🌐</span> TU DIRECCIÓN</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>ip a</span></div></div>
+    <p>Muestra tus interfaces de red y la IP asignada a cada una. Si aquí no ves una IP razonable, el problema está en tu propio equipo — no hace falta mirar más lejos todavía.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🗺️</span> LA RUTA DE SALIDA</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>ip route</span></div></div>
+    <p>Muestra por dónde sale tu tráfico: la puerta de enlace (<em>gateway</em>) que conecta tu red local con el resto de internet.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📶</span> ¿HAY RED?</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>ping -c 4 8.8.8.8</span></div></div>
+    <p>Envía 4 paquetes y espera respuesta. Con <code style="font-family:var(--mono)">-c 4</code> se detiene solo; sin ese número, sigue para siempre hasta que pulses <b>Ctrl+C</b>.</p>
+    <div class="hint">Si <code style="font-family:var(--mono)">ping 8.8.8.8</code> funciona pero <code style="font-family:var(--mono)">ping google.com</code> no, el problema no es la red: es la resolución de nombres (DNS).</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔌</span> QUÉ ESTÁ ESCUCHANDO</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>ss -tulpn</span></div></div>
+    <p>Lista los puertos abiertos en tu máquina y qué proceso los está usando — el reemplazo moderno de <code style="font-family:var(--mono)">netstat</code>.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🧭</span> RESOLUCIÓN DE NOMBRES</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>resolvectl status</span></div></div>
+    <p>Muestra qué servidor DNS estás usando para traducir nombres (google.com) a direcciones IP. Si el ping por IP funciona pero por nombre no, empieza a mirar aquí.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>Diagnostica en orden, de dentro hacia fuera: <code>ip a</code> (¿tengo IP?) → <code>ip route</code> (¿tengo salida?) → <code>ping IP</code> (¿llega el tráfico?) → <code>ping dominio</code> (¿funciona el DNS?).</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 08</div>
+    <p>Sigue la cadena de diagnóstico completa, en orden:</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>ip a</span></div>
+      <div class="ln"><span class="prompt">$</span><span>ip route</span></div>
+      <div class="ln"><span class="prompt">$</span><span>ping -c 3 8.8.8.8</span></div>
+      <div class="ln"><span class="prompt">$</span><span>ping -c 3 google.com</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Anotaste tu propia IP local</li>
+      <li>Confirmaste que el problema (si lo hay) es de red o de DNS, no los dos a ciegas</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Escribe el comando que comprueba si hay respuesta desde <code>8.8.8.8</code>, deteniéndose solo.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-08.txt</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp08-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('08', ['ping','-c'], 'ISO-4D9Z-09');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('08', ['ping','-c'], 'ISO-4D9Z-09')">Verificar</button>
+    <div class="cp-feedback" id="cp08-feedback"></div>
+    <div class="cp-code" id="cp08-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('07')">← 07 · Almacenamiento</button>
+    <span>NIVEL 08 / 10</span>
+    <button id="footer-next-09" data-requires="09" disabled>09 · Diagnóstico 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 09 ============ -->
+<section class="level" data-level="09">
+  <div class="level-mark"><span class="n">09</span><span class="t">MISIÓN · DIAGNÓSTICO</span></div>
+  <h2>Resolver problemas</h2>
+  <p class="level-quote">Un sistema roto casi siempre deja pistas. Tu trabajo es saber dónde mirar, no adivinar.</p>
+
+  <div class="blueprint">
+    <svg viewBox="0 0 560 150" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="15" width="440" height="120" rx="3" fill="#0f3a42" stroke="#6fc7c9"/>
+      <g font-family="JetBrains Mono, monospace" font-size="10.5" fill="#8fbdba">
+        <text x="80" y="35">09:14:02 systemd[1]: Started nginx.service</text>
+        <text x="80" y="53">09:15:10 nginx[402]: worker process started</text>
+        <text x="80" y="89">09:16:44 nginx[402]: connect() failed (111: Connection refused)</text>
+        <text x="80" y="107">09:17:01 systemd[1]: nginx.service: Main process exited</text>
+      </g>
+      <rect x="72" y="78" width="430" height="16" fill="#d8712f" opacity=".25"/>
+      <circle cx="490" cy="86" r="16" fill="none" stroke="#d8712f" stroke-width="3"/>
+      <line x1="500" y1="96" x2="512" y2="108" stroke="#d8712f" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <div class="cap">journalctl es un cat gigante con marca de tiempo — grep sigue funcionando exactamente igual dentro de él</div>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">📜</span> EL DIARIO DEL SISTEMA</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>journalctl -xe</span></div>
+      <div class="ln"><span class="prompt">$</span><span>journalctl -u nginx</span></div>
+    </div>
+    <p><code style="font-family:var(--mono)">journalctl</code> es el registro central del sistema. <code style="font-family:var(--mono)">-xe</code> salta directo a los últimos mensajes con más contexto; <code style="font-family:var(--mono)">-u servicio</code> filtra por uno solo.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">⏱️</span> EN VIVO</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>journalctl -f</span></div></div>
+    <p>Igual que <code style="font-family:var(--mono)">tail -f</code> del nivel 03, pero para el diario del sistema entero: se queda esperando y muestra cada línea nueva según va llegando.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🗂️</span> LOGS CLÁSICOS</div>
+    <div class="term"><div class="ln"><span class="prompt">$</span><span>sudo tail -n 50 /var/log/syslog</span></div></div>
+    <p>No todo pasa por <code style="font-family:var(--mono)">journalctl</code>: muchos programas siguen escribiendo archivos de texto plano en <code style="font-family:var(--mono)">/var/log/</code>, que se leen con las herramientas que ya conoces.</p>
+  </div>
+
+  <div class="block">
+    <div class="block-head"><span class="icon">🔁</span> REINICIAR UN SERVICIO ROTO</div>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>sudo systemctl restart nginx</span></div>
+      <div class="ln"><span class="prompt">$</span><span>systemctl status nginx</span></div>
+    </div>
+    <p>Reinicias, y vuelves a comprobar el estado — nunca das un problema por resuelto sin confirmarlo.</p>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">⚡ TRUCO DEL OPERADOR</div>
+    <p><code>journalctl --since "10 min ago"</code> acota la búsqueda a lo reciente, en vez de bucear en semanas de historial.</p>
+  </div>
+
+  <div class="callout note">
+    <div class="head">🧠 NO MEMORICES ESTO</div>
+    <p>El método importa más que el comando exacto: reproduce el problema → mira el log justo en ese momento → aísla la línea con <code>grep</code> → actúa. Ese orden funciona incluso el día que no recuerdes ningún comando.</p>
+  </div>
+
+  <div class="mission">
+    <div class="head">🎯 MISIÓN 09</div>
+    <p>Simula una guardia real: un servicio que falló hace unos minutos.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>journalctl -u nginx --since "15 min ago"</span></div>
+      <div class="ln"><span class="prompt">$</span><span>journalctl -u nginx | grep -i error</span></div>
+      <div class="ln"><span class="prompt">$</span><span>sudo systemctl restart nginx</span></div>
+    </div>
+    <ul class="checklist">
+      <li>Aislaste la línea exacta del error antes de tocar nada</li>
+      <li>Confirmaste con <code style="font-family:var(--mono)">status</code> que el reinicio funcionó</li>
+    </ul>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 TERMINAL DE ACCESO — bloqueado a partir de aquí</div>
+    <p>Escribe el comando para ver el diario del sistema en vivo, según van llegando líneas nuevas.</p>
+    <div class="term">
+      <div class="ln"><span class="prompt">$</span><span>cat reto-09.txt</span></div>
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cp09-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkCheckpoint('09', ['journalctl','-f'], 'ISO-8L3P-10');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkCheckpoint('09', ['journalctl','-f'], 'ISO-8L3P-10')">Verificar</button>
+    <div class="cp-feedback" id="cp09-feedback"></div>
+    <div class="cp-code" id="cp09-code"></div>
+  </div>
+
+  <div class="level-footer">
+    <button onclick="goTo('08')">← 08 · Red</button>
+    <span>NIVEL 09 / 10</span>
+    <button id="footer-next-10" data-requires="10" disabled>10 · Final Boss 🔒</button>
+  </div>
+</section>
+<!-- ============ LEVEL 10 · FINAL BOSS ============ -->
+<section class="level" data-level="10">
+  <div class="level-mark"><span class="n">10</span><span class="t">MISIÓN · FINAL BOSS</span></div>
+  <h2>El incidente</h2>
+  <p class="level-quote">Son las 3 de la madrugada. El servidor web no responde. Tienes tres minutos antes de que se abra un ticket.</p>
+
+  <div class="boss-timer" id="boss-timer">
+    <canvas id="bt-matrix" class="bt-matrix"></canvas>
+    <span class="bt-label">⏱ SLA ANTES DEL TICKET</span>
+    <span class="bt-clock" id="bt-clock">03:00</span>
+    <button class="bt-reset" onclick="resetBoss()" title="Reiniciar el incidente desde cero">↺ Reiniciar</button>
+  </div>
+
+  <div class="callout tip">
+    <div class="head">🚨 PARTE DE INCIDENCIA</div>
+    <p>No es un examen de memoria: es una simulación. Resuelve los cinco puntos, en el orden que quieras, combinando comandos de todos los niveles anteriores.</p>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 1 — ¿ESTÁ VIVO EL SERVICIO?</div>
+    <p id="cpA-q">Comprueba el estado del servicio <code>nginx</code> sin reiniciar nada todavía.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpA-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkBossStep('A');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('A')">Verificar</button>
+    <div class="cp-feedback" id="cpA-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 2 — ¿QUÉ DICE EL LOG?</div>
+    <p id="cpB-q">Busca la palabra "error" dentro del registro del servicio, usando una tubería.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpB-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkBossStep('B');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('B')">Verificar</button>
+    <div class="cp-feedback" id="cpB-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 3 — ¿ES COSA DE DISCO?</div>
+    <p id="cpC-q">Descarta que el servidor se haya quedado sin espacio.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpC-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkBossStep('C');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('C')">Verificar</button>
+    <div class="cp-feedback" id="cpC-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 4 — ¿HAY RED?</div>
+    <p id="cpD-q">Confirma que hay conectividad hacia <code>8.8.8.8</code>, deteniéndose sola.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpD-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkBossStep('D');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('D')">Verificar</button>
+    <div class="cp-feedback" id="cpD-feedback"></div>
+  </div>
+
+  <div class="checkpoint">
+    <div class="head">🔐 PASO 5 — RESUÉLVELO</div>
+    <p id="cpE-q">El servicio sigue caído. Reinícialo.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="cpE-input" class="cp-input" autocomplete="off" spellcheck="false"
+               placeholder="escribe tu comando aquí..."
+               onkeydown="if(event.key==='Enter') checkBossStep('E');">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="checkBossStep('E')">Verificar</button>
+    <div class="cp-feedback" id="cpE-feedback"></div>
+  </div>
+
+  <div class="mission" id="boss-report" style="display:none;">
+    <div class="head">📋 PARTE DE INCIDENCIA — CIERRE</div>
+    <p>En una frase, como se lo contarías a la siguiente guardia: qué pasó y cómo lo arreglaste.</p>
+    <div class="term">
+      <div class="ln">
+        <span class="prompt">$</span>
+        <input type="text" id="boss-note" class="cp-input" autocomplete="off" spellcheck="false" placeholder="ej: nginx caído por error de configuración, reiniciado a las 03:07">
+      </div>
+    </div>
+    <button class="cp-btn" onclick="closeBoss()">Cerrar incidencia</button>
+  </div>
+
+  <div class="boot-log" id="boss-status" style="display:none; max-width:520px; margin-top:14px;">
+    <div>Terminal.................. <span class="ok">[ OK ]</span></div>
+    <div>Filesystem................ <span class="ok">[ OK ]</span></div>
+    <div>Users &amp; Permissions....... <span class="ok">[ OK ]</span></div>
+    <div>Packages.................. <span class="ok">[ OK ]</span></div>
+    <div>Processes &amp; Services...... <span class="ok">[ OK ]</span></div>
+    <div>Storage................... <span class="ok">[ OK ]</span></div>
+    <div>Network................... <span class="ok">[ OK ]</span></div>
+    <div>Diagnostics............... <span class="ok">[ OK ]</span></div>
+    <div style="color:#f0b273; font-weight:700;">STATUS: LINUX READY</div>
+  </div>
+
+  <div class="cp-code" id="boss-final-code" style="max-width:520px; margin-top:14px;"></div>
+
+  <div class="level-footer">
+    <button onclick="goTo('09')">← 09 · Diagnóstico</button>
+    <span>NIVEL 10 / 10</span>
+    <button disabled>🎓 Curso completado</button>
+  </div>
+</section>
+
+<script>
+const LEVELS = [
+  {id:'00', label:'Boot', open:true},
+  {id:'01', label:'Navegación', open:true},
+  {id:'02', label:'Archivos', open:true},
+  {id:'03', label:'Investigación', open:true},
+  {id:'04', label:'Identidad', open:false},
+  {id:'05', label:'Software', open:false},
+  {id:'06', label:'Procesos', open:false},
+  {id:'07', label:'Almacenamiento', open:false},
+  {id:'08', label:'Red', open:false},
+  {id:'09', label:'Diagnóstico', open:false},
+  {id:'10', label:'Final Boss', open:false},
+];
+
+let unlockedExtra = [];
+try{ unlockedExtra = JSON.parse(localStorage.getItem('ls_unlocked') || '[]'); }catch(e){ unlockedExtra = []; }
+
+function isUnlocked(id){
+  const lv = LEVELS.find(l=>l.id===id);
+  return !!lv && (lv.open || unlockedExtra.includes(id));
+}
+
+const nav = document.getElementById('nav');
+LEVELS.forEach(lv=>{
+  const btn = document.createElement('button');
+  btn.className = 'level-btn' + (lv.id==='00' ? ' active' : '');
+  btn.dataset.level = lv.id;
+  btn.addEventListener('click', ()=> isUnlocked(lv.id) && goTo(lv.id));
+  nav.appendChild(btn);
+});
+
+function updateLockUI(){
+  document.querySelectorAll('.level-btn').forEach(btn=>{
+    const lv = LEVELS.find(l=>l.id===btn.dataset.level);
+    const unlocked = isUnlocked(lv.id);
+    btn.disabled = !unlocked;
+    btn.innerHTML = '<span class="num">'+lv.id+'</span><b>'+lv.label+(unlocked?'':' 🔒')+'</b>';
+  });
+  document.querySelectorAll('[data-requires]').forEach(btn=>{
+    const id = btn.dataset.requires;
+    const lv = LEVELS.find(l=>l.id===id);
+    if(!lv) return;
+    const unlocked = isUnlocked(id);
+    btn.disabled = !unlocked;
+    btn.textContent = id + ' · ' + lv.label + (unlocked ? ' →' : ' 🔒');
+    btn.onclick = unlocked ? (()=>goTo(id)) : null;
+  });
+}
+updateLockUI();
+
+function unlockLevel(id){
+  if(!unlockedExtra.includes(id)){
+    unlockedExtra.push(id);
+    localStorage.setItem('ls_unlocked', JSON.stringify(unlockedExtra));
+  }
+  updateLockUI();
+}
+
+function checkCheckpoint03(){
+  const input = document.getElementById('cp03-input');
+  const feedback = document.getElementById('cp03-feedback');
+  const codeBox = document.getElementById('cp03-code');
+  const val = input.value.toLowerCase().trim();
+
+  const hasGrep = /\bgrep\b/.test(val);
+  const hasPipe = val.includes('|');
+
+  if(hasGrep && hasPipe){
+    feedback.className = 'cp-feedback ok';
+    feedback.textContent = '✔ ACCESO CONCEDIDO — grep + tubería, tal cual lo acabas de ver.';
+    codeBox.style.display = 'block';
+    codeBox.textContent = 'CÓDIGO DE DESBLOQUEO · NIVEL 04: ISO-K3XQ-04';
+    unlockLevel('04');
+  } else {
+    feedback.className = 'cp-feedback err';
+    let pista = 'bash: acceso denegado — ';
+    if(!hasGrep) pista += 'te falta grep para buscar "error".';
+    else pista += 'te falta una tubería ( | ) para pasarle el resultado a otro comando.';
+    feedback.textContent = pista;
+  }
+}
+
+function checkCheckpoint(id, tokens, code){
+  const input = document.getElementById('cp'+id+'-input');
+  const feedback = document.getElementById('cp'+id+'-feedback');
+  const codeBox = document.getElementById('cp'+id+'-code');
+  const val = input.value.toLowerCase();
+  const ok = tokens.every(t => val.includes(t.toLowerCase()));
+  const nextId = String(parseInt(id,10)+1).padStart(2,'0');
+
+  if(ok){
+    feedback.className = 'cp-feedback ok';
+    feedback.textContent = '✔ ACCESO CONCEDIDO';
+    codeBox.style.display = 'block';
+    codeBox.textContent = 'CÓDIGO DE DESBLOQUEO · NIVEL '+nextId+': '+code;
+    unlockLevel(nextId);
+  } else {
+    feedback.className = 'cp-feedback err';
+    feedback.textContent = 'bash: acceso denegado — revisa que uses ' + tokens.join(' y ');
+  }
+}
+
+const BOSS_VARIANTS = {
+  A: [
+    {text: 'Comprueba el estado del servicio <code>nginx</code> sin reiniciar nada todavía.', tokens: ['systemctl','status']},
+    {text: 'Antes de tocar nada, verifica si el servicio <code>apache2</code> sigue activo.', tokens: ['systemctl','status']},
+    {text: 'Comprueba si el servicio <code>mysql</code> está corriendo, sin reiniciarlo.', tokens: ['systemctl','status']}
+  ],
+  B: [
+    {text: 'Busca la palabra "error" dentro del registro del servicio, usando una tubería.', tokens: ['journalctl','|']},
+    {text: 'Busca la palabra "failed" en el diario del sistema, combinando dos comandos con una tubería.', tokens: ['journalctl','|']},
+    {text: 'Filtra el log del servicio para quedarte solo con las líneas que mencionen "timeout".', tokens: ['journalctl','|']}
+  ],
+  C: [
+    {text: 'Descarta que el servidor se haya quedado sin espacio.', tokens: ['df','-h']},
+    {text: 'Comprueba cuánto espacio libre queda en el disco.', tokens: ['df','-h']},
+    {text: 'Verifica el estado del disco antes de seguir investigando.', tokens: ['df','-h']}
+  ],
+  D: [
+    {text: 'Confirma que hay conectividad hacia <code>8.8.8.8</code>, deteniéndose sola.', tokens: ['ping','-c']},
+    {text: 'Comprueba si el servidor tiene salida a internet, sin que el comando se quede colgado para siempre.', tokens: ['ping','-c']},
+    {text: 'Verifica la conectividad hacia <code>1.1.1.1</code>, con un número limitado de intentos.', tokens: ['ping','-c']}
+  ],
+  E: [
+    {text: 'El servicio sigue caído. Reinícialo.', tokens: ['systemctl','restart']},
+    {text: 'Aplica el arreglo: reinicia el servicio afectado.', tokens: ['systemctl','restart']},
+    {text: 'Es hora de resolverlo — reinicia el servicio para que vuelva a responder.', tokens: ['systemctl','restart']}
+  ]
+};
+
+let bossTokens = {};
+let bossInitialized = false;
+
+function initBossChallenge(){
+  if(bossInitialized) return;
+  bossInitialized = true;
+  Object.keys(BOSS_VARIANTS).forEach(step=>{
+    const options = BOSS_VARIANTS[step];
+    const pick = options[Math.floor(Math.random() * options.length)];
+    bossTokens[step] = pick.tokens;
+    const q = document.getElementById('cp' + step + '-q');
+    if(q) q.innerHTML = pick.text;
+  });
+}
+
+let bossDone = {A:false, B:false, C:false, D:false, E:false};
+let bossIntervalId = null;
+const BOSS_SECONDS = 180; // 3 minutos
+
+function startBossTimer(){
+  if(bossIntervalId) return; // ya está corriendo
+  if(localStorage.getItem('ls_boss_crash_at')){
+    updateBossTimer();
+    bossIntervalId = setInterval(updateBossTimer, 1000);
+    return;
+  }
+  if(!localStorage.getItem('ls_boss_start')){
+    localStorage.setItem('ls_boss_start', String(Date.now()));
+  }
+  updateBossTimer();
+  bossIntervalId = setInterval(updateBossTimer, 1000);
+}
+
+function updateBossTimer(){
+  const clock = document.getElementById('bt-clock');
+  const wrap = document.getElementById('boss-timer');
+  if(!clock || !wrap) return;
+
+  const crashAt = localStorage.getItem('ls_boss_crash_at');
+  if(crashAt){
+    renderDowntime(parseInt(crashAt, 10));
+    return;
+  }
+
+  const start = parseInt(localStorage.getItem('ls_boss_start') || Date.now(), 10);
+  const elapsed = Math.floor((Date.now() - start) / 1000);
+  const remaining = BOSS_SECONDS - elapsed;
+
+  wrap.classList.remove('bt-warn','bt-danger');
+
+  if(remaining <= 0){
+    localStorage.setItem('ls_boss_crash_at', String(Date.now()));
+    clearInterval(bossIntervalId);
+    bossIntervalId = null;
+    playCrashSequence();
+    return;
+  }
+
+  const m = String(Math.floor(remaining / 60)).padStart(2,'0');
+  const s = String(remaining % 60).padStart(2,'0');
+  clock.textContent = m + ':' + s;
+
+  if(remaining <= 120) wrap.classList.add('bt-danger');
+  else if(remaining <= 300) wrap.classList.add('bt-warn');
+}
+
+let matrixAnimId = null;
+let matrixTimeoutId = null;
+
+function playMatrixRain(durationMs){
+  const canvas = document.getElementById('bt-matrix');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+
+  const chars = 'アイウエオカキクケコ01{}<>/$#rm-rf01';
+  const fontSize = 16;
+  const columns = Math.max(1, Math.floor(canvas.width / fontSize));
+  const drops = new Array(columns).fill(0).map(()=> Math.random() * -20);
+
+  function draw(){
+    ctx.fillStyle = 'rgba(4,18,21,0.18)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px monospace';
+    ctx.fillStyle = '#39ff88';
+    for(let i = 0; i < drops.length; i++){
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+      if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+    matrixAnimId = requestAnimationFrame(draw);
+  }
+  draw();
+
+  matrixTimeoutId = setTimeout(()=>{
+    cancelAnimationFrame(matrixAnimId);
+    matrixAnimId = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, durationMs);
+}
+
+function stopMatrixRain(){
+  if(matrixAnimId){ cancelAnimationFrame(matrixAnimId); matrixAnimId = null; }
+  if(matrixTimeoutId){ clearTimeout(matrixTimeoutId); matrixTimeoutId = null; }
+  const canvas = document.getElementById('bt-matrix');
+  if(canvas){ const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); }
+}
+
+function playCrashSequence(){
+  const clock = document.getElementById('bt-clock');
+  const wrap = document.getElementById('boss-timer');
+  const label = wrap.querySelector('.bt-label');
+
+  wrap.classList.remove('bt-warn','bt-danger');
+  wrap.classList.add('bt-crashing');
+  label.textContent = '💥 CONEXIÓN PERDIDA CON EL SERVIDOR';
+  clock.textContent = 'kernel panic —not syncing';
+  playMatrixRain(2200);
+
+  setTimeout(()=>{
+    wrap.classList.remove('bt-crashing');
+    wrap.classList.add('bt-down');
+    bossIntervalId = setInterval(updateBossTimer, 1000);
+    updateBossTimer();
+  }, 2200);
+}
+
+function renderDowntime(crashAt){
+  const clock = document.getElementById('bt-clock');
+  const wrap = document.getElementById('boss-timer');
+  const label = wrap.querySelector('.bt-label');
+
+  wrap.classList.remove('bt-warn','bt-danger','bt-crashing');
+  wrap.classList.add('bt-down');
+  label.textContent = 'SERVICIO CAÍDO — TIEMPO DE INACTIVIDAD';
+
+  const elapsed = Math.floor((Date.now() - crashAt) / 1000);
+  const hh = Math.floor(elapsed / 3600);
+  const mm = String(Math.floor((elapsed % 3600) / 60)).padStart(2,'0');
+  const ss = String(elapsed % 60).padStart(2,'0');
+  clock.textContent = (hh > 0 ? hh + ':' : '') + mm + ':' + ss;
+}
+
+function resetBoss(){
+  localStorage.removeItem('ls_boss_start');
+  localStorage.removeItem('ls_boss_crash_at');
+  if(bossIntervalId){ clearInterval(bossIntervalId); bossIntervalId = null; }
+  stopMatrixRain();
+  bossDone = {A:false, B:false, C:false, D:false, E:false};
+
+  ['A','B','C','D','E'].forEach(step=>{
+    const input = document.getElementById('cp'+step+'-input');
+    const feedback = document.getElementById('cp'+step+'-feedback');
+    if(input){ input.disabled = false; input.value = ''; }
+    if(feedback){ feedback.className = 'cp-feedback'; feedback.textContent = ''; }
+  });
+
+  const report = document.getElementById('boss-report');
+  const status = document.getElementById('boss-status');
+  const finalCode = document.getElementById('boss-final-code');
+  if(report) report.style.display = 'none';
+  if(status) status.style.display = 'none';
+  if(finalCode){ finalCode.style.display = 'none'; finalCode.textContent = ''; }
+
+  const wrap = document.getElementById('boss-timer');
+  if(wrap) wrap.classList.remove('bt-warn','bt-danger','bt-crashing','bt-down');
+
+  const label = document.querySelector('#boss-timer .bt-label');
+  if(label) label.textContent = '⏱ SLA ANTES DEL TICKET';
+
+  bossInitialized = false;
+  initBossChallenge();
+  startBossTimer();
+}
+
+function checkBossStep(step){
+  const tokens = bossTokens[step] || [];
+  const input = document.getElementById('cp'+step+'-input');
+  const feedback = document.getElementById('cp'+step+'-feedback');
+  const val = input.value.toLowerCase();
+  const ok = tokens.length > 0 && tokens.every(t => val.includes(t.toLowerCase()));
+
+  if(ok){
+    feedback.className = 'cp-feedback ok';
+    feedback.textContent = '✔ correcto';
+    input.disabled = true;
+    bossDone[step] = true;
+    if(bossDone.A && bossDone.B && bossDone.C && bossDone.D && bossDone.E){
+      document.getElementById('boss-report').style.display = 'block';
+    }
+  } else {
+    feedback.className = 'cp-feedback err';
+    feedback.textContent = 'bash: no es eso todavía — revisa que uses ' + tokens.join(' y ');
+  }
+}
+
+function closeBoss(){
+  const codeBox = document.getElementById('boss-final-code');
+  codeBox.style.display = 'block';
+  codeBox.textContent = '🎓 CÓDIGO DE FINALIZACIÓN DEL KIT: ISO-SURVIVAL-COMPLETE';
+
+  document.getElementById('boss-status').style.display = 'block';
+  document.getElementById('boss-report').style.display = 'none';
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+}
+
+function goTo(id){
+  if(!isUnlocked(id)) return;
+  if(id === '10'){ initBossChallenge(); startBossTimer(); }
+  document.querySelectorAll('.level').forEach(el=>{
+    el.classList.toggle('active', el.dataset.level === id);
+  });
+  document.querySelectorAll('.level-btn').forEach(el=>{
+    el.classList.toggle('active', el.dataset.level === id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+
+</body>
+</html>
